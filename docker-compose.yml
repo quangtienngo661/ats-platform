@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: ats-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Tienngo@@123
+      POSTGRES_DB: ats-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:

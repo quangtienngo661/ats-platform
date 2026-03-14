@@ -1,0 +1,24 @@
+{
+  "name": "database",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/backend/database/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project database --web",
+  "targets": {
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate dev --name init",
+        "cwd": "libs/backend/database"
+      }
+    }, 
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate",
+        "cwd": "libs/backend/database"
+      }
+    }
+  }
+}

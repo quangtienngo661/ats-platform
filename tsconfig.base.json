@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ats-platform/shared-types": ["libs/shared-types/src/index.ts"]
+      "@ats-platform/database": ["libs/backend/database/src/index.ts"],
+      "@ats-platform/types": ["libs/shared/types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

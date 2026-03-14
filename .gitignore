@@ -48,3 +48,4 @@ out
 .env.local
 .env.development.local
 .env
+libs/backend/database/src/generated/prisma
