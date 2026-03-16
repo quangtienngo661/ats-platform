@@ -7,8 +7,6 @@ import * as path from "path";
 // Load .env relative to this config file's directory (../../../.env)
 // dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 dotenv.config({path: path.resolve(process.cwd(), ".env")});
-console.log(process.env.DATABASE_URL);
-console.log(path.resolve(__dirname, "../../../.env"));
 
 export default defineConfig({
   // Use paths relative to this config file

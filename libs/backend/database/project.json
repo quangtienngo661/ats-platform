@@ -9,7 +9,7 @@
     "prisma-migrate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma migrate dev --name init",
+        "command": "npx prisma migrate dev --name",
         "cwd": "libs/backend/database"
       }
     }, 

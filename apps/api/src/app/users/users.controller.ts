@@ -6,36 +6,50 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from '@ats-platform/types';
+import { CreateUserDto, Role, successResponse, UpdateUserDto } from '@ats-platform/types';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(Role.ADMIN)
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const newUser = await this.usersService.create(createUserDto);
+    return successResponse(201, "User created successfully", newUser);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return successResponse(200, 'Users fetched successfully', users);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(id);
+    return successResponse(200, 'User fetched successfully', user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const user = await this.usersService.update(id, updateUserDto);
+    return successResponse(200, 'User updated successfully', user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const user = await this.usersService.remove(id);
+    return successResponse(200, 'User deleted successfully', user);
   }
 }
