@@ -1,12 +1,13 @@
 import { BadRequestException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { LoginDto, RegisterDto, Role } from '@ats-platform/types';
+import { Role } from '@ats-platform/types';
+import { LoginDto, RegisterDto } from './dtos/auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { generateAccessToken, generateRefreshToken, verifyToken } from '../../common/utils/jwtService';
 import { Request, Response } from 'express';
 import { createHmac, randomBytes } from 'crypto';
 import { MailService } from '../mail/mail.service';
 import Redis from 'ioredis';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
@@ -16,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailService: MailService,
+    private readonly jwtService: JwtService,
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis
   ) { }
 
@@ -105,8 +107,8 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const accessToken = generateAccessToken(user.userId, Role[user.role.toUpperCase()]);
-    const refreshToken = generateRefreshToken(user.userId, Role[user.role.toUpperCase()]);
+    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as Role }, { expiresIn: '1h' });
+    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as Role }, { expiresIn: '7d' });
     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -243,7 +245,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokenPayload = verifyToken(currentRefreshToken);
+    const tokenPayload = await this.jwtService.verifyAsync(currentRefreshToken);
     if (!tokenPayload || typeof tokenPayload === 'string') {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -276,8 +278,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const accessToken = generateAccessToken(payloadUserId, payloadRole);
-    const newRefreshToken = generateRefreshToken(payloadUserId, payloadRole);
+    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '1h' });
+    const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '7d' });
     const hashedNewRefreshToken = bcrypt.hashSync(newRefreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({

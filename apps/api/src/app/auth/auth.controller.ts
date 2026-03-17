@@ -7,15 +7,14 @@ import {
   Res,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {
-  LoginDto,
-  RegisterDto,
-  RequestEmailVerificationDto,
-  successResponse,
-} from '@ats-platform/types';
+import { successResponse } from '@ats-platform/types';
+import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto } from './dtos/auth.dto';
 import { Request, Response } from 'express';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -27,10 +26,10 @@ export class AuthController {
 
     res.cookie('refreshToken', `${refreshTokenId}.${refreshToken}`,
       {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       },
     );
 
@@ -52,6 +51,7 @@ export class AuthController {
     return successResponse(200, 'Token refreshed successfully', { accessToken });
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     await this.authService.logout(req, res);

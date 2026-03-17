@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto, UserStatus } from '@ats-platform/types';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { UserStatus } from '@ats-platform/types';
+import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
 import * as bcrypt from 'bcrypt';
@@ -19,6 +20,14 @@ export class UsersService {
 
   async create(data: CreateUserDto) {
     const passwordHash = bcrypt.hashSync(data.password, 10);
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('Email already exists');
+    }
 
     const newUser = await this.prisma.user.create({
       data: {
@@ -54,7 +63,49 @@ export class UsersService {
     return user;
   }
 
+  async updateMe(userId: string, updateMeDto: UpdateUserDto) {
+    return this.update(userId, {
+      email: updateMeDto.email,
+      password: updateMeDto.password,
+      fullName: updateMeDto.fullName,
+    });
+  }
+
   async update(userId: string, updateUserDto: UpdateUserDto) {
+    const hasDataToUpdate =
+      updateUserDto.email !== undefined ||
+      updateUserDto.password !== undefined ||
+      updateUserDto.fullName !== undefined ||
+      updateUserDto.status !== undefined ||
+      updateUserDto.role !== undefined;
+
+    if (!hasDataToUpdate) {
+      throw new BadRequestException('No data provided for update');
+    }
+
+    const currentUser = await this.prisma.user.findUnique({
+      where: { userId },
+      select: {
+        userId: true,
+        email: true,
+      },
+    });
+
+    if (!currentUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (updateUserDto.email && updateUserDto.email !== currentUser.email) {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+        select: { userId: true },
+      });
+
+      if (existingUser && existingUser.userId !== userId) {
+        throw new BadRequestException('Email already exists');
+      }
+    }
+
     const passwordHash = updateUserDto.password
       ? bcrypt.hashSync(updateUserDto.password, 10)
       : undefined;
@@ -74,6 +125,9 @@ export class UsersService {
     } catch (error: any) {
       if (error?.code === 'P2025') {
         throw new NotFoundException('User not found');
+      }
+      if (error?.code === 'P2002') {
+        throw new BadRequestException('Email already exists');
       }
       throw error;
     }

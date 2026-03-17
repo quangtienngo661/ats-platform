@@ -1,6 +1,7 @@
 import { IsEmail, IsString, IsStrongPassword } from "class-validator";
+import { IAuthDto } from "@ats-platform/types";
 
-export class LoginDto {
+export class LoginDto implements IAuthDto {
     @IsEmail()
     email!: string;
 
@@ -8,7 +9,7 @@ export class LoginDto {
     password!: string;
 }
 
-export class RegisterDto {
+export class RegisterDto implements IAuthDto {
     @IsEmail()
     email!: string;
 
@@ -19,7 +20,7 @@ export class RegisterDto {
     fullName!: string;
 }
 
-export class RequestEmailVerificationDto {
+export class RequestEmailVerificationDto implements IAuthDto {
     @IsEmail()
     email!: string;
 }

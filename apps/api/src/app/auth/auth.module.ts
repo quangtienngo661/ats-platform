@@ -7,20 +7,25 @@ import dotenv from 'dotenv';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from '../mail/mail.module';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 dotenv.config();
 
 @Module({
   imports: [
-    UsersModule, 
+    UsersModule,
     MailModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
-    }), 
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy
+  ],
 })
-export class AuthModule {}
+export class AuthModule { }
