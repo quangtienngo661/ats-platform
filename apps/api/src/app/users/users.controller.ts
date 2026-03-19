@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role, successResponse } from '@ats-platform/types';
@@ -15,17 +16,29 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Request } from 'express';
-import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
+import { CreateUserDto, UpdateUserDto, UserDto } from './dtos/user.dto';
+import { TransformInterceptor } from '../../common/interceptors/transform.interceptor';
 
 @Controller('users')
+@UseInterceptors(TransformInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  async getMe(@Req() req: Request & { user: { userId: string } }) {
+  async getMe(@Req() req: Request & { user: { userId: string } }): Promise<UserDto> {
     const user = await this.usersService.findOne(req.user.userId);
-    return successResponse(200, 'User fetched successfully', user);
+    return UserDto.fromEntity(user);
+    // return {
+    //   // give me a seed user
+    //   userId: '550e8400-e29b-41d4-a716-446655440000',
+    //   email: 'seeduser@example.com',
+    //   fullName: 'Seed User',
+    //   phoneNumber: '+84901234567',
+    //   status: 'ACTIVE',
+    //   role: Role.CANDIDATE,
+    //   createdAt: new Date(),
+    // }; // Placeholder, sẽ được xử lý bởi TransformInterceptor
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -35,7 +48,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.usersService.updateMe(req.user.userId, updateUserDto);
-    return successResponse(200, 'User updated successfully', user);
+    return UserDto.fromEntity(user);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

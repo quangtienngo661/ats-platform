@@ -12,11 +12,18 @@
         "command": "npx prisma migrate dev --name",
         "cwd": "libs/backend/database"
       }
-    }, 
+    },
     "prisma-generate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma generate",
+        "cwd": "libs/backend/database"
+      }
+    },
+    "prisma-reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate reset",
         "cwd": "libs/backend/database"
       }
     }

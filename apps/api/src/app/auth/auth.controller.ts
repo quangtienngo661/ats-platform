@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { successResponse } from '@ats-platform/types';
+import { ResponseFormat, successResponse } from '@ats-platform/types';
 import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto } from './dtos/auth.dto';
 import { Request, Response } from 'express';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -21,7 +21,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response): Promise<ResponseFormat> {
     const { accessToken, refreshToken, refreshTokenId } = await this.authService.login(loginDto);
 
     res.cookie('refreshToken', `${refreshTokenId}.${refreshToken}`,

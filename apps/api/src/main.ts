@@ -10,6 +10,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +33,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth() // Để sử dụng JWT Token trên giao diện Swagger
     .build();
+
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // TODO: FINSIH API DOCUMENTATION FOR ALL ENDPOINTS
   const document = SwaggerModule.createDocument(app, config);
