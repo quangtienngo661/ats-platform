@@ -13,7 +13,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
       map((data) => ({
         success: true,
         status: response.statusCode,
-        message: response.message, // Hoặc tùy biến từ metadata
+        message: 'Request successful',
         data,
       })),
     );

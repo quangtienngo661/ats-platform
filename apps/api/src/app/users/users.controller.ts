@@ -20,7 +20,7 @@ import { CreateUserDto, UpdateUserDto, UserDto } from './dtos/user.dto';
 import { TransformInterceptor } from '../../common/interceptors/transform.interceptor';
 
 @Controller('users')
-@UseInterceptors(TransformInterceptor)
+// @UseInterceptors(TransformInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
@@ -29,16 +29,6 @@ export class UsersController {
   async getMe(@Req() req: Request & { user: { userId: string } }): Promise<UserDto> {
     const user = await this.usersService.findOne(req.user.userId);
     return UserDto.fromEntity(user);
-    // return {
-    //   // give me a seed user
-    //   userId: '550e8400-e29b-41d4-a716-446655440000',
-    //   email: 'seeduser@example.com',
-    //   fullName: 'Seed User',
-    //   phoneNumber: '+84901234567',
-    //   status: 'ACTIVE',
-    //   role: Role.CANDIDATE,
-    //   createdAt: new Date(),
-    // }; // Placeholder, sẽ được xử lý bởi TransformInterceptor
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -46,7 +36,7 @@ export class UsersController {
   async updateMe(
     @Req() req: Request & { user: { userId: string } },
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<UserDto> {
     const user = await this.usersService.updateMe(req.user.userId, updateUserDto);
     return UserDto.fromEntity(user);
   }
@@ -54,40 +44,41 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     const newUser = await this.usersService.create(createUserDto);
-    return successResponse(201, "User created successfully", newUser);
+    return UserDto.fromEntity(newUser);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  async findAll() {
+  async findAll(): Promise<UserDto[]> {
     const users = await this.usersService.findAll();
-    return successResponse(200, 'Users fetched successfully', users);
+    console.log(users.map(user => UserDto.fromEntity(user)))
+    return users.map(user => UserDto.fromEntity(user));
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<UserDto> {
     const user = await this.usersService.findOne(id);
-    return successResponse(200, 'User fetched successfully', user);
+    return UserDto.fromEntity(user);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
     const user = await this.usersService.update(id, updateUserDto);
-    return successResponse(200, 'User updated successfully', user);
+    return UserDto.fromEntity(user);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<UserDto> {
     const user = await this.usersService.remove(id);
-    return successResponse(200, 'User deleted successfully', user);
+    return UserDto.fromEntity(user);
   }
 }

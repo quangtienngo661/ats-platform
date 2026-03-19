@@ -43,10 +43,11 @@ export class SkillDto {
   })
   category?: string;
 
-  fromEntity(entity: Skill): SkillDto {
-    this.skillId = entity.skillId;
-    this.name = entity.name;
-    this.category = entity.category;
-    return this;
+  static fromEntity(entity: Skill): SkillDto {
+    const skillDto = new SkillDto();
+    skillDto.skillId = entity.skillId;
+    skillDto.name = entity.name;
+    skillDto.category = entity.category;
+    return skillDto;
   }
 }

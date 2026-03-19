@@ -32,10 +32,11 @@ export class DepartmentDto {
   })
   createdAt!: Date;
 
-  fromEntity(entity: Department): DepartmentDto {
-    this.departmentId = entity.departmentId;
-    this.name = entity.name;
-    this.createdAt = entity.createdAt;
-    return this;
+  static fromEntity(entity: Department): DepartmentDto {
+    const departmentDto = new DepartmentDto();
+    departmentDto.departmentId = entity.departmentId;
+    departmentDto.name = entity.name;
+    departmentDto.createdAt = entity.createdAt;
+    return departmentDto;
   }
 }

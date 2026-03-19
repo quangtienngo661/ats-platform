@@ -42,6 +42,7 @@ export class UsersService {
   async findOne(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { userId },
+      // omit: { passwordHash: true },
     });
 
     if (!user) {

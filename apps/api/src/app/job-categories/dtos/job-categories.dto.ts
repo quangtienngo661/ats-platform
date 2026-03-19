@@ -37,10 +37,11 @@ export class JobCategoryDto {
 	})
 	parentCategoryId?: string;
 
-	fromEntity(entity: any): JobCategoryDto {
-		this.categoryId = entity.categoryId;
-		this.name = entity.name;
-		this.parentCategoryId = entity.parentCategoryId;
-		return this;
+	static fromEntity(entity: any): JobCategoryDto {
+		const jobCategoryDto = new JobCategoryDto();
+		jobCategoryDto.categoryId = entity.categoryId;
+		jobCategoryDto.name = entity.name;
+		jobCategoryDto.parentCategoryId = entity.parentCategoryId;
+		return jobCategoryDto;
 	}
 }

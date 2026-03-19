@@ -12,9 +12,10 @@ import { JobCategoriesService } from './job-categories.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role, successResponse } from '@ats-platform/types';
+import { Role } from '@ats-platform/types';
 import {
   CreateJobCategoryDto,
+  JobCategoryDto,
   UpdateJobCategoryDto,
 } from './dtos/job-categories.dto';
 
@@ -25,25 +26,25 @@ export class JobCategoriesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() createJobCategoryDto: CreateJobCategoryDto) {
+  async create(@Body() createJobCategoryDto: CreateJobCategoryDto): Promise<JobCategoryDto> {
     const category = await this.jobCategoriesService.create(createJobCategoryDto);
-    return successResponse(201, 'Job category created successfully', category);
+    return JobCategoryDto.fromEntity(category);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  async findAll() {
+  async findAll(): Promise<JobCategoryDto[]> {
     const categories = await this.jobCategoriesService.findAll();
-    return successResponse(200, 'Job categories fetched successfully', categories);
+    return categories.map(JobCategoryDto.fromEntity);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<JobCategoryDto> {
     const category = await this.jobCategoriesService.findOne(id);
-    return successResponse(200, 'Job category fetched successfully', category);
+    return JobCategoryDto.fromEntity(category);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -52,19 +53,19 @@ export class JobCategoriesController {
   async update(
     @Param('id') id: string,
     @Body() updateJobCategoryDto: UpdateJobCategoryDto,
-  ) {
+  ): Promise<JobCategoryDto> {
     const category = await this.jobCategoriesService.update(
       id,
       updateJobCategoryDto,
     );
-    return successResponse(200, 'Job category updated successfully', category);
+    return JobCategoryDto.fromEntity(category);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<JobCategoryDto> {
     const category = await this.jobCategoriesService.remove(id);
-    return successResponse(200, 'Job category deleted successfully', category);
+    return JobCategoryDto.fromEntity(category);
   }
 }

@@ -14,7 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role, successResponse } from '@ats-platform/types';
-import { CreateSkillDto, UpdateSkillDto } from './dtos/skills.dto';
+import { CreateSkillDto, SkillDto, UpdateSkillDto } from './dtos/skills.dto';
 
 @Controller('skills')
 export class SkillsController {
@@ -23,17 +23,17 @@ export class SkillsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() createSkillDto: CreateSkillDto) {
+  async create(@Body() createSkillDto: CreateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.create(createSkillDto);
-    return successResponse(201, 'Skill created successfully', skill);
+    return SkillDto.fromEntity(skill);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  async findAll() {
+  async findAll(): Promise<SkillDto[]> {
     const skills = await this.skillsService.findAll();
-    return successResponse(200, 'Skills fetched successfully', skills);
+    return skills.map(SkillDto.fromEntity);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -42,32 +42,32 @@ export class SkillsController {
   async search(
     @Query('name') name?: string,
     @Query('category') category?: string,
-  ) {
+  ): Promise<SkillDto[]> {
     const skills = await this.skillsService.search(name, category);
-    return successResponse(200, 'Skills searched successfully', skills);
+    return skills.map(SkillDto.fromEntity);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.findOne(id);
-    return successResponse(200, 'Skill fetched successfully', skill);
+    return SkillDto.fromEntity(skill);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto) {
+  async update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.update(id, updateSkillDto);
-    return successResponse(200, 'Skill updated successfully', skill);
+    return SkillDto.fromEntity(skill);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.remove(id);
-    return successResponse(200, 'Skill deleted successfully', skill);
+    return SkillDto.fromEntity(skill);
   }
 }
