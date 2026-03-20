@@ -20,7 +20,7 @@ export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.RECRUITER)
   @Post()
   async create(@Body() createDepartmentDto: CreateDepartmentDto) {
     const department = await this.departmentsService.create(createDepartmentDto);

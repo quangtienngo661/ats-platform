@@ -6,32 +6,13 @@ import {
 import { Prisma } from '@ats-platform/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto/job-posting.dto';
-
-const jobPostingInclude = {
-  department: true,
-  category: true,
-  recruiter: {
-    include: {
-      user: {
-        omit: {
-          passwordHash: true,
-        },
-      },
-      department: true,
-    },
-  },
-  jobPostingSkills: {
-    include: {
-      skill: true,
-    },
-  },
-} satisfies Prisma.JobPostingInclude;
+import { jobPostingIncludeOptions } from '../../common/utils/include-options';
 
 @Injectable()
 export class JobPostingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async create(createJobPostingDto: CreateJobPostingDto) {
+  async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
     // Validate that department exists
     const department = await this.prisma.department.findUnique({
       where: { departmentId: createJobPostingDto.departmentId },
@@ -60,13 +41,13 @@ export class JobPostingsService {
 
     // Validate that recruiter exists
     const recruiter = await this.prisma.recruiter.findUnique({
-      where: { recruiterId: createJobPostingDto.createdBy },
+      where: { userId: userId },
       select: { recruiterId: true },
     });
 
     if (!recruiter) {
       throw new NotFoundException(
-        `Recruiter with ID ${createJobPostingDto.createdBy} not found`,
+        `Recruiter not found`,
       );
     }
 
@@ -100,27 +81,36 @@ export class JobPostingsService {
         },
         category: createJobPostingDto.categoryId
           ? {
-              connect: { categoryId: createJobPostingDto.categoryId },
-            }
+            connect: { categoryId: createJobPostingDto.categoryId },
+          }
           : undefined,
         recruiter: {
-          connect: { recruiterId: createJobPostingDto.createdBy },
+          connect: { recruiterId: recruiter.recruiterId },
         },
       },
-      include: jobPostingInclude,
+      include: jobPostingIncludeOptions,
+      omit: {
+        createdBy: true, departmentId: true, categoryId: true
+      }
     });
   }
 
   async findAll() {
     return this.prisma.jobPosting.findMany({
-      include: jobPostingInclude,
+      include: jobPostingIncludeOptions,
+      omit: {
+        createdBy: true, departmentId: true, categoryId: true
+      }
     });
   }
 
   async findOne(id: string) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },
-      include: jobPostingInclude,
+      include: jobPostingIncludeOptions,
+      omit: {
+        createdBy: true, departmentId: true, categoryId: true
+      }
     });
 
     if (!jobPosting) {
@@ -162,21 +152,24 @@ export class JobPostingsService {
           : undefined,
         department: updateJobPostingDto.departmentId
           ? {
-              connect: { departmentId: updateJobPostingDto.departmentId },
-            }
+            connect: { departmentId: updateJobPostingDto.departmentId },
+          }
           : undefined,
         category: updateJobPostingDto.categoryId
           ? {
-              connect: { categoryId: updateJobPostingDto.categoryId },
-            }
+            connect: { categoryId: updateJobPostingDto.categoryId },
+          }
           : undefined,
         recruiter: updateJobPostingDto.createdBy
           ? {
-              connect: { recruiterId: updateJobPostingDto.createdBy },
-            }
+            connect: { recruiterId: updateJobPostingDto.createdBy },
+          }
           : undefined,
       },
-      include: jobPostingInclude,
+      include: jobPostingIncludeOptions,
+      omit: {
+        createdBy: true, departmentId: true, categoryId: true
+      }
     });
   }
 
@@ -192,7 +185,10 @@ export class JobPostingsService {
 
     return this.prisma.jobPosting.delete({
       where: { jobId: id },
-      include: jobPostingInclude,
+      include: jobPostingIncludeOptions,
+      omit: {
+        createdBy: true, departmentId: true, categoryId: true
+      }
     });
   }
 

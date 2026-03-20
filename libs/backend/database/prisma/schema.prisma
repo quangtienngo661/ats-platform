@@ -203,7 +203,7 @@ model Department {
   createdAt    DateTime @default(now()) @map("created_at")
 
   recruiters  Recruiter[]
-  jobPostings  JobPosting[]
+  jobPostings JobPosting[]
 
   @@map("departments")
 }
@@ -288,7 +288,7 @@ model JobPosting {
 
   department       Department        @relation(fields: [departmentId], references: [departmentId])
   category         JobCategory?      @relation(fields: [categoryId], references: [categoryId])
-  recruiter       Recruiter        @relation(fields: [createdBy], references: [recruiterId])
+  recruiter        Recruiter         @relation(fields: [createdBy], references: [recruiterId])
   jobPostingSkills JobPostingSkill[]
   applications     Application[]
 
