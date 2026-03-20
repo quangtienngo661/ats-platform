@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: CreateUserDto) {
     const passwordHash = bcrypt.hashSync(data.password, 10);
@@ -28,6 +28,7 @@ export class UsersService {
         status: data.status ?? UserStatus.ACTIVE,
         role: data.role,
       },
+      omit: { passwordHash: true },
     });
 
     return newUser;
@@ -42,7 +43,7 @@ export class UsersService {
   async findOne(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { userId },
-      // omit: { passwordHash: true },
+      omit: { passwordHash: true },
     });
 
     if (!user) {
@@ -54,7 +55,7 @@ export class UsersService {
 
   async updateMe(userId: string, updateMeDto: UpdateUserDto) {
     return this.update(userId, {
-      ...updateMeDto
+      ...updateMeDto,
     });
   }
 
@@ -107,6 +108,7 @@ export class UsersService {
           status: updateUserDto.status,
           role: updateUserDto.role,
         },
+        omit: { passwordHash: true },
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {
@@ -123,6 +125,7 @@ export class UsersService {
     try {
       return await this.prisma.user.delete({
         where: { userId },
+        omit: { passwordHash: true },
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {

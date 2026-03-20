@@ -32,7 +32,8 @@ export class CreateJobPostingDto {
 		description: 'Recruiter ID who created this posting',
 	})
 	@IsUUID()
-	createdBy!: string;
+	@IsOptional()
+	createdBy?: string;
 
 	@ApiProperty({
 		example: 'Senior Backend Engineer',

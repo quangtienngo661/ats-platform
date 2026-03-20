@@ -1,5 +1,5 @@
 import { Role } from "@ats-platform/types";
-import { CanActivate, ExecutionContext, Inject, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 
@@ -12,6 +12,7 @@ export class RolesGuard implements CanActivate {
             context.getHandler(),
             context.getClass(),
         ])
+        // console.log('RolesGuard debugging ');
 
         if (!requiredRoles) {
             return true;
@@ -19,6 +20,9 @@ export class RolesGuard implements CanActivate {
 
         const { user } = context.switchToHttp().getRequest();
 
-        return requiredRoles.some((role) => user.roles?.includes(role));
+        if (!requiredRoles.some((role) => user.roles?.includes(role)))
+            throw new ForbiddenException('You do not have permission to access this resource');
+
+        return true;
     }
 }
