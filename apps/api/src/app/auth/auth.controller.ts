@@ -21,7 +21,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response): Promise<ResponseFormat> {
+  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, refreshTokenId } = await this.authService.login(loginDto);
 
     res.cookie('refreshToken', `${refreshTokenId}.${refreshToken}`,
@@ -33,13 +33,13 @@ export class AuthController {
       },
     );
 
-    return successResponse(200, 'Login successful', { accessToken });
+    return { accessToken };
   }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     const result = await this.authService.register(registerDto);
-    return successResponse(200, result.message, result.user);
+    return result;
   }
 
   @Post('refresh')
@@ -48,25 +48,25 @@ export class AuthController {
     if (!accessToken) {
       throw new UnauthorizedException('Could not refresh token');
     }
-    return successResponse(200, 'Token refreshed successfully', { accessToken });
+    return { accessToken };
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     await this.authService.logout(req, res);
-    return successResponse(200, 'Logout successful');
+    return { message: 'Logout successful' };
   }
 
   @Post('request-email-verification')
   async requestEmailVerification(@Body() dto: RequestEmailVerificationDto) {
     const result = await this.authService.requestEmailVerification(dto.email);
-    return successResponse(200, result.message);
+    return result;
   }
 
   @Get('verify-email')
   async verifyEmail(@Query('token') token?: string) {
     const result = await this.authService.verifyEmail(token ?? '');
-    return successResponse(200, result.message);
+    return result.message;
   }
 }

@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "user_role" AS ENUM ('candidate', 'hr', 'admin');
+CREATE TYPE "user_role" AS ENUM ('candidate', 'recruiter', 'admin');
 
 -- CreateEnum
 CREATE TYPE "user_status" AS ENUM ('active', 'inactive');
@@ -53,6 +53,7 @@ CREATE TYPE "difficulty_level" AS ENUM ('easy', 'medium', 'hard');
 CREATE TABLE "users" (
     "user_id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "phone_number" TEXT,
     "password_hash" TEXT NOT NULL,
     "full_name" TEXT NOT NULL,
     "role" "user_role" NOT NULL,
@@ -96,13 +97,13 @@ CREATE TABLE "candidates" (
 );
 
 -- CreateTable
-CREATE TABLE "hr_recruiters" (
-    "hr_id" TEXT NOT NULL,
+CREATE TABLE "recruiters" (
+    "recruiter_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "department_id" TEXT NOT NULL,
     "position" TEXT,
 
-    CONSTRAINT "hr_recruiters_pkey" PRIMARY KEY ("hr_id")
+    CONSTRAINT "recruiters_pkey" PRIMARY KEY ("recruiter_id")
 );
 
 -- CreateTable
@@ -350,7 +351,7 @@ CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
 CREATE UNIQUE INDEX "candidates_user_id_key" ON "candidates"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hr_recruiters_user_id_key" ON "hr_recruiters"("user_id");
+CREATE UNIQUE INDEX "recruiters_user_id_key" ON "recruiters"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "skills_name_key" ON "skills"("name");
@@ -389,10 +390,10 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 ALTER TABLE "candidates" ADD CONSTRAINT "candidates_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "hr_recruiters" ADD CONSTRAINT "hr_recruiters_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recruiters" ADD CONSTRAINT "recruiters_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "hr_recruiters" ADD CONSTRAINT "hr_recruiters_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "departments"("department_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "recruiters" ADD CONSTRAINT "recruiters_department_id_fkey" FOREIGN KEY ("department_id") REFERENCES "departments"("department_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "job_categories" ADD CONSTRAINT "job_categories_parent_category_id_fkey" FOREIGN KEY ("parent_category_id") REFERENCES "job_categories"("category_id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -404,7 +405,7 @@ ALTER TABLE "job_postings" ADD CONSTRAINT "job_postings_department_id_fkey" FORE
 ALTER TABLE "job_postings" ADD CONSTRAINT "job_postings_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "job_categories"("category_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "job_postings" ADD CONSTRAINT "job_postings_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "hr_recruiters"("hr_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "job_postings" ADD CONSTRAINT "job_postings_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "recruiters"("recruiter_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "job_posting_skills" ADD CONSTRAINT "job_posting_skills_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "job_postings"("job_id") ON DELETE CASCADE ON UPDATE CASCADE;

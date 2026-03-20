@@ -1,7 +1,7 @@
 // User enums
 export enum Role {
   CANDIDATE = 'candidate',
-  HR = 'hr',
+  RECRUITER = 'recruiter',
   ADMIN = 'admin',
 }
 

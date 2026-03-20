@@ -58,11 +58,12 @@ export class RecruiterDto {
 	})
 	position?: string;
 
-	fromEntity(entity: Recruiter): RecruiterDto {
-		this.recruiterId = entity.recruiterId;
-		this.userId = entity.userId;
-		this.departmentId = entity.departmentId;
-		this.position = entity.position;
-		return this;
+	static fromEntity(entity: Recruiter): RecruiterDto {
+		const dto = new RecruiterDto();
+		dto.recruiterId = entity.recruiterId;
+		dto.userId = entity.userId;
+		dto.departmentId = entity.departmentId;
+		dto.position = entity.position;
+		return dto;
 	}
 }

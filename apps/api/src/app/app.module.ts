@@ -12,7 +12,9 @@ import { DepartmentsModule } from './departments/departments.module';
 import { AdminSeedService } from './seed/admin-seed.service';
 import { JobCategoriesModule } from './job-categories/job-categories.module';
 import { SkillsModule } from './skills/skills.module';
-import { RecuitersModule } from './recruiters/recuiters.module';
+import { RecruitersModule } from './recruiters/recruiters.module';
+import { JobPostingsModule } from './job-postings/job-postings.module';
+import { JobPostingSkillsModule } from './job-posting-skills/job-posting-skills.module';
 
 @Module({
   imports: [
@@ -29,7 +31,9 @@ import { RecuitersModule } from './recruiters/recuiters.module';
     DepartmentsModule,
     JobCategoriesModule,
     SkillsModule,
-    RecuitersModule,
+    RecruitersModule,
+    JobPostingsModule,
+    JobPostingSkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],

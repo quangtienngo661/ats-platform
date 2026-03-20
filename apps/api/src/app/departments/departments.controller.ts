@@ -22,25 +22,25 @@ export class DepartmentsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() createDepartmentDto: CreateDepartmentDto): Promise<DepartmentDto> {
+  async create(@Body() createDepartmentDto: CreateDepartmentDto) {
     const department = await this.departmentsService.create(createDepartmentDto);
-    return DepartmentDto.fromEntity(department);
+    return department;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  async findAll(): Promise<DepartmentDto[]> {
+  async findAll() {
     const departments = await this.departmentsService.findAll();
-    return departments.map(DepartmentDto.fromEntity); 
+    return departments;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<DepartmentDto> {
+  async findOne(@Param('id') id: string) {
     const department = await this.departmentsService.findOne(id);
-    return DepartmentDto.fromEntity(department);
+    return department;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -49,19 +49,19 @@ export class DepartmentsController {
   async update(
     @Param('id') id: string,
     @Body() updateDepartmentDto: UpdateDepartmentDto,
-  ): Promise<DepartmentDto> {
+  ) {
     const department = await this.departmentsService.update(
       id,
       updateDepartmentDto,
     );
-    return DepartmentDto.fromEntity(department);
+    return department;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<DepartmentDto> {
+  async remove(@Param('id') id: string) {
     const department = await this.departmentsService.remove(id);
-    return DepartmentDto.fromEntity(department);
+    return department;
   }
 }

@@ -26,6 +26,13 @@
         "command": "npx prisma migrate reset",
         "cwd": "libs/backend/database"
       }
+    },
+    "prisma-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate deploy",
+        "cwd": "libs/backend/database"
+      }
     }
   }
 }

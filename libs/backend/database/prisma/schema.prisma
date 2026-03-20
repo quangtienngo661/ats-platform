@@ -18,7 +18,7 @@ datasource db {
 
 enum UserRole {
   candidate
-  hr
+  recruiter
   admin
 
   @@map("user_role")
@@ -232,7 +232,7 @@ model Candidate {
 // ============================================================
 
 model Recruiter {
-  recruiterId  String  @id @default(uuid()) @map("hr_id")
+  recruiterId  String  @id @default(uuid()) @map("recruiter_id")
   userId       String  @unique @map("user_id")
   departmentId String  @map("department_id")
   position     String?
@@ -242,7 +242,7 @@ model Recruiter {
 
   jobPostings JobPosting[]
 
-  @@map("hr_recruiters")
+  @@map("recruiters")
 }
 
 // ============================================================

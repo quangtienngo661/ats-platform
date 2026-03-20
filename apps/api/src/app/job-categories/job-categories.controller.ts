@@ -26,25 +26,25 @@ export class JobCategoriesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() createJobCategoryDto: CreateJobCategoryDto): Promise<JobCategoryDto> {
+  async create(@Body() createJobCategoryDto: CreateJobCategoryDto) {
     const category = await this.jobCategoriesService.create(createJobCategoryDto);
-    return JobCategoryDto.fromEntity(category);
+    return category;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  async findAll(): Promise<JobCategoryDto[]> {
+  async findAll() {
     const categories = await this.jobCategoriesService.findAll();
-    return categories.map(JobCategoryDto.fromEntity);
+    return categories;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<JobCategoryDto> {
+  async findOne(@Param('id') id: string) {
     const category = await this.jobCategoriesService.findOne(id);
-    return JobCategoryDto.fromEntity(category);
+    return category;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -53,19 +53,19 @@ export class JobCategoriesController {
   async update(
     @Param('id') id: string,
     @Body() updateJobCategoryDto: UpdateJobCategoryDto,
-  ): Promise<JobCategoryDto> {
+  ) {
     const category = await this.jobCategoriesService.update(
       id,
       updateJobCategoryDto,
     );
-    return JobCategoryDto.fromEntity(category);
+    return category;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<JobCategoryDto> {
+  async remove(@Param('id') id: string) {
     const category = await this.jobCategoriesService.remove(id);
-    return JobCategoryDto.fromEntity(category);
+    return category;
   }
 }

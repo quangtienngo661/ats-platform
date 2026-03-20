@@ -25,7 +25,7 @@ export class SkillsController {
   @Post()
   async create(@Body() createSkillDto: CreateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.create(createSkillDto);
-    return SkillDto.fromEntity(skill);
+    return skill;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -33,7 +33,7 @@ export class SkillsController {
   @Get()
   async findAll(): Promise<SkillDto[]> {
     const skills = await this.skillsService.findAll();
-    return skills.map(SkillDto.fromEntity);
+    return skills;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -44,7 +44,7 @@ export class SkillsController {
     @Query('category') category?: string,
   ): Promise<SkillDto[]> {
     const skills = await this.skillsService.search(name, category);
-    return skills.map(SkillDto.fromEntity);
+    return skills;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -52,7 +52,7 @@ export class SkillsController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.findOne(id);
-    return SkillDto.fromEntity(skill);
+    return skill;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -60,7 +60,7 @@ export class SkillsController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.update(id, updateSkillDto);
-    return SkillDto.fromEntity(skill);
+    return skill;
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -68,6 +68,6 @@ export class SkillsController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.remove(id);
-    return SkillDto.fromEntity(skill);
+    return skill;
   }
 }

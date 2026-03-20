@@ -4,7 +4,7 @@ import { CreateSkillDto, UpdateSkillDto } from './dtos/skills.dto';
 
 @Injectable()
 export class SkillsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async create(createSkillDto: CreateSkillDto) {
 		return this.prisma.skill.create({
@@ -24,19 +24,19 @@ export class SkillsService {
 			where: {
 				...(name
 					? {
-							name: {
-								contains: name,
-								mode: 'insensitive',
-							},
-						}
+						name: {
+							contains: name,
+							mode: 'insensitive',
+						},
+					}
 					: {}),
 				...(category
 					? {
-							category: {
-								contains: category,
-								mode: 'insensitive',
-							},
-						}
+						category: {
+							contains: category,
+							mode: 'insensitive',
+						},
+					}
 					: {}),
 			},
 		});
