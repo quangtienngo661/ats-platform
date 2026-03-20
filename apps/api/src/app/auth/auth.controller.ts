@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { successResponse } from '@ats-platform/types';
+import { ResponseFormat, successResponse } from '@ats-platform/types';
 import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto } from './dtos/auth.dto';
 import { Request, Response } from 'express';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -33,13 +33,13 @@ export class AuthController {
       },
     );
 
-    return successResponse(200, 'Login successful', { accessToken });
+    return { accessToken };
   }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     const result = await this.authService.register(registerDto);
-    return successResponse(200, result.message, result.user);
+    return result;
   }
 
   @Post('refresh')
@@ -48,25 +48,25 @@ export class AuthController {
     if (!accessToken) {
       throw new UnauthorizedException('Could not refresh token');
     }
-    return successResponse(200, 'Token refreshed successfully', { accessToken });
+    return { accessToken };
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     await this.authService.logout(req, res);
-    return successResponse(200, 'Logout successful');
+    return { message: 'Logout successful' };
   }
 
   @Post('request-email-verification')
   async requestEmailVerification(@Body() dto: RequestEmailVerificationDto) {
     const result = await this.authService.requestEmailVerification(dto.email);
-    return successResponse(200, result.message);
+    return result;
   }
 
   @Get('verify-email')
   async verifyEmail(@Query('token') token?: string) {
     const result = await this.authService.verifyEmail(token ?? '');
-    return successResponse(200, result.message);
+    return result.message;
   }
 }

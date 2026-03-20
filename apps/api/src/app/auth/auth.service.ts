@@ -141,7 +141,8 @@ export class AuthService {
         fullName: registerDto.fullName,
         role: 'candidate',
         status: 'active',
-      },
+      }, 
+      omit: { passwordHash: true },
     });
 
     try {
@@ -150,16 +151,7 @@ export class AuthService {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
 
-    return {
-      message: 'User registered successfully',
-      user: {
-        userId: newUser.userId,
-        email: newUser.email,
-        fullName: newUser.fullName,
-        role: newUser.role,
-        status: newUser.status,
-      }
-    };
+    return newUser;
   }
 
   async requestEmailVerification(email: string) {

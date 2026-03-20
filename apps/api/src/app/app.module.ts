@@ -8,8 +8,13 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { DepartmentsModule } from './departments/departments.module';
+import { AdminSeedService } from './seed/admin-seed.service';
+import { JobCategoriesModule } from './job-categories/job-categories.module';
+import { SkillsModule } from './skills/skills.module';
+import { RecruitersModule } from './recruiters/recruiters.module';
+import { JobPostingsModule } from './job-postings/job-postings.module';
+import { JobPostingSkillsModule } from './job-posting-skills/job-posting-skills.module';
 
 @Module({
   imports: [
@@ -23,11 +28,14 @@ import { APP_GUARD } from '@nestjs/core';
       global: true,
       signOptions: { expiresIn: '1h' },
     }),
+    DepartmentsModule,
+    JobCategoriesModule,
+    SkillsModule,
+    RecruitersModule,
+    JobPostingsModule,
+    JobPostingSkillsModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    PrismaService,
-  ],
+  providers: [AppService, PrismaService, AdminSeedService],
 })
-export class AppModule { }
+export class AppModule {}

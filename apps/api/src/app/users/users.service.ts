@@ -9,15 +9,6 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private readonly userSelect = {
-    userId: true,
-    email: true,
-    fullName: true,
-    role: true,
-    status: true,
-    createdAt: true,
-  } satisfies Prisma.UserSelect;
-
   async create(data: CreateUserDto) {
     const passwordHash = bcrypt.hashSync(data.password, 10);
 
@@ -37,7 +28,6 @@ export class UsersService {
         status: data.status ?? UserStatus.ACTIVE,
         role: data.role,
       },
-      select: this.userSelect,
     });
 
     return newUser;
@@ -46,14 +36,13 @@ export class UsersService {
   async findAll() {
     return this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
-      select: this.userSelect,
     });
   }
 
   async findOne(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { userId },
-      select: this.userSelect,
+      // omit: { passwordHash: true },
     });
 
     if (!user) {
@@ -65,9 +54,7 @@ export class UsersService {
 
   async updateMe(userId: string, updateMeDto: UpdateUserDto) {
     return this.update(userId, {
-      email: updateMeDto.email,
-      password: updateMeDto.password,
-      fullName: updateMeDto.fullName,
+      ...updateMeDto
     });
   }
 
@@ -120,7 +107,6 @@ export class UsersService {
           status: updateUserDto.status,
           role: updateUserDto.role,
         },
-        select: this.userSelect,
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {
@@ -137,7 +123,6 @@ export class UsersService {
     try {
       return await this.prisma.user.delete({
         where: { userId },
-        select: this.userSelect,
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {
