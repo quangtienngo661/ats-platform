@@ -1,7 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
+    "composite": true,
+    "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "importHelpers": true,
