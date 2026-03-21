@@ -45,6 +45,10 @@ export class OwnershipGuard implements CanActivate {
                 if (jobPosting.recruiter.userId !== userId)
                     throw new NotFoundException('You are not the owner of this job posting');
                 return true;
+
+            // case 'job-posting-skills':
+            //     const jobPostingSkill = await this.prisma.jobPostingSkill.findUnique({
+            //         where: { id: resourceId },
             default:
                 return true;
         }

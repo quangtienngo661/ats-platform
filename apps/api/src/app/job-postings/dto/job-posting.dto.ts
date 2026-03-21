@@ -1,5 +1,6 @@
 import { JobStatus, LocationType } from '@ats-platform/database';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { IJobPostingSkills } from '@ats-platform/types'
 import {
 	IsDateString,
 	IsEnum,
@@ -95,6 +96,18 @@ export class CreateJobPostingDto {
 	status?: JobStatus;
 
 	@ApiPropertyOptional({
+		example: [
+			{ "skillId": "uuid-nestjs", "isRequired": true },
+			{ "skillId": "uuid-postgresql", "isRequired": true },
+			{ "skillId": "uuid-docker", "isRequired": false }
+		],
+		description: 'Skills for this job posting with required/optional flag',
+	})
+	@IsOptional()
+	@IsDateString()
+	skills?: IJobPostingSkills[];
+
+	@ApiPropertyOptional({
 		example: '2026-03-20T10:00:00.000Z',
 		description: 'Publish time',
 	})
@@ -103,4 +116,4 @@ export class CreateJobPostingDto {
 	publishedAt?: string;
 }
 
-export class UpdateJobPostingDto extends PartialType(CreateJobPostingDto) {}
+export class UpdateJobPostingDto extends PartialType(CreateJobPostingDto) { }
