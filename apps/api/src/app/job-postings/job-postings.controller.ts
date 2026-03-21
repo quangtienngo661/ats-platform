@@ -49,7 +49,6 @@ export class JobPostingsController {
     @Param('id') id: string,
     @Body() updateJobPostingDto: UpdateJobPostingDto,
   ) {
-    console.log('JobPosting update debugging')
     return await this.jobPostingsService.update(id, updateJobPostingDto);
   }
 

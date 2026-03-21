@@ -23,6 +23,10 @@ export const jobPostingIncludeOptions = {
     include: {
       skill: true,
     },
+    omit: {
+      jobId: true,
+      skillId: true,
+    }
   },
 } satisfies Prisma.JobPostingInclude;
 

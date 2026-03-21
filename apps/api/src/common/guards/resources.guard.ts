@@ -17,7 +17,6 @@ export class OwnershipGuard implements CanActivate {
             context.getClass(),
         ])
 
-        console.log('OwnershipGuard debugging ');
         if (!resource)
             return true;
 

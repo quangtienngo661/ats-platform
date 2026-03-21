@@ -92,17 +92,19 @@ export class JobPostingsService {
             connect: { recruiterId: recruiter.recruiterId },
           },
         },
-        include: jobPostingIncludeOptions,
-        omit: {
-          createdBy: true, departmentId: true, categoryId: true
-        }
       });
 
       if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
         await this.jobPostingSkillsService.create(newJobPosting.jobId, createJobPostingDto.skills, tx);
       }
 
-      return newJobPosting;
+      return await tx.jobPosting.findUnique({
+        where: { jobId: newJobPosting.jobId },
+        include: jobPostingIncludeOptions,
+        omit: {
+          createdBy: true, departmentId: true, categoryId: true
+        }
+      });
     })
   }
 
@@ -149,7 +151,6 @@ export class JobPostingsService {
     this.validateSalaryRange(existingJobPosting, updateJobPostingDto);
 
     return this.prisma.$transaction(async (tx) => {
-
       const updatedJobPosting = await tx.jobPosting.update({
         where: { jobId: id },
         data: {
@@ -178,10 +179,6 @@ export class JobPostingsService {
               connect: { recruiterId: updateJobPostingDto.createdBy },
             }
             : undefined,
-        },
-        include: jobPostingIncludeOptions,
-        omit: {
-          createdBy: true, departmentId: true, categoryId: true
         }
       });
 
@@ -189,7 +186,13 @@ export class JobPostingsService {
         await this.jobPostingSkillsService.deleteByJobId(id, tx);
         await this.jobPostingSkillsService.create(id, updateJobPostingDto.skills, tx);
       }
-      return updatedJobPosting;
+      return await tx.jobPosting.findUnique({
+        where: { jobId: updatedJobPosting.jobId },
+        include: jobPostingIncludeOptions,
+        omit: {
+          createdBy: true, departmentId: true, categoryId: true
+        }
+      });
     })
   }
 

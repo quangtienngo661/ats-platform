@@ -104,7 +104,6 @@ export class CreateJobPostingDto {
 		description: 'Skills for this job posting with required/optional flag',
 	})
 	@IsOptional()
-	@IsDateString()
 	skills?: IJobPostingSkills[];
 
 	@ApiPropertyOptional({
