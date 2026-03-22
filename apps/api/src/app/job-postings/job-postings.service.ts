@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@ats-platform/database';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';

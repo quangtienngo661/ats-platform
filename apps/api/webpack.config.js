@@ -28,6 +28,7 @@ module.exports = {
             controllerFileNameSuffix: ['.controller.ts'],
             classValidatorShim: true,
             dtoKeyOfComment: 'description',
+            introspectComments: true,
           },
         },
       ],

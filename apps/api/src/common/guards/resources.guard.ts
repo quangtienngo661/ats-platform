@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { RESOURCES_KEY } from "../decorators/resources.decorator";
-import { PrismaService } from "../../app/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { userIncludeOptions } from "../utils/include-options";
 
 @Injectable()

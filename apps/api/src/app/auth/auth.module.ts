@@ -6,7 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import dotenv from 'dotenv';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { MailModule } from '../mail/mail.module';
+import { MailModule } from '../../common/mail/mail.module';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
 

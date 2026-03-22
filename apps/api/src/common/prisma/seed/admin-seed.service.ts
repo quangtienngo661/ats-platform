@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,6 +10,7 @@ export class AdminSeedService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     await this.seedAdmin();
+    await this.seedDefaultAiConfig();
   }
 
   private async seedAdmin() {
@@ -59,5 +60,33 @@ export class AdminSeedService implements OnApplicationBootstrap {
         'ADMIN_PASSWORD is not set. Using default password Admin@123. Please change it immediately.',
       );
     }
+  }
+
+  private async seedDefaultAiConfig() {
+    const existingDefaultConfig = await this.prisma.aiConfig.findFirst({
+      where: { isDefault: true },
+      select: { configId: true, name: true },
+    });
+
+    if (existingDefaultConfig) {
+      this.logger.log(
+        `AI config seed skipped: default config already exists (${existingDefaultConfig.name})`,
+      );
+      return;
+    }
+
+    const defaultConfig = await this.prisma.aiConfig.create({
+      data: {
+        name: process.env.AI_DEFAULT_CONFIG_NAME || 'Default CV Screening Config',
+        isDefault: true,
+        skillsWeight: 0.5,
+        experienceWeight: 0.3,
+        educationWeight: 0.2,
+        minimumScoreThreshold: 0.6,
+      },
+      select: { configId: true, name: true },
+    });
+
+    this.logger.log(`Seeded default AI config: ${defaultConfig.name}`);
   }
 }

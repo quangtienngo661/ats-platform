@@ -59,35 +59,3 @@ export class VerifyEmailDto {
     token!: string;
 }
 
-export class AuthDto {
-    @ApiProperty({
-        example: '550e8400-e29b-41d4-a716-446655440000',
-        description: 'User ID',
-    })
-    userId!: string;
-
-    @ApiProperty({
-        example: 'recruiter@example.com',
-        description: 'User email',
-    })
-    email!: string;
-
-    @ApiProperty({
-        example: 'Nguyen Van A',
-        description: 'Full name',
-    })
-    fullName!: string;
-
-    @ApiProperty({
-        enum: ['candidate', 'hr', 'admin'],
-        example: 'hr',
-        description: 'User role',
-    })
-    role!: string;
-
-    @ApiProperty({
-        example: new Date().toISOString(),
-        description: 'Account creation date',
-    })
-    createdAt!: Date;
-}

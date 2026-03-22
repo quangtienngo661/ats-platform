@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JobCategoriesService } from './job-categories.service';
 import { JobCategoriesController } from './job-categories.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaModule } from '../../common/prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],

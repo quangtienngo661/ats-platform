@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { userIncludeOptions } from '../../common/utils/include-options';
 
 @Injectable()
@@ -27,6 +27,16 @@ export class RecruitersService {
 
 		if (!department) {
 			throw new NotFoundException('Department not found');
+		}
+
+		const existingRecruiter = await this.prisma.recruiter.findUnique({
+			where: {
+				userId: createRecruiterDto.userId
+			},	
+		});
+
+		if (existingRecruiter) {
+			throw new NotFoundException('Recruiter profile already exists for this user');
 		}
 
 		const recruiter = await this.prisma.recruiter.create({

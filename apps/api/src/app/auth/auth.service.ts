@@ -1,11 +1,11 @@
 import { BadRequestException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Role } from '@ats-platform/types';
 import { LoginDto, RegisterDto } from './dtos/auth.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { createHmac, randomBytes } from 'crypto';
-import { MailService } from '../mail/mail.service';
+import { MailService } from '../../common/mail/mail.service';
 import Redis from 'ioredis';
 import { JwtService } from '@nestjs/jwt';
 
@@ -134,15 +134,25 @@ export class AuthService {
 
     const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
 
-    const newUser = await this.prisma.user.create({
-      data: {
-        email: registerDto.email,
-        passwordHash: hashedPassword,
-        fullName: registerDto.fullName,
-        role: 'candidate',
-        status: 'active',
-      }, 
-      omit: { passwordHash: true },
+    const newUser = await this.prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email: registerDto.email,
+          passwordHash: hashedPassword,
+          fullName: registerDto.fullName,
+          role: 'candidate',
+          status: 'active',
+        },
+        omit: { passwordHash: true },
+      });
+
+      await tx.candidate.create({
+        data: {
+          userId: createdUser.userId,
+        },
+      });
+
+      return createdUser;
     });
 
     try {

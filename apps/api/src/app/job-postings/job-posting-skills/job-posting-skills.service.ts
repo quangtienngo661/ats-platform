@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { PrismaService } from "../../../common/prisma/prisma.service";
 import { IJobPostingSkills } from "@ats-platform/types";
 import { Prisma } from "@ats-platform/database";
 
