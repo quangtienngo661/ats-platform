@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserStatus } from '@ats-platform/types';
 import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
 import * as bcrypt from 'bcrypt';
 

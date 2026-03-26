@@ -11,21 +11,6 @@ export const userIncludeOptions = {
   omit: { passwordHash: true },
 }
 
-export const jobPostingSkillIncludeOptions = {
-  jobPosting: {
-    select: {
-      jobId: true,
-      title: true,
-    },
-  },
-  skill: {
-    select: {
-      skillId: true,
-      name: true,
-    },
-  },
-} satisfies Prisma.JobPostingSkillInclude;
-
 export const jobPostingIncludeOptions = {
   category: true,
   recruiter: {
@@ -38,6 +23,10 @@ export const jobPostingIncludeOptions = {
     include: {
       skill: true,
     },
+    omit: {
+      jobId: true,
+      skillId: true,
+    }
   },
 } satisfies Prisma.JobPostingInclude;
 

@@ -30,8 +30,7 @@ export class JobPostingsController {
     return this.jobPostingsService.create(req.user['userId'], createJobPostingDto);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN, Role.RECRUITER)
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   findAll() {
     return this.jobPostingsService.findAll();
@@ -50,7 +49,6 @@ export class JobPostingsController {
     @Param('id') id: string,
     @Body() updateJobPostingDto: UpdateJobPostingDto,
   ) {
-    console.log('JobPosting update debugging')
     return await this.jobPostingsService.update(id, updateJobPostingDto);
   }
 

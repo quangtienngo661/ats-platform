@@ -4,16 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@ats-platform/database';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options';
+import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
 
 @Injectable()
 export class JobPostingsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jobPostingSkillsService: JobPostingSkillsService
+  ) { }
 
   async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
-    // Validate that department exists
     const department = await this.prisma.department.findUnique({
       where: { departmentId: createJobPostingDto.departmentId },
       select: { departmentId: true },
@@ -64,35 +67,45 @@ export class JobPostingsService {
 
     // Create job posting
     // TODO: let Gemini API analyze the job description and requirements to extract structured data for better matching and search capabilities, then store the parsed requirements in the database for future use
-    return this.prisma.jobPosting.create({
-      data: {
-        title: createJobPostingDto.title,
-        locationType: createJobPostingDto.locationType,
-        salaryMin: createJobPostingDto.salaryMin,
-        salaryMax: createJobPostingDto.salaryMax,
-        description: createJobPostingDto.description,
-        parsedRequirements: "Parsed requirements will be implemented in the future",
-        status: createJobPostingDto.status,
-        publishedAt: createJobPostingDto.publishedAt // posting will be published when the status turns active
-          ? new Date(createJobPostingDto.publishedAt)
-          : undefined,
-        department: {
-          connect: { departmentId: createJobPostingDto.departmentId },
+    return this.prisma.$transaction(async (tx) => {
+      const newJobPosting = await tx.jobPosting.create({
+        data: {
+          title: createJobPostingDto.title,
+          locationType: createJobPostingDto.locationType,
+          salaryMin: createJobPostingDto.salaryMin,
+          salaryMax: createJobPostingDto.salaryMax,
+          description: createJobPostingDto.description,
+          parsedRequirements: "Parsed requirements will be implemented in the future",
+          status: createJobPostingDto.status,
+          publishedAt: createJobPostingDto.publishedAt // posting will be published when the status turns active
+            ? new Date(createJobPostingDto.publishedAt)
+            : undefined,
+          department: {
+            connect: { departmentId: createJobPostingDto.departmentId },
+          },
+          category: createJobPostingDto.categoryId
+            ? {
+              connect: { categoryId: createJobPostingDto.categoryId },
+            }
+            : undefined,
+          recruiter: {
+            connect: { recruiterId: recruiter.recruiterId },
+          },
         },
-        category: createJobPostingDto.categoryId
-          ? {
-            connect: { categoryId: createJobPostingDto.categoryId },
-          }
-          : undefined,
-        recruiter: {
-          connect: { recruiterId: recruiter.recruiterId },
-        },
-      },
-      include: jobPostingIncludeOptions,
-      omit: {
-        createdBy: true, departmentId: true, categoryId: true
+      });
+
+      if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
+        await this.jobPostingSkillsService.create(newJobPosting.jobId, createJobPostingDto.skills, tx);
       }
-    });
+
+      return await tx.jobPosting.findUnique({
+        where: { jobId: newJobPosting.jobId },
+        include: jobPostingIncludeOptions,
+        omit: {
+          createdBy: true, departmentId: true, categoryId: true
+        }
+      });
+    })
   }
 
   async findAll() {
@@ -137,40 +150,50 @@ export class JobPostingsService {
     await this.ensureRelationsExist(updateJobPostingDto);
     this.validateSalaryRange(existingJobPosting, updateJobPostingDto);
 
-    return this.prisma.jobPosting.update({
-      where: { jobId: id },
-      data: {
-        title: updateJobPostingDto.title,
-        locationType: updateJobPostingDto.locationType,
-        salaryMin: updateJobPostingDto.salaryMin,
-        salaryMax: updateJobPostingDto.salaryMax,
-        description: updateJobPostingDto.description,
-        parsedRequirements: "Parsed requirements will be implemented in the future",
-        status: updateJobPostingDto.status,
-        publishedAt: updateJobPostingDto.publishedAt
-          ? new Date(updateJobPostingDto.publishedAt)
-          : undefined,
-        department: updateJobPostingDto.departmentId
-          ? {
-            connect: { departmentId: updateJobPostingDto.departmentId },
-          }
-          : undefined,
-        category: updateJobPostingDto.categoryId
-          ? {
-            connect: { categoryId: updateJobPostingDto.categoryId },
-          }
-          : undefined,
-        recruiter: updateJobPostingDto.createdBy
-          ? {
-            connect: { recruiterId: updateJobPostingDto.createdBy },
-          }
-          : undefined,
-      },
-      include: jobPostingIncludeOptions,
-      omit: {
-        createdBy: true, departmentId: true, categoryId: true
+    return this.prisma.$transaction(async (tx) => {
+      const updatedJobPosting = await tx.jobPosting.update({
+        where: { jobId: id },
+        data: {
+          title: updateJobPostingDto.title,
+          locationType: updateJobPostingDto.locationType,
+          salaryMin: updateJobPostingDto.salaryMin,
+          salaryMax: updateJobPostingDto.salaryMax,
+          description: updateJobPostingDto.description,
+          parsedRequirements: "Parsed requirements will be implemented in the future",
+          status: updateJobPostingDto.status,
+          publishedAt: updateJobPostingDto.publishedAt
+            ? new Date(updateJobPostingDto.publishedAt)
+            : undefined,
+          department: updateJobPostingDto.departmentId
+            ? {
+              connect: { departmentId: updateJobPostingDto.departmentId },
+            }
+            : undefined,
+          category: updateJobPostingDto.categoryId
+            ? {
+              connect: { categoryId: updateJobPostingDto.categoryId },
+            }
+            : undefined,
+          recruiter: updateJobPostingDto.createdBy
+            ? {
+              connect: { recruiterId: updateJobPostingDto.createdBy },
+            }
+            : undefined,
+        }
+      });
+
+      if (updateJobPostingDto.skills && updateJobPostingDto.skills.length > 0) {
+        await this.jobPostingSkillsService.deleteByJobId(id, tx);
+        await this.jobPostingSkillsService.create(id, updateJobPostingDto.skills, tx);
       }
-    });
+      return await tx.jobPosting.findUnique({
+        where: { jobId: updatedJobPosting.jobId },
+        include: jobPostingIncludeOptions,
+        omit: {
+          createdBy: true, departmentId: true, categoryId: true
+        }
+      });
+    })
   }
 
   async remove(id: string) {

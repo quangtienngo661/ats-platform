@@ -3,18 +3,21 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { PrismaService } from './prisma/prisma.service';
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaService } from '../common/prisma/prisma.service';
+import { PrismaModule } from '../common/prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { DepartmentsModule } from './departments/departments.module';
-import { AdminSeedService } from './seed/admin-seed.service';
+import { AdminSeedService } from '../common/prisma/seed/admin-seed.service';
 import { JobCategoriesModule } from './job-categories/job-categories.module';
 import { SkillsModule } from './skills/skills.module';
 import { RecruitersModule } from './recruiters/recruiters.module';
 import { JobPostingsModule } from './job-postings/job-postings.module';
-import { JobPostingSkillsModule } from './job-posting-skills/job-posting-skills.module';
+import { AiConfigModule } from './ai-config/ai-config.module';
+import { CandidatesModule } from './candidates/candidates.module';
+import { CVsModule } from './cvs/cvs.module';
+import { LocalStorageModule } from '../common/storage/local-storage.module';
 
 @Module({
   imports: [
@@ -33,7 +36,10 @@ import { JobPostingSkillsModule } from './job-posting-skills/job-posting-skills.
     SkillsModule,
     RecruitersModule,
     JobPostingsModule,
-    JobPostingSkillsModule,
+    AiConfigModule,
+    CandidatesModule,
+    CVsModule,
+    LocalStorageModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],
