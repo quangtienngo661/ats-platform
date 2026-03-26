@@ -58,11 +58,11 @@ export class AuthController {
     return { message: 'Logout successful' };
   }
 
-  @Post('request-email-verification')
-  async requestEmailVerification(@Body() dto: RequestEmailVerificationDto) {
-    const result = await this.authService.requestEmailVerification(dto.email);
-    return result;
-  }
+  // @Post('request-email-verification')
+  // async requestEmailVerification(@Body() dto: RequestEmailVerificationDto) {
+  //   const result = await this.authService.requestEmailVerification(dto.email);
+  //   return result;
+  // }
 
   @Get('verify-email')
   async verifyEmail(@Query('token') token?: string) {

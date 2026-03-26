@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@n
 import { Reflector } from "@nestjs/core";
 import { RESOURCES_KEY } from "../decorators/resources.decorator";
 import { PrismaService } from "../prisma/prisma.service";
-import { userIncludeOptions } from "../utils/include-options";
 
 @Injectable()
 export class OwnershipGuard implements CanActivate {
@@ -45,9 +44,16 @@ export class OwnershipGuard implements CanActivate {
                     throw new NotFoundException('You are not the owner of this job posting');
                 return true;
 
-            // case 'job-posting-skills':
-            //     const jobPostingSkill = await this.prisma.jobPostingSkill.findUnique({
-            //         where: { id: resourceId },
+            case 'cv':
+                const cv = await this.prisma.cV.findUnique({
+                    where: { cvId: resourceId },
+                    select: { candidateId: true }
+                });
+                if (!cv)
+                    throw new NotFoundException('CV not found');
+                if (cv.candidateId !== userId)
+                    throw new NotFoundException('You are not the owner of this CV');
+                return true;
             default:
                 return true;
         }

@@ -334,6 +334,7 @@ model CVParsedData {
   cvId        String  @unique @map("cv_id")
   fullName    String? @map("full_name")
   email       String?
+  phoneNumber String? @map("phone_number")
   experience  Json?
   education   Json?
   skills      Json?

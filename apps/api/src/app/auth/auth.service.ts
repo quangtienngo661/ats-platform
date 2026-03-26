@@ -5,9 +5,10 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { createHmac, randomBytes } from 'crypto';
-import { MailService } from '../../common/mail/mail.service';
 import Redis from 'ioredis';
 import { JwtService } from '@nestjs/jwt';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 
 @Injectable()
@@ -16,9 +17,9 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailService: MailService,
     private readonly jwtService: JwtService,
-    @Inject('REDIS_CLIENT') private readonly redisClient: Redis
+    @Inject('REDIS_CLIENT') private readonly redisClient: Redis, 
+    @InjectQueue('send-verification-email') private readonly emailQueue: Queue
   ) { }
 
   private get emailVerifyKeyPrefix() {
@@ -61,7 +62,7 @@ export class AuthService {
     return `${this.apiBaseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
   }
 
-  private async issueEmailVerification(userId: string, email: string) {
+  private async issueEmailVerification(userId: string, email: string, jobName: string) {
     const token = randomBytes(32).toString('hex');
     const tokenHash = this.hashEmailVerificationToken(token);
     const ttlSeconds = Math.ceil(this.emailVerificationTtlMs / 1000);
@@ -80,7 +81,8 @@ export class AuthService {
 
     const link = this.buildEmailVerificationLink(token);
     try {
-      await this.mailService.sendVerificationEmail(email, link);
+      // Use BullMQ to send email asynchronously, so it won't block the registration flow even if email service is slow or has issues.
+      await this.emailQueue.add(jobName, { email, link });
     } catch (err) {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(userKey);
@@ -156,7 +158,8 @@ export class AuthService {
     });
 
     try {
-      await this.issueEmailVerification(newUser.userId, newUser.email);
+      // TODO: apply BullMQ for mail service
+      await this.issueEmailVerification(newUser.userId, newUser.email, 'send-register-verification-email');
     } catch (err: any) {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
@@ -164,33 +167,33 @@ export class AuthService {
     return newUser;
   }
 
-  async requestEmailVerification(email: string) {
-    if (!email) {
-      throw new BadRequestException('Email is required');
-    }
+  // async requestEmailVerification(email: string) {
+  //   if (!email) {
+  //     throw new BadRequestException('Email is required');
+  //   }
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+  //   const user = await this.prisma.user.findUnique({
+  //     where: { email },
+  //   });
 
-    // Do not reveal whether email exists.
-    if (!user) {
-      return { message: 'If an account exists, a verification email has been sent' };
-    }
+  //   // Do not reveal whether email exists.
+  //   if (!user) {
+  //     return { message: 'If an account exists, a verification email has been sent' };
+  //   }
 
-    if ((user as any).emailVerified === true) {
-      return { message: 'Email already verified' };
-    }
+  //   if ((user as any).emailVerified === true) {
+  //     return { message: 'Email already verified' };
+  //   }
 
-    try {
-      await this.issueEmailVerification(user.userId, user.email);
-    } catch (err: any) {
-      this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
-    }
+  //   try {
+  //     await this.issueEmailVerification(user.userId, user.email);
+  //   } catch (err: any) {
+  //     this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
+  //   }
 
-    // Always return a generic message to avoid leaking account state.
-    return { message: 'If an account exists, a verification email has been sent' };
-  }
+  //   // Always return a generic message to avoid leaking account state.
+  //   return { message: 'If an account exists, a verification email has been sent' };
+  // }
 
   async verifyEmail(token: string) {
     if (!token) {
@@ -348,5 +351,5 @@ export class AuthService {
     res.clearCookie('refreshToken', cookieOptions);
   }
 
-  // TODO: finish the forgot password flow with email verification and password reset token.
+  // TODO: finish the forgot password flow with email verification and password reset token, also use BullMQ for verfication.
 }

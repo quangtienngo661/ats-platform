@@ -7,10 +7,6 @@ export const recruiterIncludeOptions = {
   department: true,
 } satisfies Prisma.RecruiterInclude;
 
-export const userIncludeOptions = {
-  omit: { passwordHash: true },
-}
-
 export const jobPostingIncludeOptions = {
   category: true,
   recruiter: {
@@ -29,4 +25,28 @@ export const jobPostingIncludeOptions = {
     }
   },
 } satisfies Prisma.JobPostingInclude;
+
+export const candidateIncludeOptions = {
+  user: {
+    omit: { passwordHash: true },
+  },
+  _count: {
+    select: {
+      cvs: true, 
+      applications: true
+    }
+  }
+}
+
+export const cvIncludeOptions = {
+  candidate: {
+    include: { ...candidateIncludeOptions }
+  },
+} satisfies Prisma.CVInclude;
+
+export const cvParsedDataIncludeOptions = {
+  cv: {
+    include: { ...cvIncludeOptions }
+  },
+} satisfies Prisma.CVParsedDataInclude;
 
