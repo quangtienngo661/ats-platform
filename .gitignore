@@ -51,3 +51,4 @@ out
 libs/backend/database/src/generated/prisma
 postman
 .temp
+uploads

@@ -64,7 +64,7 @@ export class CVsService {
     });
   }
 
-  async getCVById(cvId: string, candidateId: string) {
+  async getCVById(cvId: string) {
     const cv = await this.prisma.cV.findUnique({
       where: { cvId },
       include: {
@@ -76,15 +76,11 @@ export class CVsService {
       throw new NotFoundException('CV not found');
     }
 
-    if (cv.candidateId !== candidateId) {
-      throw new ForbiddenException('You do not have permission to access this CV');
-    }
-
     return cv;
   }
 
-  async getParsedData(cvId: string, candidateId: string) {
-    const cv = await this.getCVById(cvId, candidateId);
+  async getParsedData(cvId: string) {
+    const cv = await this.getCVById(cvId);
 
     if (!cv.parsedData) {
       throw new NotFoundException('Parsed data not found');
@@ -94,7 +90,7 @@ export class CVsService {
   }
 
   async confirmCV(cvId: string, candidateId: string) {
-    const cv = await this.getCVById(cvId, candidateId);
+    const cv = await this.getCVById(cvId);
 
     if (cv.parsingStatus !== ParsingStatus.success) {
       throw new BadRequestException('CV has not been parsed successfully yet');

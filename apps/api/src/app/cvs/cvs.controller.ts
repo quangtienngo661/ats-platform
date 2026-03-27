@@ -51,7 +51,7 @@ export class CVsController {
 
   @Roles(Role.CANDIDATE)
   @Get('me')
-  @Resources('cvs')
+  @Resources('cv')
   @UseGuards(OwnershipGuard)
   async getMyCVs(@Req() req: Request & { user: { userId: string } }) {
     const candidateId = await this.resolveCandidateId(req.user.userId);
@@ -60,25 +60,25 @@ export class CVsController {
 
   @Roles(Role.ADMIN, Role.RECRUITER)
   @Get(':cvId')
+  @Resources('cv')
+  @UseGuards(OwnershipGuard)
   async getCVById(
-    @Req() req: Request & { user: { userId: string } },
     @Param('cvId') cvId: string,
   ) {
-    const candidateId = await this.resolveCandidateId(req.user.userId);
-    return this.cvsService.getCVById(cvId, candidateId);
+    return this.cvsService.getCVById(cvId);
   }
 
   @Roles(Role.ADMIN, Role.RECRUITER)
   @Get(':cvId/parsed-data')
+  @Resources('cv')
+  @UseGuards(OwnershipGuard)
   async getParsedData(
-    @Req() req: Request & { user: { userId: string } },
     @Param('cvId') cvId: string,
   ) {
-    const candidateId = await this.resolveCandidateId(req.user.userId);
-    return this.cvsService.getParsedData(cvId, candidateId);
+    return this.cvsService.getParsedData(cvId);
   }
 
-  @Resources('cvs')
+  @Resources('cv')
   @UseGuards(OwnershipGuard)
   @Post(':cvId/confirm')
   async confirmCV(
@@ -89,7 +89,7 @@ export class CVsController {
     return this.cvsService.confirmCV(cvId, candidateId);
   }
 
-  @Resources('cvs')
+  @Resources('cv')
   @UseGuards(OwnershipGuard)
   @Delete(':cvId')
   async deleteCV(

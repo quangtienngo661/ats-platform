@@ -9,8 +9,8 @@ export class CvParsedDataService {
         private readonly prisma: PrismaService
     ) { }
 
-    async create(cvId: string, parsedData: CvParsedContent) {
-        return this.prisma.cVParsedData.create({
+    async create(cvId: string, parsedData: CvParsedContent, tx?: any) {
+        return (tx || this.prisma).cVParsedData.create({
             data: {
                 cvId,
                 fullName: parsedData.fullName,
