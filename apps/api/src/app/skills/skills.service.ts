@@ -7,7 +7,7 @@ export class SkillsService {
 	constructor(private readonly prisma: PrismaService) { }
 
 	async create(createSkillDto: CreateSkillDto) {
-		const existingSkill = this.prisma.skill.findUnique({
+		const existingSkill = await this.prisma.skill.findUnique({
 			where: {
 				name: createSkillDto.name,
 				category: createSkillDto.category,

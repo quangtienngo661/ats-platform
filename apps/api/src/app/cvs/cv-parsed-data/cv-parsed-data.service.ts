@@ -12,7 +12,7 @@ export class CvParsedDataService {
         return (tx || this.prisma).cVParsedData.create({
             data: {
                 cvId,
-                fullName: parsedData.fullName,
+                name: parsedData.fullName,
                 email: parsedData.email,
                 phoneNumber: parsedData.phone,
                 skills: parsedData.skills as object,
@@ -20,8 +20,6 @@ export class CvParsedDataService {
                 education: parsedData.education as object,
                 projects: parsedData.projects as object,
                 certificates: parsedData.certificates as object,
-                languages: parsedData.languages as object,
-                summary: parsedData.summary as string,
             },
             omit: { cvId: true },
             include: {

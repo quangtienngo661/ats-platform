@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { RESOURCES_KEY } from "../decorators/resources.decorator";
 import { PrismaService } from "../prisma/prisma.service";
@@ -32,7 +32,7 @@ export class OwnershipGuard implements CanActivate {
             return true;
 
         switch (resource) {
-            case 'job-posting':
+            case 'job-posting': {
                 const jobPosting = await this.prisma.jobPosting.findUnique({
                     where: { jobId: resourceId },
                     select: {
@@ -46,10 +46,11 @@ export class OwnershipGuard implements CanActivate {
                     throw new NotFoundException('Job posting not found');
 
                 if (jobPosting.recruiter.userId !== userId)
-                    throw new NotFoundException('You are not the owner of this job posting');
+                    throw new ForbiddenException('You are not the owner of this job posting');
                 return true;
+            }
 
-            case 'cv':
+            case 'cv': {
                 const cv = await this.prisma.cV.findUnique({
                     where: { cvId: resourceId },
                     select: { candidateId: true }
@@ -64,8 +65,29 @@ export class OwnershipGuard implements CanActivate {
                 });
 
                 if (!candidate || candidate.userId !== userId)
-                    throw new NotFoundException('You are not the owner of this CV');
+                    throw new ForbiddenException('You are not the owner of this CV');
                 return true;
+            }
+
+            case 'application': {
+                const application = await this.prisma.application.findUnique({
+                    where: { applicationId: resourceId },
+                    select: { candidateId: true }
+                });
+
+                if (!application)
+                    throw new NotFoundException('Application not found');
+
+                const candidate = await this.prisma.candidate.findUnique({
+                    where: { candidateId: application.candidateId },
+                    select: { userId: true }
+                });
+
+                if (!candidate || candidate.userId !== userId)
+                    throw new ForbiddenException('You are not the owner of this application');
+                return true;
+            }
+
             default:
                 return true;
         }

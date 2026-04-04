@@ -5,7 +5,6 @@ import { GeminiModel } from '../../types/enums/gemini-model.enum';
 import { AiUsageLogsService } from '../../../app/ai-usage-logs/ai-usage-logs.service';
 import { AiActionType, AiLogStatus } from '@ats-platform/database';
 import { cvParsingConfig, jdParsingConfig } from '../../configs/gemini.config';
-// import { jdParsingConfig } from '../../configs/gemini.config';
 
 @Injectable()
 export class GeminiService {
@@ -23,7 +22,6 @@ export class GeminiService {
 
     async parseCV(
         refId: string,
-        prompt: string,
         content: string,
         model: string = GeminiModel.G_3_Flash
     ) {
@@ -33,7 +31,6 @@ export class GeminiService {
             content,
             AiActionType.cv_parsing,
             cvParsingConfig,
-            prompt,
         );
         return result.text;
     }
@@ -56,7 +53,6 @@ export class GeminiService {
 
     async parseJD(
         refId: string,
-        // prompt: string,
         rawDescription: string,
         model: string = GeminiModel.G_3_Flash
     ) {
@@ -66,7 +62,6 @@ export class GeminiService {
             rawDescription,
             AiActionType.job_parsing,
             jdParsingConfig
-            // prompt,
         );
 
         return result.text;
@@ -79,7 +74,6 @@ export class GeminiService {
         content: string,
         actionType: AiActionType,
         config?: GenerateContentConfig,
-        prompt?: string,
     ) {
         const startTime = performance.now();
 
@@ -96,13 +90,9 @@ export class GeminiService {
 
             const finalConfig = { ...config, abortSignal: controller.signal };
 
-            // console.log(content);
             const response = await this.ai.models.generateContent({
                 model,
-                // contents: prompt ? `${prompt}\n\nPDF raw text:\n${content}` : content,
-                // contents: `${prompt}\n\nPDF raw text:\n${content}`,
                 contents: content,
-                // config: { abortSignal: controller.signal }
                 config: finalConfig
             });
 
@@ -114,12 +104,7 @@ export class GeminiService {
                 'GeminiService',
             );
             // return { text: "Hello world" }
-            const { promptTokenCount, candidatesTokenCount, toolUsePromptTokenCount, toolUsePromptTokensDetails } = response.usageMetadata;
-            // console.log(response.text)
-            console.log(response.usageMetadata)
-            // console.log(promptTokenCount, candidatesTokenCount, response.usageMetadata.toolUsePromptTokenCount)
-            // console.log(response.usageMetadata.toolUsePromptTokensDetails)
-            console.log('==============')
+            const { promptTokenCount, candidatesTokenCount } = response.usageMetadata;
 
             void this.aiUsageLogsService.create({
                 refId,
@@ -130,8 +115,6 @@ export class GeminiService {
                 duration,
                 status: AiLogStatus.success,
             });
-
-            // console.log(response.text)
 
             return {
                 text: JSON.parse(response.text),
@@ -164,18 +147,6 @@ export class GeminiService {
             );
 
             throw error;
-        }
-    }
-
-    private parseJsonResponse(text: string): object {
-        try {
-            const cleaned = text
-                .replace(/```json\n?/g, '')
-                .replace(/```\n?/g, '')
-                .trim();
-            return JSON.parse(cleaned);
-        } catch {
-            throw new Error(`Invalid JSON response from Gemini: ${text}`);
         }
     }
 }

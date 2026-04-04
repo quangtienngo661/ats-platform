@@ -16,6 +16,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '@ats-platform/types';
+import { OwnershipGuard } from '../../common/guards/resources.guard';
+import { Resources } from '../../common/decorators/resources.decorator';
 
 // TODO: Review applications module before continuing to the next module
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -75,6 +77,8 @@ export class ApplicationsController {
   }
 
   @Roles(Role.RECRUITER, Role.ADMIN, Role.CANDIDATE)
+  @UseGuards(OwnershipGuard)
+  @Resources('applications')
   @Get(':id')
   getApplicationById(@Param('id') id: string) {
     return this.applicationsService.getApplicationById(id);
