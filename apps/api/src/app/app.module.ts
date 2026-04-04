@@ -20,6 +20,9 @@ import { CVsModule } from './cvs/cvs.module';
 import { LocalStorageModule } from '../common/storage/local-storage.module';
 import { GeminiModule } from '../common/external-apis/gemini/gemini.module';
 import { BullModule } from '@nestjs/bullmq';
+import { AiUsageLogsModule } from './ai-usage-logs/ai-usage-logs.module';
+import { ApplicationsModule } from './applications/applications.module';
+import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 
 @Module({
   imports: [
@@ -29,6 +32,13 @@ import { BullModule } from '@nestjs/bullmq';
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT) || 6379,
       },
+      defaultJobOptions: {
+        attempts: 1,
+        backoff: {
+          type: 'exponential',
+          delay: 10000,
+        }
+      }
     }),
     AuthModule,
     UsersModule,
@@ -49,6 +59,9 @@ import { BullModule } from '@nestjs/bullmq';
     CVsModule,
     LocalStorageModule,
     GeminiModule,
+    AiUsageLogsModule,
+    ApplicationsModule,
+    CvScreeningsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],

@@ -24,6 +24,7 @@ export enum ApplicationStatus {
   OFFER = 'offer',
   HIRED = 'hired',
   REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
 }
 
 // Job Posting enums

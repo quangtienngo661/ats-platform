@@ -50,3 +50,28 @@ export const cvParsedDataIncludeOptions = {
   },
 } satisfies Prisma.CVParsedDataInclude;
 
+export const applicationIncludeOptions = {
+  candidate: {
+    include: {
+      user: { omit: { passwordHash: true } },
+    },
+    omit: { userId: true },
+  },
+  jobPosting: {
+    omit: {
+      parsedRequirements: true,
+      description: true,
+      departmentId: true,
+      categoryId: true,
+      createdBy: true,
+    },
+  },
+  cv: {
+    omit: {
+      rawText: true,
+      errorLog: true,
+      candidateId: true,
+    },
+  },
+  screening: true,
+};

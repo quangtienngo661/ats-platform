@@ -51,14 +51,12 @@ export class CVsController {
 
   @Roles(Role.CANDIDATE)
   @Get('me')
-  @Resources('cv')
-  @UseGuards(OwnershipGuard)
   async getMyCVs(@Req() req: Request & { user: { userId: string } }) {
     const candidateId = await this.resolveCandidateId(req.user.userId);
     return this.cvsService.getMyCVs(candidateId);
   }
 
-  @Roles(Role.ADMIN, Role.RECRUITER)
+  @Roles(Role.ADMIN, Role.RECRUITER, Role.CANDIDATE)
   @Get(':cvId')
   @Resources('cv')
   @UseGuards(OwnershipGuard)
@@ -68,7 +66,7 @@ export class CVsController {
     return this.cvsService.getCVById(cvId);
   }
 
-  @Roles(Role.ADMIN, Role.RECRUITER)
+  @Roles(Role.ADMIN, Role.RECRUITER, Role.CANDIDATE)
   @Get(':cvId/parsed-data')
   @Resources('cv')
   @UseGuards(OwnershipGuard)

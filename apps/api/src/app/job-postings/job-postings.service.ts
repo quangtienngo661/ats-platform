@@ -3,17 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@ats-platform/database';
+import { JobStatus, Prisma } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class JobPostingsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jobPostingSkillsService: JobPostingSkillsService
+    private readonly jobPostingSkillsService: JobPostingSkillsService,
+    @InjectQueue('jd-parsing') private readonly jdParsingQueue: Queue
   ) { }
 
   async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
@@ -65,8 +68,7 @@ export class JobPostingsService {
       );
     }
 
-    // Create job posting
-    // TODO: let Gemini API analyze the job description and requirements to extract structured data for better matching and search capabilities, then store the parsed requirements in the database for future use
+    // TODO: handle the notification when the job parsing is completed, but is it necessary or not?
     return this.prisma.$transaction(async (tx) => {
       const newJobPosting = await tx.jobPosting.create({
         data: {
@@ -75,10 +77,10 @@ export class JobPostingsService {
           salaryMin: createJobPostingDto.salaryMin,
           salaryMax: createJobPostingDto.salaryMax,
           description: createJobPostingDto.description,
-          parsedRequirements: "Parsed requirements will be implemented in the future",
+          parsedRequirements: null,
           status: createJobPostingDto.status,
-          publishedAt: createJobPostingDto.publishedAt // posting will be published when the status turns active
-            ? new Date(createJobPostingDto.publishedAt)
+          publishedAt: createJobPostingDto.status === JobStatus.active
+            ? new Date()
             : undefined,
           department: {
             connect: { departmentId: createJobPostingDto.departmentId },
@@ -97,6 +99,11 @@ export class JobPostingsService {
       if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
         await this.jobPostingSkillsService.create(newJobPosting.jobId, createJobPostingDto.skills, tx);
       }
+
+      this.jdParsingQueue.add('parse-jd', {
+        jobId: newJobPosting.jobId,
+        description: createJobPostingDto.description,
+      });
 
       return await tx.jobPosting.findUnique({
         where: { jobId: newJobPosting.jobId },
@@ -150,6 +157,13 @@ export class JobPostingsService {
     await this.ensureRelationsExist(updateJobPostingDto);
     this.validateSalaryRange(existingJobPosting, updateJobPostingDto);
 
+    if (updateJobPostingDto.description) {
+      this.jdParsingQueue.add('parse-jd', {
+        jobId: id,
+        description: updateJobPostingDto.description,
+      });
+    }
+
     return this.prisma.$transaction(async (tx) => {
       const updatedJobPosting = await tx.jobPosting.update({
         where: { jobId: id },
@@ -159,10 +173,9 @@ export class JobPostingsService {
           salaryMin: updateJobPostingDto.salaryMin,
           salaryMax: updateJobPostingDto.salaryMax,
           description: updateJobPostingDto.description,
-          parsedRequirements: "Parsed requirements will be implemented in the future",
           status: updateJobPostingDto.status,
-          publishedAt: updateJobPostingDto.publishedAt
-            ? new Date(updateJobPostingDto.publishedAt)
+          publishedAt: updateJobPostingDto.status === JobStatus.active
+            ? new Date()
             : undefined,
           department: updateJobPostingDto.departmentId
             ? {

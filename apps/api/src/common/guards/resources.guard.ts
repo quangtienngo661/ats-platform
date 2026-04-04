@@ -19,9 +19,14 @@ export class OwnershipGuard implements CanActivate {
         if (!resource)
             return true;
 
-        const { user } = context.switchToHttp().getRequest();
-        const resourceId = context.switchToHttp().getRequest().params.id;
+        const { user, params } = context.switchToHttp().getRequest();
+        // Support different route param naming conventions: :id, :cvId, :jobId, etc.
+        const resourceId = params.id ?? params.cvId ?? params.jobId ?? params.jobPostingId;
         const userId = user.userId;
+
+        // No ID param on this route — nothing to check ownership on, allow through
+        if (!resourceId)
+            return true;
 
         if (user.role === 'admin')
             return true;
@@ -49,9 +54,16 @@ export class OwnershipGuard implements CanActivate {
                     where: { cvId: resourceId },
                     select: { candidateId: true }
                 });
+
                 if (!cv)
                     throw new NotFoundException('CV not found');
-                if (cv.candidateId !== userId)
+
+                const candidate = await this.prisma.candidate.findUnique({
+                    where: { candidateId: cv.candidateId },
+                    select: { userId: true }
+                });
+
+                if (!candidate || candidate.userId !== userId)
                     throw new NotFoundException('You are not the owner of this CV');
                 return true;
             default:

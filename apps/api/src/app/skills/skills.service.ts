@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateSkillDto, UpdateSkillDto } from './dtos/skills.dto';
 
@@ -7,6 +7,17 @@ export class SkillsService {
 	constructor(private readonly prisma: PrismaService) { }
 
 	async create(createSkillDto: CreateSkillDto) {
+		const existingSkill = this.prisma.skill.findUnique({
+			where: {
+				name: createSkillDto.name,
+				category: createSkillDto.category,
+			},
+		});
+
+		if (existingSkill) {
+			throw new BadRequestException('Skill already exists');
+		}
+
 		return this.prisma.skill.create({
 			data: {
 				name: createSkillDto.name,

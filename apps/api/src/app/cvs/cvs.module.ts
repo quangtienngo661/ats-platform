@@ -5,17 +5,18 @@ import { CVsService } from './cvs.service';
 import { PdfService } from '../../common/pdf/pdf.service';
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { BullModule } from '@nestjs/bullmq';
-import { ConfigService } from '@nestjs/config';
 import { CvParsingProcessor } from './processors/cv-parsing.processor';
 import { CvParsedDataService } from './cv-parsed-data/cv-parsed-data.service';
+import { AiUsageLogsModule } from '../ai-usage-logs/ai-usage-logs.module';
 
 @Module({
   imports: [
-    CandidatesModule, 
+    CandidatesModule,
     // TODO: Register CV Screening Queue and Mock Interview Queue (Need assessment first)
     BullModule.registerQueue({
       name: 'cv-processing',
     }),
+    AiUsageLogsModule
   ],
   controllers: [CVsController],
   providers: [
@@ -23,5 +24,4 @@ import { CvParsedDataService } from './cv-parsed-data/cv-parsed-data.service';
   ],
   exports: [CVsService],
 })
-export class CVsModule {}
- 
+export class CVsModule { }

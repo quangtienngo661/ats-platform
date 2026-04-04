@@ -6,8 +6,6 @@ import { CandidatesService } from '../candidates/candidates.service';
 import { PdfService } from '../../common/pdf/pdf.service';
 import * as fs from 'fs/promises';
 import { candidateIncludeOptions } from '../../common/utils/include-options.util';
-import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
-import { CV_PARSE_PROMPT } from '../../common/constants/gemini-api';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
@@ -17,7 +15,6 @@ export class CVsService {
     private readonly prisma: PrismaService,
     private readonly candidatesService: CandidatesService,
     private readonly pdfService: PdfService,
-    private readonly geminiService: GeminiService,
     @InjectQueue('cv-processing') private readonly cvProcessingQueue: Queue,
   ) { }
 
@@ -25,30 +22,35 @@ export class CVsService {
     const fileBuffer = await fs.readFile(file.path);
     const rawTextFromCV = await this.pdfService.parsePdf(fileBuffer);
 
+    // Lưu relative path thay vì absolute path
+    const relativePath = file.path
+      .replace(process.cwd(), '')
+      .replace(/^[\\/]/, '')
+      .replace(/\\/g, '/'); // normalize Windows path separator
+
     const cvRecord = await this.prisma.cV.create({
-        data: {
-          candidateId,
-          filePath: file.path,
-          parsingStatus: ParsingStatus.pending,
-          rawText: rawTextFromCV,
-          uploadedAt: new Date(),
+      data: {
+        candidateId,
+        filePath: relativePath,   // ← relative path
+        parsingStatus: ParsingStatus.pending,
+        rawText: rawTextFromCV,
+        uploadedAt: new Date(),
+      },
+      include: {
+        candidate: {
+          include: { ...candidateIncludeOptions },
         },
-        include: {
-          candidate: {
-            include: { ...candidateIncludeOptions }
-          },
-        },
-        omit: {
-          candidateId: true,
-        },
-      });
+      },
+      omit: {
+        candidateId: true,
+      },
+    });
 
-      await this.cvProcessingQueue.add('parse-cv', {
-        cvId: cvRecord.cvId,
-        rawTextFromCV,
-      });
+    await this.cvProcessingQueue.add('parse-cv', {
+      cvId: cvRecord.cvId,
+    });
 
-      return cvRecord;
+    return cvRecord;
   }
 
   async getMyCVs(candidateId: string) {
@@ -105,8 +107,9 @@ export class CVsService {
     }
 
     const profileData: Record<string, unknown> = {
-      full_name: cv.parsedData.fullName,
+      fullName: cv.parsedData.name,
       email: cv.parsedData.email,
+      phoneNumber: cv.parsedData.phoneNumber,
       experience: cv.parsedData.experience as Prisma.InputJsonValue,
       education: cv.parsedData.education as Prisma.InputJsonValue,
       skills: cv.parsedData.skills as Prisma.InputJsonValue,
