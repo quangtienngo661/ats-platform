@@ -5,9 +5,10 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { createHmac, randomBytes } from 'crypto';
-import { MailService } from '../../common/mail/mail.service';
 import Redis from 'ioredis';
 import { JwtService } from '@nestjs/jwt';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 
 @Injectable()
@@ -16,9 +17,9 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailService: MailService,
     private readonly jwtService: JwtService,
-    @Inject('REDIS_CLIENT') private readonly redisClient: Redis
+    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
+    @InjectQueue('send-verification-email') private readonly emailQueue: Queue
   ) { }
 
   private get emailVerifyKeyPrefix() {
@@ -61,7 +62,7 @@ export class AuthService {
     return `${this.apiBaseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
   }
 
-  private async issueEmailVerification(userId: string, email: string) {
+  private async issueEmailVerification(userId: string, email: string, jobName: string) {
     const token = randomBytes(32).toString('hex');
     const tokenHash = this.hashEmailVerificationToken(token);
     const ttlSeconds = Math.ceil(this.emailVerificationTtlMs / 1000);
@@ -69,7 +70,6 @@ export class AuthService {
     const tokenKey = `${this.emailVerifyKeyPrefix}${tokenHash}`;
     const userKey = `${this.emailVerifyUserKeyPrefix}${userId}`;
 
-    // Keep only one active token per user.
     const previousHash = await this.redisClient.get(userKey);
     if (previousHash) {
       await this.redisClient.del(`${this.emailVerifyKeyPrefix}${previousHash}`);
@@ -80,7 +80,7 @@ export class AuthService {
 
     const link = this.buildEmailVerificationLink(token);
     try {
-      await this.mailService.sendVerificationEmail(email, link);
+      await this.emailQueue.add(jobName, { email, link }, { attempts: 3, backoff: { type: 'exponential', delay: 1000 } });
     } catch (err) {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(userKey);
@@ -156,7 +156,7 @@ export class AuthService {
     });
 
     try {
-      await this.issueEmailVerification(newUser.userId, newUser.email);
+      await this.issueEmailVerification(newUser.userId, newUser.email, 'send-register-verification-email');
     } catch (err: any) {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
@@ -173,7 +173,6 @@ export class AuthService {
       where: { email },
     });
 
-    // Do not reveal whether email exists.
     if (!user) {
       return { message: 'If an account exists, a verification email has been sent' };
     }
@@ -183,12 +182,11 @@ export class AuthService {
     }
 
     try {
-      await this.issueEmailVerification(user.userId, user.email);
+      await this.issueEmailVerification(user.userId, user.email, 'send-register-verification-email');
     } catch (err: any) {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
 
-    // Always return a generic message to avoid leaking account state.
     return { message: 'If an account exists, a verification email has been sent' };
   }
 
@@ -348,5 +346,5 @@ export class AuthService {
     res.clearCookie('refreshToken', cookieOptions);
   }
 
-  // TODO: finish the forgot password flow with email verification and password reset token.
+  // TODO: finish the forgot password flow with email verification and password reset token, also use BullMQ for verfication.
 }

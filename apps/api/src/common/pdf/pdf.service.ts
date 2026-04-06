@@ -6,13 +6,9 @@ export class PdfService {
     async parsePdf(fileBuffer: Buffer) {
         try {
             const data = new PDFParse(new Uint8Array(fileBuffer));
-            // return {
-            //     text: data.getText(),
-            //     info: data.getInfo(),
-            // };
-            return await data.getText();
+            return (await data.getText()).text;
         } catch (error) {
-            throw new Error('Error parsing PDF');
+            console.error('Error parsing PDF:', error);
         }
     }
 }

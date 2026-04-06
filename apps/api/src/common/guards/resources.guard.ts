@@ -1,8 +1,7 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { RESOURCES_KEY } from "../decorators/resources.decorator";
 import { PrismaService } from "../prisma/prisma.service";
-import { userIncludeOptions } from "../utils/include-options";
 
 @Injectable()
 export class OwnershipGuard implements CanActivate {
@@ -20,15 +19,20 @@ export class OwnershipGuard implements CanActivate {
         if (!resource)
             return true;
 
-        const { user } = context.switchToHttp().getRequest();
-        const resourceId = context.switchToHttp().getRequest().params.id;
+        const { user, params } = context.switchToHttp().getRequest();
+        // Support different route param naming conventions: :id, :cvId, :jobId, etc.
+        const resourceId = params.id ?? params.cvId ?? params.jobId ?? params.jobPostingId;
         const userId = user.userId;
+
+        // No ID param on this route — nothing to check ownership on, allow through
+        if (!resourceId)
+            return true;
 
         if (user.role === 'admin')
             return true;
 
         switch (resource) {
-            case 'job-posting':
+            case 'job-posting': {
                 const jobPosting = await this.prisma.jobPosting.findUnique({
                     where: { jobId: resourceId },
                     select: {
@@ -42,12 +46,48 @@ export class OwnershipGuard implements CanActivate {
                     throw new NotFoundException('Job posting not found');
 
                 if (jobPosting.recruiter.userId !== userId)
-                    throw new NotFoundException('You are not the owner of this job posting');
+                    throw new ForbiddenException('You are not the owner of this job posting');
                 return true;
+            }
 
-            // case 'job-posting-skills':
-            //     const jobPostingSkill = await this.prisma.jobPostingSkill.findUnique({
-            //         where: { id: resourceId },
+            case 'cv': {
+                const cv = await this.prisma.cV.findUnique({
+                    where: { cvId: resourceId },
+                    select: { candidateId: true }
+                });
+
+                if (!cv)
+                    throw new NotFoundException('CV not found');
+
+                const candidate = await this.prisma.candidate.findUnique({
+                    where: { candidateId: cv.candidateId },
+                    select: { userId: true }
+                });
+
+                if (!candidate || candidate.userId !== userId)
+                    throw new ForbiddenException('You are not the owner of this CV');
+                return true;
+            }
+
+            case 'application': {
+                const application = await this.prisma.application.findUnique({
+                    where: { applicationId: resourceId },
+                    select: { candidateId: true }
+                });
+
+                if (!application)
+                    throw new NotFoundException('Application not found');
+
+                const candidate = await this.prisma.candidate.findUnique({
+                    where: { candidateId: application.candidateId },
+                    select: { userId: true }
+                });
+
+                if (!candidate || candidate.userId !== userId)
+                    throw new ForbiddenException('You are not the owner of this application');
+                return true;
+            }
+
             default:
                 return true;
         }

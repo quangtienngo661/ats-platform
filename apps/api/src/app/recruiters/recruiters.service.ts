@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { userIncludeOptions } from '../../common/utils/include-options';
+import { recruiterIncludeOptions } from '../../common/utils/include-options.util';
 
 @Injectable()
 export class RecruitersService {
@@ -32,7 +32,7 @@ export class RecruitersService {
 		const existingRecruiter = await this.prisma.recruiter.findUnique({
 			where: {
 				userId: createRecruiterDto.userId
-			},	
+			},
 		});
 
 		if (existingRecruiter) {
@@ -45,10 +45,7 @@ export class RecruitersService {
 				departmentId: createRecruiterDto.departmentId,
 				position: createRecruiterDto.position,
 			},
-			include: {
-				user: { ...userIncludeOptions },
-				department: true
-			},
+			include: { ...recruiterIncludeOptions },
 			omit: {
 				userId: true,
 				departmentId: true
@@ -60,10 +57,7 @@ export class RecruitersService {
 
 	async findAll() {
 		return await this.prisma.recruiter.findMany({
-			include: {
-				user: { ...userIncludeOptions },
-				department: true,
-			},
+			include: { ...recruiterIncludeOptions },
 			omit: {
 				userId: true,
 				departmentId: true
@@ -80,10 +74,7 @@ export class RecruitersService {
 				userId: true,
 				departmentId: true
 			},
-			include: {
-				user: { ...userIncludeOptions },
-				department: true,
-			},
+			include: { ...recruiterIncludeOptions },
 		});
 
 		if (!recruiter) {
@@ -108,10 +99,7 @@ export class RecruitersService {
 			where: {
 				recruiterId: id
 			},
-			include: {
-				user: { ...userIncludeOptions },
-				department: true,
-			},
+			include: { ...recruiterIncludeOptions },
 			data: updateRecruiterDto,
 			omit: {
 				userId: true,
@@ -139,10 +127,7 @@ export class RecruitersService {
 				userId: true,
 				departmentId: true
 			},
-			include: {
-				user: { ...userIncludeOptions },
-				department: true
-			}
+			include: { ...recruiterIncludeOptions }
 		});
 	}
 }

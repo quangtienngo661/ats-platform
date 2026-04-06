@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { PrismaModule } from '../common/prisma/prisma.module';
-import { RedisModule } from './redis/redis.module';
+import { RedisModule } from '../common/redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { DepartmentsModule } from './departments/departments.module';
@@ -18,10 +18,28 @@ import { AiConfigModule } from './ai-config/ai-config.module';
 import { CandidatesModule } from './candidates/candidates.module';
 import { CVsModule } from './cvs/cvs.module';
 import { LocalStorageModule } from '../common/storage/local-storage.module';
+import { GeminiModule } from '../common/external-apis/gemini/gemini.module';
+import { BullModule } from '@nestjs/bullmq';
+import { AiUsageLogsModule } from './ai-usage-logs/ai-usage-logs.module';
+import { ApplicationsModule } from './applications/applications.module';
+import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT) || 6379,
+      },
+      defaultJobOptions: {
+        attempts: 1,
+        backoff: {
+          type: 'exponential',
+          delay: 10000,
+        }
+      }
+    }),
     AuthModule,
     UsersModule,
     PrismaModule,
@@ -39,9 +57,13 @@ import { LocalStorageModule } from '../common/storage/local-storage.module';
     AiConfigModule,
     CandidatesModule,
     CVsModule,
-    LocalStorageModule
+    LocalStorageModule,
+    GeminiModule,
+    AiUsageLogsModule,
+    ApplicationsModule,
+    CvScreeningsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],
 })
-export class AppModule {}
+export class AppModule { }

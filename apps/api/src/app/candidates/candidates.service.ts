@@ -2,6 +2,7 @@ import { Prisma } from '@ats-platform/database';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { FindCandidatesQueryDto, UpdateCandidateProfileDto } from './dtos/candidates.dto';
+import { candidateIncludeOptions } from '../../common/utils/include-options.util';
 
 @Injectable()
 export class CandidatesService {
@@ -10,26 +11,10 @@ export class CandidatesService {
 	async getProfile(userId: string) {
 		const candidate = await this.prisma.candidate.findUnique({
 			where: { userId },
-			include: {
-				user: {
-					select: {
-						userId: true,
-						email: true,
-						fullName: true,
-						phoneNumber: true,
-						role: true,
-						status: true,
-						emailVerified: true,
-						createdAt: true,
-					},
-				},
-				_count: {
-					select: {
-						cvs: true,
-						applications: true,
-					},
-				},
-			},
+			include: { ...candidateIncludeOptions },
+			omit: {
+				userId: true
+			}
 		});
 
 		if (!candidate) {

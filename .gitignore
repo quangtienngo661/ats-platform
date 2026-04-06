@@ -50,3 +50,6 @@ out
 .env
 libs/backend/database/src/generated/prisma
 postman
+.temp
+uploads
+important-notes

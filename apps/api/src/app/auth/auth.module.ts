@@ -7,8 +7,7 @@ import dotenv from 'dotenv';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from '../../common/mail/mail.module';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bullmq';
 
 dotenv.config();
 
@@ -21,11 +20,14 @@ dotenv.config();
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    BullModule.registerQueue({
+      name: 'send-verification-email',
+    })
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    JwtStrategy
+    JwtStrategy,
   ],
 })
 export class AuthModule { }

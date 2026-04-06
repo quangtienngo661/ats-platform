@@ -54,6 +54,7 @@ enum ApplicationStatus {
   offer
   hired
   rejected
+  cancelled
 
   @@map("application_status")
 }
@@ -88,6 +89,7 @@ enum AiActionType {
   cv_parsing
   cv_scoring
   mock_interview
+  job_parsing
 
   @@map("ai_action_type")
 }
@@ -282,7 +284,7 @@ model JobPosting {
   salaryMin          Decimal?     @map("salary_min")
   salaryMax          Decimal?     @map("salary_max")
   description        String?
-  parsedRequirements String?      @map("parsed_requirements")
+  parsedRequirements Json?        @map("parsed_requirements")
   status             JobStatus    @default(draft)
   publishedAt        DateTime?    @map("published_at")
 
@@ -329,15 +331,19 @@ model CV {
   @@map("cvs")
 }
 
+// TODO: add projects, certificates, links and summaries  into the CVParsedData table
 model CVParsedData {
-  id          String  @id @default(uuid())
-  cvId        String  @unique @map("cv_id")
-  fullName    String? @map("full_name")
-  email       String?
-  experience  Json?
-  education   Json?
-  skills      Json?
-  isConfirmed Boolean @default(false) @map("is_confirmed")
+  id           String  @id @default(uuid())
+  cvId         String  @unique @map("cv_id")
+  name         String?
+  email        String?
+  phoneNumber  String? @map("phone_number")
+  experience   Json?
+  education    Json?
+  skills       Json?
+  projects     Json?
+  certificates Json?
+  isConfirmed  Boolean @default(false) @map("is_confirmed")
 
   cv CV @relation(fields: [cvId], references: [cvId], onDelete: Cascade)
 
