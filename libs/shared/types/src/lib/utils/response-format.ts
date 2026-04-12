@@ -1,8 +1,8 @@
-export interface ResponseFormat {
+export interface ResponseFormat<T = unknown> {
     success: boolean;
     status: number;
     message?: string;
-    data?: any;
+    data?: T;
 }
 
 export const successResponse = (status: number = 200, data?: any): ResponseFormat => {
@@ -16,12 +16,11 @@ export const successResponse = (status: number = 200, data?: any): ResponseForma
 export const errorResponse = (
     status: number = 500,
     message: string = "Internal Server Error",
-    data?: any
+    data?: unknown
 ): ResponseFormat => {
     return {
         success: false,
         status,
         message,
-        data,
     };
 }

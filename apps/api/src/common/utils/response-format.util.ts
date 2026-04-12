@@ -1,7 +1,7 @@
 import { ResponseFormat } from "@ats-platform/types";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class Response<T> implements ResponseFormat {
+export class Response<T> implements ResponseFormat<T> {
     @ApiProperty()
     success: boolean;
 

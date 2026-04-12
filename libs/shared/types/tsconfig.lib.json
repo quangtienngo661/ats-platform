@@ -5,5 +5,10 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../../backend/database/tsconfig.lib.json"
+    }
+  ]
 }
