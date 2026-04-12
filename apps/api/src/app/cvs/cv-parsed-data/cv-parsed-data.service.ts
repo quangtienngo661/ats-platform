@@ -12,7 +12,7 @@ export class CvParsedDataService {
         return (tx || this.prisma).cVParsedData.create({
             data: {
                 cvId,
-                name: parsedData.fullName,
+                name: parsedData.name,
                 email: parsedData.email,
                 phoneNumber: parsedData.phone,
                 skills: parsedData.skills as object,

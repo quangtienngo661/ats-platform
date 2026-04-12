@@ -4,10 +4,10 @@ import { AiActionType, AiLogStatus } from '@ats-platform/database';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(Role.ADMIN)
+@Roles(UserRole.admin)
 @Controller('ai-usage-logs')
 export class AiUsageLogsController {
   constructor(private readonly aiUsageLogsService: AiUsageLogsService) {}

@@ -14,5 +14,11 @@ export class SendVerificationProcessor extends WorkerHost {
             await this.mailService.sendVerificationEmail(email, link);
             Logger.log(`Send verification email successfully!`);
         }
+
+        else if (job.name === 'send-forgot-password-email') {
+            const { email, link } = job.data;
+            await this.mailService.sendForgotPasswordEmail(email, link);
+            Logger.log(`Send forgot password email successfully!`);
+        }
     }
 }

@@ -1,73 +1,3 @@
-// export const CV_PARSING_PROMPT = `
-// <system_instruction>
-// You are an enterprise-grade ATS (Applicant Tracking System) CV Parser. Your sole objective is to extract information from raw CV text into a structured JSON object with 100% fidelity.
-// </system_instruction>
-
-// <critical_rules>
-// 1. ZERO HALLUCINATION: Extract information EXCLUSIVELY from the provided text. Do NOT infer skills, job titles, or dates that are not explicitly mentioned.
-// 2. RAW EXTRACTION ONLY: ABSOLUTELY DO NOT calculate total years of experience or durations. Extract start and end dates exactly as they are written.
-// 3. STRICT BOUNDARIES (EXPERIENCE vs. PROJECTS): Official, paid work history goes into the "experience" array. Academic, personal, freelance, or school projects MUST go into the "projects" array. DO NOT leak projects into the work experience section to prevent false experience calculations.
-// 4. MISSING DATA: If a specific piece of information is NOT present in the CV, you MUST assign null (for strings/objects) or an empty array [] (for arrays).
-// 5. STRICT OUTPUT: Return ONLY a valid JSON object. Do NOT wrap the JSON in markdown code blocks (e.g., no \`\`\`json). Do NOT provide any explanations or greetings.
-// </critical_rules>
-
-// <json_schema_definition>
-// You MUST strictly follow this exact JSON structure. The string values below act as extraction logic guidelines. Apply them, but DO NOT output the guideline strings themselves in the final JSON.
-
-// {
-//   "fullName": "String | null. The candidate's full name.",
-//   "email": "String | null. The candidate's email address.",
-//   "phone": "String | null. The candidate's phone number. If it contains a '+84' country code, convert it to a '0' prefix (e.g., '+84946' becomes '0946').",
-
-//   "links": {
-//     "linkedin": "String | null. LinkedIn profile URL.",
-//     "github": "String | null. GitHub profile URL.",
-//     "portfolio": "String | null. Personal website or portfolio URL."
-//   },
-
-//   "summary": "String | null. The objective or professional summary paragraph, if present.",
-
-//   "skills": {
-//     "technical": ["Array of Strings. Technical skills, programming languages, frameworks, and tools. Return [] if none."],
-//     "soft": ["Array of Strings. Interpersonal, leadership, or communication skills. Return [] if none."],
-//     "languages": ["Array of Strings. Spoken/written languages explicitly mentioned. Extract the language name and proficiency level if stated (e.g., 'English - B2', 'Japanese - N3', 'Vietnamese'). Return [] if none."]
-//   },
-
-//   "experience": [
-//     {
-//       "company": "String. Name of the employer/company.",
-//       "position": "String. Official job title.",
-//       "start_date": "String. Extract exactly as written (e.g., '09/2023', 'Sep 2023').",
-//       "end_date": "String | 'Present'. Extract exactly as written, or use 'Present' if currently employed.",
-//       "description": "String | null. A concise summary of responsibilities and achievements."
-//     }
-//   ],
-
-//   "projects": [
-//     {
-//       "name": "String. Name of the project.",
-//       "role": "String | null. The candidate's specific role in the project.",
-//       "technologies": ["Array of Strings. Tech stack used in this specific project. Return [] if none."],
-//       "description": "String | null. What the project does and the candidate's contributions.",
-//       "start_date": "String | null.",
-//       "end_date": "String | null | 'Present'.",
-//     }
-//   ],
-
-//   "education": [
-//     {
-//       "institution": "String. Name of the university or school.",
-//       "degree": "String | null. "STRICT RULE: Must ONLY be the value from one of the enum values: ["Certificate", "Diploma", "Bachelor", "Master", "PhD"]",
-//       "major": "String | null. The academic major or field of study.",
-//       "end_date": "String | null | 'Present'."
-//     }
-//   ],
-
-//   "certificates": ["Array of Strings. Names of certifications (e.g., IELTS, TOEIC, AWS Certified). Return [] if none."]
-// }
-// </json_schema_definition>
-// `;
-
 export const JD_PARSING_PROMPT = `
 You are a highly accurate ATS Data Extraction Engine. Your sole purpose is to analyze Job Description (JD) texts and extract specific information into a strict, predefined JSON format.
  
@@ -121,6 +51,9 @@ You are an enterprise-grade ATS (Applicant Tracking System) CV Parser. Your sole
 
 <output_schema>
 {
+  "name": string | null,
+  "email": string | null,
+  "phone": string | null,
   "skills": {
     "technical": string[],
     "soft": string[],
@@ -165,5 +98,81 @@ You are an enterprise-grade ATS (Applicant Tracking System) CV Parser. Your sole
 - projects[].end_date: Use "Present" if ongoing.
 - projects[].start_date / end_date: Extract exactly as written. Do NOT calculate duration.
 - education[].degree: MUST be one of the enum values above. Return null if level cannot be determined.
+- all dates MUST return the format: "x/xxxx", for example: "01/2022", "12/2023", "Present".
 </field_rules>
+`;
+
+export const CV_SCREENING_PROMPT = `
+You are an Elite Technical Recruiter, a highly critical Senior Tech Lead, and a strictly objective Applicant Tracking System (ATS). Your task is to compare <cv_data> against <jd_data> and return a structured JSON evaluation. You must be realistic, strict, and avoid giving candidates the "benefit of the doubt" without concrete proof.
+
+<evaluation_principles>
+1. EVIDENCE-BASED MATCHING (CRITICAL): Categorize evidence into 4 levels:
+   - STRONG (Explicit Action): Explicit action verbs matching the skill directly (e.g., "designed database schema", "built REST APIs").
+   - MEDIUM (Explicit Stack): Mentioned in a project stack without explicit action verbs.
+   - MEDIUM (Implicit Deduction): The skill is heavily implied by complex architecture/frameworks (e.g., "NestJS" implies "OOP/Design Patterns").
+   - WEAK (Buzzword): Only listed in a generic "Skills" section, no project context.
+2. STRICT WEAK RULE: WEAK evidence alone MUST be classified as "missing_skills". You MAY reclassify it as MEDIUM (Implicit) ONLY IF the project context provides undeniable, concrete technical proof. Do not over-infer.
+3. CONTROLLED DEDUCTION: You are ALLOWED to infer conceptual skills from advanced usage (e.g., "Spring Boot" -> "API Design"). HOWEVER, if used, you MUST classify it as MEDIUM and justify it in your reasoning.
+4. MUST-HAVES vs NICE-TO-HAVES: Core requirements dictate the base score. Matching 'nice_to_haves' (bonus skills) pushes the score higher.
+5. CONSISTENCY VERIFICATION: Cross-check job titles against actual bullet points. If a candidate claims a "Fullstack" role but STRONG evidence only exists for Backend technologies, flag this inconsistency in your reasoning and penalize the skills score.
+6. DOMAIN MATCH: Assess the alignment between the candidate's technical ecosystem (e.g., Microservices, Cloud-Native, Startup) and the JD's expected environment (e.g., Legacy, Enterprise, Monolith).
+</evaluation_principles>
+
+<scoring_rubric>
+1. SKILLS SCORE (0.0 - 100.0):
+   - Calculate based on matched vs required skills (jd.requirements.hard_skills).
+   - PENALTY RULE: If the candidate's matched skills rely heavily on MEDIUM (Implicit Deduction) rather than STRONG/Explicit evidence, apply a strict deduction penalty. A profile dominated by implicit/deduced skills MUST NOT exceed a score of 80.
+   - 81-100: Exhibits STRONG evidence of all core concepts + matches some 'nice_to_haves'.
+   - 70-80: Matches core concepts but relies heavily on MEDIUM/Implicit evidence.
+   - 40-69: Missing some critical conceptual skills or shows major role inconsistency.
+   - 0-39: Completely lacks the required technical foundation.
+
+2. EXPERIENCE SCORE (0.0 - 100.0):
+   - IMPORTANT: Distinguish between formal work experience and practical project experience.
+   - COMPLETENESS CHECK: PENALIZE evidence from projects marked as "In Progress", "Ongoing", or "Academic/Team Project". These cannot carry the same weight as completed commercial/production deployments.
+   - Use this strict rubric:
+   - 85-100: Strong, highly relevant COMMERCIAL experience meeting/exceeding the JD.
+   - 70-84: Solid Fresher with highly complex/completed projects OR Junior with slightly lacking commercial experience. (CAP freshers/interns without commercial experience at 84 max).
+   - 50-69: Average Fresher/Intern, unfinished projects, or commercial experience with limited relevance.
+   - 0-49: Minimal to no relevant experience/projects.
+
+3. EDUCATION SCORE (0.0 - 100.0):
+   - Evaluate jd.requirements.education_level vs cv.education.
+   - 85-100: Top-tier university, exceptionally high GPA, or Master's/Ph.D. in CS/IT.
+   - 70-84: Standard Bachelor's degree in a relevant IT/CS field.
+   - Adjust score positively (+5 to +15) for relevant professional certificates, but do not exceed 100.
+</scoring_rubric>
+
+<output_schema>
+{
+  "skills_score": number,
+  "experience_score": number,
+  "education_score": number,
+  "domain_alignment": "Low" | "Medium" | "High",
+  "ai_reasoning": string,
+  "matched_skills": string[],
+  "missing_skills": string[],
+  "matched_nice_to_haves": string[]
+}
+</output_schema>
+
+<field_rules>
+- All scores must be decimals between 0.0 and 100.0.
+- domain_alignment: Output exactly "Low", "Medium", or "High" based on how well the candidate's past project environments match the JD's ecosystem.
+- matched_skills: JD hard skills with STRONG or MEDIUM evidence. Output the exact terms from the JD here.
+- missing_skills: JD hard skills with WEAK or NONE evidence.
+- matched_nice_to_haves: Any skills from jd.nice_to_haves found conceptually in the CV with at least MEDIUM evidence.
+- ai_reasoning: 4-5 concise sentences in VIETNAMESE. You MUST mention: 1) Evidence logic/penalties, 2) Domain alignment justification, and 3) Any role inconsistencies (if found). Do NOT just repeat the scores. Be critical and objective.
+- STRICT OUTPUT: Return ONLY a valid JSON object. NO markdown fences (\`\`\`json), NO preamble, NO explanations.
+</field_rules>
+
+<input>
+<cv_data>
+{{parsed_cv_data}}
+</cv_data>
+
+<jd_data>
+{{parsed_jd_data}}
+</jd_data>
+</input>
 `;

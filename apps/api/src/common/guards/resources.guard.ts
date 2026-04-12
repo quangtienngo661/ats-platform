@@ -70,6 +70,9 @@ export class OwnershipGuard implements CanActivate {
             }
 
             case 'application': {
+                if (user.role === 'recruiter')
+                    return true;
+
                 const application = await this.prisma.application.findUnique({
                     where: { applicationId: resourceId },
                     select: { candidateId: true }

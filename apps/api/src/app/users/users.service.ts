@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { UserStatus } from '@ats-platform/types';
-import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
+import { UserStatus } from '@ats-platform/database';
+import { ChangePasswordDto, CreateUserDto, UpdateUserDto } from './dtos/user.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
 import * as bcrypt from 'bcrypt';
@@ -25,7 +25,7 @@ export class UsersService {
         email: data.email,
         passwordHash,
         fullName: data.fullName,
-        status: data.status ?? UserStatus.ACTIVE,
+        status: data.status ?? UserStatus.active,
         role: data.role,
       },
       omit: { passwordHash: true },
@@ -37,6 +37,7 @@ export class UsersService {
   async findAll() {
     return this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
+      omit: { passwordHash: true }
     });
   }
 
@@ -56,6 +57,29 @@ export class UsersService {
   async updateMe(userId: string, updateMeDto: UpdateUserDto) {
     return this.update(userId, {
       ...updateMeDto,
+    });
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+      select: { passwordHash: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isCurrentPasswordValid = bcrypt.compareSync(dto.currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const newPasswordHash = bcrypt.hashSync(dto.newPassword, 10);
+    return this.prisma.user.update({
+      where: { userId },
+      data: { passwordHash: newPasswordHash },
+      omit: { passwordHash: true },
     });
   }
 

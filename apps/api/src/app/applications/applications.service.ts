@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import { ApplicationStatus, JobStatus, ParsingStatus, ScreeningStatus } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreateApplicationDto, UpdateApplicationStatusDto } from './dtos/application.dto';
+import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { applicationIncludeOptions } from '../../common/utils/include-options.util';
+import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 
 // Valid Kanban transitions — terminal states (hired/rejected) have no outgoing transitions
 // Need to review the basic knowledge: Partial, Record
@@ -19,9 +20,13 @@ const VALID_TRANSITIONS: Partial<Record<ApplicationStatus, ApplicationStatus[]>>
     [ApplicationStatus.offer]: [ApplicationStatus.hired, ApplicationStatus.rejected],
 };
 
+
 @Injectable()
 export class ApplicationsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cvScreeningsService: CvScreeningsService
+    ) { }
     async apply(userId: string, dto: CreateApplicationDto) {
         const candidate = await this.prisma.candidate.findUnique({
             where: { userId },
@@ -182,19 +187,36 @@ export class ApplicationsService {
         return { job, board, cancelledCount };
     }
 
-    async getApplicationsByJob(jobId: string) {
+    async getApplicationsByJob(jobId: string, query: GetApplicationsByJobQueryDto = {}) {
         const job = await this.prisma.jobPosting.findUnique({
             where: { jobId },
             select: { jobId: true },
         });
         if (!job) throw new NotFoundException('Job posting not found');
 
-        return this.prisma.application.findMany({
-            // Default: exclude cancelled. HR can filter via query param in future
-            where: { jobId, status: { not: ApplicationStatus.cancelled } },
-            include: applicationIncludeOptions,
-            orderBy: { appliedAt: 'desc' },
-        });
+        const page = query.page ?? 1;
+        const limit = query.limit ?? 50;
+
+        const where = {
+            jobId,
+            ...(query.includeCancelled ? {} : { status: { not: ApplicationStatus.cancelled } }),
+        };
+
+        const [items, total] = await this.prisma.$transaction([
+            this.prisma.application.findMany({
+                where,
+                include: applicationIncludeOptions,
+                orderBy: { appliedAt: 'desc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma.application.count({ where }),
+        ]);
+
+        return {
+            items,
+            pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        };
     }
 
     async getApplicationById(applicationId: string) {
@@ -267,7 +289,7 @@ export class ApplicationsService {
         });
     }
 
-    // Main service should be in the cv screening service, this method is for confirmation when the HR need to trigger AI screening manually
+    // Confirmation when the HR need to trigger AI screening manually
     async triggerScreening(applicationId: string) {
         const application = await this.prisma.application.findUnique({
             where: { applicationId },
@@ -293,7 +315,7 @@ export class ApplicationsService {
                 `Cannot trigger AI screening on a '${application.status}' application`,
             );
         }
-        if (application.screening) {
+        if (application.screening && application.screening.status) {
             if (application.screening.status === ScreeningStatus.pending) {
                 throw new ConflictException('AI screening is already queued');
             }
@@ -303,41 +325,16 @@ export class ApplicationsService {
             if (application.screening.status === ScreeningStatus.success) {
                 throw new ConflictException('AI screening has already completed. Check results in application detail');
             }
-            // status === 'failed' → allow retry via upsert below
+            // status === 'failed' → allow retry
         }
 
         const aiConfig = await this.prisma.aiConfig.findFirst({
             where: { isDefault: true },
             select: { configId: true },
         });
-        if (!aiConfig) {
-            throw new NotFoundException(
-                'No default AI configuration found. Please set up an AI configuration first',
-            );
-        }
-
-        // Create or retry CVScreening record.
-        // TODO: Wire BullMQ queue in CvScreeningsModule to process 'pending' records.
-        return this.prisma.cVScreening.upsert({
-            where: { applicationId },
-            create: {
-                applicationId,
-                cvId: application.cvId,
-                configId: aiConfig.configId,
-                status: ScreeningStatus.pending,
-            },
-            update: {
-                configId: aiConfig.configId,
-                status: ScreeningStatus.pending,
-                retryCount: { increment: 1 },
-                overallScore: null,
-                aiRecommendation: null,
-                aiReasoning: null,
-                matchedSkills: null,
-                missingSkills: null,
-                errorLog: null,
-                screenedAt: null,
-            },
-        });
+        
+        // Pass aiConfig?.configId so CvScreeningsService knows which one to use if found, 
+        // else CvScreeningsService has its own getActiveConfig logic fallback.
+        return this.cvScreeningsService.createScreeningRecord(application.applicationId, application.cvId, aiConfig?.configId);
     }
 }

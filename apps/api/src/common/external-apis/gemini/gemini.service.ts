@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { GeminiModel } from '../../types/enums/gemini-model.enum';
 import { AiUsageLogsService } from '../../../app/ai-usage-logs/ai-usage-logs.service';
 import { AiActionType, AiLogStatus } from '@ats-platform/database';
-import { cvParsingConfig, jdParsingConfig } from '../../configs/gemini.config';
+import { cvParsingConfig, jdParsingConfig, screeningConfig } from '../../configs/gemini.config';
 
 @Injectable()
 export class GeminiService {
@@ -35,21 +35,25 @@ export class GeminiService {
         return result.text;
     }
 
-    // async screeningCV(
-    //     refId: string,
-    //     model: string = GeminiModel.G_3_Flash,
-    //     prompt: string,
-    //     content: string
-    // ) {
-    //     const result = await this.generateContent(
-    //         refId,
-    //         model,
-    //         prompt,
-    //         content,
-    //         AiActionType.cv_scoring
-    //     );
-    //     return result.text;
-    // }
+    async screeningCV(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.G_3_1_Pro,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.cv_scoring,
+            screeningConfig
+        );
+
+        console.log('==============================')
+        console.log(result.text);
+        console.log('==============================')
+
+        return result.text;
+    }
 
     async parseJD(
         refId: string,
@@ -77,8 +81,7 @@ export class GeminiService {
     ) {
         const startTime = performance.now();
 
-        // 1. Khai báo Timeout Controller (30 giây để xử lý CV parsing dài)
-        const timeoutStr = 20000; // TODO: change the timeout into 30s when using paid gemini
+        const timeoutStr = 30000;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutStr);
 

@@ -7,7 +7,7 @@ import { CreateAiConfigDto, UpdateAiConfigDto } from './dtos/ai-config.dto';
 export class AiConfigService {
 	private static readonly WEIGHT_SUM_EPSILON = 1e-9;
 
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async create(createAiConfigDto: CreateAiConfigDto) {
 		this.validateWeightsSum(

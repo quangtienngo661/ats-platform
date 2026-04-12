@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword } from 'class-validator';
-import { Role, UserStatus } from '@ats-platform/types';
+import { UserRole, UserStatus } from '@ats-platform/database';
 import { IUserDto } from '@ats-platform/types';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { User } from '@ats-platform/database';
@@ -36,7 +36,7 @@ export class CreateUserDto implements IUserDto {
 
     @ApiPropertyOptional({
         enum: UserStatus,
-        example: UserStatus.ACTIVE,
+        example: UserStatus.active,
         description: 'User status',
     })
     @IsEnum(UserStatus)
@@ -44,15 +44,31 @@ export class CreateUserDto implements IUserDto {
     status!: UserStatus;
 
     @ApiProperty({
-        enum: Role,
-        example: Role.CANDIDATE,
+        enum: UserRole,
+        example: UserRole.candidate,
         description: 'User role',
     })
-    @IsEnum(Role)
-    role!: Role;
+    @IsEnum(UserRole)
+    role!: UserRole;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) { }
+
+export class ChangePasswordDto {
+    @ApiProperty({
+        example: 'OldP@ssw0rd',
+        description: 'Current account password for verification',
+    })
+    @IsString()
+    currentPassword!: string;
+
+    @ApiProperty({
+        example: 'NewStrongP@ssw0rd1',
+        description: 'New account password',
+    })
+    @IsStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
+    newPassword!: string;
+}
 
 export class UserDto {
     @ApiProperty({
