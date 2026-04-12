@@ -1,4 +1,4 @@
-import { Role } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 import {
   BadRequestException,
   Controller,
@@ -8,14 +8,13 @@ import {
   Param,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
-import { diskStorage } from 'multer';
+import { Request, Response } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -35,7 +34,7 @@ export class CVsController {
 
   @Post('upload')
   @UseInterceptors(CVUploadInterceptor)
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   async uploadCV(
     @Req() req: Request & { user: { userId: string } },
     @UploadedFile() file: Express.Multer.File,
@@ -49,14 +48,14 @@ export class CVsController {
     }
   }
 
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Get('me')
   async getMyCVs(@Req() req: Request & { user: { userId: string } }) {
     const candidateId = await this.resolveCandidateId(req.user.userId);
     return this.cvsService.getMyCVs(candidateId);
   }
 
-  @Roles(Role.ADMIN, Role.RECRUITER, Role.CANDIDATE)
+  @Roles(UserRole.admin, UserRole.recruiter, UserRole.candidate)
   @Get(':cvId')
   @Resources('cv')
   @UseGuards(OwnershipGuard)
@@ -66,7 +65,7 @@ export class CVsController {
     return this.cvsService.getCVById(cvId);
   }
 
-  @Roles(Role.ADMIN, Role.RECRUITER, Role.CANDIDATE)
+  @Roles(UserRole.admin, UserRole.recruiter, UserRole.candidate)
   @Get(':cvId/parsed-data')
   @Resources('cv')
   @UseGuards(OwnershipGuard)
@@ -74,6 +73,19 @@ export class CVsController {
     @Param('cvId') cvId: string,
   ) {
     return this.cvsService.getParsedData(cvId);
+  }
+
+  // TODO: Review this method
+  @Roles(UserRole.admin, UserRole.recruiter, UserRole.candidate)
+  @Get(':cvId/download')
+  @Resources('cv')
+  @UseGuards(OwnershipGuard)
+  async downloadCV(
+    @Param('cvId') cvId: string,
+    @Res() res: Response,
+  ) {
+    const { absolutePath, fileName } = await this.cvsService.downloadCV(cvId);
+    res.download(absolutePath, fileName);
   }
 
   @Resources('cv')

@@ -331,7 +331,6 @@ model CV {
   @@map("cvs")
 }
 
-// TODO: add projects, certificates, links and summaries  into the CVParsedData table
 model CVParsedData {
   id           String  @id @default(uuid())
   cvId         String  @unique @map("cv_id")

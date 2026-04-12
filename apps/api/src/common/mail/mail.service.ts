@@ -58,4 +58,22 @@ export class MailService {
       text,
     });
   }
+
+  async sendForgotPasswordEmail(to: string, resetLink: string) {
+    const subject = 'Reset your password';
+    const text = `Please reset your password by opening this link: ${resetLink}`;
+
+    if (!this.isEnabled) {
+      this.logger.log(`[SMTP disabled] Would send forgot password email to ${to}: ${resetLink}`);
+      return;
+    }
+
+    const transporter = this.getTransporter();
+    await transporter.sendMail({
+      from: this.fromAddress,
+      to,
+      subject,
+      text,
+    });
+  }
 }

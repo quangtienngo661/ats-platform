@@ -6,55 +6,55 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApplicationsService } from './applications.service';
-import { CreateApplicationDto, UpdateApplicationStatusDto } from './dtos/application.dto';
+import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 import { OwnershipGuard } from '../../common/guards/resources.guard';
 import { Resources } from '../../common/decorators/resources.decorator';
 
-// TODO: Review applications module before continuing to the next module
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) { }
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Post()
   apply(@Req() req: Request, @Body() dto: CreateApplicationDto) {
     return this.applicationsService.apply(req.user['userId'], dto);
   }
 
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Get('my')
   getMyApplications(@Req() req: Request) {
     return this.applicationsService.getMyApplications(req.user['userId']);
   }
 
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Post(':id/withdraw')
   withdraw(@Param('id') id: string, @Req() req: Request) {
     return this.applicationsService.withdraw(id, req.user['userId']);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get('board/:jobId')
   getKanbanBoard(@Param('jobId') jobId: string) {
     return this.applicationsService.getKanbanBoard(jobId);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get('job/:jobId')
-  getApplicationsByJob(@Param('jobId') jobId: string) {
-    return this.applicationsService.getApplicationsByJob(jobId);
+  getApplicationsByJob(@Param('jobId') jobId: string, @Query() query: GetApplicationsByJobQueryDto) {
+    return this.applicationsService.getApplicationsByJob(jobId, query);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
@@ -64,21 +64,21 @@ export class ApplicationsController {
     return this.applicationsService.updateStatus(id, req.user['userId'], dto);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Post(':id/trigger-screening')
   triggerScreening(@Param('id') id: string) {
     return this.applicationsService.triggerScreening(id);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN, Role.CANDIDATE)
+  @Roles(UserRole.recruiter, UserRole.admin, UserRole.candidate)
   @Get(':id/history')
   getApplicationHistory(@Param('id') id: string) {
     return this.applicationsService.getApplicationHistory(id);
   }
 
-  @Roles(Role.RECRUITER, Role.ADMIN, Role.CANDIDATE)
+  @Roles(UserRole.recruiter, UserRole.admin, UserRole.candidate)
   @UseGuards(OwnershipGuard)
-  @Resources('applications')
+  @Resources('application')
   @Get(':id')
   getApplicationById(@Param('id') id: string) {
     return this.applicationsService.getApplicationById(id);

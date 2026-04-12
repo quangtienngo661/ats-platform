@@ -1,4 +1,4 @@
-import { Role, UserStatus } from '../../enums';
+import { UserRole, UserStatus } from '../../../../../../backend/database/src/generated/prisma/enums';
 
 export interface IUserDto {
   email?: string;
@@ -6,5 +6,5 @@ export interface IUserDto {
   fullName?: string;
   phone?: string;
   status?: UserStatus;
-  role?: Role;
+  role?: UserRole;
 }

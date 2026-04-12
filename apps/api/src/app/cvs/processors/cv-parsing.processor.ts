@@ -16,24 +16,6 @@ export class CvParsingProcessor extends WorkerHost {
     ) {
         super();
     }
-
-    // async process(job: Job): Promise<any> {
-    //     if (job.name === 'parse-cv') {
-    //         const { cvId, rawTextFromCV } = job.data;
-
-    //         const parsedData: CvParsedContent = await this.geminiService.parseCV(CV_PARSING_PROMPT, rawTextFromCV);
-    //         await this.cvParsedDataService.create(cvId, parsedData);
-    //         // TODO: Implement socket notification to candidate about CV parsing completion
-
-    //         await this.prisma.cV.update({
-    //             where: { cvId: cvId },
-    //             data: { parsingStatus: ParsingStatus.success },
-    //         });
-
-    //         Logger.log(`CV parsing completed for CV ID: ${cvId}`, 'CvParsingProcessor');
-    //     }
-    // }
-
     async process(job: Job): Promise<any> {
         if (job.name === 'parse-cv') {
             const { cvId } = job.data;
@@ -56,7 +38,6 @@ export class CvParsingProcessor extends WorkerHost {
                 // 3. Gọi Gemini parse
                 const parsedData = await this.geminiService.parseCV(
                     cvId,
-                    CV_PARSING_PROMPT,
                     cv.rawText,
                 );
 

@@ -11,6 +11,43 @@ import {
 	IsUUID,
 	Min,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+export class FindJobPostingsQueryDto {
+	@ApiPropertyOptional({ enum: JobStatus })
+	@IsOptional()
+	@IsEnum(JobStatus)
+	status?: JobStatus;
+
+	@ApiPropertyOptional()
+	@IsOptional()
+	@IsUUID()
+	departmentId?: string;
+
+	@ApiPropertyOptional()
+	@IsOptional()
+	@IsUUID()
+	categoryId?: string;
+
+	@ApiPropertyOptional({ description: 'Search by job title' })
+	@IsOptional()
+	@IsString()
+	search?: string;
+
+	@ApiPropertyOptional({ default: 1 })
+	@IsOptional()
+	@Transform(({ value }) => parseInt(value, 10))
+	@IsNumber()
+	@Min(1)
+	page?: number;
+
+	@ApiPropertyOptional({ default: 20 })
+	@IsOptional()
+	@Transform(({ value }) => parseInt(value, 10))
+	@IsNumber()
+	@Min(1)
+	limit?: number;
+}
 
 export class CreateJobPostingDto {
 	@ApiProperty({

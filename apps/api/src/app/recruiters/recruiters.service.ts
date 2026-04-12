@@ -55,6 +55,37 @@ export class RecruitersService {
 		return recruiter;
 	}
 
+	async getMe(userId: string) {
+		const recruiter = await this.prisma.recruiter.findUnique({
+			where: { userId },
+			include: { ...recruiterIncludeOptions },
+			omit: { userId: true, departmentId: true },
+		});
+
+		if (!recruiter) {
+			throw new NotFoundException('Recruiter profile not found');
+		}
+
+		return recruiter;
+	}
+
+	async updateMe(userId: string, updateDto: UpdateRecruiterDto) {
+		const recruiter = await this.prisma.recruiter.findUnique({
+			where: { userId },
+		});
+
+		if (!recruiter) {
+			throw new NotFoundException('Recruiter profile not found');
+		}
+
+		return this.prisma.recruiter.update({
+			where: { recruiterId: recruiter.recruiterId },
+			data: { position: updateDto.position, departmentId: updateDto.departmentId },
+			include: { ...recruiterIncludeOptions },
+			omit: { userId: true, departmentId: true },
+		});
+	}
+
 	async findAll() {
 		return await this.prisma.recruiter.findMany({
 			include: { ...recruiterIncludeOptions },

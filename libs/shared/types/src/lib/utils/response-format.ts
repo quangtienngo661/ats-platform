@@ -1,15 +1,14 @@
 export interface ResponseFormat {
     success: boolean;
     status: number;
-    message: string;
+    message?: string;
     data?: any;
 }
 
-export const successResponse = (status: number = 200, message: string, data?: any): ResponseFormat => {
+export const successResponse = (status: number = 200, data?: any): ResponseFormat => {
     return {
         success: true,
         status,
-        message,
         data,
     };
 }
@@ -23,6 +22,6 @@ export const errorResponse = (
         success: false,
         status,
         message,
-        data, 
+        data,
     };
 }

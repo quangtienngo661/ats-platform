@@ -8,12 +8,11 @@ import { Observable } from 'rxjs';
 export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
     const response = context.switchToHttp().getResponse();
-    
+
     return next.handle().pipe(
       map((data) => ({
         success: true,
         status: response.statusCode,
-        message: 'Request successful',
         data,
       })),
     );

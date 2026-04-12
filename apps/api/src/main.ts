@@ -11,6 +11,7 @@ import { AppModule } from './app/app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -35,6 +36,7 @@ async function bootstrap() {
     .build();
 
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter())
 
   // TODO: FINSIH API DOCUMENTATION FOR ALL ENDPOINTS
   const document = SwaggerModule.createDocument(app, config);

@@ -13,7 +13,8 @@ import { SkillsService } from './skills.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role, successResponse } from '@ats-platform/types';
+import { successResponse } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 import { CreateSkillDto, SkillDto, UpdateSkillDto } from './dtos/skills.dto';
 
 @Controller('skills')
@@ -21,7 +22,7 @@ export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Post()
   async create(@Body() createSkillDto: CreateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.create(createSkillDto);
@@ -29,7 +30,7 @@ export class SkillsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Get()
   async findAll(): Promise<SkillDto[]> {
     const skills = await this.skillsService.findAll();
@@ -37,7 +38,7 @@ export class SkillsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Get('search')
   async search(
     @Query('name') name?: string,
@@ -48,7 +49,7 @@ export class SkillsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.findOne(id);
@@ -56,7 +57,7 @@ export class SkillsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto): Promise<SkillDto> {
     const skill = await this.skillsService.update(id, updateSkillDto);
@@ -64,7 +65,7 @@ export class SkillsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<SkillDto> {
     const skill = await this.skillsService.remove(id);

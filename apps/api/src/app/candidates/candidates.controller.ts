@@ -1,4 +1,4 @@
-import { Role } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
@@ -12,14 +12,14 @@ export class CandidatesController {
   constructor(private readonly candidatesService: CandidatesService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Get('me')
   getProfile(@Req() req: Request & { user: { userId: string } }) {
     return this.candidatesService.getProfile(req.user.userId);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.CANDIDATE)
+  @Roles(UserRole.candidate)
   @Patch('me')
   updateProfile(
     @Req() req: Request & { user: { userId: string } },
@@ -29,14 +29,14 @@ export class CandidatesController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.candidatesService.findOne(id);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.RECRUITER, Role.ADMIN)
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get()
   findAll(@Query() query: FindCandidatesQueryDto) {
     return this.candidatesService.findAll(query);

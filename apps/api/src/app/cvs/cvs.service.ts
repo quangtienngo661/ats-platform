@@ -173,7 +173,24 @@ export class CVsService {
     return {
       message: 'CV deleted successfully',
     };
+  }
 
-    // TODO: Download CV by HR endpoint
+  async downloadCV(cvId: string) {
+    const cv = await this.prisma.cV.findUnique({
+      where: { cvId },
+      select: { cvId: true, filePath: true, candidateId: true },
+    });
+
+    if (!cv) {
+      throw new NotFoundException('CV not found');
+    }
+
+    const absolutePath = path.isAbsolute(cv.filePath)
+      ? cv.filePath
+      : path.join(process.cwd(), cv.filePath);
+
+    const fileName = path.basename(cv.filePath);
+
+    return { absolutePath, fileName, cvId: cv.cvId };
   }
 }

@@ -8,7 +8,6 @@ export class AiUsageLogsService {
         private readonly prisma: PrismaService
     ) { }
 
-    // crud implement
     async create({
         refId,
         actionType,
