@@ -1,4 +1,4 @@
 export interface IJobCategory {
-  name?: string;
+  name: string;
   parentCategoryId?: string;
 }
