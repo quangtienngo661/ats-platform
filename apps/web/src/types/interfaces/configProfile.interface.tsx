@@ -10,3 +10,4 @@ export interface ConfigProfile extends IAiConfig {
     experienceWeight: number;
     educationWeight: number;
 }
+// TODO: consider deleting collapsed

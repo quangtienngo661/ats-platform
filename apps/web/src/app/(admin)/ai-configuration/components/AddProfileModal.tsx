@@ -229,7 +229,7 @@ export function AddProfileModal({
                             </div>
                             <input type="range" min="0" max="100" value={threshold}
                                 onChange={(e) => setThreshold(parseInt(e.target.value))}
-                                className="w-full" style={{ accentColor: '#FF9500' }} />
+                                className="w-full" style={{ accentColor: '#D2691E' }} />
                             <p className="text-[11px] text-[#AEAEB2]">
                                 ≥ threshold + 20 → Hire &nbsp;·&nbsp; ≥ threshold → Interview &nbsp;·&nbsp; &lt; threshold → Reject
                             </p>

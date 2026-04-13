@@ -1,5 +1,3 @@
-'use client'
-
 import { CheckCircle, ChevronDown, ChevronUp, Copy, MoreHorizontal, Pencil, Save, Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { ConfigProfile } from "../../../../types/interfaces/configProfile.interface";
@@ -243,12 +241,12 @@ export function ConfigCard({
                             {/* Visual combined bar */}
                             <div className="h-2.5 bg-[#F2F2F7] rounded-full overflow-hidden flex">
                                 {[
-                                    { w: isEditing ? draft.skillsWeight : profile.skillsWeight, color: '#0071E3' },
-                                    { w: isEditing ? draft.experienceWeight : profile.experienceWeight, color: '#6366F1' },
-                                    { w: isEditing ? draft.educationWeight : profile.educationWeight, color: '#009900' },
-                                ].map(({ w, color }, i) => (
+                                    { key: 'skills', w: isEditing ? draft.skillsWeight : profile.skillsWeight, color: '#0071E3' },
+                                    { key: 'experience', w: isEditing ? draft.experienceWeight : profile.experienceWeight, color: '#6366F1' },
+                                    { key: 'education', w: isEditing ? draft.educationWeight : profile.educationWeight, color: '#009900' },
+                                ].map(({ key, w, color }) => (
                                     w > 0 && (
-                                        <div key={i} className="h-full transition-all duration-300" style={{ width: `${w}%`, background: color }} />
+                                        <div key={key} className="h-full transition-all duration-300" style={{ width: `${w}%`, background: color }} />
                                     )
                                 ))}
                             </div>

@@ -419,6 +419,7 @@ model CVScreening {
 model AiConfig {
   configId              String  @id @default(uuid()) @map("config_id")
   name                  String
+  description           String?
   isDefault             Boolean @default(false) @map("is_default")
   skillsWeight          Decimal @map("skills_weight")
   experienceWeight      Decimal @map("experience_weight")
