@@ -12,7 +12,7 @@ import { JobCategoriesService } from './job-categories.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '@ats-platform/types';
+import { UserRole } from '@ats-platform/database';
 import {
   CreateJobCategoryDto,
   JobCategoryDto,
@@ -24,7 +24,7 @@ export class JobCategoriesController {
   constructor(private readonly jobCategoriesService: JobCategoriesService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Post()
   async create(@Body() createJobCategoryDto: CreateJobCategoryDto) {
     const category = await this.jobCategoriesService.create(createJobCategoryDto);
@@ -32,7 +32,7 @@ export class JobCategoriesController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Get()
   async findAll() {
     const categories = await this.jobCategoriesService.findAll();
@@ -40,7 +40,7 @@ export class JobCategoriesController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const category = await this.jobCategoriesService.findOne(id);
@@ -48,7 +48,7 @@ export class JobCategoriesController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -62,7 +62,7 @@ export class JobCategoriesController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.admin)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const category = await this.jobCategoriesService.remove(id);

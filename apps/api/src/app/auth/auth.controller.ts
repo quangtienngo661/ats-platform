@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseFormat, successResponse } from '@ats-platform/types';
-import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto } from './dtos/auth.dto';
+import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto, ForgotPasswordDto, ResetPasswordDto } from './dtos/auth.dto';
 import { Request, Response } from 'express';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -68,5 +68,17 @@ export class AuthController {
   async verifyEmail(@Query('token') token?: string) {
     const result = await this.authService.verifyEmail(token ?? '');
     return result.message;
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const result = await this.authService.forgotPassword(dto.email);
+    return result;
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.resetPassword(dto.token, dto.password, req, res);
+    return result;
   }
 }

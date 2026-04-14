@@ -1,5 +1,5 @@
-import { BadRequestException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { Role } from '@ats-platform/types';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { UserRole } from '@ats-platform/database';
 import { LoginDto, RegisterDto } from './dtos/auth.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -80,7 +80,7 @@ export class AuthService {
 
     const link = this.buildEmailVerificationLink(token);
     try {
-      await this.emailQueue.add(jobName, { email, link }, { attempts: 3, backoff: { type: 'exponential', delay: 1000 } });
+      await this.emailQueue.add(jobName, { email, link }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
     } catch (err) {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(userKey);
@@ -107,8 +107,8 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as Role }, { expiresIn: '1h' });
-    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as Role }, { expiresIn: '7d' });
+    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '1h' });
+    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '7d' });
     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -256,8 +256,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const roleKey = payloadRoleRaw.toUpperCase() as keyof typeof Role;
-    const payloadRole = Role[roleKey];
+    const roleKey = payloadRoleRaw.toUpperCase() as keyof typeof UserRole;
+    const payloadRole = UserRole[roleKey];
     if (!payloadRole) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -346,5 +346,57 @@ export class AuthService {
     res.clearCookie('refreshToken', cookieOptions);
   }
 
-  // TODO: finish the forgot password flow with email verification and password reset token, also use BullMQ for verfication.
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // Return generic message to prevent user enumeration
+      return { message: 'If an account exists, a password reset email has been sent' };
+    }
+
+    await this.issueEmailVerification(user.userId, user.email, 'send-forgot-password-email');
+
+    return { message: 'If an account exists, a password reset email has been sent' };
+  }
+
+  async resetPassword(token: string, password: string, req: Request, res: Response) {
+    const tokenHash = this.hashEmailVerificationToken(token);
+    const tokenKey = `${this.emailVerifyKeyPrefix}${tokenHash}`;
+
+    const userId = await this.redisClient.get(tokenKey);
+    if (!userId) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    // Atomically update password + revoke ALL refresh tokens for this user
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { userId },
+        data: { passwordHash: hashedPassword },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId, revoked: false },
+        data: { revoked: true },
+      }),
+    ]);
+
+    // Clean up reset token from Redis
+    await this.redisClient.del(tokenKey);
+    await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
+
+    // Clear the current cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return { message: 'Password reset successfully. All active sessions have been terminated.' };
+  }
 }

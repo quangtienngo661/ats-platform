@@ -9,7 +9,7 @@ export class Response<T> implements ResponseFormat<T> {
     status: number;
 
     @ApiProperty()
-    message: string;
+    message?: string;
 
     @ApiProperty({ required: false })
     data?: T;

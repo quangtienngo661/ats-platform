@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JobStatus, Prisma } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreateJobPostingDto, UpdateJobPostingDto } from './dto/job-posting.dto';
+import { CreateJobPostingDto, UpdateJobPostingDto, FindJobPostingsQueryDto } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -115,13 +115,33 @@ export class JobPostingsService {
     })
   }
 
-  async findAll() {
-    return this.prisma.jobPosting.findMany({
-      include: jobPostingIncludeOptions,
-      omit: {
-        createdBy: true, departmentId: true, categoryId: true
-      }
-    });
+  async findAll(query: FindJobPostingsQueryDto = {}) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const where: Prisma.JobPostingWhereInput = {
+      ...(query.status ? { status: query.status } : {}),
+      ...(query.departmentId ? { departmentId: query.departmentId } : {}),
+      ...(query.categoryId ? { categoryId: query.categoryId } : {}),
+      ...(query.search ? { title: { contains: query.search, mode: 'insensitive' as Prisma.QueryMode } } : {}),
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.jobPosting.findMany({
+        where,
+        include: jobPostingIncludeOptions,
+        omit: { createdBy: true, departmentId: true, categoryId: true },
+        orderBy: { publishedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.jobPosting.count({ where }),
+    ]);
+
+    return {
+      items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findOne(id: string) {

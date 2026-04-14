@@ -32,7 +32,7 @@ export const candidateIncludeOptions = {
   },
   _count: {
     select: {
-      cvs: true, 
+      cvs: true,
       applications: true
     }
   }
@@ -75,3 +75,9 @@ export const applicationIncludeOptions = {
   },
   screening: true,
 };
+
+export const cvScreeningIncludeOptions = {
+  aiConfig: true,
+  application: true,
+  cv: true,
+} satisfies Prisma.CVScreeningInclude;
