@@ -81,3 +81,10 @@ export const cvScreeningIncludeOptions = {
   application: true,
   cv: true,
 } satisfies Prisma.CVScreeningInclude;
+
+export const departmentIncludeOptions = {
+  recruiters: {
+    include: { ...recruiterIncludeOptions },
+  },
+  jobPostings: true,
+} satisfies Prisma.DepartmentInclude;

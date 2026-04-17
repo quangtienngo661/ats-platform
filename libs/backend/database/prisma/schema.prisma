@@ -202,6 +202,8 @@ model RefreshToken {
 model Department {
   departmentId String   @id @default(uuid()) @map("department_id")
   name         String
+  description  String?
+  color        String?
   createdAt    DateTime @default(now()) @map("created_at")
 
   recruiters  Recruiter[]
@@ -233,6 +235,7 @@ model Candidate {
 // RECRUITER
 // ============================================================
 
+// TODO: consider making departmentId nullable
 model Recruiter {
   recruiterId  String  @id @default(uuid()) @map("recruiter_id")
   userId       String  @unique @map("user_id")

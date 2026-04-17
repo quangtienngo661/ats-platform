@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { UserStatus } from '@ats-platform/database';
+import { UserRole, UserStatus } from '@ats-platform/database';
 import { ChangePasswordDto, CreateUserDto, UpdateUserDto } from './dtos/user.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
@@ -20,16 +20,31 @@ export class UsersService {
       throw new BadRequestException('Email already exists');
     }
 
-    const newUser = await this.prisma.user.create({
-      data: {
-        email: data.email,
-        passwordHash,
-        fullName: data.fullName,
-        status: data.status ?? UserStatus.active,
-        role: data.role,
-      },
-      omit: { passwordHash: true },
+    // Dùng Transaction để đảm bảo cả 2 hoặc không có gì được tạo
+    const newUser = await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: data.email,
+          passwordHash,
+          fullName: data.fullName,
+          status: data.status ?? UserStatus.active,
+          role: data.role,
+        },
+        omit: { passwordHash: true },
+      });
+      // Tự động tạo profile tương ứng theo role
+      // if (data.role === UserRole.recruiter) {
+      //   await tx.recruiter.create({
+      //     data: { user: { connect: { userId: user.userId } } },
+      //   });
+      // } else if (data.role === UserRole.candidate) {
+      //   await tx.candidate.create({
+      //     data: { user: { connect: { userId: user.userId } } },
+      //   });
+      // }
+      return user;
     });
+
 
     return newUser;
   }

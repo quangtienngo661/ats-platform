@@ -27,6 +27,7 @@ export class AiConfigService {
 			return tx.aiConfig.create({
 				data: {
 					name: createAiConfigDto.name,
+					description: createAiConfigDto.description,
 					isDefault: createAiConfigDto.isDefault ?? false,
 					skillsWeight: createAiConfigDto.skillsWeight,
 					experienceWeight: createAiConfigDto.experienceWeight,
@@ -68,6 +69,7 @@ export class AiConfigService {
 				where: { configId },
 				data: {
 					name: updateAiConfigDto.name,
+					description: updateAiConfigDto.description,
 					isDefault: updateAiConfigDto.isDefault,
 					skillsWeight: updateAiConfigDto.skillsWeight,
 					experienceWeight: updateAiConfigDto.experienceWeight,

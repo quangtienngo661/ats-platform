@@ -1,10 +1,10 @@
+'use client'
+
 import { useState } from 'react';
 import { Cpu, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ConfigProfile } from '../../../../types/interfaces/configProfile.interface';
+import { ConfigProfile } from '../../../types/interfaces/configProfile.interface';
 import { SF, SFT } from '@/types/fonts/fonts';
-
-let nextProfileId = 3;
 
 export function AddProfileModal({
     onClose,
@@ -26,10 +26,9 @@ export function AddProfileModal({
     const handleAdd = () => {
         if (!isValid) return;
         onAdd({
-            id: nextProfileId++,
             name: name.trim(),
             description: description.trim() || 'Cấu hình mới',
-            isDefault: false, collapsed: false,
+            isDefault: false,
             skillsWeight: skill.weight,
             experienceWeight: experience.weight,
             educationWeight: education.weight,

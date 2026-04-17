@@ -1,4 +1,5 @@
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './global.css';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
@@ -15,7 +16,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <Toaster
+          richColors
+          closeButton
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              fontFamily: 'var(--font-sf), -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+              fontSize: '13px',
+              borderRadius: '12px',
+            },
+          }}
+        />
+      </body>
     </html>
   );
 }

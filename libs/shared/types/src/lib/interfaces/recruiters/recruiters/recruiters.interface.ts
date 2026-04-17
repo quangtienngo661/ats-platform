@@ -1,4 +1,4 @@
 export interface IRecruiter {
-  departmentId: string;
+  departmentId?: string;
   position?: string;
 }

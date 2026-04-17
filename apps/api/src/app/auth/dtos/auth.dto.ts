@@ -1,8 +1,8 @@
 import { IsEmail, IsString, IsStrongPassword } from "class-validator";
-import { IAuthDto } from "@ats-platform/types";
+import { IAuth } from "@ats-platform/types";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class LoginDto implements IAuthDto {
+export class LoginDto implements IAuth {
     @ApiProperty({
         example: "recruiter@example.com",
         description: "User email",
@@ -18,7 +18,7 @@ export class LoginDto implements IAuthDto {
     password!: string;
 }
 
-export class RegisterDto implements IAuthDto {
+export class RegisterDto implements IAuth {
     @ApiProperty({
         example: "recruiter@example.com",
         description: "User email",
@@ -41,7 +41,7 @@ export class RegisterDto implements IAuthDto {
     fullName!: string;
 }
 
-export class RequestEmailVerificationDto implements IAuthDto {
+export class RequestEmailVerificationDto implements IAuth {
     @ApiProperty({
         example: "recruiter@example.com",
         description: "Email to receive verification link/code",

@@ -1,4 +1,4 @@
-export interface IAuthDto {
+export interface IAuth {
   email: string;
   password?: string;
   fullName?: string;
