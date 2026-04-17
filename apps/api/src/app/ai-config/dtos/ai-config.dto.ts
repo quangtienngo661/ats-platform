@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 import { IAiConfig } from '@ats-platform/types';
 
-export class CreateAiConfigDto implements IAiConfig {
+export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
     @ApiProperty({
         example: 'Default CV Screening Config',
         description: 'Human-readable config name',
@@ -11,13 +11,20 @@ export class CreateAiConfigDto implements IAiConfig {
     @IsNotEmpty()
     name!: string;
 
-    @ApiPropertyOptional({
+    @ApiProperty({
         example: true,
         description: 'Whether this config becomes the active default config',
     })
-    @IsOptional()
     @IsBoolean()
-    isDefault?: boolean;
+    isDefault: boolean = false;
+
+    @ApiPropertyOptional({
+        example: 'Default CV Screening Config',
+        description: 'Human-readable config name',
+    })
+    @IsString()
+    @IsOptional()
+    description?: string;
 
     @ApiProperty({
         example: 0.5,
@@ -56,11 +63,11 @@ export class CreateAiConfigDto implements IAiConfig {
         example: 0.65,
         description: 'Minimum overall score threshold for pass recommendation',
         minimum: 0,
-        maximum: 1,
+        maximum: 100,
     })
     @IsNumber()
     @Min(0)
-    @Max(1)
+    @Max(100)
     minimumScoreThreshold!: number;
 }
 

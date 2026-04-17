@@ -3,15 +3,27 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IDepartment } from '@ats-platform/types';
 import { Department } from '@ats-platform/database';
 
-export class CreateDepartmentDto implements IDepartment { 
+export class CreateDepartmentDto implements IDepartment {
   @IsString()
   @IsNotEmpty()
   @MinLength(1)
   @ApiProperty({ example: 'Engineering', description: 'The name of the department' })
   name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @ApiProperty({ example: 'Engineering', description: 'The description of the department' })
+  description!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @ApiProperty({ example: '#FF9500', description: 'The color of the department' })
+  color!: string;
 }
 
-export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {}
+export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) { }
 
 export class DepartmentDto {
   @ApiProperty({

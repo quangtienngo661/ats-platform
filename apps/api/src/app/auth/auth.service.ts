@@ -107,7 +107,7 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '1h' });
+    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole });
     const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '7d' });
     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
 
@@ -230,10 +230,10 @@ export class AuthService {
 
   async refreshToken(req: Request, res: Response) {
     const refreshCookieValue = req.cookies?.['refreshToken'];
+
     if (!refreshCookieValue || typeof refreshCookieValue !== 'string') {
       throw new UnauthorizedException('Refresh token is required');
     }
-
     const dotIndex = refreshCookieValue.indexOf('.');
     if (dotIndex <= 0) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -241,6 +241,7 @@ export class AuthService {
 
     const refreshTokenId = refreshCookieValue.slice(0, dotIndex);
     const currentRefreshToken = refreshCookieValue.slice(dotIndex + 1);
+
     if (!currentRefreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -256,8 +257,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const roleKey = payloadRoleRaw.toUpperCase() as keyof typeof UserRole;
-    const payloadRole = UserRole[roleKey];
+    const payloadRole = UserRole[payloadRoleRaw];
     if (!payloadRole) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -278,7 +278,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '1h' });
+    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole });
     const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '7d' });
     const hashedNewRefreshToken = bcrypt.hashSync(newRefreshToken, 10);
 

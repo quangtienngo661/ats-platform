@@ -10,11 +10,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,12 +22,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@ats-platform/types": [
-        "../../libs/shared/types/src/index.ts"
-      ]
+      "@/*": ["./src/*"],
+      "@ats-platform/types": ["../../libs/shared/types/src/index.ts"],
+      "@ats-platform/database": ["../../libs/backend/database/src/index.ts"]
     }
   },
   "include": [
@@ -49,5 +42,13 @@
     "jest.config.cts",
     "**/*.spec.ts",
     "**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/backend/database"
+    }
   ]
 }

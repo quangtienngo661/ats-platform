@@ -98,6 +98,7 @@
     "recharts": "^3.8.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "sonner": "^2.0.7",
     "swagger-ui-express": "^5.0.1"
   }
 }

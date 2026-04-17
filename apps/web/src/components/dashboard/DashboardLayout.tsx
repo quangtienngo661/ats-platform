@@ -1,5 +1,4 @@
 'use client';
-
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -8,8 +7,10 @@ import {
   LayoutDashboard, Users, Briefcase, CalendarCheck,
   Settings, LogOut, Sparkles, Bell, Search,
   Menu, X, Plus, UserCircle, ChevronRight, Cpu,
-  Building2,
+  Building2, Zap,
 } from 'lucide-react';
+import { logoutAction } from '@/servers/auth/auth.action';
+import { toast } from '@/lib/toast';
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif";
 const SFT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif";
@@ -26,13 +27,14 @@ const navItems = [
 const adminItems = [
   { icon: UserCircle, label: 'Quản lý người dùng', href: '/user-management' },
   { icon: Building2, label: 'Phòng ban', href: '/department-management' },
+  { icon: Zap, label: 'Kỹ năng', href: '/skill-management' },
   { icon: Cpu, label: 'Cấu hình AI', href: '/ai-configuration' },
-  { icon: Settings, label: 'Thông tin công ty', href: '/company-profile' },
+  // { icon: Settings, label: 'Thông tin công ty', href: '/company-profile' },
 ];
 
 const bottomItems = [
-  { icon: Settings, label: 'Cài đặt', href: '#' },
-  { icon: LogOut, label: 'Đăng xuất', href: '/' },
+  // { icon: Settings, label: 'Cài đặt', href: '#' },
+  { icon: LogOut, label: 'Đăng xuất', href: '/sign-in' },
 ];
 
 const notifs = [
@@ -42,7 +44,7 @@ const notifs = [
 ];
 
 // ── SidebarContent ───────────────────────────────────────────────────────────
-function SidebarContent({ onClose }: { onClose?: () => void }) {
+function SidebarContent({ onClose, userRole }: { onClose?: () => void, userRole?: string }) {
   const pathname = usePathname();
 
   return (
@@ -119,35 +121,39 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           })}
         </ul>
 
-        <div className="my-3 border-t border-[#F2F2F7]" />
+        {userRole === 'admin' && (
+          <>
+            <div className="my-3 border-t border-[#F2F2F7]" />
 
-        {/* Section label: Quản trị */}
-        <div className="px-2 mb-2">
-          <span className="text-[10px] uppercase tracking-[0.07em] text-[#AEAEB2]" style={{ fontWeight: 600 }}>
-            Quản trị
-          </span>
-        </div>
+            {/* Section label: Quản trị */}
+            <div className="px-2 mb-2">
+              <span className="text-[10px] uppercase tracking-[0.07em] text-[#AEAEB2]" style={{ fontWeight: 600 }}>
+                Quản trị
+              </span>
+            </div>
 
-        <ul className="space-y-0.5">
-          {adminItems.map(({ icon: Icon, label, href }) => {
-            const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-            return (
-              <li key={label}>
-                <Link
-                  href={href}
-                  onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
-                    }`}
-                >
-                  <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#0071E3]' : 'text-[#AEAEB2]'}`} />
-                  <span className="flex-1 text-[13px] tracking-[-0.01em]" style={{ fontWeight: isActive ? 500 : 400 }}>
-                    {label}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+            <ul className="space-y-0.5">
+              {adminItems.map(({ icon: Icon, label, href }) => {
+                const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+                return (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      onClick={onClose}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
+                        }`}
+                    >
+                      <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#0071E3]' : 'text-[#AEAEB2]'}`} />
+                      <span className="flex-1 text-[13px] tracking-[-0.01em]" style={{ fontWeight: isActive ? 500 : 400 }}>
+                        {label}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
 
         <div className="my-3 border-t border-[#F2F2F7]" />
 
@@ -161,14 +167,27 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <ul className="space-y-0.5">
           {bottomItems.map(({ icon: Icon, label, href }) => (
             <li key={label}>
-              <Link
-                href={href}
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
-              >
-                <Icon className="w-[18px] h-[18px] flex-shrink-0" />
-                <span style={{ fontFamily: SFT }}>{label}</span>
-              </Link>
+              {label === 'Đăng xuất' ? (
+                <button
+                  onClick={async () => {
+                    onClose?.();
+                    await logoutAction();
+                  }}
+                  className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
+                >
+                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                  <span style={{ fontFamily: SFT }}>{label}</span>
+                </button>
+              ) : (
+                <Link
+                  href={href}
+                  onClick={onClose}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
+                >
+                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                  <span style={{ fontFamily: SFT }}>{label}</span>
+                </Link>
+              )}
             </li>
           ))}
         </ul>
@@ -277,14 +296,14 @@ function DashboardHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
 }
 
 // ── DashboardLayout (Root export) ────────────────────────────────────────────
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+export function DashboardLayout({ children, userRole }: { children: React.ReactNode, userRole?: string }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-[#F5F5F7] overflow-hidden" style={{ fontFamily: SFT }}>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] h-screen bg-white border-r border-[#F2F2F7] fixed left-0 top-0 z-30 flex-shrink-0">
-        <SidebarContent />
+        <SidebarContent userRole={userRole} />
       </aside>
 
       {/* Mobile Sidebar — slide-in with Framer Motion */}
@@ -305,7 +324,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               transition={{ ease: [0.25, 0.46, 0.45, 0.94], duration: 0.3 }}
               className="relative w-[240px] h-full bg-white border-r border-[#F2F2F7] z-50 flex flex-col"
             >
-              <SidebarContent onClose={() => setMobileSidebarOpen(false)} />
+              <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} />
             </motion.aside>
           </div>
         )}

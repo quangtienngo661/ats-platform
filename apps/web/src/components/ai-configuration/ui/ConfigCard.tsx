@@ -1,9 +1,12 @@
+"use client"
+
 import { CheckCircle, ChevronDown, ChevronUp, Copy, MoreHorizontal, Pencil, Save, Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { ConfigProfile } from "../../../../types/interfaces/configProfile.interface";
+import { ConfigProfile } from "../../../types/interfaces/configProfile.interface";
 import { motion, AnimatePresence } from 'motion/react';
 import { WeightRow } from "./WeightRow";
 import { SF } from "@/types/fonts/fonts";
+import { aiConfigToast } from "@/lib/toast";
 
 function totalOf(p: ConfigProfile) {
     return p.skillsWeight + p.experienceWeight + p.educationWeight;
@@ -13,15 +16,20 @@ export function ConfigCard({
     profile, onUpdate, onDelete, onSetDefault, onDuplicate,
 }: {
     profile: ConfigProfile;
-    onUpdate: (p: ConfigProfile) => void;
-    onDelete: () => void;
-    onSetDefault: () => void;
-    onDuplicate: () => void;
+    onUpdate: (p: ConfigProfile) => void | Promise<void>;
+    onDelete: () => void | Promise<void>;
+    onSetDefault: () => void | Promise<void>;
+    onDuplicate: () => void | Promise<void>;
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     // Draft state — only applied when user clicks Save
     const [draft, setDraft] = useState<ConfigProfile>(profile);
+    const [isCollapsed, setIsCollapsed] = useState(profile.collapsed)
+
+    // useEffect(() => {
+    //     setIsCollapsed(profile.collapsed);
+    // }, [isCollapsed]);
 
     const total = totalOf(draft);
     const isValid = total === 100;
@@ -39,14 +47,22 @@ export function ConfigCard({
     };
 
     const handleSave = () => {
-        if (!isValid) return;
+        if (!isValid) {
+            aiConfigToast.invalidWeights();
+            return;
+        }
         onUpdate(draft);
         setIsEditing(false);
     };
 
     const handleCollapse = () => {
-        onUpdate({ ...profile, collapsed: !profile.collapsed });
+        setIsCollapsed(prev => !prev);
     };
+
+    const handleDuplicate = () => {
+        onDuplicate();
+        setMenuOpen(false);
+    }
 
     return (
         <motion.div
@@ -63,25 +79,48 @@ export function ConfigCard({
                 <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${profile.isDefault ? 'bg-[#34C759]' : 'bg-[#33CCFF]'}`} />
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] truncate" style={{ fontFamily: SF, fontWeight: 600 }}>
-                            {profile.name}
-                        </h2>
-                        {profile.isDefault && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#eaffe3] text-[#019b22] flex-shrink-0" style={{ fontWeight: 600 }}>
-                                Mặc định
-                            </span>
-                        )}
+                    {/* Title input */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            disabled={!isEditing}
+                            value={isEditing ? draft.name : profile.name}
+                            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                            className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
+                            style={{ fontFamily: SF, fontWeight: 600 }}
+                        />
                         {isEditing && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF4E5] text-[#FF9500] flex-shrink-0" style={{ fontWeight: 600 }}>
-                                Đang chỉnh sửa
-                            </span>
+                            <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors ${draft.name !== profile.name ? 'bg-[#FF9500]' : 'bg-[#0071E3]'}`} />
                         )}
                     </div>
-                    <p className="text-[12px] text-[#AEAEB2] mt-0.5 truncate">{profile.description}</p>
+                    {/* Description input */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            disabled={!isEditing}
+                            value={isEditing ? draft.description : profile.description}
+                            onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                            className="text-[12px] text-[#AEAEB2] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
+                            style={{ fontFamily: SF }}
+                        />
+                        {isEditing && (
+                            <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors ${draft.description !== profile.description ? 'bg-[#FF9500]' : 'bg-[#D1D1D6]'}`} />
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Status badges — alongside the weight badge */}
+                    {profile.isDefault && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#eaffe3] text-[#019b22] flex-shrink-0" style={{ fontWeight: 600 }}>
+                            Mặc định
+                        </span>
+                    )}
+                    {isEditing && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF4E5] text-[#FF9500] flex-shrink-0" style={{ fontWeight: 600 }}>
+                            Đang chỉnh sửa
+                        </span>
+                    )}
                     {/* Tổng trọng số badge — show draft total when editing */}
                     <span
                         className={`text-[11px] px-2.5 py-1 rounded-full mr-1 ${isEditing
@@ -102,7 +141,7 @@ export function ConfigCard({
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.7 }}
                                 transition={{ duration: 0.15 }}
-                                onClick={handleCancelEdit}
+                                onClick={() => { handleCancelEdit(); setIsCollapsed(profile.isDefault ? false : true); }}
                                 title="Hủy chỉnh sửa"
                                 className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
                             >
@@ -125,7 +164,7 @@ export function ConfigCard({
                                 <div className="absolute right-0 top-full mt-1 w-[190px] bg-white rounded-xl shadow-xl border border-[#E5E5EA] z-40 overflow-hidden">
                                     {/* Edit option */}
                                     <button
-                                        onClick={handleStartEdit}
+                                        onClick={() => { handleStartEdit(); setIsCollapsed(false); }}
                                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
                                     >
                                         <Pencil className="w-3.5 h-3.5 text-[#0071E3]" />Chỉnh sửa cấu hình
@@ -135,11 +174,11 @@ export function ConfigCard({
                                             onClick={() => { onSetDefault(); setMenuOpen(false); }}
                                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
                                         >
-                                            <Star className="w-3.5 h-3.5 text-[#0071E3]" />Đặt làm đang dùng
+                                            <Star className="w-3.5 h-3.5 text-[#0071E3]" />Đặt làm mặc định
                                         </button>
                                     )}
                                     <button
-                                        onClick={() => { onDuplicate(); setMenuOpen(false); }}
+                                        onClick={() => { handleDuplicate(); setMenuOpen(false); }}
                                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
                                     >
                                         <Copy className="w-3.5 h-3.5 text-[#6E6E73]" />Nhân bản
@@ -162,14 +201,15 @@ export function ConfigCard({
                         onClick={handleCollapse}
                         className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
                     >
-                        {profile.collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                        {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+
                     </button>
                 </div>
             </div>
 
             {/* ── Body (collapsible) ── */}
             <AnimatePresence initial={false}>
-                {!profile.collapsed && (
+                {!isCollapsed && (
                     <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}

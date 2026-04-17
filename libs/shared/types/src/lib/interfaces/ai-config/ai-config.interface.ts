@@ -1,6 +1,8 @@
 export interface IAiConfig {
+	configId?: string;
 	name: string;
-	isDefault?: boolean;
+	description?: string
+	isDefault: boolean;
 	skillsWeight: number;
 	experienceWeight: number;
 	educationWeight: number;

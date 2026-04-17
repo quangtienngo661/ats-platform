@@ -16,10 +16,10 @@ dotenv.config();
     UsersModule,
     MailModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
-    }),
+    // JwtModule.register({
+    //   secret: process.env.JWT_SECRET,
+    //   signOptions: { expiresIn: '1h' },
+    // }),
     BullModule.registerQueue({
       name: 'send-verification-email',
     })
