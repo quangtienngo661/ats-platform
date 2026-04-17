@@ -1,91 +1,178 @@
-# ATS Platform
+<div align="center">
+  <h1>🚀 ATS Platform</h1>
+  <p><strong>AI-Powered Applicant Tracking & Mock Interview System</strong></p>
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+  <!-- Badges -->
+  <p>
+    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+    <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+    <img src="https://img.shields.io/badge/Nx-143055?style=for-the-badge&logo=nx&logoColor=white" alt="Nx Monorepo" />
+  </p>
+</div>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+---
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 📑 Table of Contents
 
-## Generate a library
+- [Introduction](#-introduction)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [AI Flow & Integration](#-ai-flow--integration)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+---
+
+## 📌 Introduction
+
+**ATS Platform** is a modern, enterprise-grade Applicant Tracking System built on a monorepo architecture. Moving beyond traditional CRUD operations, this system leverages advanced Data Structures, Asynchronous Message Queues, and Generative AI (Google Gemini API) to automate the recruitment pipeline. 
+
+The primary problem this platform solves is the massive time overhead required to manually review resumes and conduct initial screenings, providing HR personnel with automated, data-driven candidate evaluations.
+
+---
+
+## ✨ Key Features
+
+- 🤖 **AI-Powered CV Screening Pipeline**: Asynchronous analysis of resumes against job posting descriptions using LLMs. Generates weighted scores (Skills, Experience, Education) and actionable recommendations (`Hire`, `Interview`, `Reject`).
+- 🎯 **AI Mock Interview** *(Under Development)*: An automated conversational agent to test soft and hard skills of candidates before human intervention.
+- 🔐 **Advanced Security & Auth**: Complete JWT execution with Refresh Token Rotation, HTTP-Only cookies, atomic password updates, and Redis-backed Email Verification handling.
+- 🛡️ **Fine-Grained Authorization**: Custom `@Resources()` Decorators and `OwnershipGuard` ensuring absolute data isolation between Recruiter, Candidate, and Admin roles.
+- 🏗️ **Configurable AI Profiles**: Admins/Recruiters can adjust AI scoring thresholds and metric weights (e.g., boosting 'Experience' weight for Senior positions).
+
+---
+
+## 🏛️ System Architecture
+
+The application adopts a robust layered architecture orchestrated within an **Nx Workspace**:
+
+1. **Frontend (Next.js Application)**: Communicates securely via edge-aware middleware for token validation and state management.
+2. **Backend Services (NestJS API)**: The core engine exposing RESTful endpoints. Utilizes **Prisma ORM** for standard synchronous operations.
+3. **Message Broker (Redis + BullMQ)**: Decouples heavy AI processing from HTTP request threads. Forms the basis of the async worker architecture.
+4. **AI Processor (Gemini Integration)**: Dedicated workers pick up screening jobs from the queue, compile `CV Parsed Data` and `Job Definitions` into optimized prompts, and interpret Gemini's evaluation.
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS
+- **State/Auth**: Next.js Edge Middleware
+
+### Backend & Core
+- **Framework**: NestJS 11
+- **Language**: TypeScript
+- **Monorepo**: Nx
+- **ORM**: Prisma
+
+### Infrastructure & Operations
+- **Database**: PostgreSQL 15
+- **Cache & Queue**: Redis + BullMQ
+- **Containers**: Docker & Docker Compose
+- **AI Integrations**: Google Gemini API (`gemini-3-flash`, `gemini-3.1-pro`)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/en/) (v20+ recommended)
+- [Docker](https://www.docker.com/) & Docker Compose
+- A valid Google Gemini API Key.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/quangtienngo661/ats-platform.git
+   cd ats-platform
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup:**
+   Create a `.env` file in the root directory (refer to `.env.example` if available). Minimally, provide:
+   ```env
+   # Database & Redis
+   DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/ats-db?schema=public"
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+
+   # Authentication
+   JWT_SECRET="YOUR_SUPER_SECRET_KEY"
+
+   # AI Integration
+   GOOGLE_API_KEY="YOUR_GEMINI_API_KEY"
+
+   # Mailer Config (Optional for local dev)
+   SMTP_ENABLED=false
+   ```
+
+4. **Start Infrastructure (PostgreSQL & Redis):**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Apply Database Migrations:**
+   ```bash
+   npx nx run api:prisma-migrate
+   # Alternatively: npx prisma migrate dev
+   ```
+
+### Running the Application
+
+To start both the Backend API and the Frontend Website concurrently via Nx:
+```bash
+# Start Backend
+npx nx serve api
+
+# Start Frontend
+npx nx serve web
 ```
+- API Swagger Docs will be available at: `http://localhost:5000/api`
+- Next.js Web Application runs on: `http://localhost:3000`
 
-## Run tasks
+---
 
-To build the library use:
+## 🧠 AI Flow & Integration
 
-```sh
-npx nx build pkg1
-```
+The AI Screening operates on a highly optimized, decoupled architecture to ensure application resilience:
 
-To run any task with Nx use:
+1. **Trigger**: An `Application` record is created. The API instantly registers a `CVScreening` task with a `pending` state.
+2. **Queueing**: The task payload is dispatched to **BullMQ** (`cv-screening` queue). The main HTTP thread is freed.
+3. **Execution**: The `CvScreeningProcessor` worker fetches the candidate's CV and the Job Posting's prerequisites from PostgreSQL.
+4. **Prompt Engineering**: Raw JSON payloads are sanitized, whitespace-trimmed, and injected into a strict instructional prompt template (`gemini.config.ts`).
+5. **Consumption**: The payload is sent to Gemini API via `@google/genai` with a strict `AbortController` timeout (30 seconds).
+6. **Resolution**: Outputs (JSON format) are parsed, mathematically adjusted by the active `AiConfig` weights, translated to final Database States, and AI Usage (Tokens) are logged.
+7. **Resilience**: In case of quota errors or timeouts, BullMQ utilizes **exponential backoff** to automatically retry up to 3 times before setting the status to `failed`.
 
-```sh
-npx nx <target> <project-name>
-```
+---
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 🤝 Contributing
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Contributions, issues, and feature requests are welcome! 
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request.
 
-## Versioning and releasing
+*(Note: Please ensure `nx run-many --target=lint` and all tests pass prior to submitting a PR).*
 
-To version and release the library use
+---
 
-```
-npx nx release
-```
+## 📄 License
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+Distributed under the MIT License. See `LICENSE` for more information.
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+<div align="center">
+  <sub>Built with ❤️ by Tien Ngo and Contributors.</sub>
+</div>
