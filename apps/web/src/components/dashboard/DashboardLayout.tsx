@@ -7,13 +7,10 @@ import {
   LayoutDashboard, Users, Briefcase, CalendarCheck,
   Settings, LogOut, Sparkles, Bell, Search,
   Menu, X, Plus, UserCircle, ChevronRight, Cpu,
-  Building2, Zap,
+  Building2, Zap, FolderTree, Activity,
 } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
-import { toast } from '@/lib/toast';
-
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif";
-const SFT = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif";
+import { SF, SFT } from '@/types/fonts/fonts';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/dashboard' },
@@ -27,14 +24,16 @@ const navItems = [
 const adminItems = [
   { icon: UserCircle, label: 'Quản lý người dùng', href: '/user-management' },
   { icon: Building2, label: 'Phòng ban', href: '/department-management' },
+  { icon: FolderTree, label: 'Danh mục ngành nghề', href: '/job-category-management' },
   { icon: Zap, label: 'Kỹ năng', href: '/skill-management' },
   { icon: Cpu, label: 'Cấu hình AI', href: '/ai-configuration' },
+  { icon: Activity, label: 'AI Usage Logs', href: '/ai-usage-logs' },
   // { icon: Settings, label: 'Thông tin công ty', href: '/company-profile' },
 ];
 
 const bottomItems = [
   // { icon: Settings, label: 'Cài đặt', href: '#' },
-  { icon: LogOut, label: 'Đăng xuất', href: '/sign-in' },
+  { icon: LogOut, label: 'Đăng xuất', href: '/sign-in/admin' },
 ];
 
 const notifs = [

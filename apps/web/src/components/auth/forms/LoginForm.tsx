@@ -116,6 +116,13 @@ export default function LoginForm() {
                     Đăng ký ngay
                 </Link>
             </p>
+
+            <p className="text-center text-[12px] text-[#AEAEB2] mt-3" style={{ fontFamily: SFT }}>
+                Là nhân viên?{' '}
+                <Link href="/sign-in/admin" className="text-[#6E6E73] hover:text-[#1D1D1F] hover:underline transition-colors" style={{ fontWeight: 500 }}>
+                    Cổng nội bộ →
+                </Link>
+            </p>
         </motion.div>
     );
 }

@@ -2,17 +2,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { SERVER_URL } from './types/constants/urls';
+import { decodeTokenPayload } from './lib/decodeTokenPayload';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function decodeTokenPayload(token: string): { exp?: number; role?: string } | null {
-    try {
-        return JSON.parse(atob(token.split('.')[1]));
-    } catch {
-        return null;
-    }
-}
-
 function isTokenExpired(token: string): boolean {
     const payload = decodeTokenPayload(token);
     if (!payload?.exp) return true;
@@ -49,18 +41,58 @@ async function tryRefreshToken(currentRefreshToken: string) {
 
 // ── Route Config ─────────────────────────────────────────────────────────────
 
-const privatePaths = ['/department-management', '/ai-configuration', '/dashboard', '/user-management'];
+const privatePaths = [
+    // Admin routes
+    '/department-management',
+    '/ai-configuration',
+    '/user-management',
+    '/skill-management',
+    '/company-profile',
+    '/job-category-management',
+    '/ai-usage-logs',
+    // Recruiter routes
+    '/dashboard',
+    '/jobs',
+    '/candidates',
+    '/kanban',
+    '/interviews',
+    // Candidate routes
+    '/my-applications',
+    '/my-cvs',
+    '/profile',
+];
 const authPaths = ['/sign-in', '/register'];
 
-// Role-based route protection (tùy chọn)
+// Role-based route protection
 const roleProtectedPaths: Record<string, string[]> = {
-    admin: ['/department-management', '/ai-configuration', '/user-management'],
-    // recruiter: ['/jobs', '/applications'],
+    recruiter: [
+        '/dashboard',
+        '/jobs',
+        '/candidates',
+        '/kanban',
+        '/interviews',
+    ],
+    admin: [
+        '/department-management',
+        '/ai-configuration',
+        '/user-management',
+        '/skill-management',
+        '/company-profile',
+        '/job-category-management',
+        '/ai-usage-logs',
+        '/dashboard',
+    ],
+    candidate: [
+        '/job-postings',
+        '/my-applications',
+        '/my-cvs',
+        '/profile',
+    ],
 };
 
-// ── Middleware ────────────────────────────────────────────────────────────────
+// ── Proxy ────────────────────────────────────────────────────────────────
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     const isPrivatePath = privatePaths.some(p => pathname.startsWith(p));
@@ -88,21 +120,36 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+
+
     // ── Từ đây: Chắc chắn là Private Route ──────────────────────────────────
 
-    // CASE 1: Có accessToken còn hạn → cho đi tiếp ngay
+    // CASE 1: Có accessToken còn hạn → kiểm tra role rồi cho đi tiếp
     if (accessToken && !isTokenExpired(accessToken)) {
-        // (Tùy chọn) Role-based authorization
         const payload = decodeTokenPayload(accessToken);
-        for (const [role, paths] of Object.entries(roleProtectedPaths)) {
-            const isRoleProtected = paths.some(p => pathname.startsWith(p));
-            if (isRoleProtected && payload?.role !== role) {
-                // Chuyển hướng người dùng sang trang 403 hoặc trang chủ nếu không có quyền
-                return NextResponse.redirect(new URL('/403', request.url));
-                // Nếu bạn muốn hiển thị toast, hãy redirect dạng: 
-                // return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url));
-                // Rồi để Client Component (dashboard) đọc URL param mà hiện toast.
+        const userRole = payload?.role;
+
+        // Token không chứa role → bất thường, đá về login
+        if (!userRole) {
+            return NextResponse.redirect(new URL('/sign-in', request.url));
+        }
+
+        // Lấy danh sách paths được phép của role hiện tại
+        const allowedPaths = roleProtectedPaths[userRole] || [];
+
+        // Kiểm tra path hiện tại có nằm trong danh sách cho phép không
+        const isAllowed = allowedPaths.some(p => pathname.startsWith(p));
+
+        if (!isAllowed) {
+            // Redirect về trang chủ phù hợp với từng role
+            if (userRole === 'candidate') {
+                return NextResponse.redirect(new URL('/job-postings', request.url));
             }
+            if (userRole === 'admin' || userRole === 'recruiter') {
+                return NextResponse.redirect(new URL('/dashboard', request.url));
+            }
+            // Fallback cho các role không xác định
+            return NextResponse.redirect(new URL('/403', request.url));
         }
 
         return NextResponse.next();
@@ -113,11 +160,10 @@ export async function middleware(request: NextRequest) {
         const refreshResult = await tryRefreshToken(refreshToken);
 
         if (!refreshResult || !refreshResult.newAccessToken) {
-            console.log(request.url);
+
 
             return NextResponse.redirect(
                 new URL(`/sign-in?session_expired=true&callbackUrl=${request.url}`, request.url)
-
             );
         }
         // Lúc này TypeScript biết chắc chắn nó là Object rồi, tha hồ bóc tách

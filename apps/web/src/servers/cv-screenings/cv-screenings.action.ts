@@ -1,0 +1,70 @@
+'use server';
+
+import http from '@/lib/http';
+import {
+    IScreeningResultDto,
+    IScreeningStats,
+    ICandidateScreeningResult,
+} from '@/types/interfaces/cv-screening.interface';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function extractMessage(error: unknown, fallback: string): string {
+    if (error && typeof error === 'object' && 'response' in error) {
+        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
+        const msg = axiosErr.response?.data?.message;
+        if (msg) return Array.isArray(msg) ? msg[0] : msg;
+    }
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
+// ─── GET SCREENING STATS ──────────────────────────────────────────────────────
+
+/**
+ * GET /screening/stats?jobId=
+ * Roles: admin, recruiter
+ */
+export async function getScreeningStatsAction(jobId: string): Promise<IScreeningStats | null> {
+    if (!jobId) return null;
+    try {
+        const response = await http.get('/screening/stats', { params: { jobId } });
+        return response.data ?? response;
+    } catch {
+        return null;
+    }
+}
+
+// ─── GET MY SCREENING RESULT (Candidate) ──────────────────────────────────────
+
+/**
+ * GET /screening/me/:applicationId
+ * Roles: candidate
+ * Trả về kết quả sàng lọc partial cho ứng viên chính xem
+ */
+export async function getMyScreeningResultAction(applicationId: string): Promise<ICandidateScreeningResult | null> {
+    if (!applicationId) return null;
+    try {
+        const response = await http.get(`/screening/me/${applicationId}`);
+        return response.data ?? response;
+    } catch {
+        return null;
+    }
+}
+
+// ─── GET FULL SCREENING RESULT (HR) ──────────────────────────────────────────
+
+/**
+ * GET /screening/:applicationId
+ * Roles: admin, recruiter
+ * Trả về kết quả sàng lọc đầy đủ cho HR xem
+ */
+export async function getScreeningResultAction(applicationId: string): Promise<IScreeningResultDto | null> {
+    if (!applicationId) return null;
+    try {
+        const response = await http.get(`/screening/${applicationId}`);
+        return response.data ?? response;
+    } catch {
+        return null;
+    }
+}

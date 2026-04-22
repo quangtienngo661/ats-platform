@@ -60,16 +60,30 @@ export class AiUsageLogsService {
         return logs;
     }
 
-    async getAllLogs(filters?: {
-        actionType?: AiActionType;
-        status?: AiLogStatus;
-    }) {
-        return this.prisma.aiUsageLog.findMany({
-            where: {
-                ...(filters?.actionType && { actionType: filters.actionType }),
-                ...(filters?.status && { status: filters.status }),
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+    async getAllLogs(
+        filters?: {
+            actionType?: AiActionType;
+            status?: AiLogStatus;
+        },
+        page?: number,
+    ) {
+        const limit = 10; // hard-coded limit value
+        const skip = (page - 1) * limit;
+        const [items, total] = await Promise.all([
+            this.prisma.aiUsageLog.findMany({
+                where: {
+                    ...(filters?.actionType && { actionType: filters.actionType }),
+                    ...(filters?.status && { status: filters.status }),
+                },
+                skip: skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.aiUsageLog.count(),
+        ]);
+        return {
+            items,
+            pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        }
     }
 }

@@ -1,17 +1,19 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { Cpu, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ConfigProfile } from '../../../types/interfaces/configProfile.interface';
 import { SF, SFT } from '@/types/fonts/fonts';
+import { createAIConfigFormAction, AIConfigActionState } from '@/servers/ai-config/ai-config.action';
+import { toast } from '@/lib/toast';
+
+const initialState: AIConfigActionState = { success: false, message: '' };
 
 export function AddProfileModal({
     onClose,
-    onAdd,
 }: {
     onClose: () => void;
-    onAdd: (p: ConfigProfile) => void;
 }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -23,22 +25,21 @@ export function AddProfileModal({
     const total = skill.weight + experience.weight + education.weight;
     const isValid = total === 100 && name.trim().length > 0;
 
-    const handleAdd = () => {
-        if (!isValid) return;
-        onAdd({
-            name: name.trim(),
-            description: description.trim() || 'Cấu hình mới',
-            isDefault: false,
-            skillsWeight: skill.weight,
-            experienceWeight: experience.weight,
-            educationWeight: education.weight,
-            minimumScoreThreshold: threshold,
-        });
-    };
+    const [state, dispatch, isPending] = useActionState(createAIConfigFormAction, initialState);
+
+    useEffect(() => {
+        if (state.success && state.data) {
+            toast.success('Thành công', state.message);
+            onClose();
+        } else if (state.message) {
+            toast.error('Lỗi', state.message);
+        }
+    }, [state, onClose]);
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <motion.div
+            <motion.form
+                action={dispatch}
                 initial={{ opacity: 0, scale: 0.96, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -46,6 +47,11 @@ export function AddProfileModal({
                 className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
                 style={{ fontFamily: SFT }}
             >
+                {/* Hidden fields for ranges since we use custom controlled inputs that don't have name attributes or we need them explicitly */}
+                <input type="hidden" name="skillsWeight" value={skill.weight} />
+                <input type="hidden" name="experienceWeight" value={experience.weight} />
+                <input type="hidden" name="educationWeight" value={education.weight} />
+                <input type="hidden" name="minimumScoreThreshold" value={threshold} />
                 {/* Modal header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[#F2F2F7]">
                     <div className="flex items-center gap-3">
@@ -70,6 +76,7 @@ export function AddProfileModal({
                                 Tên cấu hình *
                             </label>
                             <input
+                                name="name"
                                 type="text" placeholder="Vd: Vị trí quản lý"
                                 value={name} onChange={(e) => setName(e.target.value)}
                                 className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
@@ -80,6 +87,7 @@ export function AddProfileModal({
                                 Mô tả
                             </label>
                             <input
+                                name="description"
                                 type="text" placeholder="Vd: Dùng cho các vị trí cấp trung và cấp cao"
                                 value={description} onChange={(e) => setDescription(e.target.value)}
                                 className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
@@ -246,15 +254,15 @@ export function AddProfileModal({
                         Hủy
                     </button>
                     <button
-                        onClick={handleAdd}
-                        disabled={!isValid}
+                        type="submit"
+                        disabled={!isValid || isPending}
                         className="flex-1 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
                         style={{ fontWeight: 600 }}
                     >
-                        Thêm cấu hình
+                        {isPending ? 'Đang thêm...' : 'Thêm cấu hình'}
                     </button>
                 </div>
-            </motion.div>
+            </motion.form>
         </div>
     );
 }

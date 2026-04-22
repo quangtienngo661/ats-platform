@@ -82,7 +82,6 @@ export async function signInAction(
     }
 
     const callbackUrl = formData.get("callbackUrl");
-    console.log(callbackUrl)
     if (callbackUrl) {
         redirect(callbackUrl as string)
     }

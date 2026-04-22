@@ -8,24 +8,20 @@ import { SkillFilterBar } from './ui/SkillFilterBar';
 import { SkillTable } from './ui/SkillTable';
 import { AddSkillModal } from './ui/AddSkillModal';
 import { EditSkillModal } from './ui/EditSkillModal';
-import { SERVER_URL } from '@/types/constants/urls';
+import { ISkillDto } from '@/types/interfaces/skill.interface';
+import { deleteSkillAction } from '@/servers/skills/skills.action';
+import { toast } from '@/lib/toast';
 
-export interface SkillDto {
-    skillId: string;
-    name: string;
-    category?: string | null;
-}
 
 interface SkillClientProps {
-    initialSkills: SkillDto[];
+    skills: ISkillDto[];
 }
 
-export default function SkillClient({ initialSkills }: SkillClientProps) {
-    const [skills, setSkills] = useState<SkillDto[]>(initialSkills);
+export default function SkillClient({ skills }: SkillClientProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [editingSkill, setEditingSkill] = useState<SkillDto | null>(null);
+    const [editingSkill, setEditingSkill] = useState<ISkillDto | null>(null);
 
     // Unique categories derived from current skills list
     const categories = useMemo(() => {
@@ -36,39 +32,27 @@ export default function SkillClient({ initialSkills }: SkillClientProps) {
     // Client-side filter
     const filtered = useMemo(() => {
         return skills.filter((s) => {
-            const matchName = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const q = searchQuery.toLowerCase();
+            const matchName = !q || s.name.toLowerCase().includes(q);
             const matchCat = !selectedCategory || s.category === selectedCategory;
             return matchName && matchCat;
         });
     }, [skills, searchQuery, selectedCategory]);
 
-    // CRUD handlers — optimistic local state update
-    const handleCreated = (skill: SkillDto) => {
-        setSkills((prev) => [skill, ...prev]);
-    };
-
-    const handleUpdated = (updated: SkillDto) => {
-        setSkills((prev) => prev.map((s) => s.skillId === updated.skillId ? updated : s));
-    };
 
     const handleDelete = async (skillId: string) => {
-        // Optimistic remove
-        setSkills((prev) => prev.filter((s) => s.skillId !== skillId));
-        try {
-            await fetch(`${SERVER_URL}/skills/${skillId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-        } catch {
-            // Rollback if API fails
-            setSkills(initialSkills);
+        const result = await deleteSkillAction(skillId);
+        if (result.success) {
+            toast.success('Thành công', result.message);
+        } else {
+            toast.error('Lỗi', result.message);
         }
     };
 
     return (
         <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
             <SkillHeader onAdd={() => setShowAddModal(true)} />
-            <SkillStats skills={skills} />
+            <SkillStats skills={filtered} />
             <SkillFilterBar
                 categories={categories}
                 onSearch={setSearchQuery}
@@ -84,7 +68,6 @@ export default function SkillClient({ initialSkills }: SkillClientProps) {
                 <AddSkillModal
                     existingCategories={categories}
                     onClose={() => setShowAddModal(false)}
-                    onCreated={handleCreated}
                 />
             )}
 
@@ -93,7 +76,6 @@ export default function SkillClient({ initialSkills }: SkillClientProps) {
                     skill={editingSkill}
                     existingCategories={categories}
                     onClose={() => setEditingSkill(null)}
-                    onUpdated={handleUpdated}
                 />
             )}
         </div>

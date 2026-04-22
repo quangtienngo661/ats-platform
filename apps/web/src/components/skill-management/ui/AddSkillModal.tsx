@@ -1,57 +1,36 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useActionState } from 'react';
 import { X, Zap } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
-import { SERVER_URL } from '@/types/constants/urls';
-
-interface SkillDto {
-    skillId: string;
-    name: string;
-    category?: string | null;
-}
+import { createSkillAction, SkillActionState } from '@/servers/skills/skills.action';
+import { ISkillDto } from '@/types/interfaces/skill.interface';
+import { toast } from '@/lib/toast';
 
 interface AddSkillModalProps {
     existingCategories: string[];
     onClose: () => void;
-    onCreated: (skill: SkillDto) => void;
 }
 
-export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSkillModalProps) {
-    const [name, setName] = useState('');
-    const [category, setCategory] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+const initialState: SkillActionState = { success: false, message: '' };
+
+export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProps) {
+    const [state, dispatch, isPending] = useActionState(createSkillAction, initialState);
     const nameRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => { nameRef.current?.focus(); }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!name.trim()) { setError('Tên kỹ năng không được để trống'); return; }
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch(`${SERVER_URL}/skills`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ name: name.trim(), category: category.trim() || undefined }),
-            });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({}));
-                throw new Error(body?.message ?? 'Kỹ năng đã tồn tại hoặc không hợp lệ');
-            }
-            const created: SkillDto = await res.json();
-            onCreated(created);
+    // Watch state to handle success/error
+    useEffect(() => {
+        if (state.success && state.data) {
+            toast.success('Thành công', state.message);
             onClose();
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Không thể tạo kỹ năng');
-        } finally {
-            setLoading(false);
+        } else if (state.message) {
+            toast.error('Lỗi', state.message);
+            console.error()
         }
-    };
+    }, [state]);
 
     return (
         <AnimatePresence>
@@ -88,11 +67,11 @@ export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSki
                     </div>
 
                     {/* Body */}
-                    <form onSubmit={handleSubmit}>
+                    <form action={dispatch}>
                         <div className="p-6 space-y-4">
-                            {error && (
+                            {!state.success && state.message && (
                                 <div className="px-4 py-3 rounded-xl bg-[#FFE5E5] text-[#FF3B30] text-[13px]" style={{ fontFamily: SF }}>
-                                    {error}
+                                    {state.message}
                                 </div>
                             )}
 
@@ -103,11 +82,11 @@ export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSki
                                 <input
                                     ref={nameRef}
                                     type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    name="name"
                                     placeholder="Ví dụ: TypeScript, React, Docker..."
                                     className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px]"
                                     style={{ fontFamily: SF }}
+                                    required
                                 />
                             </div>
 
@@ -117,8 +96,7 @@ export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSki
                                 </label>
                                 <input
                                     type="text"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
+                                    name="category"
                                     placeholder="Ví dụ: Programming Language, Framework..."
                                     list="category-suggestions"
                                     className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px]"
@@ -143,12 +121,12 @@ export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSki
                             </button>
                             <motion.button
                                 type="submit"
-                                disabled={loading}
+                                disabled={isPending}
                                 whileTap={{ scale: 0.97 }}
                                 className="flex-1 px-4 py-3 bg-[#6366F1] hover:bg-[#4F52D9] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
                                 style={{ fontWeight: 600 }}
                             >
-                                {loading ? 'Đang tạo...' : 'Tạo kỹ năng'}
+                                {isPending ? 'Đang tạo...' : 'Tạo kỹ năng'}
                             </motion.button>
                         </div>
                     </form>
@@ -157,3 +135,4 @@ export function AddSkillModal({ existingCategories, onClose, onCreated }: AddSki
         </AnimatePresence>
     );
 }
+

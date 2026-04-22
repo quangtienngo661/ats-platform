@@ -1,60 +1,43 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useActionState, useState } from 'react';
 import { X, Pencil } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
-import { SERVER_URL } from '@/types/constants/urls';
-
-interface SkillDto {
-    skillId: string;
-    name: string;
-    category?: string | null;
-}
+import { updateSkillAction, SkillActionState } from '@/servers/skills/skills.action';
+import { ISkillDto } from '@/types/interfaces/skill.interface';
+import { toast } from '@/lib/toast';
 
 interface EditSkillModalProps {
-    skill: SkillDto;
+    skill: ISkillDto;
     existingCategories: string[];
     onClose: () => void;
-    onUpdated: (skill: SkillDto) => void;
 }
 
-export function EditSkillModal({ skill, existingCategories, onClose, onUpdated }: EditSkillModalProps) {
+const initialState: SkillActionState = { success: false, message: '' };
+
+export function EditSkillModal({ skill, existingCategories, onClose }: EditSkillModalProps) {
+    const [state, dispatch, isPending] = useActionState(updateSkillAction, initialState);
+
+    // Track inputs to determine isDirty
     const [name, setName] = useState(skill.name);
     const [category, setCategory] = useState(skill.category ?? '');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const isDirty = name !== skill.name || (category || '') !== (skill.category ?? '');
+
     const nameRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => { nameRef.current?.focus(); }, []);
 
-    const isDirty = name !== skill.name || (category || '') !== (skill.category ?? '');
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!name.trim()) { setError('Tên kỹ năng không được để trống'); return; }
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch(`${SERVER_URL}/skills/${skill.skillId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ name: name.trim(), category: category.trim() || undefined }),
-            });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({}));
-                throw new Error(body?.message ?? 'Không thể cập nhật kỹ năng');
-            }
-            const updated: SkillDto = await res.json();
-            onUpdated(updated);
+    // Watch state to handle success/error
+    useEffect(() => {
+        if (state.success && state.data) {
+            toast.success('Thành công', state.message);
             onClose();
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Không thể cập nhật kỹ năng');
-        } finally {
-            setLoading(false);
+        } else if (state.message) {
+            toast.error('Lỗi', state.message);
         }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state]);
 
     return (
         <AnimatePresence>
@@ -91,13 +74,16 @@ export function EditSkillModal({ skill, existingCategories, onClose, onUpdated }
                     </div>
 
                     {/* Body */}
-                    <form onSubmit={handleSubmit}>
+                    <form action={dispatch}>
                         <div className="p-6 space-y-4">
-                            {error && (
+                            {!state.success && state.message && (
                                 <div className="px-4 py-3 rounded-xl bg-[#FFE5E5] text-[#FF3B30] text-[13px]" style={{ fontFamily: SF }}>
-                                    {error}
+                                    {state.message}
                                 </div>
                             )}
+
+                            {/* Hidden field to pass skillId */}
+                            <input type="hidden" name="skillId" value={skill.skillId} />
 
                             <div>
                                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
@@ -106,10 +92,12 @@ export function EditSkillModal({ skill, existingCategories, onClose, onUpdated }
                                 <input
                                     ref={nameRef}
                                     type="text"
+                                    name="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
                                     style={{ fontFamily: SF }}
+                                    required
                                 />
                             </div>
 
@@ -119,6 +107,7 @@ export function EditSkillModal({ skill, existingCategories, onClose, onUpdated }
                                 </label>
                                 <input
                                     type="text"
+                                    name="category"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     list="edit-category-suggestions"
@@ -143,12 +132,12 @@ export function EditSkillModal({ skill, existingCategories, onClose, onUpdated }
                             </button>
                             <motion.button
                                 type="submit"
-                                disabled={loading || !isDirty}
+                                disabled={isPending || !isDirty}
                                 whileTap={{ scale: 0.97 }}
                                 className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
                                 style={{ fontWeight: 600 }}
                             >
-                                {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                {isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
                             </motion.button>
                         </div>
                     </form>

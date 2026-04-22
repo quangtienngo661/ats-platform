@@ -15,7 +15,6 @@ interface DepartmentClientProps {
     departments: Department[];
 }
 
-
 export default function DepartmentClient({ departments }: DepartmentClientProps) {
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingDept, setEditingDept] = useState<Department | null>(null);

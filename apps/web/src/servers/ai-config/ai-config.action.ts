@@ -10,6 +10,23 @@ export type ActionResult<T = undefined> =
     | { success: true; data?: T }
     | { success: false; error: string };
 
+export type AIConfigActionState = {
+    success: boolean;
+    message: string;
+    data?: ConfigProfile;
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function extractMessage(error: unknown, fallback: string): string {
+    if (error && typeof error === 'object' && 'response' in error) {
+        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
+        const msg = axiosErr.response?.data?.message;
+        if (msg) return Array.isArray(msg) ? msg[0] : msg;
+    }
+    if (error instanceof Error) return error.message;
+    return fallback;
+}
+
 // ─── Converters ──────────────────────────────────────────────────────────────
 const convertToUI = async (data: IAiConfig | IAiConfig[]): Promise<ConfigProfile | ConfigProfile[]> => {
     if (Array.isArray(data)) {
@@ -62,6 +79,36 @@ export async function addAIConfigAction(
         return { success: true, data: created };
     } catch {
         return { success: false, error: 'Không thể tạo cấu hình mới' };
+    }
+}
+
+export async function createAIConfigFormAction(
+    prevState: AIConfigActionState,
+    formData: FormData
+): Promise<AIConfigActionState> {
+    const name = (formData.get('name') as string)?.trim();
+    const description = (formData.get('description') as string)?.trim() || 'Cấu hình mới';
+    const skillsWeight = Number(formData.get('skillsWeight'));
+    const experienceWeight = Number(formData.get('experienceWeight'));
+    const educationWeight = Number(formData.get('educationWeight'));
+    const minimumScoreThreshold = Number(formData.get('minimumScoreThreshold'));
+
+    if (!name) {
+        return { success: false, message: 'Vui lòng nhập tên cấu hình' };
+    }
+    if (skillsWeight + experienceWeight + educationWeight !== 100) {
+        return { success: false, message: 'Tổng trọng số phải bằng 100%' };
+    }
+
+    try {
+        const profile = { name, description, isDefault: false, skillsWeight, experienceWeight, educationWeight, minimumScoreThreshold };
+        const payload = await convertToAPI(profile);
+        const res = await http.post(`/ai-config`, payload);
+        const created = await convertToUI(res.data) as ConfigProfile;
+        revalidatePath("/ai-configuration");
+        return { success: true, message: 'Tạo cấu hình thành công', data: created };
+    } catch (err) {
+        return { success: false, message: extractMessage(err, 'Không thể tạo cấu hình mới') };
     }
 }
 

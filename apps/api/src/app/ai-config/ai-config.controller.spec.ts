@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiConfigController } from './ai-config.controller';
 import { AiConfigService } from './ai-config.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 
 describe('AiConfigController', () => {
   let controller: AiConfigController;
@@ -12,7 +12,8 @@ describe('AiConfigController', () => {
       providers: [
         AiConfigService,
         {
-          provide: PrismaService,
+          provide: PrismaService
+          ,
           useValue: {},
         },
       ],

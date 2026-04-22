@@ -27,7 +27,11 @@ export class SkillsService {
 	}
 
 	async findAll() {
-		return this.prisma.skill.findMany();
+		return this.prisma.skill.findMany({
+			orderBy: {
+				category: 'asc',
+			},
+		});
 	}
 
 	async search(name?: string, category?: string) {

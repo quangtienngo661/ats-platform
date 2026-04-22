@@ -3,7 +3,7 @@ export interface ISkill {
   category: string;
 }
 
-export interface IJobPostingSkills {
-	skillId: string;
-	isRequired: boolean;
+export interface IJobPostingSkills extends ISkill {
+  skillId: string;
+  isRequired: boolean;
 }
