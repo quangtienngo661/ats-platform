@@ -18,15 +18,6 @@ interface MutateJobCategoryModalProps {
 type ActionState = { success: boolean; message: string };
 const initialState: ActionState = { success: false, message: '' };
 
-// Placeholder action — sẽ được thay bằng server action thật
-// async function placeholderAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
-//     // TODO: Replace with createJobCategoryAction / updateJobCategoryAction
-//     await new Promise((r) => setTimeout(r, 500));
-//     const name = formData.get('name') as string;
-//     if (!name?.trim()) return { success: false, message: 'Vui lòng nhập tên danh mục' };
-//     return { success: true, message: 'Thành công (mock)' };
-// }
-
 export function MutateJobCategoryModal({ onClose, editingCategory, parentCategories }: MutateJobCategoryModalProps) {
     const isEditing = !!(editingCategory?.categoryId);
     const isAddingChild = !isEditing && !!editingCategory?.parentCategoryId;

@@ -18,6 +18,8 @@ async function tryRefreshToken(currentRefreshToken: string) {
             headers: { Cookie: `refreshToken=${currentRefreshToken}` },
         });
 
+        // console.log(res.body);
+
         let newRefreshToken;
 
         const cookieStr = res.headers.getSetCookie()[0];
@@ -33,7 +35,7 @@ async function tryRefreshToken(currentRefreshToken: string) {
         if (!res.ok) return null;
         const data = await res.json();
         // Tùy response shape của backend
-        return { newAccessToken: data?.data?.accessToken ?? data?.accessToken ?? null, newRefreshToken: newRefreshToken || "" };
+        return { newAccessToken: data.data.accessToken ?? null, newRefreshToken: newRefreshToken || "" };
     } catch {
         return null;
     }
@@ -160,8 +162,6 @@ export async function proxy(request: NextRequest) {
         const refreshResult = await tryRefreshToken(refreshToken);
 
         if (!refreshResult || !refreshResult.newAccessToken) {
-
-
             return NextResponse.redirect(
                 new URL(`/sign-in?session_expired=true&callbackUrl=${request.url}`, request.url)
             );

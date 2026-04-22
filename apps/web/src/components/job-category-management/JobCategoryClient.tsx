@@ -7,6 +7,8 @@ import { JobCategoryStats } from './ui/JobCategoryStats';
 import { JobCategoryTree } from './ui/JobCategoryTree';
 import { MutateJobCategoryModal } from './ui/MutateJobCategoryModal';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
+import { deleteJobCategoryAction } from '@/servers/job-categories/job-categories.action';
+import { toast } from '@/lib/toast';
 
 interface JobCategoryClientProps {
     categories: IJobCategoryDto[];
@@ -34,8 +36,12 @@ export default function JobCategoryClient({ categories }: JobCategoryClientProps
     };
 
     const handleDelete = async (category: IJobCategoryDto) => {
-        // TODO: connect to deleteCategoryAction
-        // const result = await deleteJobCategoryAction(category.categoryId);
+        const result = await deleteJobCategoryAction(category.categoryId);
+        if (result.success) {
+            toast.success(result.message);
+        } else {
+            toast.error(result.message);
+        }
     };
 
     const handleCloseModal = () => {
