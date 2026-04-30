@@ -32,7 +32,7 @@ export class CreateUserDto implements IUserDto {
     })
     @IsString()
     @IsOptional()
-    phone!: string;
+    phoneNumber?: string;
 
     @ApiPropertyOptional({
         enum: UserStatus,

@@ -173,7 +173,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                 <input
                   name="phone"
                   type="tel"
-                  defaultValue={user.phone ?? ''}
+                  defaultValue={user.phoneNumber ?? ''}
                   placeholder="+84901234567"
                   className={inputCls}
                   style={{ fontFamily: SF }}
@@ -189,17 +189,16 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                     Vai trò
                   </label>
                   <select
-                    name="role"
+                    disabled={true}
                     defaultValue={user.role}
                     className={selectCls}
                     style={{ fontFamily: SF }}
                   >
-                    {ROLES.map((r) => (
-                      <option key={r.value} value={r.value}>
-                        {r.label}
-                      </option>
-                    ))}
+                    <option value={user.role}>
+                      {ROLES.find((r) => r.value === user.role)?.label}
+                    </option>
                   </select>
+                  <input type="hidden" name="role" value={user.role} />
                 </div>
                 <div>
                   <label

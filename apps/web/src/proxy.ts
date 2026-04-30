@@ -18,8 +18,6 @@ async function tryRefreshToken(currentRefreshToken: string) {
             headers: { Cookie: `refreshToken=${currentRefreshToken}` },
         });
 
-        // console.log(res.body);
-
         let newRefreshToken;
 
         const cookieStr = res.headers.getSetCookie()[0];
@@ -207,7 +205,10 @@ export async function proxy(request: NextRequest) {
     }
 
     // CASE 3: Không có gì cả → chưa đăng nhập
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+    if (roleProtectedPaths.candidate.includes(request.nextUrl.pathname)) {
+        return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
+    return NextResponse.redirect(new URL('/sign-in/admin', request.url));
 }
 
 export const config = {

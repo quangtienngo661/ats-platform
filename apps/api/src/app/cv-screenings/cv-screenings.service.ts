@@ -172,7 +172,7 @@ export class CvScreeningsService {
     const byStatus = {
       [ScreeningStatus.pending]: 0,
       [ScreeningStatus.processing]: 0,
-      [ScreeningStatus.success]: 0,
+      [ScreeningStatus.completed]: 0,
       [ScreeningStatus.failed]: 0,
     };
     const byRecommendation = {

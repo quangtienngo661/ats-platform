@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, Briefcase, CalendarCheck,
   Settings, LogOut, Sparkles, Bell, Search,
   Menu, X, Plus, UserCircle, ChevronRight, Cpu,
-  Building2, Zap, FolderTree, Activity,
+  Building2, Zap, FolderTree, Activity, Users2,
 } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -18,21 +18,19 @@ const navItems = [
   { icon: Briefcase, label: 'Tin tuyển dụng', href: '/jobs', badge: 3 },
   { icon: Users, label: 'Ứng viên', href: '/candidates' },
   { icon: CalendarCheck, label: 'Lịch phỏng vấn', href: '/interviews' },
-  // { icon: BarChart3, label: 'Báo cáo', href: '#' },
 ];
 
 const adminItems = [
   { icon: UserCircle, label: 'Quản lý người dùng', href: '/user-management' },
   { icon: Building2, label: 'Phòng ban', href: '/department-management' },
+  { icon: Users2, label: 'Nhà tuyển dụng', href: '/recruiter-management' },
   { icon: FolderTree, label: 'Danh mục ngành nghề', href: '/job-category-management' },
   { icon: Zap, label: 'Kỹ năng', href: '/skill-management' },
   { icon: Cpu, label: 'Cấu hình AI', href: '/ai-configuration' },
   { icon: Activity, label: 'AI Usage Logs', href: '/ai-usage-logs' },
-  // { icon: Settings, label: 'Thông tin công ty', href: '/company-profile' },
 ];
 
 const bottomItems = [
-  // { icon: Settings, label: 'Cài đặt', href: '#' },
   { icon: LogOut, label: 'Đăng xuất', href: '/sign-in/admin' },
 ];
 
@@ -170,7 +168,7 @@ function SidebarContent({ onClose, userRole }: { onClose?: () => void, userRole?
                 <button
                   onClick={async () => {
                     onClose?.();
-                    await logoutAction();
+                    await logoutAction(href);
                   }}
                   className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
                 >

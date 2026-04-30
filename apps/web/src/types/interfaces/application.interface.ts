@@ -7,18 +7,28 @@ export interface IApplicationDto extends IApplication {
     cvId: string;
     candidateId?: string;
     status: string;
+    appliedAt?: string;             // matches schema appliedAt
     notes?: string;
     rejectionReason?: string;
     createdAt?: string;
     updatedAt?: string;
-    job?: {
+    jobPosting?: {
         title: string;
         departmentId: string;
+        department?: {
+            name: string,
+        };         // resolved name, returned by some endpoints
+        locationType?: string;
     };
     candidate?: {
         fullName: string;
         email: string;
     };
+    screening?: {
+        overallScore: number | null;
+        aiRecommendation: string | null;
+        status: string;
+    } | null;
 }
 
 /** Một entry trong lịch sử thay đổi trạng thái đơn ứng tuyển */

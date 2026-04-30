@@ -70,7 +70,7 @@ export class AiUsageLogsService {
         const limit = 10; // hard-coded limit value
         const skip = (page - 1) * limit;
         const [items, total] = await Promise.all([
-            this.prisma.aiUsageLog.findMany({
+            await this.prisma.aiUsageLog.findMany({
                 where: {
                     ...(filters?.actionType && { actionType: filters.actionType }),
                     ...(filters?.status && { status: filters.status }),
@@ -79,7 +79,7 @@ export class AiUsageLogsService {
                 take: limit,
                 orderBy: { createdAt: 'desc' },
             }),
-            this.prisma.aiUsageLog.count(),
+            await this.prisma.aiUsageLog.count(),
         ]);
         return {
             items,

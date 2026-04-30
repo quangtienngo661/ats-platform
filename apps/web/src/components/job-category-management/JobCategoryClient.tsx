@@ -18,13 +18,6 @@ export default function JobCategoryClient({ categories }: JobCategoryClientProps
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<IJobCategoryDto | null>(null);
 
-    // Flatten all categories for parent selection dropdown
-    const allCategories = categories.reduce<IJobCategoryDto[]>((acc, cat) => {
-        acc.push(cat);
-        if (cat.childCategories) acc.push(...cat.childCategories);
-        return acc;
-    }, []);
-
     const handleAdd = (parentId?: string) => {
         setEditingCategory(parentId ? { categoryId: '', name: '', parentCategoryId: parentId } : null);
         setShowMutateModal(true);

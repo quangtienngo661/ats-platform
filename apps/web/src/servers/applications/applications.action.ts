@@ -8,7 +8,9 @@ import {
     IKanbanBoard,
     IGetApplicationsByJobQuery,
     IPaginatedApplications,
+    IApplicationCard,
 } from '@/types/interfaces/application.interface';
+import { AiRecommendation, ApplicationStatus } from '@ats-platform/database';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,6 +30,34 @@ function extractMessage(error: unknown, fallback: string): string {
     }
     if (error instanceof Error) return error.message;
     return fallback;
+}
+
+function mapDtoToCard(dto: IApplicationDto): IApplicationCard {
+    // export interface IApplicationCard {
+    //   applicationId: string;
+    //   candidateName: string;
+    //   jobTitle: string;
+    //   appliedAt: string;
+    //   currentStageSince: string;
+    //   status: ApplicationStatus;
+    //   cvId: string;
+    //   aiScore?: number;
+    //   aiRecommendation?: AiRecommendation;
+    // }
+
+    return {
+        applicationId: dto.applicationId,
+        candidateName: dto.candidate?.fullName || '',
+        jobTitle: dto.jobPosting?.title || '',
+        appliedAt: dto.appliedAt || '',
+        departmentName: dto.jobPosting?.department?.name || "",
+        locationType: dto.jobPosting?.locationType || "",
+        // currentStageSince: string,
+        status: dto.status,
+        cvId: dto.cvId || '',
+        aiScore: dto.screening?.overallScore || 0,
+        aiRecommendation: dto.screening?.aiRecommendation || '',
+    }
 }
 
 // ─── APPLY FOR JOB ────────────────────────────────────────────────────────────
@@ -61,10 +91,11 @@ export async function applyForJobAction(
  * GET /applications/my
  * Roles: candidate
  */
-export async function getMyApplicationsAction(): Promise<IApplicationDto[]> {
+export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
     try {
         const response = await http.get('/applications/my');
-        return response.data ?? response;
+        const result = response.data.map((item: IApplicationDto) => mapDtoToCard(item));
+        return result;
     } catch {
         return [];
     }

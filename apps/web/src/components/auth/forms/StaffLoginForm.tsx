@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff, Shield, Users } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { signInAction } from '@/servers/auth/auth.action';
 
 import { useSearchParams } from 'next/navigation';
+import { toast } from '@/lib/toast';
 
 const initialState = { success: false, message: '' };
 
@@ -31,7 +32,7 @@ const ROLES: { id: StaffRole; label: string; icon: React.ReactNode; color: strin
     },
 ];
 
-export default function StaffLoginForm() {
+export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: boolean }) {
     const [showPw, setShowPw] = useState(false);
     const [role, setRole] = useState<StaffRole>('admin');
     const [state, formAction] = useActionState(signInAction, initialState);
@@ -39,6 +40,12 @@ export default function StaffLoginForm() {
     const callbackUrl = searchParams.get('callbackUrl') || '';
 
     const activeRole = ROLES.find((r) => r.id === role)!;
+
+    useEffect(() => {
+        if (isRoleDifferent) {
+            toast.info("Bạn được điều hướng khi cố gắng đăng nhập tài khoản quản trị")
+        }
+    }, [isRoleDifferent])
 
     return (
         <motion.div

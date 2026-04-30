@@ -50,9 +50,12 @@ export class UsersService {
   }
 
   async findAll() {
-    return this.prisma.user.findMany({
+    return await this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
-      omit: { passwordHash: true }
+      omit: { passwordHash: true },
+      include: {
+        recruiter: true
+      }
     });
   }
 
@@ -91,7 +94,7 @@ export class UsersService {
     }
 
     const newPasswordHash = bcrypt.hashSync(dto.newPassword, 10);
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { userId },
       data: { passwordHash: newPasswordHash },
       omit: { passwordHash: true },

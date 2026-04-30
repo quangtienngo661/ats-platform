@@ -7,11 +7,16 @@ export const metadata = {
     description: 'Đăng nhập dành cho Admin và Recruiter của TalentAI',
 };
 
-export default function StaffSignInPage() {
+interface Props {
+    searchParams: Promise<{ isRoleDifferent?: string }>;
+}
+
+export default async function StaffSignInPage({ searchParams }: Props) {
+    const { isRoleDifferent } = await searchParams;
     return (
         <StaffAuthShell>
             <Suspense fallback={null}>
-                <StaffLoginForm />
+                <StaffLoginForm isRoleDifferent={isRoleDifferent === 'true' ? true : false} />
             </Suspense>
         </StaffAuthShell>
     );

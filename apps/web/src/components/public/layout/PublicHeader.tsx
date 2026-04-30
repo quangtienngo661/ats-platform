@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 
@@ -32,6 +32,19 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
     const initials = userInfo?.fullName
         ? userInfo.fullName.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase()
         : '';
+
+    const formatRole = (role: string) => {
+        switch (role) {
+            case 'candidate':
+                return 'Ứng viên';
+            case 'employer':
+                return 'Nhà tuyển dụng';
+            case 'admin':
+                return 'Quản trị viên';
+            default:
+                return 'Khác';
+        }
+    };
 
     return (
         <header
@@ -71,15 +84,6 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
 
                 <div className="flex-1 hidden md:block" />
 
-                {/* Search shortcut */}
-                {/* <Link
-                    href="/jobs"
-                    className="hidden lg:flex items-center gap-2 bg-[#F5F5F7] hover:bg-[#EBEBF0] transition-colors rounded-xl px-3 py-2 text-[12px] text-[#AEAEB2]"
-                >
-                    <Search className="w-3.5 h-3.5" />
-                    <span>Tìm vị trí, kỹ năng...</span>
-                    <kbd className="ml-1 text-[10px] bg-white rounded px-1.5 py-0.5 border border-[#E5E5EA]">⌘K</kbd>
-                </Link> */}
 
                 {/* Right side */}
                 {userInfo ? (
@@ -95,10 +99,10 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
                         </button>
 
                         {avatarOpen && (
-                            <div className="absolute right-0 top-full mt-2 w-[200px] bg-white rounded-2xl shadow-xl shadow-black/10 border border-[#E5E5EA] py-1.5">
-                                <div className="px-4 py-2.5 border-b border-[#F2F2F7]">
-                                    <p className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>{userInfo.fullName}</p>
-                                    <p className="text-[11px] text-[#AEAEB2]">{userInfo.role}</p>
+                            <div className="absolute right-0 top-full mt-2 w-[200px] bg-white rounded-2xl shadow-xl shadow-black/10 border border-[#E5E5EA] pt-1.5">
+                                <div className="px-4 py-2 border-b border-[#F2F2F7]">
+                                    <p className="text-[13px] text-[#1D1D1F] truncate mb-[3px]" style={{ fontWeight: 500 }}>{userInfo.fullName}</p>
+                                    <p className="text-[11px] text-[#AEAEB2]">{formatRole(userInfo.role ?? '')}</p>
                                 </div>
                                 <Link
                                     href="/profile"
@@ -116,10 +120,18 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
                                     <Briefcase className="w-4 h-4 text-[#AEAEB2]" />
                                     Đơn ứng tuyển
                                 </Link>
-                                <div className="border-t border-[#F2F2F7] mt-1 pt-1">
+                                <Link
+                                    href="/my-cvs"
+                                    onClick={() => setAvatarOpen(false)}
+                                    className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
+                                >
+                                    <FileText className="w-4 h-4 text-[#AEAEB2]" />
+                                    CV của tôi
+                                </Link>
+                                <div className="border-t border-[#F2F2F7]">
                                     <button
                                         onClick={handleLogout}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#FF3B30] hover:bg-[#FFF1F0] transition-colors"
+                                        className="w-full flex items-center gap-2.5 px-4 py-[10px] text-[13px] text-[#FF3B30] hover:bg-[#FFF1F0] transition-colors rounded-b-2xl"
                                     >
                                         <LogOut className="w-4 h-4" />
                                         Đăng xuất

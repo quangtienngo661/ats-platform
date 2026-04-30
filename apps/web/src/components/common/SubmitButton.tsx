@@ -15,7 +15,7 @@ export default function SubmitButton({ content }: { content: string }) {
             style={{ fontFamily: SFT, fontWeight: 500 }}
         >
             {pending ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 flex py-2 justify-between items-center border-white/10 border-t-white rounded-full animate-spin" />
             ) : (
                 <>{content} <ArrowRight className="w-4 h-4" /></>
             )}

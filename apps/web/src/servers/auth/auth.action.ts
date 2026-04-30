@@ -1,9 +1,66 @@
 "use server";
 
+import { decodeTokenPayload } from "@/lib/decodeTokenPayload";
 import { SERVER_URL } from "@/types/constants/urls";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+// -------------- Helpers ----------------
+const getAccessToken = async (payload: RequestPayload) => {
+    const response = await axios.post(
+        `${SERVER_URL}/auth/login`,
+        payload
+    );
+
+
+    let accessToken = null;
+    if (response.data?.data?.accessToken) {
+        accessToken = response.data.data.accessToken;
+    } else if (response.data?.accessToken) {
+        accessToken = response.data.accessToken;
+    }
+
+    return { response, accessToken }
+}
+
+const setAuthCookies = async (accessToken: string, response: AxiosResponse) => {
+    const cookiesStore = await cookies();
+
+    cookiesStore.set({
+        name: "accessToken",
+        value: accessToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+    });
+
+    const setCookieHeader = response.headers['set-cookie'];
+    if (setCookieHeader) {
+        setCookieHeader.forEach(cookieStr => {
+            if (cookieStr.startsWith('refreshToken=')) {
+                const match = cookieStr.match(/refreshToken=([^;]+)/);
+                if (match && match[1]) {
+                    cookiesStore.set({
+                        name: "refreshToken",
+                        value: match[1],
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "strict",
+                        path: "/",
+                    });
+                }
+            }
+        });
+    }
+}
+
+interface RequestPayload {
+    email: string,
+    password: string
+}
+
 
 // Định nghĩa kiểu dữ liệu trả về cho Form State
 export type AuthState = {
@@ -14,12 +71,16 @@ export type AuthState = {
 // Giữ lại SignInState cho tương thích ngược
 export type SignInState = AuthState;
 
+
 export async function signInAction(
     prevState: SignInState,
     formData: FormData
 ): Promise<SignInState> {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const role = formData.get("role") as string;
+
+    let isRoleDifferent = false;
 
     const payload = {
         email,
@@ -31,60 +92,38 @@ export async function signInAction(
     }
 
     try {
-        const response = await axios.post(
-            `${SERVER_URL}/auth/login`,
-            payload
-        );
 
-        const cookiesStore = await cookies();
-
-        let accessToken = null;
-        if (response.data?.data?.accessToken) {
-            accessToken = response.data.data.accessToken;
-        } else if (response.data?.accessToken) {
-            accessToken = response.data.accessToken;
-        }
+        const { accessToken, response } = await getAccessToken(payload);
 
         if (accessToken) {
-            cookiesStore.set({
-                name: "accessToken",
-                value: accessToken,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            });
+            const tokenPayload = decodeTokenPayload(accessToken);
+
+            if (tokenPayload?.role === role || (tokenPayload?.role === "admin" && role === "recruiter")) {
+                await setAuthCookies(accessToken, response);
+            }
+
+            else if ((tokenPayload?.role === "admin" || tokenPayload?.role === "recruiter") && role === "candidate") {
+                isRoleDifferent = true;
+            } else {
+                return { success: false, message: "Tài khoản của bạn không có quyền truy cập portal này" };
+            }
         }
 
-        // Cố gắng lấy refreshToken từ header Set-Cookie nếu server có trả về HTTP-Only cookie
-        const setCookieHeader = response.headers['set-cookie'];
-        if (setCookieHeader) {
-            setCookieHeader.forEach(cookieStr => {
-                if (cookieStr.startsWith('refreshToken=')) {
-                    const match = cookieStr.match(/refreshToken=([^;]+)/);
-                    if (match && match[1]) {
-                        cookiesStore.set({
-                            name: "refreshToken",
-                            value: match[1],
-                            httpOnly: true,
-                            secure: process.env.NODE_ENV === "production",
-                            sameSite: "strict",
-                            path: "/",
-                        });
-                    }
-                }
-            });
-        }
 
     } catch (error: any) {
         const msg = error.response?.data?.message || "Sai tài khoản hoặc mật khẩu";
         return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
     }
-
     const callbackUrl = formData.get("callbackUrl");
+
+    if (isRoleDifferent) {
+        redirect(`/sign-in/admin?isRoleDifferent=true${callbackUrl ? `&callbackUrl=${callbackUrl as string}` : ""}`);
+    }
+
     if (callbackUrl) {
         redirect(callbackUrl as string)
     }
+
     redirect("/dashboard");
 }
 
@@ -148,8 +187,7 @@ export async function refreshAction(): Promise<AuthState> {
 }
 
 export async function logoutAction(
-    prevState?: AuthState,
-    formData?: FormData
+    redirectTo: string = "/sign-in"
 ): Promise<AuthState> {
     try {
         const cookiesStore = await cookies();
@@ -175,7 +213,7 @@ export async function logoutAction(
     }
 
     // Redirect cần để ra ngoài try/catch
-    redirect("/sign-in");
+    redirect(redirectTo);
 }
 
 export async function requestEmailVerificationAction(

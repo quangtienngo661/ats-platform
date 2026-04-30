@@ -7,13 +7,17 @@ export interface ICandidateDto extends ICandidate {
     userId: string;
     currentTitle?: string;
     yearsOfExperience?: number;
-    profileData?: Record<string, unknown>;
+    // profileData?: CvParsedData;
     user?: {
         fullName: string;
         email: string;
         phoneNumber?: string;
         status: UserStatus;
+        createdAt: string;
     };
+    // Returned by getProfile() / findOne() via _count
+    cvCount?: number;
+    applicationCount?: number;
 }
 
 export interface IFindCandidatesQuery {

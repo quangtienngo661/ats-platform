@@ -40,7 +40,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <div className="max-w-[1200px] mx-auto px-6 py-6" style={{ fontFamily: SFT }}>
                 {/* Breadcrumb */}
                 <Link
-                    href="/jobs"
+                    href="/job-postings"
                     className="inline-flex items-center gap-1.5 text-[13px] text-[#6E6E73] hover:text-[#0071E3] transition-colors mb-6"
                 >
                     <ArrowLeft className="w-4 h-4" />

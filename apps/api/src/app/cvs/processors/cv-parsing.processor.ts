@@ -46,7 +46,7 @@ export class CvParsingProcessor extends WorkerHost {
                     await this.cvParsedDataService.create(cvId, parsedData, tx);
                     await tx.cV.update({
                         where: { cvId },
-                        data: { parsingStatus: ParsingStatus.success },
+                        data: { parsingStatus: ParsingStatus.completed },
                     });
                 });
 

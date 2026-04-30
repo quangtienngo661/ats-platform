@@ -107,8 +107,8 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole });
-    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '7d' });
+    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole, fullName: user.fullName });
+    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole, fullName: user.fullName }, { expiresIn: '7d' });
     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -278,8 +278,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole });
-    const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '7d' });
+    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole, fullName: tokenPayload.fullName });
+    const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole, fullName: tokenPayload.fullName }, { expiresIn: '7d' });
     const hashedNewRefreshToken = bcrypt.hashSync(newRefreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -304,7 +304,6 @@ export class AuthService {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       },
     );
-
 
     return accessToken;
   }
@@ -375,16 +374,16 @@ export class AuthService {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Atomically update password + revoke ALL refresh tokens for this user
-    await this.prisma.$transaction([
-      this.prisma.user.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
         where: { userId },
         data: { passwordHash: hashedPassword },
-      }),
-      this.prisma.refreshToken.updateMany({
+      });
+      await tx.refreshToken.updateMany({
         where: { userId, revoked: false },
         data: { revoked: true },
-      }),
-    ]);
+      });
+    });
 
     // Clean up reset token from Redis
     await this.redisClient.del(tokenKey);

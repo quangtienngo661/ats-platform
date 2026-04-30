@@ -78,7 +78,7 @@ export class RecruitersService {
 			throw new NotFoundException('Recruiter profile not found');
 		}
 
-		return this.prisma.recruiter.update({
+		return await this.prisma.recruiter.update({
 			where: { recruiterId: recruiter.recruiterId },
 			data: { position: updateDto.position, departmentId: updateDto.departmentId },
 			include: { ...recruiterIncludeOptions },

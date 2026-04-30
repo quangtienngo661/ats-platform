@@ -2,7 +2,8 @@
 
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
-import { ICvDto, ICvParsedData } from '@/types/interfaces/cv.interface';
+import { ICvDto } from '@/types/interfaces/cv.interface';
+import { ICvParsedData } from '@ats-platform/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,8 @@ export async function uploadCvAction(
     formData: FormData
 ): Promise<CvActionState> {
     const file = formData.get('file') as File | null;
+    // console.log(formData)
+    // return { success: false, message: '' }
 
     if (!file) {
         return { success: false, message: 'Vui lòng chọn file CV' };
@@ -46,7 +49,7 @@ export async function uploadCvAction(
         const response = await http.post('/cvs/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
-        revalidatePath('/profile');
+        revalidatePath('/my-cvs');
         return { success: true, message: 'Tải CV lên thành công', data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Tải CV lên thất bại') };
@@ -119,13 +122,36 @@ export async function getCvDownloadUrlAction(cvId: string): Promise<string> {
  * POST /cvs/:cvId/confirm
  * Roles: candidate (owner)
  */
-export async function confirmCvAction(cvId: string): Promise<CvActionState> {
+export async function confirmCvAction(
+    prevState: CvActionState,
+    formData: FormData
+): Promise<CvActionState> {
+    const cvId = formData.get('cvId') as string;
+    const syncToProfile = formData.get('syncToProfile') === 'true';
+    const markAsConfirmed = formData.get('markAsConfirmed') === 'true';
+
+
     if (!cvId) return { success: false, message: 'Thiếu ID CV' };
 
     try {
-        const response = await http.post(`/cvs/${cvId}/confirm`);
+        const queryParams = new URLSearchParams({
+            syncToProfile: String(syncToProfile),
+            markAsConfirmed: String(markAsConfirmed)
+        }).toString();
+
+        let message: string = '';
+        const response = await http.post(`/cvs/${cvId}/confirm?${queryParams}`);
+
+        if (syncToProfile && markAsConfirmed) {
+            message = 'Đã đồng bộ CV và xác nhận CV';
+        } else if (syncToProfile) {
+            message = 'Đã đồng bộ CV với profile';
+        } else if (markAsConfirmed) {
+            message = 'Đã xác nhận CV';
+        }
+
         revalidatePath('/profile');
-        return { success: true, message: 'Xác nhận CV thành công', data: response.data ?? response };
+        return { success: true, message: message, data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Xác nhận CV thất bại') };
     }

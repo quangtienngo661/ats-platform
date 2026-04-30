@@ -9,6 +9,7 @@ import { signInAction } from '@/servers/auth/auth.action';
 import SubmitButton from '@/components/common/SubmitButton';
 import { OAuthButtons } from '../ui/OAuthButtons';
 import { useSearchParams } from 'next/navigation';
+import { toast } from '@/lib/toast';
 
 const initialState = { success: false, message: '' };
 
@@ -24,6 +25,10 @@ export default function LoginForm() {
         ? 'Đăng nhập bằng OAuth thất bại. Vui lòng thử lại.'
         : null;
     const resetSuccess = searchParams.get('reset') === 'success';
+
+    // const handleLoginError = (message: string) => {
+    //     toast.error(message);
+    // };
 
     return (
         <motion.div
@@ -98,11 +103,15 @@ export default function LoginForm() {
                 </div>
 
                 {/* 2. Ép nó vào form ẩn để gửi kèm lên Server Action */}
+                <input type="hidden" name="role" value="candidate" />
                 <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
                 {/* Error */}
                 {state.message && !state.success && (
                     <p className="text-[#FF3B30] text-[13px] text-center" style={{ fontFamily: SFT }}>
+                        {/* <> */}
+                        {/* {handleLoginError(state.messag/e)} */}
+                        {/* </> */}
                         {state.message}
                     </p>
                 )}

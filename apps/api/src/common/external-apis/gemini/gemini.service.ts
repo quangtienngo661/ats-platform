@@ -48,10 +48,6 @@ export class GeminiService {
             screeningConfig
         );
 
-        console.log('==============================')
-        console.log(result.text);
-        console.log('==============================')
-
         return result.text;
     }
 

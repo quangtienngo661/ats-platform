@@ -11,12 +11,12 @@ import {
 
 @Injectable()
 export class JobCategoriesService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async create(createJobCategoryDto: CreateJobCategoryDto) {
 		await this.ensureParentExists(createJobCategoryDto.parentCategoryId);
 
-		return this.prisma.jobCategory.create({
+		return await this.prisma.jobCategory.create({
 			data: {
 				name: createJobCategoryDto.name,
 				parentCategoryId: createJobCategoryDto.parentCategoryId,
@@ -29,7 +29,7 @@ export class JobCategoriesService {
 	}
 
 	async findAll() {
-		return this.prisma.jobCategory.findMany({
+		return await this.prisma.jobCategory.findMany({
 			include: {
 				parentCategory: true,
 				childCategories: true,
@@ -71,7 +71,7 @@ export class JobCategoriesService {
 			await this.ensureNotCircular(id, updateJobCategoryDto.parentCategoryId);
 		}
 
-		return this.prisma.jobCategory.update({
+		return await this.prisma.jobCategory.update({
 			where: { categoryId: id },
 			data: {
 				name: updateJobCategoryDto.name,
@@ -104,7 +104,7 @@ export class JobCategoriesService {
 			);
 		}
 
-		return this.prisma.jobCategory.delete({
+		return await this.prisma.jobCategory.delete({
 			where: { categoryId: id },
 		});
 	}

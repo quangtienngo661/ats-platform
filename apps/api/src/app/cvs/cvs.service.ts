@@ -18,11 +18,10 @@ export class CVsService {
     @InjectQueue('cv-processing') private readonly cvProcessingQueue: Queue,
   ) { }
 
-  async uploadCV(candidateId: string, file: Express.Multer.File) {
+  async uploadCV(candidateId: string, file: Express.Multer.File, fileName: string) {
     const fileBuffer = await fs.readFile(file.path);
     const rawTextFromCV = await this.pdfService.parsePdf(fileBuffer);
 
-    // Lưu relative path thay vì absolute path
     const relativePath = file.path
       .replace(process.cwd(), '')
       .replace(/^[\\/]/, '')
@@ -31,6 +30,7 @@ export class CVsService {
     const cvRecord = await this.prisma.cV.create({
       data: {
         candidateId,
+        fileName,
         filePath: relativePath,   // ← relative path
         parsingStatus: ParsingStatus.pending,
         rawText: rawTextFromCV,
@@ -54,15 +54,17 @@ export class CVsService {
   }
 
   async getMyCVs(candidateId: string) {
-    return this.prisma.cV.findMany({
+    return await this.prisma.cV.findMany({
       where: { candidateId },
       orderBy: { uploadedAt: 'desc' },
-      select: {
-        cvId: true,
-        filePath: true,
-        parsingStatus: true,
-        uploadedAt: true,
-      },
+      omit: { rawText: true },
+      include: {
+        parsedData: {
+          omit: {
+            cvId: true,
+          }
+        }
+      }
     });
   }
 
@@ -91,10 +93,10 @@ export class CVsService {
     return cv.parsedData;
   }
 
-  async confirmCV(cvId: string, candidateId: string) {
+  async confirmCV(cvId: string, candidateId: string, syncToProfile: boolean, markAsConfirmed: boolean) {
     const cv = await this.getCVById(cvId);
 
-    if (cv.parsingStatus !== ParsingStatus.success) {
+    if (cv.parsingStatus !== ParsingStatus.completed) {
       throw new BadRequestException('CV has not been parsed successfully yet');
     }
 
@@ -102,14 +104,13 @@ export class CVsService {
       throw new BadRequestException('Parsed data not found for this CV');
     }
 
-    if (cv.parsedData.isConfirmed) {
+    if (cv.parsedData.isConfirmed && !syncToProfile) {
       throw new BadRequestException('This CV has already been confirmed');
     }
 
     const profileData: Record<string, unknown> = {
-      fullName: cv.parsedData.name,
-      email: cv.parsedData.email,
-      phoneNumber: cv.parsedData.phoneNumber,
+      summary: cv.parsedData.summary,
+      location: cv.parsedData.location,
       experience: cv.parsedData.experience as Prisma.InputJsonValue,
       education: cv.parsedData.education as Prisma.InputJsonValue,
       skills: cv.parsedData.skills as Prisma.InputJsonValue,
@@ -117,15 +118,30 @@ export class CVsService {
       last_updated_from_cv: new Date().toISOString(),
     };
 
-    await this.candidatesService.updateProfileData(candidateId, profileData);
+    let message: string;
 
-    await this.prisma.cVParsedData.update({
-      where: { cvId: cv.cvId },
-      data: { isConfirmed: true },
-    });
+    if (syncToProfile && markAsConfirmed) {
+      await this.candidatesService.updateProfileData(candidateId, profileData);
+
+      await this.prisma.cVParsedData.update({
+        where: { cvId: cv.cvId },
+        data: { isConfirmed: true },
+      });
+
+      message = 'CV confirmed and candidate profile updated successfully';
+    } else if (syncToProfile) {
+      await this.candidatesService.updateProfileData(candidateId, profileData);
+      message = 'Candidate profile updated successfully';
+    } else if (markAsConfirmed) {
+      await this.prisma.cVParsedData.update({
+        where: { cvId: cv.cvId },
+        data: { isConfirmed: true },
+      });
+      message = 'CV confirmed successfully';
+    }
 
     return {
-      message: 'CV confirmed and candidate profile updated successfully',
+      message: message,
       cvId: cv.cvId,
       isConfirmed: true,
     };

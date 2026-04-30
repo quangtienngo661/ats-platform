@@ -24,6 +24,7 @@ export const jobPostingIncludeOptions = {
       skillId: true,
     }
   },
+  department: true
 } satisfies Prisma.JobPostingInclude;
 
 export const candidateIncludeOptions = {
@@ -65,6 +66,7 @@ export const applicationIncludeOptions = {
       categoryId: true,
       createdBy: true,
     },
+    include: { department: true }
   },
   cv: {
     omit: {
@@ -73,8 +75,11 @@ export const applicationIncludeOptions = {
       candidateId: true,
     },
   },
-  screening: true,
-};
+  screening: {
+    select: { screeningId: true, status: true, overallScore: true, aiRecommendation: true },
+  },
+  history: { orderBy: { changedAt: 'desc' }, take: 1 },
+} satisfies Prisma.ApplicationInclude;
 
 export const cvScreeningIncludeOptions = {
   aiConfig: true,

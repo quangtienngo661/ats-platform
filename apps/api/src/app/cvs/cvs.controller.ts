@@ -1,12 +1,15 @@
 import { UserRole } from '@ats-platform/database';
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   Post,
+  Query,
   Req,
   Res,
   UploadedFile,
@@ -23,6 +26,7 @@ import { CVUploadInterceptor } from '../../common/interceptors/cv-upload.interce
 import * as fs from 'fs/promises';
 import { Resources } from '../../common/decorators/resources.decorator';
 import { OwnershipGuard } from '../../common/guards/resources.guard';
+import { UploadCvDto } from './dtos/cvs.dto';
 
 @Controller('cvs')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -38,10 +42,11 @@ export class CVsController {
   async uploadCV(
     @Req() req: Request & { user: { userId: string } },
     @UploadedFile() file: Express.Multer.File,
+    @Body() body: UploadCvDto,
   ) {
     try {
       const candidateId = await this.resolveCandidateId(req.user.userId);
-      return this.cvsService.uploadCV(candidateId, file);
+      return this.cvsService.uploadCV(candidateId, file, body.fileName);
     } catch (error) {
       await fs.unlink(file.path);
       throw new BadRequestException('Error uploading CV', error.message);
@@ -94,9 +99,11 @@ export class CVsController {
   async confirmCV(
     @Req() req: Request & { user: { userId: string } },
     @Param('cvId') cvId: string,
+    @Query('syncToProfile', ParseBoolPipe) syncToProfile: boolean,
+    @Query('markAsConfirmed', ParseBoolPipe) markAsConfirmed: boolean,
   ) {
     const candidateId = await this.resolveCandidateId(req.user.userId);
-    return this.cvsService.confirmCV(cvId, candidateId);
+    return this.cvsService.confirmCV(cvId, candidateId, syncToProfile, markAsConfirmed);
   }
 
   @Resources('cv')

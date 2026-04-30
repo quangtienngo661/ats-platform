@@ -25,7 +25,6 @@ export default function DepartmentClient({ departments }: DepartmentClientProps)
         setShowMutateModal(true)
         setEditingDept(department)
         setIsEdited(true)
-        // const result = updateDepartmentAction()
     };
 
     const handleDelete = async (department: Department) => {

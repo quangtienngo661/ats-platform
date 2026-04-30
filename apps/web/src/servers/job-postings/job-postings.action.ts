@@ -45,9 +45,6 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get('/job-postings');
-        // console.log(response.data)
-        // return response.data ?? response;
-        // console.log(response.data)
         return {
             data: response.data.items,
             total: response.data.pagination.total,

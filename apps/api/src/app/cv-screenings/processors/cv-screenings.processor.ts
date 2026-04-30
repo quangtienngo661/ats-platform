@@ -4,6 +4,7 @@ import { CvScreeningsService } from '../cv-screenings.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
 import { NotFoundException } from '@nestjs/common';
+import { ScreeningStatus } from '@ats-platform/database';
 
 @Processor('cv-screening')
 export class CvScreeningProcessor extends WorkerHost {
@@ -124,7 +125,7 @@ export class CvScreeningProcessor extends WorkerHost {
     await this.prisma.cVScreening.update({
       where: { screeningId },
       data: {
-        status: 'success', // enum ScreeningStatus.success
+        status: ScreeningStatus.completed, // enum ScreeningStatus.success
         overallScore: overallScore,
         aiRecommendation: recommendation,
         aiReasoning: ai_reasoning,
