@@ -18,7 +18,7 @@ export class SkillsService {
 			throw new BadRequestException('Skill already exists');
 		}
 
-		return this.prisma.skill.create({
+		return await this.prisma.skill.create({
 			data: {
 				name: createSkillDto.name,
 				category: createSkillDto.category,
@@ -27,11 +27,15 @@ export class SkillsService {
 	}
 
 	async findAll() {
-		return this.prisma.skill.findMany();
+		return await this.prisma.skill.findMany({
+			orderBy: {
+				category: 'asc',
+			},
+		});
 	}
 
 	async search(name?: string, category?: string) {
-		return this.prisma.skill.findMany({
+		return await this.prisma.skill.findMany({
 			where: {
 				...(name
 					? {
@@ -74,7 +78,7 @@ export class SkillsService {
 			throw new NotFoundException(`Skill with ID ${id} not found`);
 		}
 
-		return this.prisma.skill.update({
+		return await this.prisma.skill.update({
 			where: { skillId: id },
 			data: {
 				name: updateSkillDto.name,
@@ -92,7 +96,7 @@ export class SkillsService {
 			throw new NotFoundException(`Skill with ID ${id} not found`);
 		}
 
-		return this.prisma.skill.delete({
+		return await this.prisma.skill.delete({
 			where: { skillId: id },
 		});
 	}

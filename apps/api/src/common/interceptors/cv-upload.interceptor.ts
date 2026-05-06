@@ -9,7 +9,7 @@ export const CVUploadInterceptor = FileInterceptor('file', {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
             cb(null, `${file.originalname}-${uniqueSuffix}`);
         }
-        
+
     }),
     // storage: memoryStorage(),
     fileFilter: (req, file, cb) => {

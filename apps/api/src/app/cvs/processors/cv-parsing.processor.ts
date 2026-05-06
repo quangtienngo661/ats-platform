@@ -6,13 +6,15 @@ import { PrismaService } from "../../../common/prisma/prisma.service";
 import { ParsingStatus } from "@ats-platform/database";
 import { Logger } from "@nestjs/common";
 import { CV_PARSING_PROMPT } from "../../../common/constants/gemini-api";
+import { SocketIoService } from "apps/api/src/common/socket-io/socket-io.service";
 
-@Processor('cv-processing')
+@Processor('cv-processing', { concurrency: 5 })
 export class CvParsingProcessor extends WorkerHost {
     constructor(
         private readonly cvParsedDataService: CvParsedDataService,
         private readonly geminiService: GeminiService,
-        private readonly prisma: PrismaService
+        private readonly prisma: PrismaService,
+        private readonly socketService: SocketIoService,
     ) {
         super();
     }
@@ -44,10 +46,13 @@ export class CvParsingProcessor extends WorkerHost {
                 // 4. Lưu DB trong transaction
                 await this.prisma.$transaction(async (tx) => {
                     await this.cvParsedDataService.create(cvId, parsedData, tx);
-                    await tx.cV.update({
+                    const result = await tx.cV.update({
                         where: { cvId },
-                        data: { parsingStatus: ParsingStatus.success },
+                        data: { parsingStatus: ParsingStatus.completed },
+                        include: { parsedData: true }
                     });
+
+                    this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: result });
                 });
 
                 // 5. TODO: Socket notification
@@ -56,15 +61,19 @@ export class CvParsingProcessor extends WorkerHost {
                     'CvParsingProcessor',
                 );
 
+
+
             } catch (error) {
                 // 6. Update failed + ghi error log
-                await this.prisma.cV.update({
+                const errorCv = await this.prisma.cV.update({
                     where: { cvId },
                     data: {
                         parsingStatus: ParsingStatus.failed,
                         errorLog: error.message,
                     },
                 });
+
+                this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: errorCv });
 
                 Logger.error(
                     `CV parsing failed for CV ID: ${cvId}`,

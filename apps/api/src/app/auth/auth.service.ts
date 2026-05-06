@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Redirect, UnauthorizedException } from '@nestjs/common';
 import { UserRole } from '@ats-platform/database';
 import { LoginDto, RegisterDto } from './dtos/auth.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -9,6 +9,7 @@ import Redis from 'ioredis';
 import { JwtService } from '@nestjs/jwt';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { CLIENT_URL } from '../../common/constants/urls';
 
 
 @Injectable()
@@ -58,8 +59,8 @@ export class AuthService {
       .digest('hex');
   }
 
-  private buildEmailVerificationLink(token: string) {
-    return `${this.apiBaseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`;
+  private buildEmailVerificationLink(token: string, type: string) {
+    return `${this.apiBaseUrl}/auth/verify-email?type=${type}&token=${encodeURIComponent(token)}`;
   }
 
   private async issueEmailVerification(userId: string, email: string, jobName: string) {
@@ -77,8 +78,13 @@ export class AuthService {
 
     await this.redisClient.set(tokenKey, userId, 'EX', ttlSeconds);
     await this.redisClient.set(userKey, tokenHash, 'EX', ttlSeconds);
+    let link: string;
+    if (jobName == "send-register-verification-email") {
+      link = this.buildEmailVerificationLink(token, "verify");
+    } else if (jobName == "send-forgot-password-email") {
+      link = this.buildEmailVerificationLink(token, "reset");
+    }
 
-    const link = this.buildEmailVerificationLink(token);
     try {
       await this.emailQueue.add(jobName, { email, link }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
     } catch (err) {
@@ -107,8 +113,12 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole });
-    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole }, { expiresIn: '7d' });
+    if (!user.emailVerified) {
+      throw new BadRequestException('EMAIL_NOT_VERIFIED:' + user.email);
+    }
+
+    const accessToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole, fullName: user.fullName });
+    const refreshToken = await this.jwtService.signAsync({ userId: user.userId, role: user.role as UserRole, fullName: user.fullName }, { expiresIn: '7d' });
     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -128,8 +138,15 @@ export class AuthService {
       where: { email: registerDto.email },
     });
 
-    if (user) {
+    if (user && user.emailVerified === true) {
       throw new BadRequestException('Email already exists');
+    } else if (user && user.emailVerified === false) {
+      try {
+        await this.issueEmailVerification(user.userId, user.email, 'send-register-verification-email');
+        return { message: 'Verification email has been sent' };
+      } catch (err: any) {
+        this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
+      }
     }
 
     const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
@@ -164,7 +181,7 @@ export class AuthService {
     return newUser;
   }
 
-  async requestEmailVerification(email: string) {
+  async requestEmailVerification(email: string, type: string) {
     if (!email) {
       throw new BadRequestException('Email is required');
     }
@@ -181,8 +198,13 @@ export class AuthService {
       return { message: 'Email already verified' };
     }
 
+    let jobName: string = 'send-register-verification-email';
+    if (type === 'reset') {
+      jobName = 'send-forgot-password-email';
+    }
+
     try {
-      await this.issueEmailVerification(user.userId, user.email, 'send-register-verification-email');
+      await this.issueEmailVerification(user.userId, user.email, jobName);
     } catch (err: any) {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
@@ -190,7 +212,7 @@ export class AuthService {
     return { message: 'If an account exists, a verification email has been sent' };
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string, type: string) {
     if (!token) {
       throw new BadRequestException('Token is required');
     }
@@ -214,18 +236,25 @@ export class AuthService {
       // Still delete token so it can't be replayed.
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
-      return { message: 'Email already verified' };
+      return { message: 'Email already verified', redirectUrl: `${CLIENT_URL}/sign-in` };
     }
+    if (type === "verify") {
+      await this.prisma.user.update({
+        where: { userId },
+        data: { emailVerified: true },
+      });
 
-    await this.prisma.user.update({
-      where: { userId },
-      data: { emailVerified: true },
-    });
+      await this.redisClient.del(tokenKey);
+      await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
 
-    await this.redisClient.del(tokenKey);
-    await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
+      return { message: 'Email verified successfully', redirectUrl: `${CLIENT_URL}/verification-success` };
+    }
+    else if (type === "reset") {
+      await this.redisClient.del(tokenKey);
+      await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
 
-    return { message: 'Email verified successfully' };
+      return { message: 'Request for resetting password successfully', redirectUrl: `${CLIENT_URL}/reset-password?token=${token}` };
+    }
   }
 
   async refreshToken(req: Request, res: Response) {
@@ -278,8 +307,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole });
-    const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole }, { expiresIn: '7d' });
+    const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole, fullName: tokenPayload.fullName });
+    const newRefreshToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole, fullName: tokenPayload.fullName }, { expiresIn: '7d' });
     const hashedNewRefreshToken = bcrypt.hashSync(newRefreshToken, 10);
 
     const newRefreshTokenRow = await this.prisma.refreshToken.create({
@@ -304,7 +333,6 @@ export class AuthService {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       },
     );
-
 
     return accessToken;
   }
@@ -349,8 +377,7 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      // Return generic message to prevent user enumeration
-      return { message: 'If an account exists, a password reset email has been sent' };
+      throw new BadRequestException('User not found');
     }
 
     await this.issueEmailVerification(user.userId, user.email, 'send-forgot-password-email');
@@ -375,16 +402,16 @@ export class AuthService {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Atomically update password + revoke ALL refresh tokens for this user
-    await this.prisma.$transaction([
-      this.prisma.user.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
         where: { userId },
         data: { passwordHash: hashedPassword },
-      }),
-      this.prisma.refreshToken.updateMany({
+      });
+      await tx.refreshToken.updateMany({
         where: { userId, revoked: false },
         data: { revoked: true },
-      }),
-    ]);
+      });
+    });
 
     // Clean up reset token from Redis
     await this.redisClient.del(tokenKey);

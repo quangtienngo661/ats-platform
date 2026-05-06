@@ -1,3 +1,4 @@
+import { IUserDto } from '@ats-platform/types';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsIn, IsInt, IsObject, IsOptional, IsString, Max, Min } from 'class-validator';
@@ -30,6 +31,10 @@ export class UpdateCandidateProfileDto {
 	@IsOptional()
 	@IsObject()
 	profileData?: Record<string, unknown>;
+
+	@IsOptional()
+	@IsObject()
+	userInfo: IUserDto;
 }
 
 export class FindCandidatesQueryDto {

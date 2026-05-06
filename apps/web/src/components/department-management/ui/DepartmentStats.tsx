@@ -8,7 +8,7 @@ interface DepartmentStatsProps {
 
 export function DepartmentStats({ departments }: DepartmentStatsProps) {
     const totalMembers = departments.reduce((sum, d) => sum + d.membersCount, 0);
-    const avgMembers = Math.round(totalMembers / departments.length);
+    const avgMembers = Math.round(totalMembers / departments.length) || 0;
 
     const stats = [
         {

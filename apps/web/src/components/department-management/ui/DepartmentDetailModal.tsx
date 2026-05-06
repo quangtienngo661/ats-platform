@@ -31,7 +31,6 @@ function getInitials(name: string) {
 }
 
 function MemberCard({ member, color }: { member: DepartmentMember; color: string }) {
-    console.log(member);
     return (
         <motion.div
             layout

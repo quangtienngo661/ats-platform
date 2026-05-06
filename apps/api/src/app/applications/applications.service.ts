@@ -5,10 +5,10 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { ApplicationStatus, JobStatus, ParsingStatus, ScreeningStatus } from '@ats-platform/database';
+import { ApplicationStatus, JobStatus, ParsingStatus, ScreeningStatus, UserRole } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
-import { applicationIncludeOptions } from '../../common/utils/include-options.util';
+import { applicationIncludeOptions, jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 
 // Valid Kanban transitions — terminal states (hired/rejected) have no outgoing transitions
@@ -51,19 +51,23 @@ export class ApplicationsService {
         if (cv.candidateId !== candidate.candidateId) {
             throw new ForbiddenException('This CV does not belong to you');
         }
-        if (cv.parsingStatus !== ParsingStatus.success) {
+        if (cv.parsingStatus !== ParsingStatus.completed) {
             throw new BadRequestException('Your CV must be successfully parsed before applying');
         }
         if (!cv.parsedData?.isConfirmed) {
             throw new BadRequestException('You must confirm your CV profile before applying');
         }
 
-        const existing = await this.prisma.application.findUnique({
-            where: { jobId_candidateId: { jobId: dto.jobId, candidateId: candidate.candidateId } },
+        const existings = await this.prisma.application.findMany({
+            where: { jobId: dto.jobId, candidateId: candidate.candidateId },
         });
-        if (existing) throw new ConflictException('You have already applied to this job');
 
-        return this.prisma.$transaction(async (tx) => {
+        const isNotCancelled = existings.some(app => app.status !== ApplicationStatus.cancelled);
+        if (isNotCancelled) {
+            throw new ConflictException('You have already applied to this job');
+        }
+
+        return await this.prisma.$transaction(async (tx) => {
             const application = await tx.application.create({
                 data: { jobId: dto.jobId, candidateId: candidate.candidateId, cvId: dto.cvId },
                 include: applicationIncludeOptions,
@@ -89,18 +93,9 @@ export class ApplicationsService {
         });
         if (!candidate) throw new NotFoundException('Candidate profile not found');
 
-        return this.prisma.application.findMany({
+        return await this.prisma.application.findMany({
             where: { candidateId: candidate.candidateId },
-            include: {
-                jobPosting: {
-                    select: { jobId: true, title: true, locationType: true, status: true },
-                },
-                cv: { select: { cvId: true, parsingStatus: true, uploadedAt: true } },
-                screening: {
-                    select: { screeningId: true, status: true, overallScore: true, aiRecommendation: true },
-                },
-                history: { orderBy: { changedAt: 'desc' }, take: 1 },
-            },
+            include: applicationIncludeOptions,
             orderBy: { appliedAt: 'desc' },
         });
     }
@@ -144,6 +139,44 @@ export class ApplicationsService {
         });
 
         return { message: 'Application withdrawn successfully' };
+    }
+
+    async getAllKanbanBoard(userId: string, role: string) {
+        let whereCondition: any = { status: { not: ApplicationStatus.cancelled } };
+
+        if (role === UserRole.recruiter) {
+            const recruiter = await this.prisma.recruiter.findUnique({
+                where: { userId }
+            });
+            if (!recruiter) throw new NotFoundException('Recruiter not found');
+            whereCondition.jobPosting = { departmentId: recruiter.departmentId };
+        }
+
+        const applications = await this.prisma.application.findMany({
+            where: whereCondition,
+            include: applicationIncludeOptions,
+            orderBy: { currentStageSince: 'asc' },
+        });
+
+        const activeStatuses = [
+            ApplicationStatus.applied,
+            ApplicationStatus.screening,
+            ApplicationStatus.interview,
+            ApplicationStatus.offer,
+            ApplicationStatus.hired,
+            ApplicationStatus.rejected,
+        ] as const;
+
+        const board = activeStatuses.reduce((acc, status) => {
+            acc[status] = [];
+            return acc;
+        }, {} as Record<typeof activeStatuses[number], typeof applications>);
+
+        for (const app of applications) {
+            board[app.status as typeof activeStatuses[number]].push(app);
+        }
+
+        return board;
     }
 
     async getKanbanBoard(jobId: string) {
@@ -243,6 +276,29 @@ export class ApplicationsService {
         });
         if (!application) throw new NotFoundException('Application not found');
 
+        if (dto.isReverted) {
+            return await this.prisma.$transaction(async (tx) => {
+                const updated = await tx.application.update({
+                    where: { applicationId },
+                    data: { status: dto.status, currentStageSince: new Date() },
+                    include: applicationIncludeOptions,
+                });
+
+                await tx.applicationHistory.create({
+                    data: {
+                        applicationId,
+                        fromStatus: application.status,
+                        toStatus: dto.status,
+                        changedBy: userId,
+                        notes: dto.notes,
+                        rejectionReason: dto.rejectionReason,
+                    },
+                });
+
+                return updated;
+            });
+        }
+
         const allowedNext = VALID_TRANSITIONS[application.status] ?? [];
         if (!allowedNext.includes(dto.status)) {
             throw new BadRequestException(
@@ -251,7 +307,7 @@ export class ApplicationsService {
             );
         }
 
-        return this.prisma.$transaction(async (tx) => {
+        return await this.prisma.$transaction(async (tx) => {
             const updated = await tx.application.update({
                 where: { applicationId },
                 data: { status: dto.status, currentStageSince: new Date() },
@@ -280,7 +336,7 @@ export class ApplicationsService {
         });
         if (!application) throw new NotFoundException('Application not found');
 
-        return this.prisma.applicationHistory.findMany({
+        return await this.prisma.applicationHistory.findMany({
             where: { applicationId },
             include: {
                 user: { select: { userId: true, fullName: true, role: true } },
@@ -290,7 +346,7 @@ export class ApplicationsService {
     }
 
     // Confirmation when the HR need to trigger AI screening manually
-    async triggerScreening(applicationId: string) {
+    async triggerScreening(applicationId: string, configId?: string) {
         const application = await this.prisma.application.findUnique({
             where: { applicationId },
             select: {
@@ -322,17 +378,26 @@ export class ApplicationsService {
             if (application.screening.status === ScreeningStatus.processing) {
                 throw new ConflictException('AI screening is already in progress');
             }
-            if (application.screening.status === ScreeningStatus.success) {
+            if (application.screening.status === ScreeningStatus.completed) {
                 throw new ConflictException('AI screening has already completed. Check results in application detail');
             }
             // status === 'failed' → allow retry
         }
 
-        const aiConfig = await this.prisma.aiConfig.findFirst({
-            where: { isDefault: true },
-            select: { configId: true },
-        });
-        
+        let aiConfig;
+        if (configId) {
+            aiConfig = await this.prisma.aiConfig.findUnique({
+                where: { configId },
+                select: { configId: true },
+            });
+            if (!aiConfig) throw new NotFoundException('AI config not found');
+        } else {
+            aiConfig = await this.prisma.aiConfig.findFirst({
+                where: { isDefault: true },
+                select: { configId: true },
+            });
+        }
+
         // Pass aiConfig?.configId so CvScreeningsService knows which one to use if found, 
         // else CvScreeningsService has its own getActiveConfig logic fallback.
         return this.cvScreeningsService.createScreeningRecord(application.applicationId, application.cvId, aiConfig?.configId);

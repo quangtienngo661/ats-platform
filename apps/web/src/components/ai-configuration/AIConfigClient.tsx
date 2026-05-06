@@ -60,16 +60,6 @@ export default function AIScreeningConfigClient({ profiles }: Props) {
         }
     };
 
-    const handleAdd = async (p: ConfigProfile) => {
-        const result = await addAIConfigAction(p);
-        if (result.success) {
-            aiConfigToast.createSuccess(p.name);
-        } else {
-            aiConfigToast.createError();
-        }
-        setShowModal(false);
-    };
-
     return (
         <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
             {/* ── Page header ── */}
@@ -194,7 +184,7 @@ export default function AIScreeningConfigClient({ profiles }: Props) {
             {/* ── Add Profile Modal ── */}
             <AnimatePresence>
                 {showModal && (
-                    <AddProfileModal onClose={() => setShowModal(false)} onAdd={handleAdd} />
+                    <AddProfileModal onClose={() => setShowModal(false)} />
                 )}
             </AnimatePresence>
         </div>

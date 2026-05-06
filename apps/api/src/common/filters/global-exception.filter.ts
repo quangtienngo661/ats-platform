@@ -31,6 +31,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             message = exception.message;
         }
 
+        // Nếu response đã được gửi (ví dụ: res.redirect()), không cố ghi thêm
+        if (response.headersSent) {
+            return;
+        }
+
         response.status(status).json({ ...errorResponse(status, message) })
     }
 }

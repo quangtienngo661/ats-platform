@@ -148,7 +148,6 @@ export async function updateDepartmentAction(
 export async function deleteDepartmentAction(
     department: DepartmentDto
 ): Promise<DepartmentState> {
-    console.log(department)
     if (!department.departmentId) {
         return { success: false, message: "ID phòng ban không hợp lệ" };
     }

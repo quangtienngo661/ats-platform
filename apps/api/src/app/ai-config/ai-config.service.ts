@@ -16,7 +16,7 @@ export class AiConfigService {
 			createAiConfigDto.educationWeight,
 		);
 
-		return this.prisma.$transaction(async (tx) => {
+		return await this.prisma.$transaction(async (tx) => {
 			if (createAiConfigDto.isDefault) {
 				await tx.aiConfig.updateMany({
 					where: { isDefault: true },
@@ -24,7 +24,7 @@ export class AiConfigService {
 				});
 			}
 
-			return tx.aiConfig.create({
+			return await tx.aiConfig.create({
 				data: {
 					name: createAiConfigDto.name,
 					description: createAiConfigDto.description,
@@ -39,7 +39,7 @@ export class AiConfigService {
 	}
 
 	async findAll() {
-		return this.prisma.aiConfig.findMany({
+		return await this.prisma.aiConfig.findMany({
 			orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
 		});
 	}
@@ -57,7 +57,7 @@ export class AiConfigService {
 			updateAiConfigDto.educationWeight ?? this.toNumber(existingConfig.educationWeight),
 		);
 
-		return this.prisma.$transaction(async (tx) => {
+		return await this.prisma.$transaction(async (tx) => {
 			if (updateAiConfigDto.isDefault === true) {
 				await tx.aiConfig.updateMany({
 					where: { isDefault: true, configId: { not: configId } },
@@ -65,7 +65,7 @@ export class AiConfigService {
 				});
 			}
 
-			return tx.aiConfig.update({
+			return await tx.aiConfig.update({
 				where: { configId },
 				data: {
 					name: updateAiConfigDto.name,
@@ -95,13 +95,13 @@ export class AiConfigService {
 			throw new BadRequestException('Cannot delete AI config that is used by CV screening');
 		}
 
-		return this.prisma.aiConfig.delete({ where: { configId } });
+		return await this.prisma.aiConfig.delete({ where: { configId } });
 	}
 
 	async setDefault(configId: string) {
 		await this.getConfigOrThrow(configId);
 
-		return this.prisma.$transaction(async (tx) => {
+		return await this.prisma.$transaction(async (tx) => {
 			await tx.aiConfig.updateMany({
 				where: { isDefault: true, configId: { not: configId } },
 				data: { isDefault: false },

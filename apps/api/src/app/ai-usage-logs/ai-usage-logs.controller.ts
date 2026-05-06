@@ -10,14 +10,15 @@ import { UserRole } from '@ats-platform/database';
 @Roles(UserRole.admin)
 @Controller('ai-usage-logs')
 export class AiUsageLogsController {
-  constructor(private readonly aiUsageLogsService: AiUsageLogsService) {}
+  constructor(private readonly aiUsageLogsService: AiUsageLogsService) { }
 
   @Get()
   async getAllLogs(
     @Query('actionType') actionType?: AiActionType,
     @Query('status') status?: AiLogStatus,
+    @Query('page') page?: number,
   ) {
-    return this.aiUsageLogsService.getAllLogs({ actionType, status });
+    return this.aiUsageLogsService.getAllLogs({ actionType, status }, page);
   }
 
   @Get(':referenceId')

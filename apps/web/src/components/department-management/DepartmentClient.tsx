@@ -15,7 +15,6 @@ interface DepartmentClientProps {
     departments: Department[];
 }
 
-
 export default function DepartmentClient({ departments }: DepartmentClientProps) {
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingDept, setEditingDept] = useState<Department | null>(null);
@@ -26,7 +25,6 @@ export default function DepartmentClient({ departments }: DepartmentClientProps)
         setShowMutateModal(true)
         setEditingDept(department)
         setIsEdited(true)
-        // const result = updateDepartmentAction()
     };
 
     const handleDelete = async (department: Department) => {

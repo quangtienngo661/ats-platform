@@ -43,6 +43,12 @@ export class ApplicationsController {
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
+  @Get('board/all')
+  getAllKanbanBoard(@Req() req: Request) {
+    return this.applicationsService.getAllKanbanBoard(req.user['userId'], req.user['role']);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get('board/:jobId')
   getKanbanBoard(@Param('jobId') jobId: string) {
     return this.applicationsService.getKanbanBoard(jobId);
@@ -66,8 +72,8 @@ export class ApplicationsController {
 
   @Roles(UserRole.recruiter, UserRole.admin)
   @Post(':id/trigger-screening')
-  triggerScreening(@Param('id') id: string) {
-    return this.applicationsService.triggerScreening(id);
+  triggerScreening(@Param('id') id: string, @Body('configId') configId?: string) {
+    return this.applicationsService.triggerScreening(id, configId);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin, UserRole.candidate)

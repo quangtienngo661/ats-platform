@@ -69,7 +69,7 @@ export class JobPostingsService {
     }
 
     // TODO: handle the notification when the job parsing is completed, but is it necessary or not?
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const newJobPosting = await tx.jobPosting.create({
         data: {
           title: createJobPostingDto.title,
@@ -184,7 +184,7 @@ export class JobPostingsService {
       });
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const updatedJobPosting = await tx.jobPosting.update({
         where: { jobId: id },
         data: {
@@ -239,7 +239,7 @@ export class JobPostingsService {
       throw new NotFoundException(`Job posting with ID ${id} not found`);
     }
 
-    return this.prisma.jobPosting.delete({
+    return await this.prisma.jobPosting.delete({
       where: { jobId: id },
       include: jobPostingIncludeOptions,
       omit: {

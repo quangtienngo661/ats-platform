@@ -1,5 +1,5 @@
 import { UserRole, UserStatus } from "@ats-platform/database";
-import { IUserDto } from "@ats-platform/types";
+import { IRecruiter, IUserDto } from "@ats-platform/types";
 
 /** DTO phản hồi từ API (đầu ra) */
 export interface IUserResponseDto extends IUserDto {
@@ -9,4 +9,5 @@ export interface IUserResponseDto extends IUserDto {
     role: UserRole;
     status: UserStatus;
     createdAt: string;
+    recruiter: IRecruiter
 }

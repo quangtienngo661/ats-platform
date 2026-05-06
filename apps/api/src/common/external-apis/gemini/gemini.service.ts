@@ -48,10 +48,6 @@ export class GeminiService {
             screeningConfig
         );
 
-        console.log('==============================')
-        console.log(result.text);
-        console.log('==============================')
-
         return result.text;
     }
 
@@ -81,7 +77,7 @@ export class GeminiService {
     ) {
         const startTime = performance.now();
 
-        const timeoutStr = 30000;
+        const timeoutStr = 120000;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutStr);
 

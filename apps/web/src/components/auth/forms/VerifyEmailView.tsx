@@ -75,13 +75,13 @@ export default function VerifyEmailView({ email }: VerifyEmailViewProps) {
 
                     <form action={formAction}>
                         <input type="hidden" name="email" value={lastEmail} />
+                        <input type="hidden" name="type" value="verify" />
                         <button
                             type="submit"
-                            className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all text-[13px] ${
-                                state.success
-                                    ? 'bg-[#E8F5E9] text-[#34C759]'
-                                    : 'bg-[#F5F5F7] hover:bg-[#EBEBF0] text-[#0071E3]'
-                            }`}
+                            className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all text-[13px] ${state.success
+                                ? 'bg-[#E8F5E9] text-[#34C759]'
+                                : 'bg-[#F5F5F7] hover:bg-[#EBEBF0] text-[#0071E3]'
+                                }`}
                             style={{ fontFamily: SFT, fontWeight: 500 }}
                         >
                             {state.success ? (

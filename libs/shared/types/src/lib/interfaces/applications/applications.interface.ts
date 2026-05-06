@@ -16,12 +16,14 @@ export interface IApplicationCard {
   applicationId: string;
   candidateName: string;
   jobTitle: string;
+  departmentName: string;
   appliedAt: string;
-  currentStageSince: string;
-  status: ApplicationStatus;
+  currentStageSince?: string;
+  status: string;
   cvId: string;
+  locationType: string;
   aiScore?: number;
-  aiRecommendation?: AiRecommendation;
+  aiRecommendation?: string;
 }
 
 /** Shape của một cột trên Kanban board */

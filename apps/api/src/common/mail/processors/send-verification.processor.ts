@@ -3,7 +3,7 @@ import { Job } from "bullmq";
 import { MailService } from "../mail.service";
 import { Logger } from "@nestjs/common";
 
-@Processor('send-verification-email')
+@Processor('send-verification-email', { concurrency: 5 })
 export class SendVerificationProcessor extends WorkerHost {
     constructor(private readonly mailService: MailService) {
         super();

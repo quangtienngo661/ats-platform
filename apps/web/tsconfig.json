@@ -10,7 +10,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,9 +26,15 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@ats-platform/types": ["../../libs/shared/types/src/index.ts"],
-      "@ats-platform/database": ["../../libs/backend/database/src/index.ts"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@ats-platform/types": [
+        "../../libs/shared/types/src/index.ts"
+      ],
+      "@ats-platform/database": [
+        "../../libs/backend/database/src/index.ts"
+      ]
     }
   },
   "include": [
@@ -34,7 +44,8 @@
     "**/*.jsx",
     "../../apps/web/.next/types/**/*.ts",
     "../../dist/apps/web/.next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "src/components/public/icons/common.icons.tsx"
   ],
   "exclude": [
     "node_modules",

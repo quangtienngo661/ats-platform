@@ -3,9 +3,15 @@
 import { useFormStatus } from "react-dom";
 import { ArrowRight } from "lucide-react";
 import { SFT } from "@/types/fonts/fonts";
+import { useSocketStore } from "@/stores/useSocketStore";
+import { SOCKET_URL } from "@/types/constants/urls";
 
-export default function SubmitButton({ content }: { content: string }) {
-    const { pending } = useFormStatus(); // Tự động biết form đang submit hay không
+type SubmitButtonProps = {
+    content: string;
+}
+
+export default function SubmitButton({ content }: SubmitButtonProps) {
+    const { pending } = useFormStatus();
 
     return (
         <button
@@ -15,7 +21,7 @@ export default function SubmitButton({ content }: { content: string }) {
             style={{ fontFamily: SFT, fontWeight: 500 }}
         >
             {pending ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 flex py-2 justify-between items-center border-white/10 border-t-white rounded-full animate-spin" />
             ) : (
                 <>{content} <ArrowRight className="w-4 h-4" /></>
             )}

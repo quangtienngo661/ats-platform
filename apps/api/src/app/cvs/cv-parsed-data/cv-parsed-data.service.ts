@@ -9,12 +9,11 @@ export class CvParsedDataService {
     ) { }
 
     async create(cvId: string, parsedData: any, tx?: any) {
-        return (tx || this.prisma).cVParsedData.create({
+        return await (tx || this.prisma).cVParsedData.create({
             data: {
                 cvId,
-                name: parsedData.name,
-                email: parsedData.email,
-                phoneNumber: parsedData.phone,
+                summary: parsedData.summary,
+                location: parsedData.location,
                 skills: parsedData.skills as object,
                 experience: parsedData.experience as object,
                 education: parsedData.education as object,

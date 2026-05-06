@@ -5,7 +5,7 @@ import { JD_PARSING_PROMPT } from "../../../common/constants/gemini-api";
 import { PrismaService } from "../../../common/prisma/prisma.service";
 import { GeminiService } from "../../../common/external-apis/gemini/gemini.service";
 
-@Processor('jd-parsing')
+@Processor('jd-parsing', { concurrency: 5 })
 export class JDProcessingProcessor extends WorkerHost {
     private readonly logger = new Logger(JDProcessingProcessor.name);
 

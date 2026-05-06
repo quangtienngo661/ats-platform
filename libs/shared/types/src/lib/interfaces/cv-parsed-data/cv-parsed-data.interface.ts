@@ -1,28 +1,33 @@
-export interface ExperienceItem {
-  company: string;
-  position: string;
-  startDate: string; // MM/YYYY
-  endDate: string;   // MM/YYYY | "Present"
-}
-
-export interface EducationItem {
-  institution: string;
-  degree: string | null;
-  major: string | null;
-  startDate: string; // MM/YYYY
-  endDate: string;   // MM/YYYY | "Present"
-}
-
-export interface Skills {
-  technical: string[];
-  soft: string[];
-}
-
-export interface CvParsedContent {
-  fullName: string | null;
-  email: string | null;
-  phone: string | null;
-  skills: Skills;
-  experience: ExperienceItem[];
-  education: EducationItem[];
+// ── Exact shape returned by AI CV_PARSING_PROMPT ──────────────────────────────
+export interface ICvParsedData {
+  summary: string | null;
+  location: string | null;
+  skills: {
+    technical: string[];
+    soft: string[];
+    languages: string[];
+  };
+  experience: {
+    company: string | null;
+    position: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    description: string | null;
+  }[];
+  projects: {
+    name: string | null;
+    role: string | null;
+    technologies: string[];
+    description: string | null;
+    start_date: string | null;
+    end_date: string | null;
+  }[];
+  education: {
+    institution: string | null;          // ← "institution", not "school"
+    degree: 'Certificate' | 'Bachelor' | 'Master' | 'PhD' | 'Diploma' | null;
+    major: string | null;                // ← added major
+  }[];
+  certificates: string[];
+  // stored in DB after confirmation
+  isConfirmed?: boolean;
 }

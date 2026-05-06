@@ -6,8 +6,10 @@ import {
   Query,
   Res,
   Req,
+  Redirect,
   UnauthorizedException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseFormat, successResponse } from '@ats-platform/types';
@@ -60,14 +62,19 @@ export class AuthController {
 
   @Post('request-email-verification')
   async requestEmailVerification(@Body() dto: RequestEmailVerificationDto) {
-    const result = await this.authService.requestEmailVerification(dto.email);
+    const result = await this.authService.requestEmailVerification(dto.email, dto.type);
     return result;
   }
 
   @Get('verify-email')
-  async verifyEmail(@Query('token') token?: string) {
-    const result = await this.authService.verifyEmail(token ?? '');
-    return result.message;
+  async verifyEmail(
+    @Res() res: Response,
+    @Query('token') token?: string,
+    @Query('type') type?: string,
+  ) {
+    const result = await this.authService.verifyEmail(token ?? '', type ?? '');
+    // return { url: result.redirectUrl, statusCode: 302 };
+    return res.redirect(302, result.redirectUrl);
   }
 
   @Post('forgot-password')
@@ -77,7 +84,8 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() dto: ResetPasswordDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async resetPassword(
+    @Body() dto: ResetPasswordDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.resetPassword(dto.token, dto.password, req, res);
     return result;
   }

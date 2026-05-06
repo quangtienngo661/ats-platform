@@ -56,6 +56,11 @@ export class CandidatesService {
 					...currentProfileData,
 					...incomingProfileData,
 				} as Prisma.InputJsonObject,
+				user: {
+					update: {
+						...updateDto.userInfo
+					}
+				}
 			},
 		});
 
