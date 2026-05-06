@@ -4,6 +4,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@angular-devkit/core": "^21.2.9",
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
@@ -67,8 +68,10 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/platform-socket.io": "^11.1.19",
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/throttler": "^6.5.0",
+    "@nestjs/websockets": "^11.1.19",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "axios": "^1.6.0",
@@ -100,7 +103,10 @@
     "recharts": "^3.8.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zustand": "^5.0.13"
   }
 }
