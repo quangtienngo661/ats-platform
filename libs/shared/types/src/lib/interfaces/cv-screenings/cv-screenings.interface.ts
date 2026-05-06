@@ -1,4 +1,4 @@
-import { AiRecommendation, ScreeningStatus } from '../../enums';
+import { AiRecommendation, ScreeningStatus } from "@ats-platform/database";
 
 export interface ICVScreening {
   screeningId: string;
@@ -13,4 +13,7 @@ export interface ICVScreening {
   missingSkills?: string[];
   errorLog?: string;
   screenedAt?: string;
+  skillsScore?: number;
+  experienceScore?: number;
+  educationScore?: number;
 }

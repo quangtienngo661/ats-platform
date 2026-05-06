@@ -372,7 +372,6 @@ model Application {
   schedules  InterviewSchedule[]
   screening  CVScreening?
 
-  @@unique([jobId, candidateId])
   @@map("applications")
 }
 
@@ -403,7 +402,10 @@ model CVScreening {
   cvId             String            @map("cv_id")
   configId         String            @map("config_id")
   status           ScreeningStatus   @default(pending)
-  overallScore     Decimal?          @map("overall_score")
+  overallScore     Decimal?          @map("overall_score") @db.Decimal(5, 1)
+  skillsScore      Decimal?          @map("skills_score") @db.Decimal(5, 1)
+  experienceScore  Decimal?          @map("experience_score") @db.Decimal(5, 1)
+  educationScore   Decimal?          @map("education_score") @db.Decimal(5, 1)
   aiRecommendation AiRecommendation? @map("ai_recommendation")
   aiReasoning      String?           @map("ai_reasoning")
   matchedSkills    Json?             @map("matched_skills")
