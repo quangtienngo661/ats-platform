@@ -11,11 +11,11 @@ export default async function PublicLayout({ children }: { children: ReactNode }
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
 
-    let userInfo: { fullName?: string; role?: string } | null = null;
+    let userInfo: { fullName?: string; role?: string, userId?: string } | null = null;
     if (token) {
         try {
             const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-            userInfo = { fullName: payload.fullName, role: payload.role };
+            userInfo = { fullName: payload.fullName, role: payload.role, userId: payload.sub };
         } catch { /* ignore */ }
     }
 

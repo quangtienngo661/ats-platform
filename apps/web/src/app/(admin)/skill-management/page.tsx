@@ -3,6 +3,5 @@ import { getSkillsAction } from '@/servers/skills/skills.action';
 
 export default async function SkillManagementPage() {
     const skills = await getSkillsAction();
-    // console.log(skills)
     return <SkillClient skills={skills} />;
 }

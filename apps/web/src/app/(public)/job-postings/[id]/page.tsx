@@ -16,8 +16,9 @@ interface JobDetailPageProps {
 
 export async function generateMetadata({ params }: JobDetailPageProps) {
     const { id } = await params;
-    const job = await getJobPostingByIdAction(id);
-    if (!job) return { title: 'Không tìm thấy việc làm | TalentAI' };
+    const result = await getJobPostingByIdAction(id);
+    if (!result) return { title: 'Không tìm thấy việc làm | TalentAI' };
+    const { job } = result;
     return {
         title: `${job.title} | TalentAI`,
         description: job.description?.slice(0, 160),
@@ -26,12 +27,13 @@ export async function generateMetadata({ params }: JobDetailPageProps) {
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
     const { id } = await params;
-    const [job, cookieStore] = await Promise.all([
+    const [result, cookieStore] = await Promise.all([
         getJobPostingByIdAction(id),
         cookies(),
     ]);
 
-    if (!job) notFound();
+    if (!result) notFound();
+    const { job, available } = result;
 
     const isLoggedIn = !!cookieStore.get('accessToken')?.value;
 
@@ -50,7 +52,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main */}
                     <div className="lg:col-span-2 space-y-5">
-                        <JobDetailHero job={job} isLoggedIn={isLoggedIn} />
+                        <JobDetailHero job={job} isLoggedIn={isLoggedIn} available={available} />
                         <JobDetailBody job={job} />
                     </div>
 
@@ -59,7 +61,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                         <JobDetailSidebar job={job} />
                         {/* Mobile Apply Button */}
                         <div className="lg:hidden">
-                            <ApplyButton job={job} isLoggedIn={isLoggedIn} />
+                            <ApplyButton job={job} isLoggedIn={isLoggedIn} available={available} />
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { PublicHeader } from '@/components/public/layout/PublicHeader';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 
 export const metadata = {
     title: 'TalentAI | Hồ sơ ứng viên',
@@ -10,13 +11,17 @@ export const metadata = {
 
 export default async function CandidateLayout({ children }: { children: ReactNode }) {
     const cookieStore = await cookies();
-    const token = cookieStore.get('accessToken')?.value;
+    const token = cookieStore.get('accessToken')?.value || "";
+    let userId: string = "";
 
     let userInfo: { fullName?: string; role?: string } | null = null;
     if (token) {
         try {
-            const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-            userInfo = { fullName: payload.fullName, role: payload.role };
+            const payload = decodeTokenPayload(token);
+            if (payload) {
+                userId = payload.userId;
+                userInfo = { fullName: payload.fullName, role: payload.role };
+            }
         } catch { /* ignore */ }
     }
 
