@@ -14,9 +14,7 @@ import { SF, SFT } from '@/types/fonts/fonts';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/dashboard' },
-  { icon: Users, label: 'Kanban ứng viên', href: '/kanban', badge: 8 },
   { icon: Briefcase, label: 'Tin tuyển dụng', href: '/jobs', badge: 3 },
-  { icon: Users, label: 'Ứng viên', href: '/candidates' },
   { icon: CalendarCheck, label: 'Lịch phỏng vấn', href: '/interviews' },
 ];
 
@@ -31,6 +29,7 @@ const adminItems = [
 ];
 
 const bottomItems = [
+  { icon: Settings, label: 'Hồ sơ của tôi', href: '/my-profile' },
   { icon: LogOut, label: 'Đăng xuất', href: '/sign-in/admin' },
 ];
 
@@ -41,8 +40,9 @@ const notifs = [
 ];
 
 // ── SidebarContent ───────────────────────────────────────────────────────────
-function SidebarContent({ onClose, userRole }: { onClose?: () => void, userRole?: string }) {
+function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string }) {
   const pathname = usePathname();
+  const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
 
   return (
     <div className="flex flex-col h-full">
@@ -194,17 +194,17 @@ function SidebarContent({ onClose, userRole }: { onClose?: () => void, userRole?
       <div className="flex-shrink-0 border-t border-[#F2F2F7] p-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-white text-[12px]" style={{ fontFamily: SF, fontWeight: 600 }}>
-              AJ
+            <div className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-white text-[11px]" style={{ fontFamily: SF, fontWeight: 600 }}>
+              {initials}
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#34C759] rounded-full border-2 border-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[12px] text-[#1D1D1F] truncate tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 500 }}>
-              Alex Johnson
+              {userName || 'HR Manager'}
             </p>
             <p className="text-[11px] text-[#AEAEB2] truncate" style={{ fontFamily: SFT }}>
-              HR Manager
+              {userEmail || userRole || 'recruiter'}
             </p>
           </div>
         </div>
@@ -214,7 +214,7 @@ function SidebarContent({ onClose, userRole }: { onClose?: () => void, userRole?
 }
 
 // ── DashboardHeader ──────────────────────────────────────────────────────────
-function DashboardHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
+function DashboardHeader({ onMenuOpen, initials }: { onMenuOpen: () => void; initials: string }) {
   const [searchFocus, setSearchFocus] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -286,21 +286,22 @@ function DashboardHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
 
       {/* Avatar */}
       <div className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-white text-[12px] cursor-pointer" style={{ fontFamily: SF, fontWeight: 600 }}>
-        AJ
+        {initials}
       </div>
     </header>
   );
 }
 
 // ── DashboardLayout (Root export) ────────────────────────────────────────────
-export function DashboardLayout({ children, userRole }: { children: React.ReactNode, userRole?: string }) {
+export function DashboardLayout({ children, userRole, userName, userEmail }: { children: React.ReactNode, userRole?: string, userName?: string, userEmail?: string }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
 
   return (
     <div className="flex h-screen bg-[#F5F5F7] overflow-hidden" style={{ fontFamily: SFT }}>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] h-screen bg-white border-r border-[#F2F2F7] fixed left-0 top-0 z-30 flex-shrink-0">
-        <SidebarContent userRole={userRole} />
+        <SidebarContent userRole={userRole} userName={userName} userEmail={userEmail} />
       </aside>
 
       {/* Mobile Sidebar — slide-in with Framer Motion */}
@@ -321,7 +322,7 @@ export function DashboardLayout({ children, userRole }: { children: React.ReactN
               transition={{ ease: [0.25, 0.46, 0.45, 0.94], duration: 0.3 }}
               className="relative w-[240px] h-full bg-white border-r border-[#F2F2F7] z-50 flex flex-col"
             >
-              <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} />
+              <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} userName={userName} userEmail={userEmail} />
             </motion.aside>
           </div>
         )}
@@ -329,7 +330,7 @@ export function DashboardLayout({ children, userRole }: { children: React.ReactN
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[220px] xl:pl-[240px]">
-        <DashboardHeader onMenuOpen={() => setMobileSidebarOpen(true)} />
+        <DashboardHeader onMenuOpen={() => setMobileSidebarOpen(true)} initials={initials} />
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
