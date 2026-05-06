@@ -14,7 +14,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
     offer: { label: 'Offer', color: '#34C759', bg: '#E8F5E9' },
     hired: { label: 'Được tuyển', color: '#16A34A', bg: '#DCFCE7' },
     rejected: { label: 'Từ chối', color: '#DC2626', bg: '#FEF2F2' },
-    withdrawn: { label: 'Đã rút', color: '#6E6E73', bg: '#F5F5F7' },
+    cancelled: { label: 'Đã rút', color: '#6E6E73', bg: '#F5F5F7' },
 };
 
 const LOCATION_LABELS: Record<string, string> = {
@@ -90,7 +90,7 @@ export function ApplicationCard({ application: app, onWithdraw }: ApplicationCar
 
                         {/* Status badge */}
                         <span
-                            className="text-[11px] rounded-full px-2.5 py-1 flex-shrink-0 inline-flex items-center gap-1"
+                            className="text-[10px] rounded-full px-2.5 py-1 flex-shrink-0 inline-flex items-center gap-1"
                             style={{ background: status.bg, color: status.color, fontWeight: 600 }}
                         >
                             <span className="w-1.5 h-1.5 rounded-full" style={{ background: status.color }} />
@@ -120,15 +120,17 @@ export function ApplicationCard({ application: app, onWithdraw }: ApplicationCar
                 </div>
 
                 {/* Withdraw */}
-                {canWithdraw && (
-                    <button
-                        onClick={onWithdraw}
-                        className="p-2 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
-                        title="Rút đơn"
-                    >
-                        <XCircle className="w-4 h-4" />
-                    </button>
-                )}
+                <div className="w-8 flex-shrink-0">
+                    {canWithdraw && (
+                        <button
+                            onClick={onWithdraw}
+                            className="p-2 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors opacity-0 group-hover:opacity-100 w-full h-full flex items-center justify-center"
+                            title="Rút đơn"
+                        >
+                            <XCircle className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

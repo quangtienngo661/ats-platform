@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { MyCvsHeader } from './ui/MyCvsHeader';
 import { MyCvsStats } from './ui/MyCvsStats';
@@ -11,14 +11,36 @@ import { CvDetailModal } from './ui/CvDetailModal';
 import { ICvDto } from '@/types/interfaces/cv.interface';
 import { deleteCvAction } from '@/servers/cvs/cvs.action';
 import { toast } from '@/lib/toast';
+import { useCvStore } from '@/stores/useCvStore';
+import { useSocketStore } from '@/stores/useSocketStore';
 
 interface MyCvsClientProps {
     cvs: ICvDto[];
 }
 
+interface DataPayload {
+    cvId: string;
+    updatedCv: ICvDto
+}
+
 export default function MyCvsClient({ cvs }: MyCvsClientProps) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [viewingCv, setViewingCv] = useState<ICvDto | null>(null);
+    const socket = useSocketStore();
+    const updatedCv = useCvStore(state => state.updateCv);
+    let storeCvs = useCvStore(state => state.cvs);
+
+    useEffect(() => {
+        const handleStatusUpdate = (data: DataPayload) => {
+            updatedCv(data.cvId, data.updatedCv)
+        }
+
+        socket.onEvent<DataPayload>("cvs:parsed_successfully", handleStatusUpdate)
+
+        return () => {
+            socket.offEvent<DataPayload>("cvs:parsed_successfully", handleStatusUpdate)
+        }
+    }, [updatedCv, socket])
 
     const handleDelete = async (cvId: string) => {
         const result = await deleteCvAction(cvId);
@@ -32,10 +54,10 @@ export default function MyCvsClient({ cvs }: MyCvsClientProps) {
     return (
         <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
             <MyCvsHeader onUpload={() => setShowUploadModal(true)} />
-            <MyCvsStats cvs={cvs} />
+            <MyCvsStats cvs={storeCvs} />
 
             <div className="flex flex-col gap-3">
-                {cvs.map((cv) => (
+                {storeCvs.map((cv) => (
                     <CvCard
                         key={cv.cvId}
                         cv={cv}

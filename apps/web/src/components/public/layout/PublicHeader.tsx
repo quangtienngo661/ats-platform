@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
+import { useSocketStore } from '@/stores/useSocketStore';
 
 interface PublicHeaderProps {
     userInfo: { fullName?: string; role?: string } | null;
@@ -14,6 +15,7 @@ interface PublicHeaderProps {
 export function PublicHeader({ userInfo }: PublicHeaderProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const socket = useSocketStore();
     const [avatarOpen, setAvatarOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -25,6 +27,7 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
 
     const handleLogout = async () => {
         setAvatarOpen(false);
+        socket.disconnect();
         await logoutAction();
         router.push('/sign-in');
     };

@@ -1,20 +1,49 @@
 import { IJobPosting, IJobPostingSkills } from "@ats-platform/types";
+import { IApplicationDto } from "./application.interface";
 
 /** DTO đầu ra từ API cho một Job Posting */
-export interface IJobPostingDto extends IJobPosting {
+export interface IJobPostingDto extends Omit<IJobPosting, 'salaryMin' | 'salaryMax' | 'parsedRequirements' | 'publishedAt'> {
     jobId: string;
-    departmentId: string;
-    categoryId?: string;
     title: string;
     locationType: string;
-    salaryMin?: number;
-    salaryMax?: number;
+    salaryMin?: number | null;
+    salaryMax?: number | null;
     description?: string;
-    parsedRequirements?: string;
+    parsedRequirements?: unknown;
     status?: string;
-    skills?: IJobPostingSkills[];
-    publishedAt?: string;
+    publishedAt?: string | null;
     createdAt?: string;
+    department?: {
+        departmentId: string;
+        name: string;
+        description?: string | null;
+        color?: string | null;
+    };
+    category?: {
+        categoryId: string;
+        name: string;
+    } | null;
+    recruiter?: {
+        recruiterId: string;
+        position?: string | null;
+        department?: {
+            departmentId: string;
+            name: string;
+        };
+        user?: {
+            fullName: string;
+            email: string;
+        };
+    };
+    jobPostingSkills?: {
+        id: string;
+        isRequired: boolean;
+        skill: {
+            skillId: string;
+            name: string;
+        };
+    }[];
+    applications?: IApplicationDto[];
 }
 
 export interface IFindJobPostingsQuery {

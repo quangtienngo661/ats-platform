@@ -2,15 +2,7 @@ import { ICVScreening } from "@ats-platform/types";
 
 /** Kết quả screening đầy đủ — dành cho HR/Admin */
 export interface IScreeningResultDto extends ICVScreening {
-    screeningId: string;
-    applicationId: string;
-    score: number;
-    skillsScore?: number;
-    experienceScore?: number;
-    educationScore?: number;
-    summary?: string;
-    details?: Record<string, unknown>;
-    createdAt: string;
+
 }
 
 /** Thống kê screening cho một Job */

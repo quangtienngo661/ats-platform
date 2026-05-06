@@ -7,7 +7,7 @@ interface MyApplicationsStatsProps {
 }
 
 const ACTIVE_STATUSES = new Set(['applied', 'screening', 'interview', 'offer']);
-const CLOSED_STATUSES = new Set(['hired', 'rejected', 'withdrawn']);
+const CLOSED_STATUSES = new Set(['hired', 'rejected', 'cancelled']);
 
 export function MyApplicationsStats({ applications }: MyApplicationsStatsProps) {
     const total = applications.length;

@@ -3,6 +3,8 @@
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
+import { cookies } from 'next/headers';
+import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,6 +25,7 @@ function extractMessage(error: unknown, fallback: string): string {
     if (error instanceof Error) return error.message;
     return fallback;
 }
+
 
 // ─── GET MY RECRUITER PROFILE ─────────────────────────────────────────────────
 

@@ -3,7 +3,7 @@ import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { ApplyButton } from './ApplyButton';
 
-function formatSalary(min?: number, max?: number): string {
+function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
     const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(0)}M` : `${(n / 1_000).toFixed(0)}K`;
     if (min && max) return `${fmt(min)} – ${fmt(max)} VNĐ`;
@@ -24,6 +24,7 @@ function timeAgo(dateStr?: string): string {
 interface JobDetailHeroProps {
     job: IJobPostingDto;
     isLoggedIn: boolean;
+    available: boolean;
 }
 
 function formatLocation(locationType?: string): string {
@@ -34,7 +35,7 @@ function formatLocation(locationType?: string): string {
 }
 
 
-export function JobDetailHero({ job, isLoggedIn }: JobDetailHeroProps) {
+export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps) {
     const initial = job.title?.[0]?.toUpperCase() ?? 'J';
     const deptName = (job as any).department?.name;
 
@@ -82,7 +83,7 @@ export function JobDetailHero({ job, isLoggedIn }: JobDetailHeroProps) {
 
             {/* Desktop Apply Button */}
             <div className="hidden lg:block">
-                <ApplyButton job={job} isLoggedIn={isLoggedIn} />
+                <ApplyButton job={job} isLoggedIn={isLoggedIn} available={available} />
             </div>
         </div>
     );

@@ -38,7 +38,6 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
 
     const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
-        console.log(selectedFile)
         if (selectedFile) {
             setFile(selectedFile);
         }

@@ -92,7 +92,6 @@ export async function signInAction(
     }
 
     try {
-
         const { accessToken, response } = await getAccessToken(payload);
 
         if (accessToken) {
@@ -108,11 +107,17 @@ export async function signInAction(
                 return { success: false, message: "Tài khoản của bạn không có quyền truy cập portal này" };
             }
         }
-
-
     } catch (error: any) {
-        const msg = error.response?.data?.message || "Sai tài khoản hoặc mật khẩu";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+        const msg: string = error.response?.data?.message || "Sai tài khoản hoặc mật khẩu";
+        const rawMsg = Array.isArray(msg) ? msg[0] : msg;
+
+        // Email chưa xác thực → redirect đến trang verify-email
+        if (rawMsg.startsWith('EMAIL_NOT_VERIFIED:')) {
+            const email = rawMsg.split(':')[1] ?? '';
+            redirect(`/verify-email?email=${encodeURIComponent(email)}&type=verify`);
+        }
+
+        return { success: false, message: rawMsg };
     }
     const callbackUrl = formData.get("callbackUrl");
 
@@ -122,6 +127,10 @@ export async function signInAction(
 
     if (callbackUrl) {
         redirect(callbackUrl as string)
+    }
+
+    if (role === "candidate") {
+        redirect("/job-postings");
     }
 
     redirect("/dashboard");
@@ -221,13 +230,14 @@ export async function requestEmailVerificationAction(
     formData: FormData
 ): Promise<AuthState> {
     const email = formData.get("email") as string;
+    const type = formData.get("type") as string;
 
     if (!email) {
         return { success: false, message: "Vui lòng nhập email" };
     }
 
     try {
-        await axios.post(`${SERVER_URL}/auth/request-email-verification`, { email });
+        await axios.post(`${SERVER_URL}/auth/request-email-verification`, { email, type });
         return { success: true, message: "Email xác thực đã được gửi" };
     } catch (error: any) {
         const msg = error.response?.data?.message || "Không thể gửi email xác thực";
@@ -240,17 +250,30 @@ export async function verifyEmailAction(
     formData: FormData
 ): Promise<AuthState> {
     const token = formData.get("token") as string;
+    const type = formData.get("type") as string;
 
     if (!token) {
         return { success: false, message: "Mã xác thực không hợp lệ" };
     }
 
     try {
-        await axios.get(`${SERVER_URL}/auth/verify-email`, {
-            params: { token }
+        const response = await axios.get(`${SERVER_URL}/auth/verify-email`, {
+            params: { token, type },
+            maxRedirects: 0, // Không follow redirect, lấy response data
         });
+        const redirectUrl: string | undefined = response.data?.url;
+
+        // Nếu backend trả về redirectUrl (type=reset), redirect bằng Next.js
+        if (redirectUrl) {
+            redirect(redirectUrl);
+        }
+
         return { success: true, message: "Xác thực email thành công" };
     } catch (error: any) {
+        // axios ném lỗi khi gặp status 3xx nếu maxRedirects=0 — bắt redirect URL từ đây
+        if (error.response?.status === 302 && error.response?.headers?.location) {
+            redirect(error.response.headers.location);
+        }
         const msg = error.response?.data?.message || "Xác thực email thất bại";
         return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
     }

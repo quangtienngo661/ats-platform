@@ -97,7 +97,8 @@ export async function updateMyCandidateProfileAction(
             payload.profileData.location = location ?? "";
         }
 
-        console.log(payload)
+
+
 
         // if (linkedin) {
         //     payload.profileData.linkedin = linkedin ?? "";

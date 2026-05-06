@@ -1,5 +1,4 @@
 import http from "@/lib/http"
-import { SERVER_URL } from "@/types/constants/urls"
 import { IAiUsageLogDto } from "@/types/interfaces/ai-usage-log.interface"
 
 export type AiUsageLogState = {
@@ -21,7 +20,7 @@ export interface IAiUsageLogResponse {
 
 export const getAIUsageLogsAction = async (page: number = 1): Promise<IAiUsageLogResponse | AiUsageLogState> => {
     try {
-        const response = await http.get(`${SERVER_URL}/ai-usage-logs?page=${page}`)
+        const response = await http.get(`/ai-usage-logs?page=${page}`)
         return response.data;
     } catch (error) {
         return {

@@ -1,17 +1,48 @@
 'use client';
 
-import { useState, useActionState } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import Link from 'next/link';
-import { forgotPasswordAction } from '@/servers/auth/auth.action';
+import { forgotPasswordAction, requestEmailVerificationAction } from '@/servers/auth/auth.action';
+import { toast } from '@/lib/toast';
 
 const initialState = { success: false, message: '' };
 
 export default function ForgotPasswordForm() {
     const [emailValue, setEmailValue] = useState('');
     const [state, formAction] = useActionState(forgotPasswordAction, initialState);
+    const [resendState, resendFormAction] = useActionState(requestEmailVerificationAction, initialState);
+    const [cooldown, setCooldown] = useState(0);
+
+    // Xử lý kết quả gửi email lần đầu
+    useEffect(() => {
+        if (state.success === false && state.message !== '') {
+            toast.error("Lỗi!", state.message);
+        } else if (state.success) {
+            toast.success("Thành công!", state.message);
+            setCooldown(60);
+        }
+    }, [state]);
+
+    // Xử lý kết quả gửi lại email
+    useEffect(() => {
+        if (resendState.success === false && resendState.message !== '') {
+            toast.error("Lỗi!", resendState.message);
+        } else if (resendState.success) {
+            toast.success("Đã gửi lại!", resendState.message);
+            setCooldown(60);
+        }
+    }, [resendState]);
+
+    // Đếm ngược cooldown
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [cooldown]);
+
 
     return (
         <motion.div
@@ -51,12 +82,6 @@ export default function ForgotPasswordForm() {
                             </div>
                         </div>
 
-                        {state.message && !state.success && (
-                            <p className="text-[#FF3B30] text-[13px] text-center" style={{ fontFamily: SFT }}>
-                                {state.message}
-                            </p>
-                        )}
-
                         <button
                             type="submit"
                             className="w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition-all shadow-sm shadow-[#0071E3]/20"
@@ -79,8 +104,23 @@ export default function ForgotPasswordForm() {
                         Kiểm tra hộp thư <strong className="text-[#1D1D1F]">{emailValue}</strong> để tìm liên kết đặt lại mật khẩu. Link có hiệu lực trong 24 giờ.
                     </p>
                     <p className="text-[12px] text-[#AEAEB2] mb-4" style={{ fontFamily: SFT }}>
-                        Không nhận được? Kiểm tra thư mục spam.
+                        Không nhận được? Kiểm tra thư mục spam hoặc gửi lại bên dưới.
                     </p>
+
+                    {/* Resend button */}
+                    <form action={resendFormAction}>
+                        <input type="hidden" name="email" value={emailValue} />
+                        <input type="hidden" name="type" value="reset" />
+                        <button
+                            type="submit"
+                            disabled={cooldown > 0}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F5F5F7] hover:bg-[#EBEBF0] disabled:opacity-50 disabled:cursor-not-allowed text-[#0071E3] text-[13px] transition-all"
+                            style={{ fontFamily: SFT, fontWeight: 500 }}
+                        >
+                            <Mail className="w-3.5 h-3.5" />
+                            {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : 'Gửi lại email'}
+                        </button>
+                    </form>
                 </div>
             )}
 

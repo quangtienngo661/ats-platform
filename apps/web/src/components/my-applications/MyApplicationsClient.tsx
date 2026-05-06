@@ -6,6 +6,8 @@ import { MyApplicationsHeader } from './ui/MyApplicationsHeader';
 import { MyApplicationsStats } from './ui/MyApplicationsStats';
 import { ApplicationCard } from './ui/ApplicationCard';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
+import { withdrawApplicationAction } from '@/servers/applications/applications.action';
+import { toast } from '@/lib/toast';
 
 // Re-export for child components
 export type { IApplicationCard as ApplicationItem };
@@ -25,7 +27,12 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
 
     const handleWithdraw = async (appId: string) => {
         // TODO: connect to withdrawApplicationAction
-        console.log('withdraw', appId);
+        const result = await withdrawApplicationAction(appId);
+        if (result.success) {
+            toast.success("Đơn tuyển dụng", result.message);
+        } else {
+            toast.error("Đơn tuyển dụng", result.message);
+        }
     };
 
     return (
@@ -35,10 +42,10 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
 
             {/* Filter tabs */}
             <div className="flex items-center gap-1.5 mb-5 overflow-x-auto pb-1">
-                {(['all', 'applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn'] as StatusFilter[]).map((s) => {
+                {(['all', 'applied', 'screening', 'interview', 'offer', 'rejected', 'cancelled'] as StatusFilter[]).map((s) => {
                     const labels: Record<string, string> = {
                         all: 'Tất cả', applied: 'Đã nộp', screening: 'Sàng lọc',
-                        interview: 'Phỏng vấn', offer: 'Offer', rejected: 'Từ chối', withdrawn: 'Rút đơn',
+                        interview: 'Phỏng vấn', offer: 'Offer', rejected: 'Từ chối', cancelled: 'Rút đơn',
                     };
                     const count = s === 'all' ? applications.length : applications.filter((a) => a.status === s).length;
                     const isActive = statusFilter === s;

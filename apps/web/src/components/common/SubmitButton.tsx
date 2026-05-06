@@ -3,9 +3,15 @@
 import { useFormStatus } from "react-dom";
 import { ArrowRight } from "lucide-react";
 import { SFT } from "@/types/fonts/fonts";
+import { useSocketStore } from "@/stores/useSocketStore";
+import { SOCKET_URL } from "@/types/constants/urls";
 
-export default function SubmitButton({ content }: { content: string }) {
-    const { pending } = useFormStatus(); // Tự động biết form đang submit hay không
+type SubmitButtonProps = {
+    content: string;
+}
+
+export default function SubmitButton({ content }: SubmitButtonProps) {
+    const { pending } = useFormStatus();
 
     return (
         <button

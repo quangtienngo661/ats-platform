@@ -53,8 +53,6 @@ const privatePaths = [
     // Recruiter routes
     '/dashboard',
     '/jobs',
-    '/candidates',
-    '/kanban',
     '/interviews',
     // Candidate routes
     '/my-applications',
@@ -63,13 +61,20 @@ const privatePaths = [
 ];
 const authPaths = ['/sign-in', '/register'];
 
+// Các trang chỉ dành cho guest (chưa đăng nhập)
+// Nếu đã đăng nhập cố vào → redirect về /sign-in (không kèm query params)
+const guestOnlyPaths = [
+    '/reset-password',
+    '/verify-email',
+    '/forgot-password',
+    '/verification-success',
+];
+
 // Role-based route protection
 const roleProtectedPaths: Record<string, string[]> = {
     recruiter: [
         '/dashboard',
         '/jobs',
-        '/candidates',
-        '/kanban',
         '/interviews',
     ],
     admin: [
@@ -81,6 +86,7 @@ const roleProtectedPaths: Record<string, string[]> = {
         '/job-category-management',
         '/ai-usage-logs',
         '/dashboard',
+        '/jobs',
     ],
     candidate: [
         '/job-postings',
@@ -97,6 +103,7 @@ export async function proxy(request: NextRequest) {
 
     const isPrivatePath = privatePaths.some(p => pathname.startsWith(p));
     const isAuthPath = authPaths.some(p => pathname.startsWith(p));
+    const isGuestOnlyPath = guestOnlyPaths.some(p => pathname.startsWith(p));
 
     const accessToken = request.cookies.get('accessToken')?.value;
     const refreshToken = request.cookies.get('refreshToken')?.value;
@@ -114,6 +121,15 @@ export async function proxy(request: NextRequest) {
     if (isAuthPath && accessToken && !isTokenExpired(accessToken) && !isSessionExpired) {
         return NextResponse.redirect(new URL('/department-management', request.url));
     }
+
+    // ── KỊCH BẢN: Trang Guest-Only → đã đăng nhập thì đá về /sign-in ──
+    if (isGuestOnlyPath && accessToken && !isTokenExpired(accessToken)) {
+        return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
+
+    // if (isGuestOnlyPath && !accessToken) {
+    //     return NextResponse.redirect(new URL('/sign-in', request.url));
+    // }
 
     // ── KỊCH BẢN: Trang Public → cho qua ──
     if (!isPrivatePath) {

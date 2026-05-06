@@ -37,8 +37,6 @@ export async function uploadCvAction(
     formData: FormData
 ): Promise<CvActionState> {
     const file = formData.get('file') as File | null;
-    // console.log(formData)
-    // return { success: false, message: '' }
 
     if (!file) {
         return { success: false, message: 'Vui lòng chọn file CV' };

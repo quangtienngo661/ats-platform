@@ -94,7 +94,6 @@ export default function RecruiterClient({ recruiters, departments, users }: Recr
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recruiters.map((recruiter) => {
-                        console.log(recruiter)
                         const dept = getDepartment(recruiter.department?.departmentId);
                         return (
                             <RecruiterCard

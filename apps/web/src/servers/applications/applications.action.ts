@@ -5,12 +5,12 @@ import { revalidatePath } from 'next/cache';
 import {
     IApplicationDto,
     IApplicationHistoryItem,
-    IKanbanBoard,
     IGetApplicationsByJobQuery,
     IPaginatedApplications,
     IApplicationCard,
 } from '@/types/interfaces/application.interface';
 import { AiRecommendation, ApplicationStatus } from '@ats-platform/database';
+import { IKanbanDto } from '@/types/interfaces/kanban.interface';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,21 +33,9 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 function mapDtoToCard(dto: IApplicationDto): IApplicationCard {
-    // export interface IApplicationCard {
-    //   applicationId: string;
-    //   candidateName: string;
-    //   jobTitle: string;
-    //   appliedAt: string;
-    //   currentStageSince: string;
-    //   status: ApplicationStatus;
-    //   cvId: string;
-    //   aiScore?: number;
-    //   aiRecommendation?: AiRecommendation;
-    // }
-
     return {
         applicationId: dto.applicationId,
-        candidateName: dto.candidate?.fullName || '',
+        candidateName: dto.candidate?.user?.fullName || '',
         jobTitle: dto.jobPosting?.title || '',
         appliedAt: dto.appliedAt || '',
         departmentName: dto.jobPosting?.department?.name || "",
@@ -109,7 +97,6 @@ export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
  */
 export async function withdrawApplicationAction(applicationId: string): Promise<ApplicationActionState> {
     if (!applicationId) return { success: false, message: 'Thiếu ID đơn ứng tuyển' };
-
     try {
         const response = await http.post(`/applications/${applicationId}/withdraw`);
         revalidatePath('/my-applications');
@@ -125,13 +112,13 @@ export async function withdrawApplicationAction(applicationId: string): Promise<
  * GET /applications/board/:jobId
  * Roles: recruiter, admin
  */
-export async function getKanbanBoardAction(jobId: string): Promise<IKanbanBoard> {
-    if (!jobId) return {};
+export async function getKanbanBoardAction(jobId: string): Promise<IKanbanDto> {
+    if (!jobId) return {} as IKanbanDto;
     try {
         const response = await http.get(`/applications/board/${jobId}`);
         return response.data ?? response;
     } catch {
-        return {};
+        return {} as IKanbanDto;
     }
 }
 
@@ -153,7 +140,14 @@ export async function getApplicationsByJobAction(
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get(`/applications/job/${jobId}`, { params });
-        return response.data ?? response;
+        const payload = {
+            data: response.data.items,
+            total: response.data.pagination.total,
+            page: response.data.pagination.page,
+            limit: response.data.pagination.limit
+        }
+
+        return payload
     } catch {
         return { data: [], total: 0, page: 1, limit: 10 };
     }
@@ -168,19 +162,21 @@ export async function getApplicationsByJobAction(
 export async function updateApplicationStatusAction(
     applicationId: string,
     status: string,
+    isReverted?: boolean,
     notes?: string,
     rejectionReason?: string
 ): Promise<ApplicationActionState> {
     if (!applicationId) return { success: false, message: 'Thiếu ID đơn ứng tuyển' };
     if (!status) return { success: false, message: 'Thiếu trạng thái mới' };
+    if (isReverted === null || isReverted === undefined) isReverted = false;
 
     try {
-        const payload: { status: string; notes?: string; rejectionReason?: string } = { status };
+        const payload: { status: string; isReverted: boolean; notes?: string; rejectionReason?: string } = { status, isReverted };
         if (notes) payload.notes = notes;
         if (rejectionReason) payload.rejectionReason = rejectionReason;
 
         const response = await http.patch(`/applications/${applicationId}/status`, payload);
-        revalidatePath('/job-management');
+        revalidatePath('/', 'layout');
         return { success: true, message: 'Cập nhật trạng thái thành công', data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật trạng thái thất bại') };
@@ -193,11 +189,17 @@ export async function updateApplicationStatusAction(
  * POST /applications/:id/trigger-screening
  * Roles: recruiter, admin
  */
-export async function triggerCvScreeningAction(applicationId: string): Promise<ApplicationActionState> {
+export async function triggerCvScreeningAction(
+    prevState: ApplicationActionState,
+    formData: FormData
+): Promise<ApplicationActionState> {
+    const applicationId = formData.get('applicationId') as string;
+    const configId = formData.get('configId') as string;
+
     if (!applicationId) return { success: false, message: 'Thiếu ID đơn ứng tuyển' };
 
     try {
-        const response = await http.post(`/applications/${applicationId}/trigger-screening`);
+        const response = await http.post(`/applications/${applicationId}/trigger-screening`, { configId });
         return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Kích hoạt sàng lọc CV thất bại') };
@@ -226,12 +228,12 @@ export async function getApplicationHistoryAction(applicationId: string): Promis
  * GET /applications/:id
  * Roles: recruiter, admin, candidate (owner)
  */
-export async function getApplicationByIdAction(applicationId: string): Promise<IApplicationDto | null> {
-    if (!applicationId) return null;
+export async function getApplicationByIdAction(applicationId: string): Promise<IApplicationDto> {
+    if (!applicationId) return {} as IApplicationDto;
     try {
         const response = await http.get(`/applications/${applicationId}`);
         return response.data ?? response;
     } catch {
-        return null;
+        return {} as IApplicationDto;
     }
 }

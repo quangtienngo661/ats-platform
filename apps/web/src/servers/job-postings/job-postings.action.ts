@@ -7,6 +7,8 @@ import {
     IFindJobPostingsQuery,
     IPaginatedJobPostings,
 } from '@/types/interfaces/job-posting.interface';
+import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
+import { cookies } from 'next/headers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,6 +17,21 @@ export type JobPostingActionState = {
     message: string;
     data?: IJobPostingDto;
 };
+
+
+async function isAvailable(jobData: IJobPostingDto, token: string): Promise<boolean> {
+    if (!token) return true;
+    const payload = decodeTokenPayload(token);
+    if (!payload) return true;
+
+    if (!jobData.applications?.length) return true;
+
+    const hasActiveApplication = jobData.applications.some(
+        (app) => app.status !== 'cancelled' && app.candidate?.userId === payload.userId
+    );
+
+    return !hasActiveApplication;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,7 +61,7 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
         if (query?.page) params.page = query.page;
         if (query?.limit) params.limit = query.limit;
 
-        const response = await http.get('/job-postings');
+        const response = await http.get('/job-postings', { params });
         return {
             data: response.data.items,
             total: response.data.pagination.total,
@@ -62,11 +79,14 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
  * GET /job-postings/:id
  * Roles: public (no auth required)
  */
-export async function getJobPostingByIdAction(id: string): Promise<IJobPostingDto | null> {
+export async function getJobPostingByIdAction(id: string): Promise<{ job: IJobPostingDto; available: boolean } | null> {
     if (!id) return null;
     try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('accessToken')?.value;
         const response = await http.get(`/job-postings/${id}`);
-        return response.data ?? response;
+        const available = await isAvailable(response.data, token ?? "");
+        return { job: response.data, available };
     } catch {
         return null;
     }

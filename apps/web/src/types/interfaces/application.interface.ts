@@ -1,4 +1,7 @@
 import { IApplication, IApplicationCard, IKanbanColumn } from "@ats-platform/types";
+import { ICandidateDto } from "./candidate.interface";
+import { IJobPostingDto } from "./job-posting.interface";
+import { IScreeningResultDto } from "./cv-screening.interface";
 
 /** DTO đầu ra từ API cho một Application */
 export interface IApplicationDto extends IApplication {
@@ -20,15 +23,8 @@ export interface IApplicationDto extends IApplication {
         };         // resolved name, returned by some endpoints
         locationType?: string;
     };
-    candidate?: {
-        fullName: string;
-        email: string;
-    };
-    screening?: {
-        overallScore: number | null;
-        aiRecommendation: string | null;
-        status: string;
-    } | null;
+    candidate?: ICandidateDto;
+    screening?: IScreeningResultDto | null;
 }
 
 /** Một entry trong lịch sử thay đổi trạng thái đơn ứng tuyển */
@@ -39,9 +35,6 @@ export interface IApplicationHistoryItem {
     notes?: string;
     changedAt: string;
 }
-
-/** Kanban board — map từ status sang danh sách ApplicationDto */
-export type IKanbanBoard = Record<string, IApplicationDto[]>;
 
 export interface IGetApplicationsByJobQuery {
     includeCancelled?: boolean;

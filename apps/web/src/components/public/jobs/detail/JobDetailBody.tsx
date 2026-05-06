@@ -23,7 +23,7 @@ export function JobDetailBody({ job }: JobDetailBodyProps) {
             )}
 
             {/* Parsed Requirements */}
-            {job.parsedRequirements && (
+            {!!job.parsedRequirements && (
                 <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
                     <h2 className="text-[18px] text-[#1D1D1F] mb-4 tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 700 }}>
                         Yêu cầu ứng viên
