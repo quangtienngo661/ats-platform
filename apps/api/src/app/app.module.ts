@@ -23,6 +23,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { AiUsageLogsModule } from './ai-usage-logs/ai-usage-logs.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
+import { SocketIoModule } from '../common/socket-io/socket-io.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
     AiUsageLogsModule,
     ApplicationsModule,
     CvScreeningsModule,
+    SocketIoModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],
