@@ -22,6 +22,10 @@ export class UpdateApplicationStatusDto {
     @IsEnum(ApplicationStatus)
     status: ApplicationStatus;
 
+    @IsBoolean()
+    @IsOptional()
+    isReverted?: boolean;
+
     @IsString()
     @IsOptional()
     notes?: string;

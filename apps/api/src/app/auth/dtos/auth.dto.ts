@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsStrongPassword } from "class-validator";
+import { IsEmail, IsEnum, IsString, IsStrongPassword } from "class-validator";
 import { IAuth } from "@ats-platform/types";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -48,6 +48,14 @@ export class RequestEmailVerificationDto implements IAuth {
     })
     @IsEmail()
     email!: string;
+
+    @ApiProperty({
+        example: "verify",
+        description: "Type of verification",
+        enum: ["verify", "reset"],
+    })
+    @IsEnum(["verify", "reset"])
+    type!: string;
 }
 
 export class VerifyEmailDto {
