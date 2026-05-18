@@ -1,6 +1,6 @@
 import { JobStatus, LocationType } from '@ats-platform/database';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IJobPostingSkills } from '@ats-platform/types'
+import { IJobPostingSkills, ISkill } from '@ats-platform/types'
 import {
 	IsDateString,
 	IsEnum,
@@ -49,13 +49,24 @@ export class FindJobPostingsQueryDto {
 	limit?: number;
 }
 
+export class ParseJdPreviewDto {
+	@ApiProperty({
+		example: 'We are looking for a Backend Engineer experienced with NestJS and PostgreSQL...',
+		description: 'Raw job description content to parse before creating a job posting',
+	})
+	@IsString()
+	@IsNotEmpty()
+	description!: string;
+}
+
 export class CreateJobPostingDto {
 	@ApiProperty({
 		example: '0b5f2f42-87f0-4dbe-b861-cde1e7f6e11e',
 		description: 'Department ID of this job posting',
 	})
+	@IsOptional()
 	@IsUUID()
-	departmentId!: string;
+	departmentId?: string;
 
 	@ApiPropertyOptional({
 		example: '64de8e8f-718d-4a7d-aec5-c9df19037df7',
@@ -116,12 +127,16 @@ export class CreateJobPostingDto {
 	description?: string;
 
 	@ApiPropertyOptional({
-		example: 'Node.js, NestJS, PostgreSQL, Docker',
+		example: {
+			job_summary: 'Build APIs with NestJS and PostgreSQL',
+			requirements: {
+				hard_skills: ['NestJS', 'PostgreSQL'],
+			},
+		},
 		description: 'AI/parsed requirements',
 	})
 	@IsOptional()
-	@IsString()
-	parsedRequirements?: string;
+	parsedRequirements?: unknown;
 
 	@ApiPropertyOptional({
 		enum: JobStatus,

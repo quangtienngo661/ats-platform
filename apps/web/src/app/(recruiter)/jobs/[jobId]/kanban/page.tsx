@@ -3,6 +3,7 @@ import KanbanClient from '@/components/kanban/KanbanClient';
 import { getApplicationsByJobAction, getKanbanBoardAction } from '@/servers/applications/applications.action';
 import { getAIConfigAction } from '@/servers/ai-config/ai-config.action';
 import { KanbanHydrator } from '@/components/hydrators/KanbanHydrator';
+import { InitSocketRoom } from '@/components/common/InitSocketRoom';
 
 interface JobKanbanPageProps {
     params: Promise<{ jobId: string }>;
@@ -23,12 +24,11 @@ export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
 
     return (
         <div className="flex flex-col h-full bg-[#F5F5F7]">
-            <KanbanHydrator initialBoard={boardData} jobId={jobId} />
+            <KanbanHydrator initialBoard={boardData} initialCancelledApplications={cancelledApplications} />
+            <InitSocketRoom jobId={jobId} />
             <CandidatesHeader jobId={jobId} activeView="kanban" />
             <KanbanClient
-                initialBoard={boardData}
                 jobId={jobId}
-                initialCancelledApplications={cancelledApplications}
                 aiProfiles={aiProfiles}
             />
         </div>

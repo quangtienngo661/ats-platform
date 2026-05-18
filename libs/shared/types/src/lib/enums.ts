@@ -92,7 +92,8 @@ export enum InterviewType {
 export enum InterviewStatus {
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  TIMEOUT = 'timeout',
+  ABANDON = 'abandon',
+  PENDING_RESULT = 'pending_result',
 }
 
 /** @deprecated Dùng InterviewStatus thay thế */

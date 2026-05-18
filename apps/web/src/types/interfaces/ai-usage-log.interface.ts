@@ -1,4 +1,3 @@
-/** DTO cho AI Usage Log — maps tới model AiUsageLog trong Prisma */
 export interface IAiUsageLogDto {
     logId: string;
     actionType: 'cv_parsing' | 'cv_scoring' | 'mock_interview' | 'job_parsing';

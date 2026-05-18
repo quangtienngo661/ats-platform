@@ -15,7 +15,7 @@ export const successResponse = (status: number = 200, data?: any): ResponseForma
 
 export const errorResponse = (
     status: number = 500,
-    message: string = "Internal Server Error",
+    message: string = "Lỗi máy chủ nội bộ",
     data?: unknown
 ): ResponseFormat => {
     return {

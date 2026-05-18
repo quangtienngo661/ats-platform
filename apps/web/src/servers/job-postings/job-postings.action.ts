@@ -12,10 +12,24 @@ import { cookies } from 'next/headers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type JobPostingActionState = {
+export type JdParsedRequirements = {
+    job_summary: string | null;
+    responsibilities: string[];
+    requirements: {
+        minimum_experience_years: number | null;
+        education_level: 'Certificate' | 'Diploma' | 'Bachelor' | 'Master' | 'PhD' | null;
+        hard_skills: string[];
+        soft_skills: string[];
+        languages: string[];
+    };
+    nice_to_haves: string[];
+    benefits: string[];
+};
+
+export type ActionState<T> = {
     success: boolean;
     message: string;
-    data?: IJobPostingDto;
+    data?: T;
 };
 
 
@@ -47,10 +61,32 @@ function extractMessage(error: unknown, fallback: string): string {
 
 // ─── GET ALL JOB POSTINGS ─────────────────────────────────────────────────────
 
-/**
- * GET /job-postings
- * Roles: public (no auth required)
- */
+export async function parseJdPreviewAction(
+    description: string
+): Promise<ActionState<JdParsedRequirements>> {
+    const normalizedDescription = description?.trim();
+
+    if (!normalizedDescription) {
+        return { success: false, message: 'Vui lòng nhập mô tả công việc để AI phân tích' };
+    }
+
+    try {
+        const response = await http.post('/job-postings/parse-jd-preview', {
+            description: normalizedDescription,
+        });
+
+        return {
+            success: true,
+            message: 'AI đã phân tích mô tả công việc thành công',
+            data: response.data ?? response,
+        };
+    } catch (err) {
+        return {
+            success: false,
+            message: extractMessage(err, 'Phân tích mô tả công việc thất bại'),
+        };
+    }
+}
 export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promise<IPaginatedJobPostings> {
     try {
         const params: Record<string, string | number> = {};
@@ -74,11 +110,6 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
 }
 
 // ─── GET JOB POSTING BY ID ────────────────────────────────────────────────────
-
-/**
- * GET /job-postings/:id
- * Roles: public (no auth required)
- */
 export async function getJobPostingByIdAction(id: string): Promise<{ job: IJobPostingDto; available: boolean } | null> {
     if (!id) return null;
     try {
@@ -93,15 +124,10 @@ export async function getJobPostingByIdAction(id: string): Promise<{ job: IJobPo
 }
 
 // ─── CREATE JOB POSTING ───────────────────────────────────────────────────────
-
-/**
- * POST /job-postings
- * Roles: admin, recruiter
- */
 export async function createJobPostingAction(
-    prevState: JobPostingActionState,
+    prevState: ActionState<IJobPostingDto>,
     formData: FormData
-): Promise<JobPostingActionState> {
+): Promise<ActionState<IJobPostingDto>> {
     const departmentId = (formData.get('departmentId') as string)?.trim();
     const title = (formData.get('title') as string)?.trim();
     const locationType = (formData.get('locationType') as string)?.trim();
@@ -142,15 +168,10 @@ export async function createJobPostingAction(
 }
 
 // ─── UPDATE JOB POSTING ───────────────────────────────────────────────────────
-
-/**
- * PATCH /job-postings/:id
- * Roles: admin, recruiter (owner)
- */
 export async function updateJobPostingAction(
-    prevState: JobPostingActionState,
+    prevState: ActionState<IJobPostingDto>,
     formData: FormData
-): Promise<JobPostingActionState> {
+): Promise<ActionState<IJobPostingDto>> {
     const jobId = formData.get('jobId') as string;
 
     if (!jobId) return { success: false, message: 'Thiếu ID tin tuyển dụng' };
@@ -158,7 +179,6 @@ export async function updateJobPostingAction(
     try {
         const payload: Record<string, unknown> = {};
 
-        const departmentId = (formData.get('departmentId') as string)?.trim();
         const title = (formData.get('title') as string)?.trim();
         const locationType = (formData.get('locationType') as string)?.trim();
         const categoryId = (formData.get('categoryId') as string)?.trim() || undefined;
@@ -169,7 +189,6 @@ export async function updateJobPostingAction(
         const status = (formData.get('status') as string)?.trim() || undefined;
         const publishedAt = (formData.get('publishedAt') as string)?.trim() || undefined;
 
-        if (departmentId) payload.departmentId = departmentId;
         if (title) payload.title = title;
         if (locationType) payload.locationType = locationType;
         if (categoryId !== undefined) payload.categoryId = categoryId;
@@ -194,12 +213,7 @@ export async function updateJobPostingAction(
 }
 
 // ─── DELETE JOB POSTING ───────────────────────────────────────────────────────
-
-/**
- * DELETE /job-postings/:id
- * Roles: admin, recruiter (owner)
- */
-export async function deleteJobPostingAction(jobId: string): Promise<JobPostingActionState> {
+export async function deleteJobPostingAction(jobId: string): Promise<ActionState<IJobPostingDto>> {
     if (!jobId) return { success: false, message: 'Thiếu ID tin tuyển dụng' };
 
     try {

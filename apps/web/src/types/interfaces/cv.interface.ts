@@ -1,6 +1,4 @@
 import { ICvParsedData } from "@ats-platform/types";
-
-/** DTO đầu ra từ API cho một CV */
 export interface ICvDto {
     cvId: string;
     candidateId: string;

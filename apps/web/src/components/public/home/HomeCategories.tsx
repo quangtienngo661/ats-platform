@@ -26,7 +26,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                         </p>
                     </div>
                     <Link
-                        href="/jobs"
+                        href="/job-postings"
                         className="hidden sm:flex items-center gap-1 text-[13px] text-[#0071E3] hover:underline"
                         style={{ fontFamily: SFT, fontWeight: 500 }}
                     >
@@ -41,7 +41,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                         return (
                             <Link
                                 key={cat.categoryId}
-                                href={`/jobs?categoryId=${cat.categoryId}`}
+                                href={`/job-postings?categoryId=${cat.categoryId}`}
                                 className="group flex flex-col gap-3 p-5 bg-white rounded-2xl border border-[#E5E5EA] hover:border-[#0071E3]/30 hover:shadow-lg hover:shadow-black/5 transition-all"
                             >
                                 <div

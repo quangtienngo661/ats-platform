@@ -25,11 +25,6 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── GET ALL JOB CATEGORIES ───────────────────────────────────────────────────
-
-/**
- * GET /job-categories
- * Roles: admin
- */
 export async function getJobCategoriesAction(): Promise<IJobCategoryDto[]> {
     try {
         const response = await http.get('/job-categories');
@@ -40,11 +35,6 @@ export async function getJobCategoriesAction(): Promise<IJobCategoryDto[]> {
 }
 
 // ─── GET JOB CATEGORY BY ID ───────────────────────────────────────────────────
-
-/**
- * GET /job-categories/:id
- * Roles: admin
- */
 export async function getJobCategoryByIdAction(id: string): Promise<IJobCategoryDto | null> {
     if (!id) return null;
     try {
@@ -56,11 +46,6 @@ export async function getJobCategoryByIdAction(id: string): Promise<IJobCategory
 }
 
 // ─── CREATE JOB CATEGORY ──────────────────────────────────────────────────────
-
-/**
- * POST /job-categories
- * Roles: admin
- */
 export async function createJobCategoryAction(
     prevState: JobCategoryActionState,
     formData: FormData
@@ -85,11 +70,6 @@ export async function createJobCategoryAction(
 }
 
 // ─── UPDATE JOB CATEGORY ──────────────────────────────────────────────────────
-
-/**
- * PATCH /job-categories/:id
- * Roles: admin
- */
 export async function updateJobCategoryAction(
     prevState: JobCategoryActionState,
     formData: FormData
@@ -114,11 +94,6 @@ export async function updateJobCategoryAction(
 }
 
 // ─── DELETE JOB CATEGORY ──────────────────────────────────────────────────────
-
-/**
- * DELETE /job-categories/:id
- * Roles: admin
- */
 export async function deleteJobCategoryAction(categoryId: string): Promise<JobCategoryActionState> {
     if (!categoryId) return { success: false, message: 'Thiếu ID danh mục' };
 

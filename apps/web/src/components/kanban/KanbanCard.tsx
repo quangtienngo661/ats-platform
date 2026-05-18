@@ -62,11 +62,20 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
         <div className="flex-1 min-w-0">
           <p className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>{candidate.name}</p>
           <p className="text-[11px] text-[#AEAEB2] truncate mt-0.5">{candidate.role}</p>
-          {candidate.stage === 'screening' && candidate.screeningStatus === 'pending' && (
+          {(!candidate.screeningStatus || candidate.screeningStatus === 'pending') && candidate.stage === 'applied' && (
+            <span className="inline-block mt-1 text-[9px] bg-[#F5F5F7] text-[#6E6E73] px-1.5 py-0.5 rounded-md border border-[#E5E5EA] font-medium">Chưa sàng lọc</span>
+          )}
+          {(!candidate.screeningStatus || candidate.screeningStatus === 'pending') && candidate.stage === 'screening' && (
             <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Chờ AI Sàng lọc</span>
           )}
-          {candidate.stage === 'screening' && candidate.screeningStatus === 'screened' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#F0FDF4] text-[#34C759] px-1.5 py-0.5 rounded-md border border-[#34C759]/20 font-medium">Đã sàng lọc</span>
+          {candidate.screeningStatus === 'processing' && (
+            <span className="inline-block mt-1 text-[9px] bg-[#FFFBEB] text-[#F59E0B] px-1.5 py-0.5 rounded-md border border-[#F59E0B]/20 font-medium">Đang AI Sàng lọc</span>
+          )}
+          {candidate.screeningStatus === 'completed' && (
+            <span className="inline-block mt-1 text-[9px] bg-[#F0FDF4] text-[#34C759] px-1.5 py-0.5 rounded-md border border-[#34C759]/20 font-medium">Đã AI Sàng lọc</span>
+          )}
+          {candidate.screeningStatus === 'failed' && (
+            <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Sàng lọc thất bại</span>
           )}
         </div>
         <button

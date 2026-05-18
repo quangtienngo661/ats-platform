@@ -71,14 +71,7 @@ export function UserRow({ user, onEdit, onDelete }: UserRowProps) {
               >
                 <Mail className="w-3 h-3 text-[#AEAEB2]" /> {user.email}
               </span>
-              {user.phone && (
-                <span
-                  className="text-[11px] text-[#6E6E73] flex items-center gap-1"
-                  style={{ fontFamily: SFT }}
-                >
-                  <Phone className="w-3 h-3 text-[#AEAEB2]" /> {user.phone}
-                </span>
-              )}
+
             </div>
           </div>
         </div>

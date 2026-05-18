@@ -35,7 +35,7 @@ export class DepartmentsService {
     });
 
     if (!department) {
-      throw new NotFoundException(`Department with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy phòng ban với ID ${id}`);
     }
 
     return department;
@@ -47,7 +47,7 @@ export class DepartmentsService {
     });
 
     if (!department) {
-      throw new NotFoundException(`Department with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy phòng ban với ID ${id}`);
     }
 
     const updatedDepartment = await this.prisma.department.update({
@@ -72,7 +72,7 @@ export class DepartmentsService {
     });
 
     if (!department) {
-      throw new NotFoundException(`Department with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy phòng ban với ID ${id}`);
     }
 
     const deletedDepartment = await this.prisma.department.delete({

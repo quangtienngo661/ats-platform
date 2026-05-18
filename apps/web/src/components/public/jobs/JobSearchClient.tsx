@@ -42,7 +42,7 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
         if (catId) params.set('categoryId', catId);
         if (loc && loc !== 'Tất cả') params.set('locationType', loc);
         if (pg > 1) params.set('page', String(pg));
-        startTransition(() => router.push(`/jobs?${params.toString()}`));
+        startTransition(() => router.push(`/job-postings?${params.toString()}`));
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
         setSearchQuery('');
         setSelectedCategory('');
         setSelectedLocationType('Tất cả');
-        startTransition(() => router.push('/jobs'));
+        startTransition(() => router.push('/job-postings'));
     };
 
     const hasActiveFilters = !!searchQuery || !!selectedCategory || selectedLocationType !== 'Tất cả';
@@ -181,11 +181,22 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
                         )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {initialJobs.map(job => (
-                            <JobCard key={job.jobId} job={job} />
-                        ))}
-                    </div>
+                    <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <AnimatePresence mode="popLayout">
+                            {initialJobs.map(job => (
+                                <motion.div
+                                    key={job.jobId}
+                                    layout
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <JobCard job={job} />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
                 )}
 
                 {/* Pagination */}

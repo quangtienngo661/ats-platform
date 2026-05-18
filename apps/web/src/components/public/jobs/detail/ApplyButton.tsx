@@ -55,7 +55,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
     if (!isLoggedIn) {
         return (
             <Link
-                href={`/sign-in?callbackUrl=/jobs/${job.jobId}`}
+                href={`/sign-in?callbackUrl=/job-postings/${job.jobId}`}
                 className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[15px]"
                 style={{ fontFamily: SFT, fontWeight: 600 }}
             >
@@ -129,7 +129,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                         <FileText className="w-8 h-8 text-[#AEAEB2] mx-auto mb-2" />
                                         <p className="text-[13px] text-[#6E6E73] mb-1">Bạn chưa có CV nào</p>
                                         <Link
-                                            href="/profile?tab=cvs"
+                                            href="/my-cvs"
                                             className="text-[13px] text-[#0071E3] hover:underline"
                                             style={{ fontWeight: 500 }}
                                         >

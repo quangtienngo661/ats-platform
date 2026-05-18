@@ -1,4 +1,7 @@
-import { Sparkles, Loader2, X, Info, Plus } from 'lucide-react';
+import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
+import { IParsedJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { ISkillDto } from '@/types/interfaces/skill.interface';
+import { Info, Loader2, Plus, Sparkles, X } from 'lucide-react';
 
 interface JobPostingStep2Props {
     formData: {
@@ -8,11 +11,12 @@ interface JobPostingStep2Props {
         salaryMax: string;
     };
     updateField: (key: string, value: string) => void;
+    parsedJobPosting: IParsedJobPostingDto | null;
     isParsing: boolean;
-    skills: { id: string; name: string; isRequired: boolean }[];
-    mockSkillsDb: { id: string; name: string }[];
-    mockCategories: { id: string; name: string }[];
-    removeSkill: (id: string) => void;
+    skills: string[];
+    skillsDb: ISkillDto[];
+    categories: IJobCategoryDto[];
+    removeSkill: (skill: string) => void;
     selectedSkillToAdd: string;
     setSelectedSkillToAdd: (val: string) => void;
     handleAddExistingSkill: () => void;
@@ -21,28 +25,32 @@ interface JobPostingStep2Props {
 export function JobPostingStep2({
     formData,
     updateField,
+    parsedJobPosting,
     isParsing,
     skills,
-    mockSkillsDb,
-    mockCategories,
+    skillsDb,
+    categories,
     removeSkill,
     selectedSkillToAdd,
     setSelectedSkillToAdd,
-    handleAddExistingSkill
+    handleAddExistingSkill,
 }: JobPostingStep2Props) {
-    // Lọc ra danh sách skill hợp lệ để bỏ vào hidden input
-    const validSkills = skills.filter(s => mockSkillsDb.some(db => db.name.toLowerCase() === s.name.toLowerCase()));
+    const validSkills = skills
+        .map(skill => {
+            const dbSkill = skillsDb.find(db => db.name.toLowerCase() === skill.toLowerCase());
+            return dbSkill ? { skillId: dbSkill.skillId, isRequired: true } : null;
+        })
+        .filter((skill): skill is { skillId: string; isRequired: boolean } => Boolean(skill));
 
     return (
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Truyền valid skills qua form data (JSON) */}
             <input type="hidden" name="skills" value={JSON.stringify(validSkills)} />
+            <input type="hidden" name="parsedRequirements" value={JSON.stringify(parsedJobPosting ?? {})} />
 
-            {/* Skills / AI Parsing Section */}
             <div className="bg-[#F5F5F7] rounded-2xl p-5 border border-[#E5E5EA]">
                 <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="w-4 h-4 text-[#0071E3]" />
-                    <h3 className="text-[14px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>Yêu cầu kỹ năng (AI Trích xuất)</h3>
+                    <h3 className="text-[14px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>Yêu cầu kỹ năng (AI trích xuất)</h3>
                 </div>
 
                 {isParsing ? (
@@ -54,12 +62,13 @@ export function JobPostingStep2({
                     <div className="space-y-4">
                         <div className="flex flex-wrap gap-2">
                             {skills.map(skill => {
-                                const isValid = mockSkillsDb.some(db => db.name.toLowerCase() === skill.name.toLowerCase());
+                                const isValid = skillsDb.some(db => db.name.toLowerCase() === skill.toLowerCase());
+
                                 return (
-                                    <div key={skill.id} className="relative group">
+                                    <div key={skill} className="relative group">
                                         <div className={`flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-lg border text-[13px] ${isValid ? 'bg-[#EBF3FD] border-[#0071E3]/20 text-[#0071E3]' : 'bg-[#FEF2F2] border-red-500/20 text-red-600'}`}>
-                                            <span style={{ fontWeight: 500, textDecoration: isValid ? 'none' : 'line-through' }}>{skill.name}</span>
-                                            <button type="button" onClick={() => removeSkill(skill.id)} className="p-1 hover:bg-black/5 rounded-md transition-colors ml-1">
+                                            <span style={{ fontWeight: 500, textDecoration: isValid ? 'none' : 'line-through' }}>{skill}</span>
+                                            <button type="button" onClick={() => removeSkill(skill)} className="p-1 hover:bg-black/5 rounded-md transition-colors ml-1">
                                                 <X className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
@@ -80,13 +89,15 @@ export function JobPostingStep2({
                         <div className="flex items-center gap-2 pt-2 border-t border-[#E5E5EA]">
                             <select
                                 value={selectedSkillToAdd}
-                                onChange={e => setSelectedSkillToAdd(e.target.value)}
+                                onChange={event => setSelectedSkillToAdd(event.target.value)}
                                 className="px-5 py-2 rounded-xl border border-[#E5E5EA] text-[13px] outline-none focus:border-[#0071E3] bg-white min-w-[200px] appearance-none cursor-pointer"
                             >
                                 <option value="">-- Chọn kỹ năng để thêm --</option>
-                                {mockSkillsDb.filter(dbSkill => !skills.some(s => s.name.toLowerCase() === dbSkill.name.toLowerCase())).map(dbSkill => (
-                                    <option key={dbSkill.id} value={dbSkill.id}>{dbSkill.name}</option>
-                                ))}
+                                {skillsDb
+                                    .filter(dbSkill => !skills.some(skill => skill.toLowerCase() === dbSkill.name.toLowerCase()))
+                                    .map(dbSkill => (
+                                        <option key={dbSkill.skillId} value={dbSkill.skillId}>{dbSkill.name}</option>
+                                    ))}
                             </select>
                             <button
                                 type="button"
@@ -107,12 +118,12 @@ export function JobPostingStep2({
                     <select
                         name="categoryId"
                         value={formData.categoryId}
-                        onChange={e => updateField('categoryId', e.target.value)}
+                        onChange={event => updateField('categoryId', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     >
                         <option value="">-- Chọn danh mục --</option>
-                        {mockCategories.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                        {categories.map(category => (
+                            <option key={category.categoryId} value={category.categoryId}>{category.name}</option>
                         ))}
                     </select>
                 </div>
@@ -121,7 +132,7 @@ export function JobPostingStep2({
                     <select
                         name="status"
                         value={formData.status}
-                        onChange={e => updateField('status', e.target.value)}
+                        onChange={event => updateField('status', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     >
                         <option value="draft">Bản nháp</option>
@@ -139,7 +150,7 @@ export function JobPostingStep2({
                         name="salaryMin"
                         placeholder="2000"
                         value={formData.salaryMin}
-                        onChange={e => updateField('salaryMin', e.target.value)}
+                        onChange={event => updateField('salaryMin', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     />
                 </div>
@@ -150,7 +161,7 @@ export function JobPostingStep2({
                         name="salaryMax"
                         placeholder="4000"
                         value={formData.salaryMax}
-                        onChange={e => updateField('salaryMax', e.target.value)}
+                        onChange={event => updateField('salaryMax', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     />
                 </div>

@@ -43,10 +43,10 @@ export class OwnershipGuard implements CanActivate {
                 });
 
                 if (!jobPosting)
-                    throw new NotFoundException('Job posting not found');
+                    throw new NotFoundException('Không tìm thấy tin tuyển dụng');
 
                 if (jobPosting.recruiter.userId !== userId)
-                    throw new ForbiddenException('You are not the owner of this job posting');
+                    throw new ForbiddenException('Bạn không phải chủ sở hữu tin tuyển dụng này');
                 return true;
             }
 
@@ -57,7 +57,7 @@ export class OwnershipGuard implements CanActivate {
                 });
 
                 if (!cv)
-                    throw new NotFoundException('CV not found');
+                    throw new NotFoundException('Không tìm thấy CV');
 
                 const candidate = await this.prisma.candidate.findUnique({
                     where: { candidateId: cv.candidateId },
@@ -65,29 +65,49 @@ export class OwnershipGuard implements CanActivate {
                 });
 
                 if (!candidate || candidate.userId !== userId)
-                    throw new ForbiddenException('You are not the owner of this CV');
+                    throw new ForbiddenException('Bạn không phải chủ sở hữu CV này');
                 return true;
             }
 
             case 'application': {
-                if (user.role === 'recruiter')
-                    return true;
-
                 const application = await this.prisma.application.findUnique({
                     where: { applicationId: resourceId },
-                    select: { candidateId: true }
+                    select: {
+                        candidate: { select: { userId: true } },
+                        jobPosting: { select: { departmentId: true } },
+                    },
                 });
 
                 if (!application)
-                    throw new NotFoundException('Application not found');
+                    throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
 
-                const candidate = await this.prisma.candidate.findUnique({
-                    where: { candidateId: application.candidateId },
-                    select: { userId: true }
+                if (user.role === 'recruiter') {
+                    const recruiter = await this.prisma.recruiter.findUnique({
+                        where: { userId },
+                        select: { departmentId: true },
+                    });
+
+                    if (!recruiter || recruiter.departmentId !== application.jobPosting.departmentId)
+                        throw new ForbiddenException('Bạn không có quyền truy cập đơn ứng tuyển của khoa này');
+                    return true;
+                }
+
+                if (!application.candidate || application.candidate.userId !== userId)
+                    throw new ForbiddenException('Bạn không phải chủ sở hữu đơn ứng tuyển này');
+                return true;
+            }
+
+            case 'interview-schedule': {
+                const schedule = await this.prisma.interviewSchedule.findUnique({
+                    where: { interviewId: resourceId },
+                    select: { scheduledBy: true },
                 });
 
-                if (!candidate || candidate.userId !== userId)
-                    throw new ForbiddenException('You are not the owner of this application');
+                if (!schedule)
+                    throw new NotFoundException('Không tìm thấy lịch phỏng vấn');
+
+                if (schedule.scheduledBy !== userId)
+                    throw new ForbiddenException('Bạn không phải chủ sở hữu lịch phỏng vấn này');
                 return true;
             }
 

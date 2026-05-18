@@ -30,11 +30,6 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── GET MY CANDIDATE PROFILE ─────────────────────────────────────────────────
-
-/**
- * GET /candidates/me
- * Roles: candidate
- */
 export async function getMyCandidateProfileAction(): Promise<ICandidateDto | null> {
     try {
         const response = await http.get('/candidates/me');
@@ -45,11 +40,6 @@ export async function getMyCandidateProfileAction(): Promise<ICandidateDto | nul
 }
 
 // ─── UPDATE MY CANDIDATE PROFILE ─────────────────────────────────────────────
-
-/**
- * PATCH /candidates/me
- * Roles: candidate
- */
 export async function updateMyCandidateProfileAction(
     prevState: CandidateActionState,
     formData: FormData
@@ -121,11 +111,6 @@ export async function updateMyCandidateProfileAction(
 }
 
 // ─── GET ALL CANDIDATES ───────────────────────────────────────────────────────
-
-/**
- * GET /candidates
- * Roles: recruiter, admin
- */
 export async function getCandidatesAction(query?: IFindCandidatesQuery): Promise<IPaginatedCandidates> {
     try {
         const params: Record<string, string | number> = {};
@@ -142,11 +127,6 @@ export async function getCandidatesAction(query?: IFindCandidatesQuery): Promise
 }
 
 // ─── GET CANDIDATE BY ID ──────────────────────────────────────────────────────
-
-/**
- * GET /candidates/:id
- * Roles: recruiter, admin
- */
 export async function getCandidateByIdAction(id: string): Promise<ICandidateDto | null> {
     if (!id) return null;
     try {

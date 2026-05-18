@@ -38,7 +38,6 @@ export class AiUsageLogsService {
                 },
             });
         } catch (error) {
-            // Không throw — log failure không được làm crash main flow
             Logger.error(
                 `Failed to save AI usage log: ${error.message}`,
                 error.stack,
@@ -54,7 +53,7 @@ export class AiUsageLogsService {
         });
 
         if (!logs.length) {
-            throw new NotFoundException(`No AI usage logs found for reference ID: ${referenceId}`);
+            throw new NotFoundException(`Không tìm thấy log sử dụng AI cho reference ID: ${referenceId}`);
         }
 
         return logs;
@@ -65,21 +64,25 @@ export class AiUsageLogsService {
             actionType?: AiActionType;
             status?: AiLogStatus;
         },
-        page?: number,
+        page: number = 1,
+        limit: number = 10,
     ) {
-        const limit = 10; // hard-coded limit value
         const skip = (page - 1) * limit;
+        const whereClause = {
+            ...(filters?.actionType && { actionType: filters.actionType }),
+            ...(filters?.status && { status: filters.status }),
+        };
+
         const [items, total] = await Promise.all([
-            await this.prisma.aiUsageLog.findMany({
-                where: {
-                    ...(filters?.actionType && { actionType: filters.actionType }),
-                    ...(filters?.status && { status: filters.status }),
-                },
+            this.prisma.aiUsageLog.findMany({
+                where: whereClause,
                 skip: skip,
                 take: limit,
                 orderBy: { createdAt: 'desc' },
             }),
-            await this.prisma.aiUsageLog.count(),
+            this.prisma.aiUsageLog.count({
+                where: whereClause,
+            }),
         ]);
         return {
             items,

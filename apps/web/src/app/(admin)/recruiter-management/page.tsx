@@ -3,15 +3,12 @@ import { getDepartmentsAction } from '@/servers/departments/departments.action';
 import { getRecruitersAction } from '@/servers/recruiters/recruiters.action';
 import { getUsersAction } from '@/servers/users/users.action';
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export const metadata = {
     title: 'Quản lý nhà tuyển dụng | TalentAI',
     description: 'Quản lý danh sách và phân công nhà tuyển dụng trong hệ thống',
 };
 
 export default async function RecruiterManagementPage() {
-    // TODO: Replace with real data fetch when API is ready
     const recruiters = await getRecruitersAction();
     const departments = await getDepartmentsAction();
     const users = await getUsersAction();

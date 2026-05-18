@@ -18,7 +18,7 @@ export class CandidatesService {
 		});
 
 		if (!candidate) {
-			throw new NotFoundException('Candidate profile not found');
+			throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
 		}
 
 		return {
@@ -41,7 +41,7 @@ export class CandidatesService {
 		});
 
 		if (!candidate) {
-			throw new NotFoundException('Candidate profile not found');
+			throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
 		}
 
 		const currentProfileData = this.asObject(candidate.profileData);
@@ -101,7 +101,7 @@ export class CandidatesService {
 		});
 
 		if (!candidate) {
-			throw new NotFoundException('Candidate not found');
+			throw new NotFoundException('Không tìm thấy ứng viên');
 		}
 
 		return {

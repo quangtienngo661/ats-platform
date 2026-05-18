@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IRecruiter } from '@ats-platform/types';
-import { IsNotEmpty, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
 import { Recruiter } from '@ats-platform/database';
 
 export class CreateRecruiterDto implements IRecruiter {
@@ -31,6 +31,18 @@ export class CreateRecruiterDto implements IRecruiter {
 }
 
 export class UpdateRecruiterDto extends PartialType(CreateRecruiterDto) {}
+
+export class UpdateMyRecruiterDto {
+	@ApiProperty({
+		example: 'Senior Recruiter',
+		description: 'Recruiter position in organization',
+		required: false,
+	})
+	@IsString()
+	@IsOptional()
+	@MinLength(1)
+	position?: string;
+}
 
 export class RecruiterDto {
 	@ApiProperty({

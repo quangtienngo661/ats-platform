@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
+import { motion, AnimatePresence } from 'motion/react';
 import { MyCvsHeader } from './ui/MyCvsHeader';
 import { MyCvsStats } from './ui/MyCvsStats';
 import { CvCard } from './ui/CvCard';
@@ -14,23 +15,22 @@ import { toast } from '@/lib/toast';
 import { useCvStore } from '@/stores/useCvStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 
-interface MyCvsClientProps {
-    cvs: ICvDto[];
-}
-
 interface DataPayload {
     cvId: string;
     updatedCv: ICvDto
 }
 
-export default function MyCvsClient({ cvs }: MyCvsClientProps) {
+export default function MyCvsClient() {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [viewingCv, setViewingCv] = useState<ICvDto | null>(null);
     const socket = useSocketStore();
     const updatedCv = useCvStore(state => state.updateCv);
-    let storeCvs = useCvStore(state => state.cvs);
+    const removeCv = useCvStore(state => state.removeCv);
+    const storeCvs = useCvStore(state => state.cvs);
 
     useEffect(() => {
+        if (socket.status !== 'connected') return;
+
         const handleStatusUpdate = (data: DataPayload) => {
             updatedCv(data.cvId, data.updatedCv)
         }
@@ -45,6 +45,7 @@ export default function MyCvsClient({ cvs }: MyCvsClientProps) {
     const handleDelete = async (cvId: string) => {
         const result = await deleteCvAction(cvId);
         if (result.success) {
+            removeCv(cvId);
             toast.success(result.message);
         } else {
             toast.error(result.message);
@@ -56,17 +57,27 @@ export default function MyCvsClient({ cvs }: MyCvsClientProps) {
             <MyCvsHeader onUpload={() => setShowUploadModal(true)} />
             <MyCvsStats cvs={storeCvs} />
 
-            <div className="flex flex-col gap-3">
-                {storeCvs.map((cv) => (
-                    <CvCard
-                        key={cv.cvId}
-                        cv={cv}
-                        onView={() => setViewingCv(cv)}
-                        onDelete={() => handleDelete(cv.cvId)}
-                    />
-                ))}
+            <motion.div layout className="flex flex-col gap-3">
+                <AnimatePresence mode="popLayout">
+                    {storeCvs.map((cv) => (
+                        <motion.div
+                            key={cv.cvId}
+                            layout
+                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <CvCard
+                                cv={cv}
+                                onView={() => setViewingCv(cv)}
+                                onDelete={() => handleDelete(cv.cvId)}
+                            />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
-                {cvs.length === 0 && (
+                {storeCvs.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
                         <p className="text-[15px] text-[#6E6E73]" style={{ fontWeight: 500 }}>
                             Bạn chưa tải lên CV nào
@@ -76,7 +87,7 @@ export default function MyCvsClient({ cvs }: MyCvsClientProps) {
                         </p>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             {showUploadModal && <UploadCvModal onClose={() => setShowUploadModal(false)} />}
             {viewingCv && <CvDetailModal cv={viewingCv} onClose={() => setViewingCv(null)} />}

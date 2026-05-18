@@ -25,13 +25,13 @@ export class CVsService {
     const relativePath = file.path
       .replace(process.cwd(), '')
       .replace(/^[\\/]/, '')
-      .replace(/\\/g, '/'); // normalize Windows path separator
+      .replace(/\\/g, '/');
 
     const cvRecord = await this.prisma.cV.create({
       data: {
         candidateId,
         fileName,
-        filePath: relativePath,   // ← relative path
+        filePath: relativePath,
         parsingStatus: ParsingStatus.pending,
         rawText: rawTextFromCV,
         uploadedAt: new Date(),
@@ -77,7 +77,7 @@ export class CVsService {
     });
 
     if (!cv) {
-      throw new NotFoundException('CV not found');
+      throw new NotFoundException('Không tìm thấy CV');
     }
 
     return cv;
@@ -87,7 +87,7 @@ export class CVsService {
     const cv = await this.getCVById(cvId);
 
     if (!cv.parsedData) {
-      throw new NotFoundException('Parsed data not found');
+      throw new NotFoundException('Không tìm thấy dữ liệu đã phân tích');
     }
 
     return cv.parsedData;
@@ -97,15 +97,15 @@ export class CVsService {
     const cv = await this.getCVById(cvId);
 
     if (cv.parsingStatus !== ParsingStatus.completed) {
-      throw new BadRequestException('CV has not been parsed successfully yet');
+      throw new BadRequestException('CV chưa được phân tích thành công');
     }
 
     if (!cv.parsedData) {
-      throw new BadRequestException('Parsed data not found for this CV');
+      throw new BadRequestException('Không tìm thấy dữ liệu đã phân tích cho CV này');
     }
 
     if (cv.parsedData.isConfirmed && !syncToProfile) {
-      throw new BadRequestException('This CV has already been confirmed');
+      throw new BadRequestException('CV này đã được xác nhận');
     }
 
     const profileData: Record<string, unknown> = {
@@ -128,16 +128,16 @@ export class CVsService {
         data: { isConfirmed: true },
       });
 
-      message = 'CV confirmed and candidate profile updated successfully';
+      message = 'Xác nhận CV và cập nhật hồ sơ ứng viên thành công';
     } else if (syncToProfile) {
       await this.candidatesService.updateProfileData(candidateId, profileData);
-      message = 'Candidate profile updated successfully';
+      message = 'Cập nhật hồ sơ ứng viên thành công';
     } else if (markAsConfirmed) {
       await this.prisma.cVParsedData.update({
         where: { cvId: cv.cvId },
         data: { isConfirmed: true },
       });
-      message = 'CV confirmed successfully';
+      message = 'Xác nhận CV thành công';
     }
 
     return {
@@ -160,15 +160,15 @@ export class CVsService {
     });
 
     if (!cv) {
-      throw new NotFoundException('CV not found');
+      throw new NotFoundException('Không tìm thấy CV');
     }
 
     if (cv.candidateId !== candidateId) {
-      throw new ForbiddenException('You do not have permission to delete this CV');
+      throw new ForbiddenException('Bạn không có quyền xóa CV này');
     }
 
     if (cv._count.applications > 0) {
-      throw new BadRequestException('Cannot delete CV that is used by an application');
+      throw new BadRequestException('Không thể xóa CV đang được dùng trong một đơn ứng tuyển');
     }
 
     await this.prisma.cV.delete({ where: { cvId } });
@@ -187,7 +187,7 @@ export class CVsService {
     }
 
     return {
-      message: 'CV deleted successfully',
+      message: 'Xóa CV thành công',
     };
   }
 
@@ -198,7 +198,7 @@ export class CVsService {
     });
 
     if (!cv) {
-      throw new NotFoundException('CV not found');
+      throw new NotFoundException('Không tìm thấy CV');
     }
 
     const absolutePath = path.isAbsolute(cv.filePath)

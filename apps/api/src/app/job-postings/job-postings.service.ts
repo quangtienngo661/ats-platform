@@ -8,30 +8,35 @@ import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateJobPostingDto, UpdateJobPostingDto, FindJobPostingsQueryDto } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class JobPostingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jobPostingSkillsService: JobPostingSkillsService,
-    @InjectQueue('jd-parsing') private readonly jdParsingQueue: Queue
+    private readonly geminiService: GeminiService
   ) { }
 
-  async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
-    const department = await this.prisma.department.findUnique({
-      where: { departmentId: createJobPostingDto.departmentId },
-      select: { departmentId: true },
-    });
+  async parseJdPreview(description: string) {
+    const normalizedDescription = description?.trim();
 
-    if (!department) {
-      throw new NotFoundException(
-        `Department with ID ${createJobPostingDto.departmentId} not found`,
+    if (!normalizedDescription) {
+      throw new BadRequestException(
+        'Vui lòng nhập mô tả công việc để AI phân tích',
       );
     }
 
-    // Validate that category exists if provided
+    const result = await this.geminiService.parseJD(
+      `jd-preview-${randomUUID()}`,
+      normalizedDescription,
+    );
+
+    return result;
+  }
+
+  async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
     if (createJobPostingDto.categoryId) {
       const category = await this.prisma.jobCategory.findUnique({
         where: { categoryId: createJobPostingDto.categoryId },
@@ -40,35 +45,54 @@ export class JobPostingsService {
 
       if (!category) {
         throw new NotFoundException(
-          `Job category with ID ${createJobPostingDto.categoryId} not found`,
+          `Không tìm thấy danh mục công việc với ID ${createJobPostingDto.categoryId}`,
         );
       }
     }
 
-    // Validate that recruiter exists
     const recruiter = await this.prisma.recruiter.findUnique({
       where: { userId: userId },
-      select: { recruiterId: true },
+      select: { recruiterId: true, departmentId: true },
     });
 
     if (!recruiter) {
       throw new NotFoundException(
-        `Recruiter not found`,
+        `Không tìm thấy nhà tuyển dụng`,
       );
     }
 
-    // Validate salary range
+    if (!recruiter.departmentId) {
+      throw new BadRequestException(
+        'Tài khoản nhà tuyển dụng chưa được gán phòng ban',
+      );
+    }
+
+    const department = await this.prisma.department.findUnique({
+      where: { departmentId: recruiter.departmentId },
+      select: { departmentId: true },
+    });
+
+    if (!department) {
+      throw new NotFoundException(
+        `Không tìm thấy phòng ban với ID ${recruiter.departmentId}`,
+      );
+    }
+
     if (
       createJobPostingDto.salaryMin !== undefined &&
       createJobPostingDto.salaryMax !== undefined &&
       createJobPostingDto.salaryMin > createJobPostingDto.salaryMax
     ) {
       throw new BadRequestException(
-        'salaryMin cannot be greater than salaryMax',
+        'Mức lương tối thiểu không thể lớn hơn mức lương tối đa',
       );
     }
 
-    // TODO: handle the notification when the job parsing is completed, but is it necessary or not?
+    const parsedRequirements = this.parseParsedRequirements(
+      createJobPostingDto.parsedRequirements,
+    );
+
+
     return await this.prisma.$transaction(async (tx) => {
       const newJobPosting = await tx.jobPosting.create({
         data: {
@@ -77,13 +101,13 @@ export class JobPostingsService {
           salaryMin: createJobPostingDto.salaryMin,
           salaryMax: createJobPostingDto.salaryMax,
           description: createJobPostingDto.description,
-          parsedRequirements: null,
+          parsedRequirements,
           status: createJobPostingDto.status,
           publishedAt: createJobPostingDto.status === JobStatus.active
             ? new Date()
             : undefined,
           department: {
-            connect: { departmentId: createJobPostingDto.departmentId },
+            connect: { departmentId: recruiter.departmentId },
           },
           category: createJobPostingDto.categoryId
             ? {
@@ -99,11 +123,6 @@ export class JobPostingsService {
       if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
         await this.jobPostingSkillsService.create(newJobPosting.jobId, createJobPostingDto.skills, tx);
       }
-
-      this.jdParsingQueue.add('parse-jd', {
-        jobId: newJobPosting.jobId,
-        description: createJobPostingDto.description,
-      });
 
       return await tx.jobPosting.findUnique({
         where: { jobId: newJobPosting.jobId },
@@ -154,7 +173,7 @@ export class JobPostingsService {
     });
 
     if (!jobPosting) {
-      throw new NotFoundException(`Job posting with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
     return jobPosting;
@@ -171,18 +190,15 @@ export class JobPostingsService {
     });
 
     if (!existingJobPosting) {
-      throw new NotFoundException(`Job posting with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
     await this.ensureRelationsExist(updateJobPostingDto);
     this.validateSalaryRange(existingJobPosting, updateJobPostingDto);
 
-    if (updateJobPostingDto.description) {
-      this.jdParsingQueue.add('parse-jd', {
-        jobId: id,
-        description: updateJobPostingDto.description,
-      });
-    }
+    const parsedRequirements = updateJobPostingDto.parsedRequirements !== undefined
+      ? this.parseParsedRequirements(updateJobPostingDto.parsedRequirements)
+      : undefined;
 
     return await this.prisma.$transaction(async (tx) => {
       const updatedJobPosting = await tx.jobPosting.update({
@@ -193,14 +209,10 @@ export class JobPostingsService {
           salaryMin: updateJobPostingDto.salaryMin,
           salaryMax: updateJobPostingDto.salaryMax,
           description: updateJobPostingDto.description,
+          parsedRequirements,
           status: updateJobPostingDto.status,
           publishedAt: updateJobPostingDto.status === JobStatus.active
             ? new Date()
-            : undefined,
-          department: updateJobPostingDto.departmentId
-            ? {
-              connect: { departmentId: updateJobPostingDto.departmentId },
-            }
             : undefined,
           category: updateJobPostingDto.categoryId
             ? {
@@ -215,9 +227,11 @@ export class JobPostingsService {
         }
       });
 
-      if (updateJobPostingDto.skills && updateJobPostingDto.skills.length > 0) {
+      if (updateJobPostingDto.skills !== undefined) {
         await this.jobPostingSkillsService.deleteByJobId(id, tx);
-        await this.jobPostingSkillsService.create(id, updateJobPostingDto.skills, tx);
+        if (updateJobPostingDto.skills.length > 0) {
+          await this.jobPostingSkillsService.create(id, updateJobPostingDto.skills, tx);
+        }
       }
       return await tx.jobPosting.findUnique({
         where: { jobId: updatedJobPosting.jobId },
@@ -236,7 +250,7 @@ export class JobPostingsService {
     });
 
     if (!existingJobPosting) {
-      throw new NotFoundException(`Job posting with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
     return await this.prisma.jobPosting.delete({
@@ -249,19 +263,6 @@ export class JobPostingsService {
   }
 
   private async ensureRelationsExist(updateJobPostingDto: UpdateJobPostingDto) {
-    if (updateJobPostingDto.departmentId) {
-      const department = await this.prisma.department.findUnique({
-        where: { departmentId: updateJobPostingDto.departmentId },
-        select: { departmentId: true },
-      });
-
-      if (!department) {
-        throw new NotFoundException(
-          `Department with ID ${updateJobPostingDto.departmentId} not found`,
-        );
-      }
-    }
-
     if (updateJobPostingDto.categoryId) {
       const category = await this.prisma.jobCategory.findUnique({
         where: { categoryId: updateJobPostingDto.categoryId },
@@ -270,7 +271,7 @@ export class JobPostingsService {
 
       if (!category) {
         throw new NotFoundException(
-          `Job category with ID ${updateJobPostingDto.categoryId} not found`,
+          `Không tìm thấy danh mục công việc với ID ${updateJobPostingDto.categoryId}`,
         );
       }
     }
@@ -283,7 +284,7 @@ export class JobPostingsService {
 
       if (!recruiter) {
         throw new NotFoundException(
-          `Recruiter with ID ${updateJobPostingDto.createdBy} not found`,
+          `Không tìm thấy nhà tuyển dụng với ID ${updateJobPostingDto.createdBy}`,
         );
       }
     }
@@ -314,8 +315,37 @@ export class JobPostingsService {
       salaryMin > salaryMax
     ) {
       throw new BadRequestException(
-        'salaryMin cannot be greater than salaryMax',
+        'Mức lương tối thiểu không thể lớn hơn mức lương tối đa',
       );
     }
+  }
+
+  private parseParsedRequirements(value: unknown): Prisma.InputJsonValue {
+    if (value === undefined || value === null || value === '') {
+      return {};
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return this.ensureJsonObject(parsed);
+      } catch {
+        throw new BadRequestException(
+          'Dữ liệu phân tích JD không đúng định dạng JSON',
+        );
+      }
+    }
+
+    return this.ensureJsonObject(value);
+  }
+
+  private ensureJsonObject(value: unknown): Prisma.InputJsonValue {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      throw new BadRequestException(
+        'Dữ liệu phân tích JD phải là một JSON object',
+      );
+    }
+
+    return value as Prisma.InputJsonValue;
   }
 }

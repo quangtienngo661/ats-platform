@@ -96,7 +96,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     if (!loginDto.email || !loginDto.password) {
-      throw new BadRequestException('Email and password are required');
+      throw new BadRequestException('Vui lòng nhập email và mật khẩu');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -104,13 +104,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid email or password');
+      throw new BadRequestException('Email hoặc mật khẩu không đúng');
     }
 
     const isPasswordValid = bcrypt.compareSync(loginDto.password, user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new BadRequestException('Invalid email or password');
+      throw new BadRequestException('Email hoặc mật khẩu không đúng');
     }
 
     if (!user.emailVerified) {
@@ -139,11 +139,11 @@ export class AuthService {
     });
 
     if (user && user.emailVerified === true) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException('Email đã tồn tại');
     } else if (user && user.emailVerified === false) {
       try {
         await this.issueEmailVerification(user.userId, user.email, 'send-register-verification-email');
-        return { message: 'Verification email has been sent' };
+        return { message: 'Email xác minh đã được gửi' };
       } catch (err: any) {
         this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
       }
@@ -183,7 +183,7 @@ export class AuthService {
 
   async requestEmailVerification(email: string, type: string) {
     if (!email) {
-      throw new BadRequestException('Email is required');
+      throw new BadRequestException('Vui lòng nhập email');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -191,11 +191,11 @@ export class AuthService {
     });
 
     if (!user) {
-      return { message: 'If an account exists, a verification email has been sent' };
+      return { message: 'Nếu tài khoản tồn tại, email xác minh đã được gửi' };
     }
 
     if ((user as any).emailVerified === true) {
-      return { message: 'Email already verified' };
+      return { message: 'Email đã được xác minh' };
     }
 
     let jobName: string = 'send-register-verification-email';
@@ -209,12 +209,12 @@ export class AuthService {
       this.logger.warn(`Could not send verification email: ${err?.message ?? err}`);
     }
 
-    return { message: 'If an account exists, a verification email has been sent' };
+    return { message: 'Nếu tài khoản tồn tại, email xác minh đã được gửi' };
   }
 
   async verifyEmail(token: string, type: string) {
     if (!token) {
-      throw new BadRequestException('Token is required');
+      throw new BadRequestException('Thiếu mã xác minh');
     }
 
     const tokenHash = this.hashEmailVerificationToken(token);
@@ -222,21 +222,21 @@ export class AuthService {
 
     const userId = await this.redisClient.get(tokenKey);
     if (!userId) {
-      throw new BadRequestException('Invalid or expired token');
+      throw new BadRequestException('Mã xác minh không hợp lệ hoặc đã hết hạn');
     }
 
     const user = await this.prisma.user.findUnique({ where: { userId } });
     if (!user) {
       // Defensive: token exists but user not found
       await this.redisClient.del(tokenKey);
-      throw new BadRequestException('Invalid or expired token');
+      throw new BadRequestException('Mã xác minh không hợp lệ hoặc đã hết hạn');
     }
 
     if ((user as any).emailVerified === true) {
       // Still delete token so it can't be replayed.
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
-      return { message: 'Email already verified', redirectUrl: `${CLIENT_URL}/sign-in` };
+      return { message: 'Email đã được xác minh', redirectUrl: `${CLIENT_URL}/sign-in` };
     }
     if (type === "verify") {
       await this.prisma.user.update({
@@ -247,13 +247,13 @@ export class AuthService {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
 
-      return { message: 'Email verified successfully', redirectUrl: `${CLIENT_URL}/verification-success` };
+      return { message: 'Xác minh email thành công', redirectUrl: `${CLIENT_URL}/verification-success` };
     }
     else if (type === "reset") {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
 
-      return { message: 'Request for resetting password successfully', redirectUrl: `${CLIENT_URL}/reset-password?token=${token}` };
+      return { message: 'Yêu cầu đặt lại mật khẩu thành công', redirectUrl: `${CLIENT_URL}/reset-password?token=${token}` };
     }
   }
 
@@ -261,34 +261,34 @@ export class AuthService {
     const refreshCookieValue = req.cookies?.['refreshToken'];
 
     if (!refreshCookieValue || typeof refreshCookieValue !== 'string') {
-      throw new UnauthorizedException('Refresh token is required');
+      throw new UnauthorizedException('Thiếu refresh token');
     }
     const dotIndex = refreshCookieValue.indexOf('.');
     if (dotIndex <= 0) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const refreshTokenId = refreshCookieValue.slice(0, dotIndex);
     const currentRefreshToken = refreshCookieValue.slice(dotIndex + 1);
 
     if (!currentRefreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const tokenPayload = await this.jwtService.verifyAsync(currentRefreshToken);
     if (!tokenPayload || typeof tokenPayload === 'string') {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const payloadUserId = (tokenPayload as any).userId as string | undefined;
     const payloadRoleRaw = (tokenPayload as any).role as string | undefined;
     if (!payloadUserId || !payloadRoleRaw) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const payloadRole = UserRole[payloadRoleRaw];
     if (!payloadRole) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const existingToken = await this.prisma.refreshToken.findUnique({
@@ -304,7 +304,7 @@ export class AuthService {
       bcrypt.compareSync(currentRefreshToken, existingToken.tokenHash);
 
     if (!isTokenValid) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
 
     const accessToken = await this.jwtService.signAsync({ userId: payloadUserId, role: payloadRole, fullName: tokenPayload.fullName });
@@ -377,12 +377,12 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('Không tìm thấy người dùng');
     }
 
     await this.issueEmailVerification(user.userId, user.email, 'send-forgot-password-email');
 
-    return { message: 'If an account exists, a password reset email has been sent' };
+    return { message: 'Nếu tài khoản tồn tại, email đặt lại mật khẩu đã được gửi' };
   }
 
   async resetPassword(token: string, password: string, req: Request, res: Response) {
@@ -391,12 +391,12 @@ export class AuthService {
 
     const userId = await this.redisClient.get(tokenKey);
     if (!userId) {
-      throw new BadRequestException('Invalid or expired token');
+      throw new BadRequestException('Mã xác minh không hợp lệ hoặc đã hết hạn');
     }
 
     const user = await this.prisma.user.findUnique({ where: { userId } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -424,6 +424,6 @@ export class AuthService {
       sameSite: 'strict',
     });
 
-    return { message: 'Password reset successfully. All active sessions have been terminated.' };
+    return { message: 'Đặt lại mật khẩu thành công. Tất cả phiên đăng nhập hiện tại đã được kết thúc.' };
   }
 }

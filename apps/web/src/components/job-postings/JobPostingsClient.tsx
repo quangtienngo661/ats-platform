@@ -1,20 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SFT } from '@/types/fonts/fonts';
+import { motion, AnimatePresence } from 'motion/react';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { JobPostingsHeader } from './ui/JobPostingsHeader';
 import { toast } from '@/lib/toast';
 import { JobPostingCard } from './ui/JobPostingCard';
 import { MutateJobPostingModal } from './ui/MutateJobPostingModal';
 import { JobPostingsStats } from './ui/JobPostingsStats';
-// import { deleteJobPostingAction } from '@/servers/job-postings/job-postings.action';
+import { ISkillDto } from '@/types/interfaces/skill.interface';
+import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
+import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
+import { deleteJobPostingAction } from '@/servers/job-postings/job-postings.action';
 
 interface JobPostingsClientProps {
     jobs: IJobPostingDto[];
+    skillsDb: ISkillDto[];
+    categories: IJobCategoryDto[];
+    currentRecruiter: IRecruiterDto | null;
 }
 
-export default function JobPostingsClient({ jobs }: JobPostingsClientProps) {
+export default function JobPostingsClient({ jobs, skillsDb, categories, currentRecruiter }: JobPostingsClientProps) {
+    const router = useRouter();
     const [filter, setFilter] = useState<'all' | 'active' | 'draft' | 'closed'>('all');
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingJob, setEditingJob] = useState<IJobPostingDto | null>(null);
@@ -32,8 +41,14 @@ export default function JobPostingsClient({ jobs }: JobPostingsClientProps) {
     };
 
     const handleDelete = async (job: IJobPostingDto) => {
-        // TODO: const result = await deleteJobPostingAction(job.jobId);
-        toast.success(`Đã xóa tin "${job.title}"`);
+        const result = await deleteJobPostingAction(job.jobId);
+
+        if (result.success) {
+            toast.success(`Đã xóa tin "${job.title}"`);
+            router.refresh();
+        } else {
+            toast.error(`Xóa tin "${job.title}" thất bại: ${result.message}`);
+        }
     };
 
     return (
@@ -53,21 +68,34 @@ export default function JobPostingsClient({ jobs }: JobPostingsClientProps) {
             </div>
 
             {/* Job cards */}
-            <div className="flex flex-col gap-3">
-                {filtered.map((job) => (
-                    <JobPostingCard
-                        key={job.jobId}
-                        job={job}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
-                ))}
-            </div>
+            <motion.div layout className="flex flex-col gap-3">
+                <AnimatePresence mode="popLayout">
+                    {filtered.map((job) => (
+                        <motion.div
+                            key={job.jobId}
+                            layout
+                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <JobPostingCard
+                                job={job}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                            />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </motion.div>
 
             {showMutateModal && (
                 <MutateJobPostingModal
                     onClose={() => { setShowMutateModal(false); setEditingJob(null); }}
                     editingJob={editingJob}
+                    skillsDb={skillsDb}
+                    categories={categories}
+                    currentRecruiter={currentRecruiter}
                 />
             )}
         </div>

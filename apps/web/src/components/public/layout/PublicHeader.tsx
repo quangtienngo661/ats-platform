@@ -3,16 +3,24 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText } from 'lucide-react';
+import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText, Cpu } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { useSocketStore } from '@/stores/useSocketStore';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { INotification } from '@/types/interfaces/notification.interface';
 
 interface PublicHeaderProps {
     userInfo: { fullName?: string; role?: string } | null;
+    initialNotifications?: INotification[];
+    initialUnreadCount?: number;
 }
 
-export function PublicHeader({ userInfo }: PublicHeaderProps) {
+export function PublicHeader({
+    userInfo,
+    initialNotifications = [],
+    initialUnreadCount = 0,
+}: PublicHeaderProps) {
     const pathname = usePathname();
     const router = useRouter();
     const socket = useSocketStore();
@@ -22,7 +30,10 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
     const navLinks = [
         { href: '/', label: 'Trang chủ' },
         { href: '/job-postings', label: 'Tìm việc làm' },
-        ...(userInfo ? [{ href: '/my-applications', label: 'Đơn ứng tuyển' }] : []),
+        ...(userInfo ? [
+            { href: '/my-applications', label: 'Đơn ứng tuyển' },
+            { href: '/mock-interview', label: 'Phỏng vấn AI' },
+        ] : []),
     ];
 
     const handleLogout = async () => {
@@ -90,7 +101,13 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
 
                 {/* Right side */}
                 {userInfo ? (
-                    <div className="relative hidden md:block">
+                    <div className="hidden md:flex items-center gap-2">
+                        <NotificationDropdown
+                            initialNotifications={initialNotifications}
+                            initialUnreadCount={initialUnreadCount}
+                        />
+
+                        <div className="relative">
                         <button
                             onClick={() => setAvatarOpen(!avatarOpen)}
                             className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[#F5F5F7] transition-colors"
@@ -131,6 +148,14 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
                                     <FileText className="w-4 h-4 text-[#AEAEB2]" />
                                     CV của tôi
                                 </Link>
+                                <Link
+                                    href="/mock-interview"
+                                    onClick={() => setAvatarOpen(false)}
+                                    className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#0071E3] hover:bg-[#EBF3FD] transition-colors"
+                                >
+                                    <Cpu className="w-4 h-4 text-[#0071E3]" />
+                                    Phỏng vấn AI
+                                </Link>
                                 <div className="border-t border-[#F2F2F7]">
                                     <button
                                         onClick={handleLogout}
@@ -142,6 +167,7 @@ export function PublicHeader({ userInfo }: PublicHeaderProps) {
                                 </div>
                             </div>
                         )}
+                        </div>
                     </div>
                 ) : (
                     <div className="hidden md:flex items-center gap-2">

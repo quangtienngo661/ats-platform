@@ -1,3 +1,4 @@
+import { ScreeningStatus } from "@ats-platform/database";
 import { IApplicationDto } from "./application.interface";
 import { IJobPostingDto } from "./job-posting.interface";
 
@@ -16,7 +17,7 @@ export interface Candidate {
   score: number;
   location: string;
   tags: string[];
-  screeningStatus?: 'pending' | 'screened';
+  screeningStatus?: ScreeningStatus;
 }
 
 export interface StageConfig {
@@ -27,8 +28,6 @@ export interface StageConfig {
   border: string;
   text: string;
 }
-
-/** Kanban board — map từ status sang danh sách ApplicationDto */
 export interface IKanbanDto {
   job: IJobPostingDto,
   board: Record<string, IApplicationDto[]>,

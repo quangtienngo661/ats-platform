@@ -8,7 +8,7 @@ export default async function MyCvsPage() {
     return (
         <>
             <CvsHydrator initialCvs={cvs} />
-            <MyCvsClient cvs={cvs} />
+            <MyCvsClient />
         </>
     );
 }

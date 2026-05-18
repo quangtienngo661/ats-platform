@@ -18,4 +18,4 @@ export function GlobalSocketInit({ userId, token }: { userId: string, token: str
     }, [token]);
 
     return null; // Component này vô hình trên màn hình
-}
+}   

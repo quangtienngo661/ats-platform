@@ -25,11 +25,6 @@ function extractMessage(error: unknown): string {
 }
 
 // ─── GET ME (current logged-in user) ─────────────────────────────────────────
-
-/**
- * GET /users/me
- * Roles: any authenticated user
- */
 export async function getMeAction(): Promise<IUserResponseDto | null> {
     try {
         const response = await http.get('/users/me');
@@ -40,11 +35,6 @@ export async function getMeAction(): Promise<IUserResponseDto | null> {
 }
 
 // ─── UPDATE ME ────────────────────────────────────────────────────────────────
-
-/**
- * PATCH /users/me
- * Roles: any authenticated user
- */
 export async function updateMeAction(
     prevState: UserActionState,
     formData: FormData
@@ -66,11 +56,6 @@ export async function updateMeAction(
 }
 
 // ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
-
-/**
- * POST /users/me/change-password
- * Roles: any authenticated user
- */
 export async function changePasswordAction(
     prevState: UserActionState,
     formData: FormData
@@ -108,7 +93,7 @@ export async function createUserAction(
     const fullName = (formData.get('fullName') as string)?.trim();
     const email = (formData.get('email') as string)?.trim();
     const password = formData.get('password') as string;
-    const phone = (formData.get('phone') as string)?.trim() || undefined;
+    const phoneNumber = (formData.get('phone') as string)?.trim() || undefined;
     const role = formData.get('role') as IUserDto['role'];
     const status = formData.get('status') as IUserDto['status'];
 
@@ -117,7 +102,7 @@ export async function createUserAction(
     }
 
     const payload: IUserDto = { fullName, email, password, role, status };
-    if (phone) payload.phone = phone;
+    if (phoneNumber) (payload as any).phoneNumber = phoneNumber;
 
     try {
         // API returns the created user object directly
@@ -147,7 +132,7 @@ export async function updateUserAction(
 
     const payload: IUserDto = { fullName, email, role, status };
     if (password) payload.password = password;
-    if (phone) payload.phone = phone;
+    if (phone) (payload as any).phone = phone;
 
     try {
         // API returns the updated user object directly

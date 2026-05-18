@@ -13,7 +13,7 @@ function formatSalary(min?: number | null, max?: number | null): string {
 function formatLocation(locationType?: string): string {
     if (locationType === 'remote') return 'Remote';
     if (locationType === 'hybrid') return 'Hybrid';
-    if (locationType === 'on-site') return 'On-site';
+    if (locationType === 'onsite') return 'On-site';
     return locationType ?? '';
 }
 
@@ -35,7 +35,7 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
     return (
         <div className="space-y-4">
             {/* Job Info */}
-            <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 sticky top-[130px]">
+            <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 top-[130px]">
                 <h3 className="text-[15px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>
                     Thông tin chung
                 </h3>

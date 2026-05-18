@@ -17,10 +17,9 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException('Email đã tồn tại');
     }
 
-    // Dùng Transaction để đảm bảo cả 2 hoặc không có gì được tạo
     const newUser = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
@@ -29,19 +28,10 @@ export class UsersService {
           fullName: data.fullName,
           status: data.status ?? UserStatus.active,
           role: data.role,
+          emailVerified: true
         },
         omit: { passwordHash: true },
       });
-      // Tự động tạo profile tương ứng theo role
-      // if (data.role === UserRole.recruiter) {
-      //   await tx.recruiter.create({
-      //     data: { user: { connect: { userId: user.userId } } },
-      //   });
-      // } else if (data.role === UserRole.candidate) {
-      //   await tx.candidate.create({
-      //     data: { user: { connect: { userId: user.userId } } },
-      //   });
-      // }
       return user;
     });
 
@@ -66,7 +56,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     return user;
@@ -85,12 +75,12 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     const isCurrentPasswordValid = bcrypt.compareSync(dto.currentPassword, user.passwordHash);
     if (!isCurrentPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException('Mật khẩu hiện tại không đúng');
     }
 
     const newPasswordHash = bcrypt.hashSync(dto.newPassword, 10);
@@ -110,7 +100,7 @@ export class UsersService {
       updateUserDto.role !== undefined;
 
     if (!hasDataToUpdate) {
-      throw new BadRequestException('No data provided for update');
+      throw new BadRequestException('Không có dữ liệu để cập nhật');
     }
 
     const currentUser = await this.prisma.user.findUnique({
@@ -122,7 +112,7 @@ export class UsersService {
     });
 
     if (!currentUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     if (updateUserDto.email && updateUserDto.email !== currentUser.email) {
@@ -132,7 +122,7 @@ export class UsersService {
       });
 
       if (existingUser && existingUser.userId !== userId) {
-        throw new BadRequestException('Email already exists');
+        throw new BadRequestException('Email đã tồn tại');
       }
     }
 
@@ -154,10 +144,10 @@ export class UsersService {
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('Không tìm thấy người dùng');
       }
       if (error?.code === 'P2002') {
-        throw new BadRequestException('Email already exists');
+        throw new BadRequestException('Email đã tồn tại');
       }
       throw error;
     }
@@ -171,7 +161,7 @@ export class UsersService {
       });
     } catch (error: any) {
       if (error?.code === 'P2025') {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('Không tìm thấy người dùng');
       }
       throw error;
     }

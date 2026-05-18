@@ -60,7 +60,7 @@ export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
     educationWeight!: number;
 
     @ApiProperty({
-        example: 0.65,
+        example: 65,
         description: 'Minimum overall score threshold for pass recommendation',
         minimum: 0,
         maximum: 100,

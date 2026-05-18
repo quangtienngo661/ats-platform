@@ -25,11 +25,6 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── GET ALL SKILLS ───────────────────────────────────────────────────────────
-
-/**
- * GET /skills
- * Roles: admin
- */
 export async function getSkillsAction(): Promise<ISkillDto[]> {
     try {
         const response = await http.get('/skills');
@@ -40,11 +35,6 @@ export async function getSkillsAction(): Promise<ISkillDto[]> {
 }
 
 // ─── SEARCH SKILLS ────────────────────────────────────────────────────────────
-
-/**
- * GET /skills/search?name=&category=
- * Roles: admin
- */
 export async function searchSkillsAction(name?: string, category?: string): Promise<ISkillDto[]> {
     try {
         const params: Record<string, string> = {};
@@ -59,11 +49,6 @@ export async function searchSkillsAction(name?: string, category?: string): Prom
 }
 
 // ─── GET SKILL BY ID ──────────────────────────────────────────────────────────
-
-/**
- * GET /skills/:id
- * Roles: admin
- */
 export async function getSkillByIdAction(id: string): Promise<ISkillDto | null> {
     if (!id) return null;
     try {
@@ -75,11 +60,6 @@ export async function getSkillByIdAction(id: string): Promise<ISkillDto | null> 
 }
 
 // ─── CREATE SKILL ─────────────────────────────────────────────────────────────
-
-/**
- * POST /skills
- * Roles: admin
- */
 export async function createSkillAction(
     prevState: SkillActionState,
     formData: FormData
@@ -101,11 +81,6 @@ export async function createSkillAction(
 }
 
 // ─── UPDATE SKILL ─────────────────────────────────────────────────────────────
-
-/**
- * PATCH /skills/:id
- * Roles: admin
- */
 export async function updateSkillAction(
     prevState: SkillActionState,
     formData: FormData
@@ -130,11 +105,6 @@ export async function updateSkillAction(
 }
 
 // ─── DELETE SKILL ─────────────────────────────────────────────────────────────
-
-/**
- * DELETE /skills/:id
- * Roles: admin
- */
 export async function deleteSkillAction(skillId: string): Promise<SkillActionState> {
     if (!skillId) return { success: false, message: 'Thiếu ID kỹ năng' };
 

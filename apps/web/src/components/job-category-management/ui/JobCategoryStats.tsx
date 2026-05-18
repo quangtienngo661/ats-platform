@@ -12,7 +12,7 @@ export function JobCategoryStats({ categories }: JobCategoryStatsProps) {
         0
     );
     const totalJobPostings = categories.reduce(
-        (sum, c) => sum + (c.jobPostingsCount || 0),
+        (sum, c) => sum + (c.jobPostings?.length || 0),
         0
     );
 

@@ -16,20 +16,12 @@ export interface IDashboardStats {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 // ─── GET DASHBOARD STATS ──────────────────────────────────────────────────────
-
-/**
- * Fetch all data needed for the HR Dashboard in parallel.
- * Roles: recruiter, admin
- */
 export async function getDashboardStatsAction(): Promise<IDashboardStats> {
     try {
         const [allAppsRes, jobPostingsRes] = await Promise.all([
             http.get('/applications/board/all').catch(() => null),
             http.get('/job-postings', { params: { status: 'active', limit: 100 } }).catch(() => null),
         ]);
-
-        console.log(allAppsRes);
-        console.log(jobPostingsRes);
 
         // Flatten board columns → flat array
         const boardData: Record<string, IApplicationDto[]> = allAppsRes?.data ?? {};

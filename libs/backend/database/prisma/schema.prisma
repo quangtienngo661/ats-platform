@@ -103,7 +103,8 @@ enum AiLogStatus {
 enum InterviewStatus {
   in_progress
   completed
-  timeout
+  abandon
+  pending_result
 
   @@map("interview_status")
 }
@@ -258,9 +259,10 @@ model JobCategory {
   name             String
   parentCategoryId String? @map("parent_category_id")
 
-  parentCategory  JobCategory?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [categoryId])
-  childCategories JobCategory[] @relation("CategoryHierarchy")
+  parentCategory  JobCategory?     @relation("CategoryHierarchy", fields: [parentCategoryId], references: [categoryId])
+  childCategories JobCategory[]    @relation("CategoryHierarchy")
   jobPostings     JobPosting[]
+  interviewTopics InterviewTopic[]
 
   @@map("job_categories")
 }
@@ -334,7 +336,6 @@ model CV {
   @@map("cvs")
 }
 
-// TODO: add more fields: location and summary
 model CVParsedData {
   id           String  @id @default(uuid())
   cvId         String  @unique @map("cv_id")
@@ -456,10 +457,11 @@ model AiUsageLog {
 // ============================================================
 
 model InterviewTopic {
-  topicId          String  @id @default(uuid()) @map("topic_id")
-  name             String
-  category         String?
-  difficultyLevels Json?   @map("difficulty_levels")
+  topicId    String  @id @default(uuid()) @map("topic_id")
+  name       String
+  categoryId String? @map("category_id")
+
+  category JobCategory? @relation(fields: [categoryId], references: [categoryId])
 
   sessions InterviewSession[]
 
@@ -484,18 +486,21 @@ model InterviewSession {
 }
 
 model InterviewQnA {
-  qnaId            String   @id @default(uuid()) @map("qna_id")
-  sessionId        String   @map("session_id")
-  orderIndex       Int      @map("order_index")
-  questionText     String   @map("question_text")
-  expectedPoints   Json?    @map("expected_points")
-  answerText       String?  @map("answer_text")
-  correctnessScore Decimal? @map("correctness_score")
+  qnaId            String          @id @default(uuid()) @map("qna_id")
+  sessionId        String          @map("session_id")
+  orderIndex       Int             @map("order_index")
+  difficulty       DifficultyLevel @map("difficulty")
+  questionText     String          @map("question_text")
+  expectedPoints   Json?           @map("expected_points")
+  answerText       String?         @map("answer_text")
+  correctnessScore Decimal?        @map("correctness_score")
   feedback         String?
-  missedPoints     Json?    @map("missed_points")
-  hasFollowup      Boolean  @default(false) @map("has_followup")
-  followupQuestion String?  @map("followup_question")
-  followupAnswer   String?  @map("followup_answer")
+  coveredPoints    Json?           @map("covered_points")
+  missedPoints     Json?           @map("missed_points")
+  hasFollowup      Boolean         @default(false) @map("has_followup")
+  followupQuestion String?         @map("followup_question")
+  followupAnswer   String?         @map("followup_answer")
+  followupReason   String?         @map("followup_reason")
 
   session InterviewSession @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
 

@@ -11,12 +11,6 @@ export class CvScreeningsService {
     private readonly prisma: PrismaService,
     @InjectQueue('cv-screening') private readonly screeningQueue: Queue
   ) { }
-
-  /**
-   * Tạo CV_Screening record với status pending ngay khi Application được tạo.
-   * Nếu không truyền configId thì tự động lấy default AI_Config.
-   * Sau đó push job vào BullMQ queue.
-   */
   async createScreeningRecord(applicationId: string, cvId: string, configId?: string): Promise<any> {
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -27,11 +21,11 @@ export class CvScreeningsService {
     })
 
     if (!application) {
-      throw new NotFoundException(`Application '${applicationId}' not found`);
+      throw new NotFoundException(`Không tìm thấy đơn ứng tuyển '${applicationId}'`);
     }
 
     if (!cv) {
-      throw new NotFoundException(`CV '${cvId}' not found`);
+      throw new NotFoundException(`Không tìm thấy CV '${cvId}'`);
     }
 
     const config = await this.getActiveConfig(configId);
@@ -46,7 +40,7 @@ export class CvScreeningsService {
       },
       update: {
         configId: config.configId,
-        status: ScreeningStatus.pending,
+        status: ScreeningStatus.processing,
         retryCount: { increment: 1 },
         overallScore: null,
         aiRecommendation: null,
@@ -71,11 +65,6 @@ export class CvScreeningsService {
 
     return screening;
   }
-
-  /**
-   * HR gọi để xem kết quả screening của một application cụ thể.
-   * Trả về đầy đủ thông tin bao gồm score, recommendation, matched/missing skills.
-   */
   async getScreeningResult(applicationId: string): Promise<any> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
@@ -102,16 +91,11 @@ export class CvScreeningsService {
     });
 
     if (!screening) {
-      throw new NotFoundException(`Screening result for application '${applicationId}' not found`);
+      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
     }
 
     return screening;
   }
-
-  /**
-   * Giống getScreeningResult nhưng filter output — chỉ trả về matchedSkills và trạng thái chung.
-   * Ẩn overallScore, missingSkills, aiRecommendation.
-   */
   async getScreeningResultForCandidate(applicationId: string, userId: string): Promise<any> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
@@ -128,15 +112,15 @@ export class CvScreeningsService {
     });
 
     if (!candidate) {
-      throw new NotFoundException(`Candidate '${userId}' not found`);
+      throw new NotFoundException(`Không tìm thấy ứng viên '${userId}'`);
     }
 
     if (!screening) {
-      throw new NotFoundException(`Screening result for application '${applicationId}' not found`);
+      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
     }
 
     if (screening.application.candidateId !== candidate.candidateId) {
-      throw new NotFoundException(`Screening result for application '${applicationId}' not found`);
+      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
     }
 
     return {
@@ -147,16 +131,12 @@ export class CvScreeningsService {
       screenedAt: screening.screenedAt,
     };
   }
-
-  /**
-   * HR xem tổng quan chất lượng pool candidate của một job
-   */
   async getScreeningStats(jobId: string): Promise<any> {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
       select: { jobId: true, title: true },
     });
-    if (!job) throw new NotFoundException(`Job posting '${jobId}' not found`);
+    if (!job) throw new NotFoundException(`Không tìm thấy tin tuyển dụng '${jobId}'`);
 
     const screenings = await this.prisma.cVScreening.findMany({
       where: { application: { jobId } },
@@ -203,10 +183,6 @@ export class CvScreeningsService {
       averageScore: scoreCount > 0 ? Math.round((scoreSum / scoreCount) * 100) / 100 : null,
     };
   }
-
-  /**
-   * Tính điểm tổng theo công thức từ AI_Config
-   */
   calculateOverallScore(
     skillsScore: number,
     experienceScore: number,
@@ -218,35 +194,31 @@ export class CvScreeningsService {
     const wEdu = Number(config.educationWeight);
 
     const raw = skillsScore * wSkills + experienceScore * wExp + educationScore * wEdu;
-    // Round to 2 decimal places
     return Math.round(raw * 100) / 100;
   }
-
-  /**
-   * So sánh overallScore với minimum_score_threshold để ra recommendation
-   * >= threshold + 20  → hire
-   * >= threshold       → interview
-   * < threshold        → reject
-   */
   determineRecommendation(overallScore: number, threshold: number): AiRecommendation {
-    if (overallScore >= threshold + 20) {
+    const normalizedThreshold = this.normalizeMinimumScoreThreshold(threshold);
+
+    if (overallScore >= normalizedThreshold + 20) {
       return AiRecommendation.hire;
     }
-    if (overallScore >= threshold) {
+    if (overallScore >= normalizedThreshold) {
       return AiRecommendation.interview;
     }
     return AiRecommendation.reject;
   }
 
-  /**
-   * Lấy AI_Config để dùng cho screening.
-   * Nếu có configId thì lấy config đó, không thì lấy config có is_default = true.
-   */
+  private normalizeMinimumScoreThreshold(threshold: number): number {
+    const value = Number(threshold);
+    if (!Number.isFinite(value)) return 0;
+    if (value > 0 && value < 1) return value * 100;
+    return value;
+  }
   async getActiveConfig(configId?: string): Promise<any> {
     if (configId) {
       const config = await this.prisma.aiConfig.findUnique({ where: { configId } });
       if (!config) {
-        throw new NotFoundException(`AI config '${configId}' not found`);
+        throw new NotFoundException(`Không tìm thấy cấu hình AI '${configId}'`);
       }
       return config;
     }
@@ -254,7 +226,7 @@ export class CvScreeningsService {
     const defaultConfig = await this.prisma.aiConfig.findFirst({ where: { isDefault: true } });
     if (!defaultConfig) {
       throw new NotFoundException(
-        'No default AI configuration found. Please set up an AI configuration first',
+        'Không tìm thấy cấu hình AI mặc định. Vui lòng thiết lập cấu hình AI trước',
       );
     }
     return defaultConfig;
