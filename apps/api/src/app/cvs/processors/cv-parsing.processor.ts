@@ -5,8 +5,7 @@ import { CvParsedDataService } from "../cv-parsed-data/cv-parsed-data.service";
 import { PrismaService } from "../../../common/prisma/prisma.service";
 import { NotificationType, ParsingStatus } from "@ats-platform/database";
 import { Logger } from "@nestjs/common";
-import { CV_PARSING_PROMPT } from "../../../common/constants/gemini-api";
-import { SocketIoService } from "apps/api/src/common/socket-io/socket-io.service";
+import { SocketIoService } from "../../../common/socket-io/socket-io.service";
 import { NotificationsService } from "../../notifications/notifications.service";
 
 @Processor('cv-processing', { concurrency: 5 })

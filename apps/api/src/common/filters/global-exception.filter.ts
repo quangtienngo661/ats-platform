@@ -16,7 +16,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         // default: 500 with internal server error
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
-        let message: string = 'Lỗi máy chủ nội bộ';
+        let message = 'Lỗi máy chủ nội bộ';
 
         if (exception instanceof HttpException) {
             status = exception.getStatus();

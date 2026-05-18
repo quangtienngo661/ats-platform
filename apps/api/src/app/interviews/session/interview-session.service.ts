@@ -4,9 +4,9 @@ import { GeminiService } from '../../../common/external-apis/gemini/gemini.servi
 import { StartSessionDto } from './dto/start-session.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { DifficultyLevel, InterviewStatus } from '@ats-platform/database';
-import { sessionIncludeOptions } from 'apps/api/src/common/utils/include-options.util';
+import { InterviewStatus } from '@ats-platform/database';
 import { SocketIoService } from '../../../common/socket-io/socket-io.service';
+import { sessionIncludeOptions } from '../../../common/utils/include-options.util';
 
 @Injectable()
 export class InterviewSessionService {

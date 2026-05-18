@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "apps/api/src/common/prisma/prisma.service";
-import { cvParsedDataIncludeOptions } from "apps/api/src/common/utils/include-options.util";
+import { PrismaService } from "../../../common/prisma/prisma.service";
+import { cvParsedDataIncludeOptions } from "../../../common/utils/include-options.util";
 
 @Injectable()
 export class CvParsedDataService {

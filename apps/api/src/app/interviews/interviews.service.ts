@@ -164,7 +164,7 @@ export class InterviewsService {
         const limit = query.limit ?? 20;
         const skip = (page - 1) * limit;
 
-        let where: any = {};
+        const where: any = {};
 
         if (role === UserRole.candidate) {
             const candidate = await this.prisma.candidate.findUnique({

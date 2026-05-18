@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
@@ -82,27 +82,27 @@ export class InterviewGateway {
             );
 
             switch (result.type) {
-                case 'followup':
-                    // AI quyết định cần hỏi thêm → Gửi câu hỏi phụ
+                case 'followup': {
                     client.emit('interview:followup_question', {
                         qnaId: result.qnaId,
                         followupQuestion: result.followupQuestion,
                     });
                     break;
+                }
 
-                case 'next_question':
-                    // Không cần hỏi phụ → Chuyển sang câu tiếp theo
+                case 'next_question': {
                     client.emit('interview:question', result.question);
                     break;
+                }
 
-                case 'end':
-                    // Đã hết 10 câu → Tổng hợp kết quả cuối cùng
+                case 'end': {
                     client.emit('interview:generating_result', {
                         message: 'Đang tổng hợp kết quả phỏng vấn...',
                     });
                     const finalResult = await this.interviewSessionService.endSession(sessionId);
                     this.emitSessionEndResult(client, finalResult);
                     break;
+                }
             }
         } catch (error) {
             this.logger.error(`Error submitting answer: ${error.message}`);
@@ -132,17 +132,19 @@ export class InterviewGateway {
             );
 
             switch (result.type) {
-                case 'next_question':
+                case 'next_question': {
                     client.emit('interview:question', result.question);
                     break;
+                }
 
-                case 'end':
+                case 'end': {
                     client.emit('interview:generating_result', {
                         message: 'Đang tổng hợp kết quả phỏng vấn...',
                     });
                     const finalResult = await this.interviewSessionService.endSession(sessionId);
                     this.emitSessionEndResult(client, finalResult);
                     break;
+                }
             }
         } catch (error) {
             this.logger.error(`Error submitting followup: ${error.message}`);

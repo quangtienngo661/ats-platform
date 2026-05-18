@@ -198,7 +198,7 @@ export class AuthService {
       return { message: 'Email đã được xác minh' };
     }
 
-    let jobName: string = 'send-register-verification-email';
+    let jobName = 'send-register-verification-email';
     if (type === 'reset') {
       jobName = 'send-forgot-password-email';
     }
