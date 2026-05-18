@@ -14,10 +14,15 @@ export default async function AdminLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
-  let userRole;
+  let userRole: string | undefined;
+  let userName: string | undefined;
+  let userEmail: string | undefined;
   if (token) {
     try {
-      userRole = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).role;
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      userRole = payload.role;
+      userName = payload.fullName;
+      userEmail = payload.email;
     } catch {}
   }
 
@@ -31,6 +36,8 @@ export default async function AdminLayout({
   return (
     <DashboardLayout
       userRole={userRole}
+      userName={userName}
+      userEmail={userEmail}
       initialNotifications={notifications.data}
       initialUnreadCount={unreadCount}
     >

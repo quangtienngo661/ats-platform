@@ -124,14 +124,15 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/department-management', request.url));
     }
 
-    // ── KỊCH BẢN: Trang Guest-Only → đã đăng nhập thì đá về /sign-in ──
+    // ── KỊCH BẢN: Trang Guest-Only → đã đăng nhập thì redirect về dashboard ──
     if (isGuestOnlyPath && accessToken && !isTokenExpired(accessToken)) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
+        const payload = decodeTokenPayload(accessToken);
+        const role = payload?.role;
+        if (role === 'candidate') {
+            return NextResponse.redirect(new URL('/job-postings', request.url));
+        }
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-
-    // if (isGuestOnlyPath && !accessToken) {
-    //     return NextResponse.redirect(new URL('/sign-in', request.url));
-    // }
 
     // ── KỊCH BẢN: Trang Public → cho qua ──
     if (!isPrivatePath) {

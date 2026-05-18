@@ -36,6 +36,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         });
 
         socket.on('connect_error', (err) => {
+            console.warn('[SocketStore] Connection error:', err.message);
             set({ status: 'error' });
         });
 

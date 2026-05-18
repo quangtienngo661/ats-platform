@@ -40,7 +40,6 @@ function mapDtoToCard(dto: IApplicationDto): IApplicationCard {
         appliedAt: dto.appliedAt || '',
         departmentName: dto.jobPosting?.department?.name || "",
         locationType: dto.jobPosting?.locationType || "",
-        // currentStageSince: string,
         status: dto.status,
         cvId: dto.cvId || '',
         aiScore: dto.screening?.overallScore || 0,
