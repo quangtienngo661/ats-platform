@@ -126,26 +126,6 @@ export default function AIScreeningConfigClient({ profiles }: Props) {
                 {/* ── Sidebar ── */}
                 <div className="space-y-4">
                     <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#EBF3FD] flex items-center justify-center">
-                                <Cpu className="w-5 h-5 text-[#0071E3]" />
-                            </div>
-                            <div>
-                                <h3 className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>AI Model</h3>
-                                <p className="text-[11px] text-[#6E6E73]">Gemini Pro</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            {[['Phiên bản', 'v2.1.0', 'text-[#1D1D1F]'], ['Độ chính xác', '94.5%', 'text-[#34C759]'], ['Cập nhật', '15/02/2024', 'text-[#1D1D1F]']].map(([label, val, cls]) => (
-                                <div key={label} className="flex items-center justify-between">
-                                    <span className="text-[12px] text-[#6E6E73]">{label}</span>
-                                    <span className={`text-[12px] ${cls}`} style={{ fontWeight: 600 }}>{val}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
                         <h3 className="text-[14px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>Tổng quan</h3>
                         <div className="space-y-3">
                             {[
@@ -165,18 +145,6 @@ export default function AIScreeningConfigClient({ profiles }: Props) {
                             <li>• Tổng 3 trọng số phải đúng bằng 100%</li>
                             <li>• Dùng &quot;Nhân bản&quot; để tạo biến thể nhanh</li>
                         </ul>
-                    </div>
-
-                    <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                        <h3 className="text-[14px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>Thống kê sử dụng</h3>
-                        <div className="space-y-3">
-                            {[['CV đã xử lý', '1,247', 'text-[#1D1D1F]'], ['Thời gian TB', '2.3s', 'text-[#1D1D1F]'], ['Tỉ lệ chấp nhận', '68%', 'text-[#34C759]']].map(([label, val, cls]) => (
-                                <div key={label} className="flex items-center justify-between">
-                                    <span className="text-[12px] text-[#6E6E73]">{label}</span>
-                                    <span className={`text-[12px] ${cls}`} style={{ fontWeight: 600 }}>{val}</span>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Cpu, Sparkles, History, ArrowRight } from 'lucide-react';
@@ -12,6 +12,7 @@ import { SessionCard } from './ui/SessionCard';
 import { DifficultyLevel } from '@ats-platform/database';
 import { startInterviewSessionAction, abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { useSocketStore } from '@/stores/useSocketStore';
 
 interface MockInterviewClientProps {
     topics: IInterviewTopic[];
@@ -25,6 +26,8 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     const [isStarting, setIsStarting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isAbandoning, setIsAbandoning] = useState(false);
+
+    const socket = useSocketStore();
 
     const activeSession = history.find(s => s.status === 'in_progress');
     const canStart = selectedTopic && selectedDifficulty && !isStarting && !isAbandoning;
@@ -59,6 +62,17 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
             setIsAbandoning(false);
         }
     };
+
+    useEffect(() => {
+        const handleUpdateHistory = () => {
+            router.refresh();
+        }
+        socket.onEvent("interview:session_completed", handleUpdateHistory);
+
+        return () => {
+            socket.offEvent("interview:session_completed", handleUpdateHistory);
+        };
+    }, [socket, router]);
 
     return (
         <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
