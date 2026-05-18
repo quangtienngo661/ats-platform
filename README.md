@@ -39,7 +39,9 @@ The primary problem this platform solves is the massive time overhead required t
 ## ✨ Key Features
 
 - 🤖 **AI-Powered CV Screening Pipeline**: Asynchronous analysis of resumes against job posting descriptions using LLMs. Generates weighted scores (Skills, Experience, Education) and actionable recommendations (`Hire`, `Interview`, `Reject`).
-- 🎯 **AI Mock Interview** *(Under Development)*: An automated conversational agent to test soft and hard skills of candidates before human intervention.
+- 🎯 **AI Mock Interview**: An automated conversational agent with real-time Socket.IO chat to test candidates' skills before human intervention. Supports dynamic question generation, follow-ups, and asynchronous result evaluation.
+- 📊 **Kanban Board Integration**: Visual application tracking system with interactive stage management.
+- 🔔 **Real-time Notifications**: Socket.IO powered notification system for immediate candidate and recruiter alerts.
 - 🔐 **Advanced Security & Auth**: Complete JWT execution with Refresh Token Rotation, HTTP-Only cookies, atomic password updates, and Redis-backed Email Verification handling.
 - 🛡️ **Fine-Grained Authorization**: Custom `@Resources()` Decorators and `OwnershipGuard` ensuring absolute data isolation between Recruiter, Candidate, and Admin roles.
 - 🏗️ **Configurable AI Profiles**: Admins/Recruiters can adjust AI scoring thresholds and metric weights (e.g., boosting 'Experience' weight for Senior positions).
@@ -123,8 +125,8 @@ The application adopts a robust layered architecture orchestrated within an **Nx
 
 5. **Apply Database Migrations:**
    ```bash
-   npx nx run api:prisma-migrate
-   # Alternatively: npx prisma migrate dev
+   npx prisma generate
+   npx prisma migrate dev
    ```
 
 ### Running the Application
@@ -153,6 +155,11 @@ The AI Screening operates on a highly optimized, decoupled architecture to ensur
 5. **Consumption**: The payload is sent to Gemini API via `@google/genai` with a strict `AbortController` timeout (30 seconds).
 6. **Resolution**: Outputs (JSON format) are parsed, mathematically adjusted by the active `AiConfig` weights, translated to final Database States, and AI Usage (Tokens) are logged.
 7. **Resilience**: In case of quota errors or timeouts, BullMQ utilizes **exponential backoff** to automatically retry up to 3 times before setting the status to `failed`.
+
+### Mock Interview Flow
+1. **Generation**: The system fetches the Job Description and CV to generate targeted interview questions via Gemini `gemini-3-flash`.
+2. **Execution**: Candidates participate in a real-time chat interface (Socket.IO). The AI dynamically evaluates answers and determines if follow-up questions are needed.
+3. **Evaluation**: Once completed, the session moves to `pending_result`. An async worker processes the full transcript using `gemini-3.1-pro` to produce a final score and actionable feedback.
 
 ---
 
