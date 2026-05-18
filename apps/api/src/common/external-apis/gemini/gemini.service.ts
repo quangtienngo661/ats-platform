@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { GeminiModel } from '../../types/enums/gemini-model.enum';
 import { AiUsageLogsService } from '../../../app/ai-usage-logs/ai-usage-logs.service';
 import { AiActionType, AiLogStatus } from '@ats-platform/database';
-import { cvParsingConfig, jdParsingConfig, screeningConfig } from '../../configs/gemini.config';
+import { cvParsingConfig, jdParsingConfig, screeningConfig, mockInterviewGenerateConfig, mockInterviewFollowupConfig, mockInterviewEvaluateConfig, mockInterviewResultConfig } from '../../configs/gemini.config';
 
 @Injectable()
 export class GeminiService {
@@ -16,7 +16,6 @@ export class GeminiService {
     ) {
         this.ai = new GoogleGenAI({
             apiKey: this.configService.getOrThrow('GOOGLE_API_KEY'),
-            // apiKey: this.configService.getOrThrow('KEY_FREE_TIER'),
         });
     }
 
@@ -56,10 +55,12 @@ export class GeminiService {
         rawDescription: string,
         model: string = GeminiModel.G_3_Flash
     ) {
+        const jdContent = `<jd_text>\n${rawDescription}\n</jd_text>`;
+
         const result = await this.generateContent(
             refId,
             model,
-            rawDescription,
+            jdContent,
             AiActionType.job_parsing,
             jdParsingConfig
         );
@@ -67,7 +68,63 @@ export class GeminiService {
         return result.text;
     }
 
-    // General function
+    async generateInterviewQuestions(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.G_3_Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewGenerateConfig,
+        );
+        return result.text;
+    }
+    async checkInterviewFollowup(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.G_3_Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewFollowupConfig,
+        );
+        return result.text;
+    }
+    async evaluateInterviewAnswer(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.G_3_Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewEvaluateConfig,
+        );
+        return result.text;
+    }
+    async generateInterviewResult(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.G_3_1_Pro,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewResultConfig,
+        );
+        return result.text;
+    }
+
     private async generateContent(
         refId: string,
         model: string,
@@ -102,7 +159,6 @@ export class GeminiService {
                 `Gemini API call completed — action: ${actionType}, refId: ${refId}, duration: ${duration}ms`,
                 'GeminiService',
             );
-            // return { text: "Hello world" }
             const { promptTokenCount, candidatesTokenCount } = response.usageMetadata;
 
             void this.aiUsageLogsService.create({
@@ -122,7 +178,6 @@ export class GeminiService {
         } catch (error) {
             clearTimeout(timeoutId);
             const duration = Math.round(performance.now() - startTime);
-            // 3. Nếu lỗi là do Timeout (AbortError), hoặc do Rate Limit
             if (error.name === 'AbortError') {
                 Logger.error(`Gemini API TIMEOUT after 15s. BullMQ will retry this job...`, 'GeminiService');
             } else {

@@ -104,3 +104,50 @@ export const departmentIncludeOptions = {
   },
   jobPostings: true,
 } satisfies Prisma.DepartmentInclude;
+
+export const interviewTopicCategorySelect = {
+  categoryId: true,
+  name: true,
+  parentCategoryId: true,
+} satisfies Prisma.JobCategorySelect;
+
+export const interviewTopicIncludeOptions = {
+  category: { select: interviewTopicCategorySelect },
+  _count: { select: { sessions: true } },
+} satisfies Prisma.InterviewTopicInclude;
+
+export const scheduleIncludeOptions = {
+  application: {
+    include: {
+      candidate: {
+        include: {
+          user: { omit: { passwordHash: true } },
+        },
+        omit: { userId: true },
+      },
+      jobPosting: {
+        omit: {
+          parsedRequirements: true,
+          description: true,
+          departmentId: true,
+          categoryId: true,
+          createdBy: true,
+        },
+        include: { department: true },
+      },
+    },
+  },
+  interviewer: { omit: { passwordHash: true } },
+  scheduler: { omit: { passwordHash: true } },
+
+} satisfies Prisma.InterviewScheduleInclude;
+
+export const sessionIncludeOptions = {
+  topic: {
+    include: {
+      category: { select: interviewTopicCategorySelect },
+    },
+  },
+  qnas: { orderBy: { orderIndex: 'asc' } },
+  result: true
+} satisfies Prisma.InterviewSessionInclude

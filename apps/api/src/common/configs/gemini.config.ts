@@ -27,3 +27,28 @@ export const screeningConfig: GenerateContentConfig = {
         thinkingLevel: ThinkingLevel.HIGH
     }
 };
+import { MOCK_INTERVIEW_GENERATE_PROMPT, MOCK_INTERVIEW_FOLLOWUP_PROMPT, MOCK_INTERVIEW_EVALUATE_PROMPT, MOCK_INTERVIEW_RESULT_PROMPT } from '../constants/gemini-api';
+
+export const mockInterviewGenerateConfig: GenerateContentConfig = {
+    temperature: 0.7,
+    responseMimeType: "application/json",
+    systemInstruction: MOCK_INTERVIEW_GENERATE_PROMPT,
+};
+
+export const mockInterviewFollowupConfig: GenerateContentConfig = {
+    temperature: 0.5,
+    responseMimeType: "application/json",
+    systemInstruction: MOCK_INTERVIEW_FOLLOWUP_PROMPT,
+};
+
+export const mockInterviewEvaluateConfig: GenerateContentConfig = {
+    temperature: 0.5,
+    responseMimeType: "application/json",
+    systemInstruction: MOCK_INTERVIEW_EVALUATE_PROMPT,
+};
+
+export const mockInterviewResultConfig: GenerateContentConfig = {
+    temperature: 0.7,
+    responseMimeType: "application/json",
+    systemInstruction: MOCK_INTERVIEW_RESULT_PROMPT,
+};
