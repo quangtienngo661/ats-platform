@@ -28,11 +28,6 @@ function extractMessage(error: unknown, fallback: string): string {
 
 
 // ─── GET MY RECRUITER PROFILE ─────────────────────────────────────────────────
-
-/**
- * GET /recruiters/me
- * Roles: recruiter
- */
 export async function getMyRecruiterProfileAction(): Promise<IRecruiterDto | null> {
     try {
         const response = await http.get('/recruiters/me');
@@ -43,22 +38,15 @@ export async function getMyRecruiterProfileAction(): Promise<IRecruiterDto | nul
 }
 
 // ─── UPDATE MY RECRUITER PROFILE ─────────────────────────────────────────────
-
-/**
- * PATCH /recruiters/me
- * Roles: recruiter
- */
 export async function updateMyRecruiterProfileAction(
     prevState: RecruiterActionState,
     formData: FormData
 ): Promise<RecruiterActionState> {
     const position = (formData.get('position') as string)?.trim() || undefined;
-    const departmentId = (formData.get('departmentId') as string)?.trim() || undefined;
 
     try {
-        const payload: { position?: string; departmentId?: string } = {};
+        const payload: { position?: string } = {};
         if (position !== undefined) payload.position = position;
-        if (departmentId !== undefined) payload.departmentId = departmentId;
 
         const response = await http.patch('/recruiters/me', payload);
         return { success: true, message: 'Cập nhật hồ sơ thành công', data: response.data ?? response };
@@ -68,11 +56,6 @@ export async function updateMyRecruiterProfileAction(
 }
 
 // ─── GET ALL RECRUITERS ───────────────────────────────────────────────────────
-
-/**
- * GET /recruiters
- * Roles: admin, recruiter
- */
 export async function getRecruitersAction(): Promise<IRecruiterDto[]> {
     try {
         const response = await http.get('/recruiters');
@@ -83,11 +66,6 @@ export async function getRecruitersAction(): Promise<IRecruiterDto[]> {
 }
 
 // ─── GET RECRUITER BY ID ──────────────────────────────────────────────────────
-
-/**
- * GET /recruiters/:id
- * Roles: admin, recruiter
- */
 export async function getRecruiterByIdAction(id: string): Promise<IRecruiterDto | null> {
     if (!id) return null;
     try {
@@ -99,11 +77,6 @@ export async function getRecruiterByIdAction(id: string): Promise<IRecruiterDto 
 }
 
 // ─── CREATE RECRUITER ─────────────────────────────────────────────────────────
-
-/**
- * POST /recruiters
- * Roles: admin
- */
 export async function createRecruiterAction(
     prevState: RecruiterActionState,
     formData: FormData
@@ -126,11 +99,6 @@ export async function createRecruiterAction(
 }
 
 // ─── UPDATE RECRUITER (ADMIN) ─────────────────────────────────────────────────
-
-/**
- * PATCH /recruiters/:id
- * Roles: admin
- */
 export async function updateRecruiterAction(
     prevState: RecruiterActionState,
     formData: FormData
@@ -155,11 +123,6 @@ export async function updateRecruiterAction(
 }
 
 // ─── DELETE RECRUITER ─────────────────────────────────────────────────────────
-
-/**
- * DELETE /recruiters/:id
- * Roles: admin
- */
 export async function deleteRecruiterAction(recruiterId: string): Promise<RecruiterActionState> {
     if (!recruiterId) return { success: false, message: 'Thiếu ID nhà tuyển dụng' };
 

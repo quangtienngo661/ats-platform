@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
+import { CreateRecruiterDto, UpdateMyRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { recruiterIncludeOptions } from '../../common/utils/include-options.util';
 
@@ -16,7 +16,7 @@ export class RecruitersService {
 		});
 
 		if (!user) {
-			throw new NotFoundException('User not found');
+			throw new NotFoundException('Không tìm thấy người dùng');
 		}
 
 		const department = await this.prisma.department.findUnique({
@@ -26,7 +26,7 @@ export class RecruitersService {
 		});
 
 		if (!department) {
-			throw new NotFoundException('Department not found');
+			throw new NotFoundException('Không tìm thấy phòng ban');
 		}
 
 		const existingRecruiter = await this.prisma.recruiter.findUnique({
@@ -36,7 +36,7 @@ export class RecruitersService {
 		});
 
 		if (existingRecruiter) {
-			throw new NotFoundException('Recruiter profile already exists for this user');
+			throw new NotFoundException('Hồ sơ nhà tuyển dụng đã tồn tại cho người dùng này');
 		}
 
 		const recruiter = await this.prisma.recruiter.create({
@@ -63,24 +63,24 @@ export class RecruitersService {
 		});
 
 		if (!recruiter) {
-			throw new NotFoundException('Recruiter profile not found');
+			throw new NotFoundException('Không tìm thấy hồ sơ nhà tuyển dụng');
 		}
 
 		return recruiter;
 	}
 
-	async updateMe(userId: string, updateDto: UpdateRecruiterDto) {
+	async updateMe(userId: string, updateDto: UpdateMyRecruiterDto) {
 		const recruiter = await this.prisma.recruiter.findUnique({
 			where: { userId },
 		});
 
 		if (!recruiter) {
-			throw new NotFoundException('Recruiter profile not found');
+			throw new NotFoundException('Không tìm thấy hồ sơ nhà tuyển dụng');
 		}
 
 		return await this.prisma.recruiter.update({
 			where: { recruiterId: recruiter.recruiterId },
-			data: { position: updateDto.position, departmentId: updateDto.departmentId },
+			data: { position: updateDto.position },
 			include: { ...recruiterIncludeOptions },
 			omit: { userId: true, departmentId: true },
 		});
@@ -109,7 +109,7 @@ export class RecruitersService {
 		});
 
 		if (!recruiter) {
-			throw new NotFoundException('Recruiter not found');
+			throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
 		}
 
 		return recruiter;
@@ -123,7 +123,7 @@ export class RecruitersService {
 		});
 
 		if (!recruiter) {
-			throw new NotFoundException('Recruiter not found');
+			throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
 		}
 
 		return await this.prisma.recruiter.update({
@@ -147,7 +147,7 @@ export class RecruitersService {
 		});
 
 		if (!recruiter) {
-			throw new NotFoundException('Recruiter not found');
+			throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
 		}
 
 		return await this.prisma.recruiter.delete({

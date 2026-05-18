@@ -5,12 +5,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard, Users, Briefcase, CalendarCheck,
-  Settings, LogOut, Sparkles, Bell, Search,
+  Settings, LogOut, Sparkles, Search,
   Menu, X, Plus, UserCircle, ChevronRight, Cpu,
   Building2, Zap, FolderTree, Activity, Users2,
 } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { INotification } from '@/types/interfaces/notification.interface';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/dashboard' },
@@ -24,6 +26,7 @@ const adminItems = [
   { icon: Users2, label: 'Nhà tuyển dụng', href: '/recruiter-management' },
   { icon: FolderTree, label: 'Danh mục ngành nghề', href: '/job-category-management' },
   { icon: Zap, label: 'Kỹ năng', href: '/skill-management' },
+  { icon: CalendarCheck, label: 'Chủ đề phỏng vấn', href: '/interview-topic-management' },
   { icon: Cpu, label: 'Cấu hình AI', href: '/ai-configuration' },
   { icon: Activity, label: 'AI Usage Logs', href: '/ai-usage-logs' },
 ];
@@ -33,11 +36,7 @@ const bottomItems = [
   { icon: LogOut, label: 'Đăng xuất', href: '/sign-in/admin' },
 ];
 
-const notifs = [
-  { text: 'Nguyễn Minh đã hoàn thành bài test kỹ thuật', time: '5 phút trước', color: '#0071E3' },
-  { text: 'Phỏng vấn với Trần Thị Lan lúc 14:00', time: '1 giờ trước', color: '#6366F1' },
-  { text: 'Lê Văn Hùng chuyển sang giai đoạn Offer', time: '3 giờ trước', color: '#34C759' },
-];
+
 
 // ── SidebarContent ───────────────────────────────────────────────────────────
 function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string }) {
@@ -214,9 +213,18 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
 }
 
 // ── DashboardHeader ──────────────────────────────────────────────────────────
-function DashboardHeader({ onMenuOpen, initials }: { onMenuOpen: () => void; initials: string }) {
+function DashboardHeader({
+  onMenuOpen,
+  initials,
+  initialNotifications,
+  initialUnreadCount,
+}: {
+  onMenuOpen: () => void;
+  initials: string;
+  initialNotifications: INotification[];
+  initialUnreadCount: number;
+}) {
   const [searchFocus, setSearchFocus] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
 
   return (
     <header className="h-[64px] bg-white border-b border-[#F2F2F7] flex items-center px-4 lg:px-6 gap-4 sticky top-0 z-20" style={{ fontFamily: SFT }}>
@@ -224,76 +232,34 @@ function DashboardHeader({ onMenuOpen, initials }: { onMenuOpen: () => void; ini
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Search */}
-      <div className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2 border transition-all duration-200 flex-1 max-w-[380px] ${searchFocus ? 'border-[#0071E3] bg-white shadow-sm shadow-[#0071E3]/10' : 'border-transparent bg-[#F5F5F7]'}`}>
-        <Search className={`w-4 h-4 flex-shrink-0 ${searchFocus ? 'text-[#0071E3]' : 'text-[#AEAEB2]'}`} />
-        <input
-          type="text"
-          placeholder="Tìm ứng viên, vị trí..."
-          onFocus={() => setSearchFocus(true)}
-          onBlur={() => setSearchFocus(false)}
-          className="bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"
-          style={{ fontFamily: SFT }}
-        />
-      </div>
-
       <div className="flex-1" />
 
-      {/* AI Interview shortcut */}
-      <Link
-        href="/phong-van-ai"
-        className="hidden sm:flex items-center gap-2 bg-[#EBF3FD] hover:bg-[#D6E9FA] text-[#0071E3] rounded-xl px-3.5 py-2 transition-all text-[12px]"
-        style={{ fontFamily: SFT, fontWeight: 500 }}
-      >
-        <Cpu className="w-3.5 h-3.5" />
-        Phỏng vấn AI
-      </Link>
-
-      {/* Notifications */}
-      <div className="relative">
-        <button
-          onClick={() => setNotifOpen(!notifOpen)}
-          className="relative p-2 rounded-xl text-[#6E6E73] hover:bg-[#F5F5F7] transition-all"
-        >
-          <Bell className="w-[18px] h-[18px]" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#0071E3] rounded-full border-2 border-white" />
-        </button>
-
-        {notifOpen && (
-          <div className="absolute right-0 top-full mt-2 w-[300px] bg-white rounded-2xl shadow-xl shadow-black/10 border border-[#E5E5EA] z-50">
-            <div className="px-4 py-3 border-b border-[#F2F2F7] flex items-center justify-between">
-              <span className="text-[13px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>Thông báo</span>
-              <span className="text-[11px] text-[#0071E3] cursor-pointer" style={{ fontWeight: 500 }}>Đánh dấu đã đọc</span>
-            </div>
-            {notifs.map((n, i) => (
-              <div key={i} className="flex items-start gap-3 px-4 py-3 hover:bg-[#F5F5F7] cursor-pointer border-b border-[#F2F2F7] last:border-0 transition-colors">
-                <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: n.color }} />
-                <div>
-                  <p className="text-[12px] text-[#1D1D1F] leading-[1.45]" style={{ fontFamily: SFT }}>{n.text}</p>
-                  <p className="text-[11px] text-[#AEAEB2] mt-0.5">{n.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Quick Add */}
-      <button className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#0077ED] active:bg-[#006FD6] text-white rounded-xl px-3.5 py-2 transition-all shadow-sm shadow-[#0071E3]/20">
-        <Plus className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline text-[13px]" style={{ fontFamily: SFT, fontWeight: 500 }}>Thêm mới</span>
-      </button>
-
-      {/* Avatar */}
-      <div className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-white text-[12px] cursor-pointer" style={{ fontFamily: SF, fontWeight: 600 }}>
-        {initials}
-      </div>
+      {/* Notifications — sử dụng NotificationDropdown component */}
+      <NotificationDropdown
+        initialNotifications={initialNotifications}
+        initialUnreadCount={initialUnreadCount}
+        panelVariant="compact"
+      />
     </header>
   );
 }
 
 // ── DashboardLayout (Root export) ────────────────────────────────────────────
-export function DashboardLayout({ children, userRole, userName, userEmail }: { children: React.ReactNode, userRole?: string, userName?: string, userEmail?: string }) {
+export function DashboardLayout({
+  children,
+  userRole,
+  userName,
+  userEmail,
+  initialNotifications = [],
+  initialUnreadCount = 0,
+}: {
+  children: React.ReactNode,
+  userRole?: string,
+  userName?: string,
+  userEmail?: string,
+  initialNotifications?: INotification[],
+  initialUnreadCount?: number,
+}) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
 
@@ -330,7 +296,12 @@ export function DashboardLayout({ children, userRole, userName, userEmail }: { c
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[220px] xl:pl-[240px]">
-        <DashboardHeader onMenuOpen={() => setMobileSidebarOpen(true)} initials={initials} />
+        <DashboardHeader
+          onMenuOpen={() => setMobileSidebarOpen(true)}
+          initials={initials}
+          initialNotifications={initialNotifications}
+          initialUnreadCount={initialUnreadCount}
+        />
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>

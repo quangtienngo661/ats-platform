@@ -82,7 +82,7 @@ export class AdminSeedService implements OnApplicationBootstrap {
         skillsWeight: 0.5,
         experienceWeight: 0.3,
         educationWeight: 0.2,
-        minimumScoreThreshold: 0.6,
+        minimumScoreThreshold: 60,
       },
       select: { configId: true, name: true },
     });

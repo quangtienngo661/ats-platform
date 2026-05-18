@@ -39,7 +39,7 @@ export default function OpenJobsList({ jobs }: OpenJobsListProps) {
                         return (
                             <Link
                                 key={job.jobId}
-                                href={`/jobs/${job.jobId}`}
+                                href={`/jobs/${job.jobId}/candidates`}
                                 className="flex items-center gap-3 px-5 py-4 hover:bg-[#F5F5F7] transition-colors group"
                             >
                                 <div className="w-9 h-9 rounded-xl bg-[#EBF3FD] flex items-center justify-center flex-shrink-0">

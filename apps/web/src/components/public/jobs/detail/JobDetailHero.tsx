@@ -30,7 +30,7 @@ interface JobDetailHeroProps {
 function formatLocation(locationType?: string): string {
     if (locationType === 'remote') return 'Remote';
     if (locationType === 'hybrid') return 'Hybrid';
-    if (locationType === 'on-site') return 'On-site';
+    if (locationType === 'onsite') return 'On-site';
     return locationType ?? '';
 }
 
@@ -66,7 +66,7 @@ export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps
                     <span className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" />{formatSalary(job.salaryMin, job.salaryMax)}</span>
                 )}
                 {job.publishedAt && (
-                    <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />Đăng {timeAgo(job.publishedAt)}</span>
+                    <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{timeAgo(job.publishedAt)}</span>
                 )}
             </div>
 

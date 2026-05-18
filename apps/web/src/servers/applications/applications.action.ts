@@ -49,11 +49,6 @@ function mapDtoToCard(dto: IApplicationDto): IApplicationCard {
 }
 
 // ─── APPLY FOR JOB ────────────────────────────────────────────────────────────
-
-/**
- * POST /applications
- * Roles: candidate
- */
 export async function applyForJobAction(
     prevState: ApplicationActionState,
     formData: FormData
@@ -74,11 +69,6 @@ export async function applyForJobAction(
 }
 
 // ─── GET MY APPLICATIONS ──────────────────────────────────────────────────────
-
-/**
- * GET /applications/my
- * Roles: candidate
- */
 export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
     try {
         const response = await http.get('/applications/my');
@@ -90,11 +80,6 @@ export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
 }
 
 // ─── WITHDRAW APPLICATION ─────────────────────────────────────────────────────
-
-/**
- * POST /applications/:id/withdraw
- * Roles: candidate
- */
 export async function withdrawApplicationAction(applicationId: string): Promise<ApplicationActionState> {
     if (!applicationId) return { success: false, message: 'Thiếu ID đơn ứng tuyển' };
     try {
@@ -106,12 +91,15 @@ export async function withdrawApplicationAction(applicationId: string): Promise<
     }
 }
 
-// ─── GET KANBAN BOARD ─────────────────────────────────────────────────────────
+export async function withdrawApplicationFormAction(
+    prevState: ApplicationActionState,
+    formData: FormData,
+): Promise<ApplicationActionState> {
+    const applicationId = (formData.get('applicationId') as string)?.trim();
+    return withdrawApplicationAction(applicationId);
+}
 
-/**
- * GET /applications/board/:jobId
- * Roles: recruiter, admin
- */
+// ─── GET KANBAN BOARD ─────────────────────────────────────────────────────────
 export async function getKanbanBoardAction(jobId: string): Promise<IKanbanDto> {
     if (!jobId) return {} as IKanbanDto;
     try {
@@ -123,11 +111,6 @@ export async function getKanbanBoardAction(jobId: string): Promise<IKanbanDto> {
 }
 
 // ─── GET APPLICATIONS BY JOB ──────────────────────────────────────────────────
-
-/**
- * GET /applications/job/:jobId
- * Roles: recruiter, admin
- */
 export async function getApplicationsByJobAction(
     jobId: string,
     query?: IGetApplicationsByJobQuery
@@ -154,11 +137,6 @@ export async function getApplicationsByJobAction(
 }
 
 // ─── UPDATE APPLICATION STATUS ────────────────────────────────────────────────
-
-/**
- * PATCH /applications/:id/status
- * Roles: recruiter, admin
- */
 export async function updateApplicationStatusAction(
     applicationId: string,
     status: string,
@@ -184,11 +162,6 @@ export async function updateApplicationStatusAction(
 }
 
 // ─── TRIGGER CV SCREENING ─────────────────────────────────────────────────────
-
-/**
- * POST /applications/:id/trigger-screening
- * Roles: recruiter, admin
- */
 export async function triggerCvScreeningAction(
     prevState: ApplicationActionState,
     formData: FormData
@@ -207,11 +180,6 @@ export async function triggerCvScreeningAction(
 }
 
 // ─── GET APPLICATION HISTORY ──────────────────────────────────────────────────
-
-/**
- * GET /applications/:id/history
- * Roles: recruiter, admin, candidate
- */
 export async function getApplicationHistoryAction(applicationId: string): Promise<IApplicationHistoryItem[]> {
     if (!applicationId) return [];
     try {
@@ -223,11 +191,6 @@ export async function getApplicationHistoryAction(applicationId: string): Promis
 }
 
 // ─── GET APPLICATION BY ID ────────────────────────────────────────────────────
-
-/**
- * GET /applications/:id
- * Roles: recruiter, admin, candidate (owner)
- */
 export async function getApplicationByIdAction(applicationId: string): Promise<IApplicationDto> {
     if (!applicationId) return {} as IApplicationDto;
     try {

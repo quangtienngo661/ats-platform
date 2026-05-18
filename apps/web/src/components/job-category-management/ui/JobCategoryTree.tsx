@@ -40,7 +40,7 @@ function ChildCategoryRow({
             {/* Job count badge */}
             <div className="flex items-center gap-1.5 mr-2">
                 <Briefcase className="w-3 h-3 text-[#AEAEB2]" />
-                <span className="text-[11px] text-[#AEAEB2]">{category.jobPostingsCount || 0}</span>
+                <span className="text-[11px] text-[#AEAEB2]">{category.jobPostings?.length || 0}</span>
             </div>
 
             {/* Actions */}
@@ -79,6 +79,7 @@ function ParentCategoryRow({
     const [expanded, setExpanded] = useState(true);
     const color = CATEGORY_COLORS[colorIndex % CATEGORY_COLORS.length];
     const childCount = category.childCategories?.length || 0;
+    const totalJobCount = category.childCategories?.reduce((sum, child) => sum + (child.jobPostings?.length || 0), category.jobPostings?.length || 0) || 0;
 
     return (
         <div className="bg-white rounded-2xl border border-[#E5E5EA] overflow-hidden hover:shadow-md hover:shadow-black/5 transition-all">
@@ -128,7 +129,7 @@ function ParentCategoryRow({
                 >
                     <Briefcase className="w-3 h-3" style={{ color }} />
                     <span className="text-[11px]" style={{ color, fontWeight: 600 }}>
-                        {category.jobPostingsCount || 0} việc làm
+                        {totalJobCount} việc làm
                     </span>
                 </div>
 

@@ -5,17 +5,15 @@ import { X, FileUp, FileText, Trash2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import SubmitButton from '@/components/common/SubmitButton';
-import { uploadCvAction } from '@/servers/cvs/cvs.action';
+import { CvActionState, uploadCvAction } from '@/servers/cvs/cvs.action';
 import { toast } from '@/lib/toast';
+import { useCvStore } from '@/stores/useCvStore';
 
 interface UploadCvModalProps {
     onClose: () => void;
 }
 
-type ActionState = { success: boolean; message: string };
-const initialState: ActionState = { success: false, message: '' };
-
-/** Format file size to human-readable string */
+const initialState: CvActionState = { success: false, message: '' };
 function formatFileSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -26,15 +24,21 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
     const [state, formAction] = useActionState(uploadCvAction, initialState);
     const [file, setFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const addCv = useCvStore((store) => store.addCv);
+    const handledCvId = useRef<string | null>(null);
 
     useEffect(() => {
         if (state.success) {
+            if (state.data && handledCvId.current !== state.data.cvId) {
+                handledCvId.current = state.data.cvId;
+                addCv(state.data);
+            }
             toast.success(state.message)
             onClose();
         } else if (!state.success && state.message) {
             toast.error("Upload CV thất bại", state.message);
         }
-    }, [state, onClose])
+    }, [state, onClose, addCv])
 
     const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
@@ -50,8 +54,6 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
             fileInputRef.current.value = '';
         }
     };
-
-    /** Strip .pdf extension to use as default CV name */
     const defaultFileName = file ? file.name.replace(/\.pdf$/i, '') : '';
 
     return (

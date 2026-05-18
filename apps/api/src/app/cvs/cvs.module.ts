@@ -9,6 +9,7 @@ import { Queue } from 'bullmq';
 import { CvParsingProcessor } from './processors/cv-parsing.processor';
 import { CvParsedDataService } from './cv-parsed-data/cv-parsed-data.service';
 import { AiUsageLogsModule } from '../ai-usage-logs/ai-usage-logs.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { AiUsageLogsModule } from '../ai-usage-logs/ai-usage-logs.module';
       name: 'cv-processing',
       defaultJobOptions: { removeOnComplete: true },
     }),
-    AiUsageLogsModule
+    AiUsageLogsModule,
+    NotificationsModule
   ],
   controllers: [CVsController],
   providers: [

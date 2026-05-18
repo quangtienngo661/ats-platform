@@ -1,4 +1,3 @@
-import { mockApplications } from '@/mocks/hr-portal';
 import { CandidatesHeader } from '@/components/candidates/ui/CandidatesHeader';
 import { CandidatesStats } from '@/components/candidates/ui/CandidatesStats';
 import { CandidatesFilters } from '@/components/candidates/ui/CandidatesFilters';
@@ -11,8 +10,6 @@ interface JobCandidateListPageProps {
 
 export default async function JobCandidateListPage({ params }: JobCandidateListPageProps) {
     const { jobId } = await params;
-
-    // TODO: replace mock with real fetch
     const applicationsResult = await getApplicationsByJobAction(jobId, { includeCancelled: false });
     const applications = applicationsResult.data;
 

@@ -16,7 +16,7 @@ export function HomeHero() {
         const params = new URLSearchParams();
         if (query) params.set('q', query);
         if (location) params.set('location', location);
-        router.push(`/jobs?${params.toString()}`);
+        router.push(`/job-postings?${params.toString()}`);
     };
 
     return (
@@ -85,7 +85,7 @@ export function HomeHero() {
                         {['Frontend Developer', 'Product Manager', 'Data Science', 'UX Designer'].map(term => (
                             <button
                                 key={term}
-                                onClick={() => router.push(`/jobs?q=${encodeURIComponent(term)}`)}
+                                onClick={() => router.push(`/job-postings?q=${encodeURIComponent(term)}`)}
                                 className="flex items-center gap-1 text-[12px] text-[#0071E3] bg-[#EBF3FD] hover:bg-[#D6E9FA] rounded-full px-3 py-1 transition-colors"
                                 style={{ fontFamily: SFT }}
                             >

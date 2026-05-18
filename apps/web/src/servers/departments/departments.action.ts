@@ -56,11 +56,6 @@ function mapDepartment(departments: any): DepartmentDto[] {
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
-
-/**
- * POST /departments
- * Roles: admin, recruiter
- */
 export async function createDepartmentAction(
     prevState: DepartmentState,
     formData: FormData
@@ -83,20 +78,10 @@ export async function createDepartmentAction(
         return { success: false, message: extractMessage(error, "Tạo phòng ban thất bại") };
     }
 }
-
-/**
- * GET /departments
- * Roles: admin
- */
 export async function getDepartmentsAction(): Promise<DepartmentDto[]> {
     const response = await http.get(`/departments`);
     return mapDepartment(response.data);
 }
-
-/**
- * GET /departments/:id
- * Roles: admin
- */
 export async function getDepartmentByIdAction(id: string): Promise<DepartmentDto | null> {
     if (!id) return null;
     try {
@@ -108,11 +93,6 @@ export async function getDepartmentByIdAction(id: string): Promise<DepartmentDto
         return null;
     }
 }
-
-/**
- * PATCH /departments/:id
- * Roles: admin
- */
 export async function updateDepartmentAction(
     // id: string,
     prevState: DepartmentState,
@@ -140,11 +120,6 @@ export async function updateDepartmentAction(
         return { success: false, message: extractMessage(error, "Cập nhật phòng ban thất bại") };
     }
 }
-
-/**
- * DELETE /departments/:id
- * Roles: admin
- */
 export async function deleteDepartmentAction(
     department: DepartmentDto
 ): Promise<DepartmentState> {

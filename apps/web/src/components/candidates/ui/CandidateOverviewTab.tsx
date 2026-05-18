@@ -33,7 +33,7 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
     if (screening?.matchedSkills) {
         let parsedMatch = screening.matchedSkills;
         if (typeof parsedMatch === 'string') {
-            try { parsedMatch = JSON.parse(parsedMatch); } catch (e) {}
+            try { parsedMatch = JSON.parse(parsedMatch); } catch (e) { }
         }
         if (Array.isArray(parsedMatch)) {
             matchedHardSkills = parsedMatch;
@@ -47,7 +47,7 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
     if (screening?.missingSkills) {
         let parsedMiss = screening.missingSkills;
         if (typeof parsedMiss === 'string') {
-            try { parsedMiss = JSON.parse(parsedMiss); } catch (e) {}
+            try { parsedMiss = JSON.parse(parsedMiss); } catch (e) { }
         }
         if (Array.isArray(parsedMiss)) {
             missingSkillsList = parsedMiss;
@@ -56,9 +56,6 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
 
     const recLabel = recommendation === 'hire' ? 'Nên tuyển' : recommendation === 'interview' ? 'Nên phỏng vấn' : recommendation === 'reject' ? 'Không phù hợp' : 'Chưa đánh giá';
     const screeningStatus = screening?.status || 'pending';
-
-    console.log(application)
-    console.log(screening)
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -153,7 +150,7 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
                 {screeningStatus === 'completed' && (matchedHardSkills.length > 0 || matchedNiceToHaveSkills.length > 0 || missingSkillsList.length > 0) && (
                     <div className="bg-white rounded-2xl border border-[#F2F2F7] p-6">
                         <h2 className="text-[15px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>Kỹ năng đối chiếu</h2>
-                        
+
                         {matchedHardSkills.length > 0 && (
                             <div className="mb-4">
                                 <p className="text-[12px] text-[#34C759] mb-2" style={{ fontWeight: 600, textTransform: 'uppercase' }}>Đáp ứng (Bắt buộc)</p>

@@ -2,7 +2,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './global.css';
 import { cookies } from 'next/headers';
-import { GlobalSocketInit } from './GlobalSocketInit';
+import { GlobalSocketInit } from '../components/common/GlobalSocketInit';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 

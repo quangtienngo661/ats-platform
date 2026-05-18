@@ -84,7 +84,7 @@ export class AiConfigService {
 		const config = await this.getConfigOrThrow(configId);
 
 		if (config.isDefault) {
-			throw new BadRequestException('Cannot delete default AI config');
+			throw new BadRequestException('Không thể xóa cấu hình AI mặc định');
 		}
 
 		const screeningsCount = await this.prisma.cVScreening.count({
@@ -92,7 +92,7 @@ export class AiConfigService {
 		});
 
 		if (screeningsCount > 0) {
-			throw new BadRequestException('Cannot delete AI config that is used by CV screening');
+			throw new BadRequestException('Không thể xóa cấu hình AI đang được dùng cho sàng lọc CV');
 		}
 
 		return await this.prisma.aiConfig.delete({ where: { configId } });
@@ -118,7 +118,7 @@ export class AiConfigService {
 		const sum = skillsWeight + experienceWeight + educationWeight;
 		if (Math.abs(sum - 1) > AiConfigService.WEIGHT_SUM_EPSILON) {
 			throw new BadRequestException(
-				'skillsWeight + experienceWeight + educationWeight must equal exactly 1.0',
+				'Tổng skillsWeight + experienceWeight + educationWeight phải bằng đúng 1.0',
 			);
 		}
 	}
@@ -126,7 +126,7 @@ export class AiConfigService {
 	private async getConfigOrThrow(configId: string) {
 		const config = await this.prisma.aiConfig.findUnique({ where: { configId } });
 		if (!config) {
-			throw new NotFoundException(`AI config with ID ${configId} not found`);
+			throw new NotFoundException(`Không tìm thấy cấu hình AI với ID ${configId}`);
 		}
 		return config;
 	}

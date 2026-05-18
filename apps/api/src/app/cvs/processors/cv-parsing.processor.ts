@@ -3,10 +3,11 @@ import { GeminiService } from "../../../common/external-apis/gemini/gemini.servi
 import { Job } from "bullmq";
 import { CvParsedDataService } from "../cv-parsed-data/cv-parsed-data.service";
 import { PrismaService } from "../../../common/prisma/prisma.service";
-import { ParsingStatus } from "@ats-platform/database";
+import { NotificationType, ParsingStatus } from "@ats-platform/database";
 import { Logger } from "@nestjs/common";
 import { CV_PARSING_PROMPT } from "../../../common/constants/gemini-api";
 import { SocketIoService } from "apps/api/src/common/socket-io/socket-io.service";
+import { NotificationsService } from "../../notifications/notifications.service";
 
 @Processor('cv-processing', { concurrency: 5 })
 export class CvParsingProcessor extends WorkerHost {
@@ -15,6 +16,7 @@ export class CvParsingProcessor extends WorkerHost {
         private readonly geminiService: GeminiService,
         private readonly prisma: PrismaService,
         private readonly socketService: SocketIoService,
+        private readonly notificationsService: NotificationsService,
     ) {
         super();
     }
@@ -30,11 +32,15 @@ export class CvParsingProcessor extends WorkerHost {
             try {
                 const cv = await this.prisma.cV.findUnique({
                     where: { cvId },
-                    select: { rawText: true },
+                    select: {
+                        rawText: true,
+                        fileName: true,
+                        candidate: { select: { userId: true } },
+                    },
                 });
 
                 if (!cv?.rawText) {
-                    throw new Error(`Raw text not found for CV ID: ${cvId}`);
+                    throw new Error(`Không tìm thấy nội dung văn bản của CV ID: ${cvId}`);
                 }
 
                 // 3. Gọi Gemini parse
@@ -44,18 +50,23 @@ export class CvParsingProcessor extends WorkerHost {
                 );
 
                 // 4. Lưu DB trong transaction
-                await this.prisma.$transaction(async (tx) => {
+                const result = await this.prisma.$transaction(async (tx) => {
                     await this.cvParsedDataService.create(cvId, parsedData, tx);
-                    const result = await tx.cV.update({
+                    return tx.cV.update({
                         where: { cvId },
                         data: { parsingStatus: ParsingStatus.completed },
                         include: { parsedData: true }
                     });
-
-                    this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: result });
                 });
 
-                // 5. TODO: Socket notification
+                const userId = cv.candidate.userId;
+                this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: result }, `user_${userId}`);
+                await this.createNotificationSafe(
+                    userId,
+                    'Phân tích CV hoàn tất',
+                    `CV "${cv.fileName}" của bạn đã được phân tích thành công.`,
+                );
+
                 Logger.log(
                     `CV parsing completed for CV ID: ${cvId}`,
                     'CvParsingProcessor',
@@ -71,9 +82,18 @@ export class CvParsingProcessor extends WorkerHost {
                         parsingStatus: ParsingStatus.failed,
                         errorLog: error.message,
                     },
+                    include: {
+                        candidate: { select: { userId: true } },
+                    },
                 });
 
-                this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: errorCv });
+                const userId = errorCv.candidate.userId;
+                this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: errorCv }, `user_${userId}`);
+                await this.createNotificationSafe(
+                    userId,
+                    'Phân tích CV thất bại',
+                    `Không thể phân tích CV "${errorCv.fileName}" của bạn. Vui lòng thử lại.`,
+                );
 
                 Logger.error(
                     `CV parsing failed for CV ID: ${cvId}`,
@@ -83,6 +103,22 @@ export class CvParsingProcessor extends WorkerHost {
 
                 throw error; // BullMQ retry
             }
+        }
+    }
+
+    private async createNotificationSafe(userId: string, title: string, message: string) {
+        try {
+            await this.notificationsService.create({
+                userId,
+                type: NotificationType.system,
+                title,
+                message,
+            });
+        } catch (error) {
+            Logger.warn(
+                `Failed to create CV parsing notification for user ${userId}: ${error.message}`,
+                'CvParsingProcessor',
+            );
         }
     }
 }

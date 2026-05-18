@@ -1,7 +1,5 @@
 import { ICandidate } from "@ats-platform/types";
 import { UserStatus } from "@ats-platform/database";
-
-/** DTO đầu ra từ API cho một Candidate */
 export interface ICandidateDto extends ICandidate {
     candidateId: string;
     userId: string;

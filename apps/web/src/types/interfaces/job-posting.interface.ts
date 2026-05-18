@@ -1,7 +1,5 @@
 import { IJobPosting, IJobPostingSkills } from "@ats-platform/types";
 import { IApplicationDto } from "./application.interface";
-
-/** DTO đầu ra từ API cho một Job Posting */
 export interface IJobPostingDto extends Omit<IJobPosting, 'salaryMin' | 'salaryMax' | 'parsedRequirements' | 'publishedAt'> {
     jobId: string;
     title: string;
@@ -9,7 +7,7 @@ export interface IJobPostingDto extends Omit<IJobPosting, 'salaryMin' | 'salaryM
     salaryMin?: number | null;
     salaryMax?: number | null;
     description?: string;
-    parsedRequirements?: unknown;
+    parsedRequirements?: IParsedJobPostingDto | null;
     status?: string;
     publishedAt?: string | null;
     createdAt?: string;
@@ -44,6 +42,22 @@ export interface IJobPostingDto extends Omit<IJobPosting, 'salaryMin' | 'salaryM
         };
     }[];
     applications?: IApplicationDto[];
+}
+
+export interface IParsedJdRequirements {
+    minimum_experience_years: number | null;
+    education_level: 'Certificate' | 'Diploma' | 'Bachelor' | 'Master' | 'PhD' | null;
+    hard_skills: string[];
+    soft_skills: string[];
+    languages: string[];
+}
+
+export interface IParsedJobPostingDto {
+    job_summary: string | null;
+    responsibilities: string[];
+    requirements: IParsedJdRequirements;
+    nice_to_haves: string[];
+    benefits: string[];
 }
 
 export interface IFindJobPostingsQuery {

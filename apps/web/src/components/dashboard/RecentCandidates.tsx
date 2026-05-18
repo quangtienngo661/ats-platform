@@ -82,7 +82,7 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
                         return (
                             <Link
                                 key={app.applicationId}
-                                href={`/jobs/${app.jobPostingId}/candidates/${app.applicationId}`}
+                                href={`/jobs/${app.jobId}/candidates/${app.applicationId}`}
                                 className="flex items-center gap-3 px-5 py-3.5 hover:bg-[#F5F5F7] transition-colors group cursor-pointer"
                             >
                                 <div

@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SFT } from '@/types/fonts/fonts';
+import { motion, AnimatePresence } from 'motion/react';
 import { MyApplicationsHeader } from './ui/MyApplicationsHeader';
 import { MyApplicationsStats } from './ui/MyApplicationsStats';
 import { ApplicationCard } from './ui/ApplicationCard';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
-import { withdrawApplicationAction } from '@/servers/applications/applications.action';
+import { INotification } from '@/types/interfaces/notification.interface';
+import { useSocketStore } from '@/stores/useSocketStore';
 import { toast } from '@/lib/toast';
 
-// Re-export for child components
 export type { IApplicationCard as ApplicationItem };
 
 interface MyApplicationsClientProps {
@@ -18,57 +20,119 @@ interface MyApplicationsClientProps {
 
 type StatusFilter = 'all' | string;
 
+const STATUS_FILTERS: StatusFilter[] = [
+    'all',
+    'applied',
+    'screening',
+    'interview',
+    'offer',
+    'rejected',
+    'cancelled',
+];
+
+const FILTER_LABELS: Record<string, string> = {
+    all: 'Tất cả',
+    applied: 'Đã nộp',
+    screening: 'Sàng lọc',
+    interview: 'Phỏng vấn',
+    offer: 'Offer',
+    rejected: 'Từ chối',
+    cancelled: 'Rút đơn',
+};
+
 export default function MyApplicationsClient({ applications }: MyApplicationsClientProps) {
+    const [items, setItems] = useState<IApplicationCard[]>(applications);
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+    const router = useRouter();
+    const socket = useSocketStore();
+
+    useEffect(() => {
+        setItems(applications);
+    }, [applications]);
+
+    useEffect(() => {
+        if (socket.status !== 'connected') return;
+
+        const handleApplicationNotification = (notification: INotification) => {
+            const applicationType = 'application' as INotification['type'];
+            const applicationEntityType = 'application' as INotification['relatedEntityType'];
+
+            if (notification.type !== applicationType) return;
+            if (notification.relatedEntityType && notification.relatedEntityType !== applicationEntityType) return;
+
+            toast.info(notification.title, notification.message);
+
+            router.refresh();
+        };
+
+        socket.onEvent<INotification>('notification:new', handleApplicationNotification);
+        return () => {
+            socket.offEvent<INotification>('notification:new', handleApplicationNotification);
+        };
+    }, [router, socket]);
+
+    const handleWithdrawSuccess = useCallback((applicationId: string) => {
+        setItems((prev) =>
+            prev.map((application) =>
+                application.applicationId === applicationId
+                    ? { ...application, status: 'cancelled' }
+                    : application,
+            ),
+        );
+        router.refresh();
+    }, [router]);
 
     const filtered = statusFilter === 'all'
-        ? applications
-        : applications.filter((a) => a.status === statusFilter);
-
-    const handleWithdraw = async (appId: string) => {
-        // TODO: connect to withdrawApplicationAction
-        const result = await withdrawApplicationAction(appId);
-        if (result.success) {
-            toast.success("Đơn tuyển dụng", result.message);
-        } else {
-            toast.error("Đơn tuyển dụng", result.message);
-        }
-    };
+        ? items
+        : items.filter((application) => application.status === statusFilter);
 
     return (
         <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
             <MyApplicationsHeader />
-            <MyApplicationsStats applications={applications} />
+            <MyApplicationsStats applications={items} />
 
-            {/* Filter tabs */}
             <div className="flex items-center gap-1.5 mb-5 overflow-x-auto pb-1">
-                {(['all', 'applied', 'screening', 'interview', 'offer', 'rejected', 'cancelled'] as StatusFilter[]).map((s) => {
-                    const labels: Record<string, string> = {
-                        all: 'Tất cả', applied: 'Đã nộp', screening: 'Sàng lọc',
-                        interview: 'Phỏng vấn', offer: 'Offer', rejected: 'Từ chối', cancelled: 'Rút đơn',
-                    };
-                    const count = s === 'all' ? applications.length : applications.filter((a) => a.status === s).length;
-                    const isActive = statusFilter === s;
+                {STATUS_FILTERS.map((status) => {
+                    const count = status === 'all'
+                        ? items.length
+                        : items.filter((application) => application.status === status).length;
+                    const isActive = statusFilter === status;
+
                     return (
                         <button
-                            key={s}
-                            onClick={() => setStatusFilter(s)}
+                            key={status}
+                            type="button"
+                            onClick={() => setStatusFilter(status)}
                             className={`px-3 py-1.5 rounded-lg text-[12px] transition-all whitespace-nowrap ${isActive
                                 ? 'bg-[#0071E3] text-white'
                                 : 'bg-[#F5F5F7] text-[#6E6E73] hover:bg-[#EBEBF0]'
                                 }`}
                             style={{ fontWeight: isActive ? 600 : 400 }}
                         >
-                            {labels[s]} ({count})
+                            {FILTER_LABELS[status]} ({count})
                         </button>
                     );
                 })}
             </div>
 
-            <div className="flex flex-col gap-3">
-                {filtered.map((app) => (
-                    <ApplicationCard key={app.applicationId} application={app} onWithdraw={() => handleWithdraw(app.applicationId)} />
-                ))}
+            <motion.div layout className="flex flex-col gap-3">
+                <AnimatePresence mode="popLayout">
+                    {filtered.map((application) => (
+                        <motion.div
+                            key={application.applicationId}
+                            layout
+                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <ApplicationCard
+                                application={application}
+                                onWithdrawSuccess={handleWithdrawSuccess}
+                            />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
                 {filtered.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
@@ -76,11 +140,11 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
                             Không có đơn ứng tuyển nào
                         </p>
                         <p className="text-[12px] text-[#AEAEB2] mt-1">
-                            Hãy tìm và ứng tuyển việc làm phù hợp
+                            Hãy tìm và ứng tuyển công việc phù hợp
                         </p>
                     </div>
                 )}
-            </div>
+            </motion.div>
         </div>
     );
 }

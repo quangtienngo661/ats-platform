@@ -32,7 +32,9 @@ export class JobCategoriesService {
 		return await this.prisma.jobCategory.findMany({
 			include: {
 				parentCategory: true,
-				childCategories: true,
+				childCategories: {
+					include: { jobPostings: { select: { jobId: true } } }
+				},
 			},
 		});
 	}
@@ -47,7 +49,7 @@ export class JobCategoriesService {
 		});
 
 		if (!category) {
-			throw new NotFoundException(`Job category with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy danh mục công việc với ID ${id}`);
 		}
 
 		return category;
@@ -59,11 +61,11 @@ export class JobCategoriesService {
 		});
 
 		if (!existingCategory) {
-			throw new NotFoundException(`Job category with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy danh mục công việc với ID ${id}`);
 		}
 
 		if (updateJobCategoryDto.parentCategoryId === id) {
-			throw new BadRequestException('A category cannot be its own parent');
+			throw new BadRequestException('Danh mục không thể là danh mục cha của chính nó');
 		}
 
 		if (updateJobCategoryDto.parentCategoryId !== undefined) {
@@ -95,12 +97,12 @@ export class JobCategoriesService {
 		});
 
 		if (!existingCategory) {
-			throw new NotFoundException(`Job category with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy danh mục công việc với ID ${id}`);
 		}
 
 		if (existingCategory.childCategories.length > 0) {
 			throw new BadRequestException(
-				'Cannot delete a category that still has child categories',
+				'Không thể xóa danh mục vẫn còn danh mục con',
 			);
 		}
 
@@ -121,7 +123,7 @@ export class JobCategoriesService {
 
 		if (!parent) {
 			throw new NotFoundException(
-				`Parent category with ID ${parentCategoryId} not found`,
+				`Không tìm thấy danh mục cha với ID ${parentCategoryId}`,
 			);
 		}
 	}
@@ -132,7 +134,7 @@ export class JobCategoriesService {
 		while (currentParentId) {
 			if (currentParentId === categoryId) {
 				throw new BadRequestException(
-					'Circular hierarchy detected in category parent relation',
+					'Phát hiện vòng lặp trong quan hệ danh mục cha',
 				);
 			}
 

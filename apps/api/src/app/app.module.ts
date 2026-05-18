@@ -24,6 +24,8 @@ import { AiUsageLogsModule } from './ai-usage-logs/ai-usage-logs.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 import { SocketIoModule } from '../common/socket-io/socket-io.module';
+import { InterviewsModule } from './interviews/interviews.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -38,8 +40,8 @@ import { SocketIoModule } from '../common/socket-io/socket-io.module';
         backoff: {
           type: 'exponential',
           delay: 10000,
-        }
-      }
+        },
+      },
     }),
     AuthModule,
     UsersModule,
@@ -63,9 +65,11 @@ import { SocketIoModule } from '../common/socket-io/socket-io.module';
     AiUsageLogsModule,
     ApplicationsModule,
     CvScreeningsModule,
-    SocketIoModule
+    SocketIoModule,
+    InterviewsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -54,7 +54,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     },
 
     // ── Emit Custom Event ────────────────────────────────────────────────────────
-    emitEvent: (eventName: string, payload: any) => {
+    emitEvent: <T>(eventName: string, payload: T) => {
         const { socket } = get();
         if (socket) {
             socket.emit(eventName, payload);

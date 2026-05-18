@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { cookies } from 'next/headers';
+import { getNotificationsAction, getUnreadCountAction } from '@/servers/notifications/notifications.action';
 
 export const metadata = {
   title: 'HR Portal | TalentAI',
@@ -21,8 +22,21 @@ export default async function HRRouteLayout({ children }: { children: React.Reac
     } catch {}
   }
 
+  const [notifications, unreadCount] = token
+    ? await Promise.all([
+        getNotificationsAction(1, 20),
+        getUnreadCountAction(),
+      ])
+    : [{ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
+
   return (
-    <DashboardLayout userRole={userRole} userName={userName} userEmail={userEmail}>
+    <DashboardLayout
+      userRole={userRole}
+      userName={userName}
+      userEmail={userEmail}
+      initialNotifications={notifications.data}
+      initialUnreadCount={unreadCount}
+    >
       {children}
     </DashboardLayout>
   );

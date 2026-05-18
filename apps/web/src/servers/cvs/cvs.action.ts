@@ -26,12 +26,6 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── UPLOAD CV ────────────────────────────────────────────────────────────────
-
-/**
- * POST /cvs/upload
- * Roles: candidate
- * Note: file upload phải dùng FormData với multipart/form-data
- */
 export async function uploadCvAction(
     prevState: CvActionState,
     formData: FormData
@@ -55,11 +49,6 @@ export async function uploadCvAction(
 }
 
 // ─── GET MY CVs ───────────────────────────────────────────────────────────────
-
-/**
- * GET /cvs/me
- * Roles: candidate
- */
 export async function getMyCvsAction(): Promise<ICvDto[]> {
     try {
         const response = await http.get('/cvs/me');
@@ -70,11 +59,6 @@ export async function getMyCvsAction(): Promise<ICvDto[]> {
 }
 
 // ─── GET CV BY ID ─────────────────────────────────────────────────────────────
-
-/**
- * GET /cvs/:cvId
- * Roles: admin, recruiter, candidate (owner)
- */
 export async function getCvByIdAction(cvId: string): Promise<ICvDto | null> {
     if (!cvId) return null;
     try {
@@ -86,11 +70,6 @@ export async function getCvByIdAction(cvId: string): Promise<ICvDto | null> {
 }
 
 // ─── GET PARSED CV DATA ───────────────────────────────────────────────────────
-
-/**
- * GET /cvs/:cvId/parsed-data
- * Roles: admin, recruiter, candidate (owner)
- */
 export async function getCvParsedDataAction(cvId: string): Promise<ICvParsedData | null> {
     if (!cvId) return null;
     try {
@@ -102,12 +81,6 @@ export async function getCvParsedDataAction(cvId: string): Promise<ICvParsedData
 }
 
 // ─── GET CV DOWNLOAD URL ──────────────────────────────────────────────────────
-
-/**
- * GET /cvs/:cvId/download
- * Roles: admin, recruiter, candidate (owner)
- * Returns the download URL to redirect to
- */
 export async function getCvDownloadUrlAction(cvId: string): Promise<string> {
     // Trả về URL để client redirect tới — server không xử lý stream file
     const { SERVER_URL } = await import('@/types/constants/urls');
@@ -115,11 +88,6 @@ export async function getCvDownloadUrlAction(cvId: string): Promise<string> {
 }
 
 // ─── CONFIRM CV ───────────────────────────────────────────────────────────────
-
-/**
- * POST /cvs/:cvId/confirm
- * Roles: candidate (owner)
- */
 export async function confirmCvAction(
     prevState: CvActionState,
     formData: FormData
@@ -156,11 +124,6 @@ export async function confirmCvAction(
 }
 
 // ─── DELETE CV ────────────────────────────────────────────────────────────────
-
-/**
- * DELETE /cvs/:cvId
- * Roles: candidate (owner)
- */
 export async function deleteCvAction(cvId: string): Promise<CvActionState> {
     if (!cvId) return { success: false, message: 'Thiếu ID CV' };
 

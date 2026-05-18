@@ -2,8 +2,6 @@ import { IApplication, IApplicationCard, IKanbanColumn } from "@ats-platform/typ
 import { ICandidateDto } from "./candidate.interface";
 import { IJobPostingDto } from "./job-posting.interface";
 import { IScreeningResultDto } from "./cv-screening.interface";
-
-/** DTO đầu ra từ API cho một Application */
 export interface IApplicationDto extends IApplication {
     applicationId: string;
     jobId: string;
@@ -26,8 +24,6 @@ export interface IApplicationDto extends IApplication {
     candidate?: ICandidateDto;
     screening?: IScreeningResultDto | null;
 }
-
-/** Một entry trong lịch sử thay đổi trạng thái đơn ứng tuyển */
 export interface IApplicationHistoryItem {
     historyId: string;
     applicationId: string;

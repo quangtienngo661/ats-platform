@@ -14,7 +14,7 @@ export const CVUploadInterceptor = FileInterceptor('file', {
     // storage: memoryStorage(),
     fileFilter: (req, file, cb) => {
         if (file.mimetype !== 'application/pdf') {
-            return cb(new BadRequestException('Accept pdf format only'), false);
+            return cb(new BadRequestException('Chỉ chấp nhận file PDF'), false);
         }
         cb(null, true);
     },

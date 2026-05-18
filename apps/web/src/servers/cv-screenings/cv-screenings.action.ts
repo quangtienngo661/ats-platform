@@ -20,11 +20,6 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── GET SCREENING STATS ──────────────────────────────────────────────────────
-
-/**
- * GET /screening/stats?jobId=
- * Roles: admin, recruiter
- */
 export async function getScreeningStatsAction(jobId: string): Promise<IScreeningStats | null> {
     if (!jobId) return null;
     try {
@@ -36,12 +31,6 @@ export async function getScreeningStatsAction(jobId: string): Promise<IScreening
 }
 
 // ─── GET MY SCREENING RESULT (Candidate) ──────────────────────────────────────
-
-/**
- * GET /screening/me/:applicationId
- * Roles: candidate
- * Trả về kết quả sàng lọc partial cho ứng viên chính xem
- */
 export async function getMyScreeningResultAction(applicationId: string): Promise<ICandidateScreeningResult | null> {
     if (!applicationId) return null;
     try {
@@ -53,12 +42,6 @@ export async function getMyScreeningResultAction(applicationId: string): Promise
 }
 
 // ─── GET FULL SCREENING RESULT (HR) ──────────────────────────────────────────
-
-/**
- * GET /screening/:applicationId
- * Roles: admin, recruiter
- * Trả về kết quả sàng lọc đầy đủ cho HR xem
- */
 export async function getScreeningResultAction(applicationId: string): Promise<IScreeningResultDto | null> {
     if (!applicationId) return null;
     try {

@@ -42,8 +42,8 @@ export class MailService {
   }
 
   async sendVerificationEmail(to: string, verifyLink: string) {
-    const subject = 'Verify your email';
-    const text = `Please verify your email by opening this link: ${verifyLink}`;
+    const subject = 'Xác minh email của bạn';
+    const text = `Vui lòng xác minh email bằng cách mở liên kết này: ${verifyLink}`;
 
     if (!this.isEnabled) {
       this.logger.log(`[SMTP disabled] Would send verify email to ${to}: ${verifyLink}`);
@@ -60,8 +60,8 @@ export class MailService {
   }
 
   async sendForgotPasswordEmail(to: string, resetLink: string) {
-    const subject = 'Reset your password';
-    const text = `Please reset your password by opening this link: ${resetLink}`;
+    const subject = 'Đặt lại mật khẩu của bạn';
+    const text = `Vui lòng đặt lại mật khẩu bằng cách mở liên kết này: ${resetLink}`;
 
     if (!this.isEnabled) {
       this.logger.log(`[SMTP disabled] Would send forgot password email to ${to}: ${resetLink}`);

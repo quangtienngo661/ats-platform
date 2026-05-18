@@ -1,10 +1,10 @@
-import { getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
 import { getJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { HomeHero } from '@/components/public/home/HomeHero';
 import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { HomeStats } from '@/components/public/home/HomeStats';
 import { HomeCategories } from '@/components/public/home/HomeCategories';
 import { HomeFeaturedJobs } from '@/components/public/home/HomeFeaturedJobs';
+import { HomeAIHighlight } from '@/components/public/home/HomeAIHighlight';
 
 export const metadata = {
     title: 'TalentAI | Tìm việc làm phù hợp với bạn',
@@ -12,15 +12,15 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-    const [{ data: featuredJobs }, categories] = await Promise.all([
-        getJobPostingsAction({ status: 'active', limit: 6 }),
-        getJobCategoriesAction(),
-    ]);
+    const categories = await getJobCategoriesAction();
 
     return (
         <>
             {/* Hero Section */}
             <HomeHero />
+
+            {/* AI Highlight Section */}
+            <HomeAIHighlight />
 
             {/* Stats */}
             <HomeStats />
@@ -28,8 +28,8 @@ export default async function HomePage() {
             {/* Job Categories */}
             <HomeCategories categories={categories} />
 
-            {/* Featured Jobs */}
-            <HomeFeaturedJobs jobs={featuredJobs} />
+            {/* Featured Jobs CTA */}
+            <HomeFeaturedJobs />
 
             <PublicFooter />
         </>

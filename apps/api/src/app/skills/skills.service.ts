@@ -15,7 +15,7 @@ export class SkillsService {
 		});
 
 		if (existingSkill) {
-			throw new BadRequestException('Skill already exists');
+			throw new BadRequestException('Kỹ năng đã tồn tại');
 		}
 
 		return await this.prisma.skill.create({
@@ -63,7 +63,7 @@ export class SkillsService {
 		});
 
 		if (!skill) {
-			throw new NotFoundException(`Skill with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy kỹ năng với ID ${id}`);
 		}
 
 		return skill;
@@ -75,7 +75,7 @@ export class SkillsService {
 		});
 
 		if (!skill) {
-			throw new NotFoundException(`Skill with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy kỹ năng với ID ${id}`);
 		}
 
 		return await this.prisma.skill.update({
@@ -93,7 +93,7 @@ export class SkillsService {
 		});
 
 		if (!skill) {
-			throw new NotFoundException(`Skill with ID ${id} not found`);
+			throw new NotFoundException(`Không tìm thấy kỹ năng với ID ${id}`);
 		}
 
 		return await this.prisma.skill.delete({

@@ -21,7 +21,7 @@ export function PublicFooter() {
                         <div>
                             <p className="text-[12px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-3" style={{ fontWeight: 600 }}>Ứng viên</p>
                             <nav className="flex flex-col gap-2">
-                                <Link href="/jobs" className="text-[13px] text-[#6E6E73] hover:text-[#0071E3] transition-colors">Tìm việc làm</Link>
+                                <Link href="/job-postings" className="text-[13px] text-[#6E6E73] hover:text-[#0071E3] transition-colors">Tìm việc làm</Link>
                                 <Link href="/profile" className="text-[13px] text-[#6E6E73] hover:text-[#0071E3] transition-colors">Hồ sơ của tôi</Link>
                                 <Link href="/my-applications" className="text-[13px] text-[#6E6E73] hover:text-[#0071E3] transition-colors">Đơn ứng tuyển</Link>
                             </nav>

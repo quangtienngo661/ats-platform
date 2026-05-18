@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { cookies } from 'next/headers';
+import { getNotificationsAction, getUnreadCountAction } from '@/servers/notifications/notifications.action';
 
 export const metadata = {
   title: 'Quản trị | TalentAI',
@@ -20,5 +21,20 @@ export default async function AdminLayout({
     } catch {}
   }
 
-  return <DashboardLayout userRole={userRole}>{children}</DashboardLayout>;
+  const [notifications, unreadCount] = token
+    ? await Promise.all([
+        getNotificationsAction(1, 20),
+        getUnreadCountAction(),
+      ])
+    : [{ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
+
+  return (
+    <DashboardLayout
+      userRole={userRole}
+      initialNotifications={notifications.data}
+      initialUnreadCount={unreadCount}
+    >
+      {children}
+    </DashboardLayout>
+  );
 }

@@ -6,13 +6,15 @@ import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { AiUsageLogsService } from '../ai-usage-logs/ai-usage-logs.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     BullModule.registerQueue({
       name: 'cv-screening',
       defaultJobOptions: { removeOnComplete: true },
-    })
+    }),
+    NotificationsModule
   ],
   controllers: [CvScreeningsController],
   providers: [
