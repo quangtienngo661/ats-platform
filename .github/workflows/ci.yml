@@ -17,6 +17,10 @@ jobs:
   debug:
     name: Debug versions
     runs-on: ubuntu-latest
+    
+    strategy: 
+      matrix: 
+        node-version: [22, 24]
 
     steps:
       - name: Checkout code
@@ -27,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: package-lock.json
 
