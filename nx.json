@@ -5,10 +5,7 @@
     "enabled": false
   },
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
       "!{projectRoot}/.eslintrc.json",
@@ -78,5 +75,6 @@
         "linter": "eslint"
       }
     }
-  }
+  },
+  "analytics": true
 }

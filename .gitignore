@@ -55,3 +55,6 @@ uploads
 important-notes
 scratch
 note.txt
+.claude/worktrees
+.nx/polygraph
+.nx/self-healing
