@@ -14,74 +14,54 @@ concurrency:
   cancel-in-progress: true
   
 jobs: 
-  debug:
-    name: Debug versions
+  validate:
+    name: Validate affected projects
     runs-on: ubuntu-latest
-    
+
     strategy: 
       matrix: 
-        node-version: [22, 24]
+        node-version: [24]
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Print versions
-        run: |
-          node -v
-          npm -v
-          git status
-          git branch --show-current
-
-  # validate:
-  #   name: Validate affected projects
-  #   runs-on: ubuntu-latest
-
-  #   strategy: 
-  #     matrix: 
-  #       node-version: [22, 24]
-
-  #   env:
-  #     NODE_ENV: test
+    env:
+      NODE_ENV: test
     
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
-  #     with: 
-  #       fetch-depth: 0
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with: 
+        fetch-depth: 0
 
-  #   - name: Setup Node.js
-  #     uses: actions/setup-node@v4
-  #     with: 
-  #       node-version: ${{ matrix.node-version }}
-  #       cache: "npm"
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with: 
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+        cache-dependency-path: package-lock.json
 
-  #   - name: Install dependencies
-  #     run: npm ci
+    - name: Print versions
+      run: |
+        node -v
+        npm -v
+        git status
+        git branch -a
+
+    - name: Install dependencies
+      run: npm ci
       
-  #   - name: Set Nx base and head SHAs
-  #     uses: nrwl/nx-set-shas@v5
+    - name: Set Nx base and head SHAs
+      uses: nrwl/nx-set-shas@v5
 
-  #   - name: Lint affected projects
-  #     run: npx nx affected -t lint
+    - name: Lint affected projects
+      run: npx nx affected -t lint
 
-  #   - name: Test affected projects
-  #     run: npx nx affected -t test 
+    - name: Test affected projects
+      run: npx nx affected -t test 
 
-  #   - name: Generate Prisma Client
-  #     run: npx prisma generate --schema=libs/backend/database/prisma/schema.prisma
-  #     env:
-  #       DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+    - name: Generate Prisma Client
+      run: npx prisma generate --schema=libs/backend/database/prisma/schema.prisma
+      env:
+        DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
-  #   - name: Build affected projects
-  #     run: npx nx affected -t build
+    - name: Build affected projects
+      run: npx nx affected -t build
       
