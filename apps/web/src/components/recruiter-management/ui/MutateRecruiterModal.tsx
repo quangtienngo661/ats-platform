@@ -1,14 +1,19 @@
 'use client';
 
-import { useState, useActionState, useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import { createRecruiterAction, updateRecruiterAction, RecruiterActionState } from '@/servers/recruiters/recruiters.action';
 import SubmitButton from '@/components/common/SubmitButton';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
-import { UserRole } from '@ats-platform/database';
 import { IUserDto } from '@ats-platform/types';
+
+const UserRole = {
+    candidate: 'candidate',
+    recruiter: 'recruiter',
+    admin: 'admin'
+} as const
 
 interface DepartmentOption {
     departmentId: string;
