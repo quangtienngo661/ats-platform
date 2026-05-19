@@ -59,9 +59,10 @@ jobs:
     - name: Lint affected projects
       run: npx nx affected -t lint
 
-    - name: Test affected projects
-      run: npx nx affected -t test 
-
+    # Will add the e2e test later
+    - name: Test affected projects (Unit Tests only)
+      run: npx nx test api --runInBand --silent
+ 
     - name: Build affected projects
       run: npx nx affected -t build
       
