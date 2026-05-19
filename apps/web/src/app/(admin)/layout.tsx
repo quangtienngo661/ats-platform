@@ -14,23 +14,32 @@ export default async function AdminLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
-  let userRole;
+  let userRole: string | undefined;
+  let userName: string | undefined;
+  let userEmail: string | undefined;
   if (token) {
     try {
-      userRole = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).role;
-    } catch {}
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      userRole = payload.role;
+      userName = payload.fullName;
+      userEmail = payload.email;
+    } catch {
+      // ignore token parse errors
+    }
   }
 
   const [notifications, unreadCount] = token
     ? await Promise.all([
-        getNotificationsAction(1, 20),
-        getUnreadCountAction(),
-      ])
+      getNotificationsAction(1, 20),
+      getUnreadCountAction(),
+    ])
     : [{ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
 
   return (
     <DashboardLayout
       userRole={userRole}
+      userName={userName}
+      userEmail={userEmail}
       initialNotifications={notifications.data}
       initialUnreadCount={unreadCount}
     >

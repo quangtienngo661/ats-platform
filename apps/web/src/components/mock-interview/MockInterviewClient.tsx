@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Cpu, Sparkles, History, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Cpu, Sparkles, History, ArrowRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IInterviewTopic, ISessionSummary } from '@/types/interfaces/interview.interface';
 import { TopicSelector } from './ui/TopicSelector';
@@ -11,57 +11,8 @@ import { DifficultySelector } from './ui/DifficultySelector';
 import { SessionCard } from './ui/SessionCard';
 import { DifficultyLevel } from '@ats-platform/database';
 import { startInterviewSessionAction, abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useSocketStore } from '@/stores/useSocketStore';
-
-// Simple Modal Component
-function ConfirmModal({ isOpen, title, description, onConfirm, onCancel, confirmText = 'Xác nhận', cancelText = 'Hủy', isConfirming = false }: any) {
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-[400px] overflow-hidden"
-            >
-                <div className="p-6">
-                    <div className="w-12 h-12 rounded-full bg-[#FFFBEB] flex items-center justify-center mb-4">
-                        <AlertTriangle className="w-6 h-6 text-[#F59E0B]" />
-                    </div>
-                    <h3 className="text-[18px] text-[#1D1D1F] mb-2" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        {title}
-                    </h3>
-                    <p className="text-[14px] text-[#6E6E73] mb-6 leading-relaxed">
-                        {description}
-                    </p>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onCancel}
-                            disabled={isConfirming}
-                            className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5E5EA] text-[#1D1D1F] text-[14px] hover:bg-[#F5F5F7] transition-colors disabled:opacity-50"
-                            style={{ fontWeight: 600 }}
-                        >
-                            {cancelText}
-                        </button>
-                        <button
-                            onClick={onConfirm}
-                            disabled={isConfirming}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-[#FF3B30] text-white text-[14px] hover:bg-[#D70015] transition-colors flex items-center justify-center disabled:opacity-50"
-                            style={{ fontWeight: 600 }}
-                        >
-                            {isConfirming ? (
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                confirmText
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </motion.div>
-        </div>
-    );
-}
 
 interface MockInterviewClientProps {
     topics: IInterviewTopic[];
@@ -76,6 +27,8 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isAbandoning, setIsAbandoning] = useState(false);
 
+    const socket = useSocketStore();
+
     const activeSession = history.find(s => s.status === 'in_progress');
     const canStart = selectedTopic && selectedDifficulty && !isStarting && !isAbandoning;
 
@@ -83,8 +36,7 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
         setIsStarting(true);
         const result = await startInterviewSessionAction(selectedTopic!, selectedDifficulty!);
         if (result.success) {
-            const sessionId = result.sessionId;
-            router.push(`/mock-interview/${sessionId}`);
+            router.push(`/mock-interview/${result.sessionId}`);
         } else {
             setIsStarting(false);
         }
@@ -92,12 +44,10 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
 
     const handleStart = async () => {
         if (!canStart) return;
-
         if (activeSession) {
             setShowConfirmModal(true);
             return;
         }
-
         await createNewSession();
     };
 
@@ -110,9 +60,19 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
             await createNewSession();
         } else {
             setIsAbandoning(false);
-            // Có thể thêm toast thông báo lỗi ở đây
         }
     };
+
+    useEffect(() => {
+        const handleUpdateHistory = () => {
+            router.refresh();
+        }
+        socket.onEvent("interview:session_completed", handleUpdateHistory);
+
+        return () => {
+            socket.offEvent("interview:session_completed", handleUpdateHistory);
+        };
+    }, [socket, router]);
 
     return (
         <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>

@@ -16,8 +16,8 @@ function extractMessage(error: unknown, fallback: string): string {
 
 // ─── Server Actions ───────────────────────────────────────────────────────────
 export async function getNotificationsAction(
-    page: number = 1,
-    limit: number = 20,
+    page = 1,
+    limit = 20,
     isRead?: boolean,
 ): Promise<IPaginatedNotifications> {
     try {

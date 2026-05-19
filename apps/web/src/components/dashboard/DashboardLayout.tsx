@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  LayoutDashboard, Users, Briefcase, CalendarCheck,
-  Settings, LogOut, Sparkles, Search,
-  Menu, X, Plus, UserCircle, ChevronRight, Cpu,
+  LayoutDashboard, Briefcase, CalendarCheck,
+  Settings, LogOut, Sparkles,
+  Menu, X, UserCircle, Cpu,
   Building2, Zap, FolderTree, Activity, Users2,
 } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
@@ -16,7 +16,7 @@ import { INotification } from '@/types/interfaces/notification.interface';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Bảng điều khiển', href: '/dashboard' },
-  { icon: Briefcase, label: 'Tin tuyển dụng', href: '/jobs', badge: 3 },
+  { icon: Briefcase, label: 'Tin tuyển dụng', href: '/jobs' },
   { icon: CalendarCheck, label: 'Lịch phỏng vấn', href: '/interviews' },
 ];
 
@@ -35,8 +35,6 @@ const bottomItems = [
   { icon: Settings, label: 'Hồ sơ của tôi', href: '/my-profile' },
   { icon: LogOut, label: 'Đăng xuất', href: '/sign-in/admin' },
 ];
-
-
 
 // ── SidebarContent ───────────────────────────────────────────────────────────
 function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string }) {
@@ -62,24 +60,8 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
         )}
       </div>
 
-      {/* Workspace selector */}
-      <div className="px-4 pt-4 pb-2 flex-shrink-0">
-        <button className="w-full flex items-center justify-between bg-[#F5F5F7] hover:bg-[#EBEBF0] transition-colors rounded-xl px-3 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-[#0071E3] flex items-center justify-center text-white text-[10px]" style={{ fontFamily: SF, fontWeight: 700 }}>
-              A
-            </div>
-            <div className="text-left">
-              <p className="text-[12px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontWeight: 500 }}>Acme Corp</p>
-              <p className="text-[10px] text-[#6E6E73]">HR Manager</p>
-            </div>
-          </div>
-          <ChevronRight className="w-3 h-3 text-[#AEAEB2]" />
-        </button>
-      </div>
-
       {/* Section label: Tuyển dụng */}
-      <div className="px-5 pt-3 pb-1 flex-shrink-0">
+      <div className="px-5 pt-4 pb-1 flex-shrink-0">
         <span className="text-[10px] uppercase tracking-[0.07em] text-[#AEAEB2]" style={{ fontWeight: 600 }}>
           Tuyển dụng
         </span>
@@ -88,7 +70,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
       {/* Nav */}
       <nav className="flex-1 px-3 pb-3 overflow-y-auto" style={{ fontFamily: SFT }}>
         <ul className="space-y-0.5">
-          {navItems.map(({ icon: Icon, label, href, badge }) => {
+          {navItems.map(({ icon: Icon, label, href }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             return (
               <li key={label}>
@@ -102,15 +84,6 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
                   <span className="flex-1 text-[13px] tracking-[-0.01em]" style={{ fontWeight: isActive ? 500 : 400 }}>
                     {label}
                   </span>
-                  {badge !== undefined && (
-                    <span
-                      className={`text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center ${isActive ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73]'
-                        }`}
-                      style={{ fontWeight: 600 }}
-                    >
-                      {badge}
-                    </span>
-                  )}
                 </Link>
               </li>
             );
@@ -215,17 +188,13 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
 // ── DashboardHeader ──────────────────────────────────────────────────────────
 function DashboardHeader({
   onMenuOpen,
-  initials,
   initialNotifications,
   initialUnreadCount,
 }: {
   onMenuOpen: () => void;
-  initials: string;
   initialNotifications: INotification[];
   initialUnreadCount: number;
 }) {
-  const [searchFocus, setSearchFocus] = useState(false);
-
   return (
     <header className="h-[64px] bg-white border-b border-[#F2F2F7] flex items-center px-4 lg:px-6 gap-4 sticky top-0 z-20" style={{ fontFamily: SFT }}>
       <button onClick={onMenuOpen} className="lg:hidden p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors">
@@ -234,7 +203,6 @@ function DashboardHeader({
 
       <div className="flex-1" />
 
-      {/* Notifications — sử dụng NotificationDropdown component */}
       <NotificationDropdown
         initialNotifications={initialNotifications}
         initialUnreadCount={initialUnreadCount}
@@ -298,7 +266,6 @@ export function DashboardLayout({
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[220px] xl:pl-[240px]">
         <DashboardHeader
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          initials={initials}
           initialNotifications={initialNotifications}
           initialUnreadCount={initialUnreadCount}
         />

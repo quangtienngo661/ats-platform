@@ -53,7 +53,7 @@ export class CVsController {
   ) {
     try {
       const candidateId = await this.resolveCandidateId(req.user.userId);
-      return this.cvsService.uploadCV(candidateId, file, body.fileName);
+      return await this.cvsService.uploadCV(candidateId, file, body.fileName);
     } catch (error) {
       await fs.unlink(file.path);
       throw new BadRequestException('Tải CV lên thất bại', error.message);

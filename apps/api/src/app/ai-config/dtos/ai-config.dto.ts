@@ -16,7 +16,7 @@ export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
         description: 'Whether this config becomes the active default config',
     })
     @IsBoolean()
-    isDefault: boolean = false;
+    isDefault = false;
 
     @ApiPropertyOptional({
         example: 'Default CV Screening Config',

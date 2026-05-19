@@ -18,7 +18,7 @@ export interface IAiUsageLogResponse {
     pagination: IAiUsageLogPagination;
 }
 
-export const getAIUsageLogsAction = async (page: number = 1): Promise<IAiUsageLogResponse | AiUsageLogState> => {
+export const getAIUsageLogsAction = async (page = 1): Promise<IAiUsageLogResponse | AiUsageLogState> => {
     try {
         const response = await http.get(`/ai-usage-logs?page=${page}`)
         return response.data;

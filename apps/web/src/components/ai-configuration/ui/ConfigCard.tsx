@@ -84,7 +84,7 @@ export function ConfigCard({
                         <input
                             type="text"
                             disabled={!isEditing}
-                            value={isEditing ? draft.name : profile.name}
+                            value={isEditing ? (draft.name || '') : (profile.name || '')}
                             onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                             className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
                             style={{ fontFamily: SF, fontWeight: 600 }}
@@ -98,7 +98,7 @@ export function ConfigCard({
                         <input
                             type="text"
                             disabled={!isEditing}
-                            value={isEditing ? draft.description : profile.description}
+                            value={isEditing ? (draft.description || '') : (profile.description || '')}
                             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                             className="text-[12px] text-[#AEAEB2] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
                             style={{ fontFamily: SF }}

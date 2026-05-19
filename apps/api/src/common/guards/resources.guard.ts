@@ -11,7 +11,7 @@ export class OwnershipGuard implements CanActivate {
     ) { }
 
     async canActivate(context: ExecutionContext) {
-        const resource = this.reflector.getAllAndOverride<String>(RESOURCES_KEY, [
+        const resource = this.reflector.getAllAndOverride<string>(RESOURCES_KEY, [
             context.getHandler(),
             context.getClass(),
         ])

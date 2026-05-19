@@ -5,8 +5,8 @@ import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { NotificationType, RelatedEntityType, ScreeningStatus } from '@ats-platform/database';
-import { SocketIoService } from 'apps/api/src/common/socket-io/socket-io.service';
-import { applicationIncludeOptions } from 'apps/api/src/common/utils/include-options.util';
+import { SocketIoService } from '../../../common/socket-io/socket-io.service';
+import { applicationIncludeOptions } from '../../../common/utils/include-options.util';
 import { NotificationsService } from '../../notifications/notifications.service';
 
 @Processor('cv-screening', { concurrency: 5 })

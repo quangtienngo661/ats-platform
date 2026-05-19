@@ -196,7 +196,7 @@ export async function refreshAction(): Promise<AuthState> {
 }
 
 export async function logoutAction(
-    redirectTo: string = "/sign-in"
+    redirectTo = "/sign-in"
 ): Promise<AuthState> {
     try {
         const cookiesStore = await cookies();

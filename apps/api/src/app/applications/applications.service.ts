@@ -231,7 +231,7 @@ export class ApplicationsService {
     }
 
     async getAllKanbanBoard(userId: string, role: string) {
-        let whereCondition: any = { status: { not: ApplicationStatus.cancelled } };
+        const whereCondition: any = { status: { not: ApplicationStatus.cancelled } };
 
         if (role === UserRole.recruiter) {
             const recruiter = await this.prisma.recruiter.findUnique({

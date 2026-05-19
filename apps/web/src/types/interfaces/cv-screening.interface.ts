@@ -1,7 +1,5 @@
 import { ICVScreening } from "@ats-platform/types";
-export interface IScreeningResultDto extends ICVScreening {
-
-}
+export type IScreeningResultDto = ICVScreening
 export interface IScreeningStats {
     jobId: string;
     total: number;

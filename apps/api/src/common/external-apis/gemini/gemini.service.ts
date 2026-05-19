@@ -71,7 +71,7 @@ export class GeminiService {
     async generateInterviewQuestions(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_Flash,
+        model: string = GeminiModel.G_3_1_Pro,
     ) {
         const result = await this.generateContent(
             refId,
@@ -85,7 +85,7 @@ export class GeminiService {
     async checkInterviewFollowup(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_Flash,
+        model: string = GeminiModel.G_3_1_Pro,
     ) {
         const result = await this.generateContent(
             refId,
@@ -99,7 +99,7 @@ export class GeminiService {
     async evaluateInterviewAnswer(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_Flash,
+        model: string = GeminiModel.G_3_1_Pro,
     ) {
         const result = await this.generateContent(
             refId,

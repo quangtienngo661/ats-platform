@@ -30,25 +30,37 @@ export const screeningConfig: GenerateContentConfig = {
 import { MOCK_INTERVIEW_GENERATE_PROMPT, MOCK_INTERVIEW_FOLLOWUP_PROMPT, MOCK_INTERVIEW_EVALUATE_PROMPT, MOCK_INTERVIEW_RESULT_PROMPT } from '../constants/gemini-api';
 
 export const mockInterviewGenerateConfig: GenerateContentConfig = {
-    temperature: 0.7,
+    temperature: 1,
     responseMimeType: "application/json",
     systemInstruction: MOCK_INTERVIEW_GENERATE_PROMPT,
+    thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH
+    }
 };
 
 export const mockInterviewFollowupConfig: GenerateContentConfig = {
-    temperature: 0.5,
+    temperature: 1,
     responseMimeType: "application/json",
     systemInstruction: MOCK_INTERVIEW_FOLLOWUP_PROMPT,
+    thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH
+    }
 };
 
 export const mockInterviewEvaluateConfig: GenerateContentConfig = {
-    temperature: 0.5,
+    temperature: 1,
     responseMimeType: "application/json",
     systemInstruction: MOCK_INTERVIEW_EVALUATE_PROMPT,
+    thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH
+    }
 };
 
 export const mockInterviewResultConfig: GenerateContentConfig = {
-    temperature: 0.7,
+    temperature: 1,
     responseMimeType: "application/json",
     systemInstruction: MOCK_INTERVIEW_RESULT_PROMPT,
+    thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH
+    }
 };
