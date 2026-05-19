@@ -1,7 +1,7 @@
 //@ts-check
 const path = require('path');
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+ 
 const { composePlugins, withNx } = require('@nx/next');
 
 /**

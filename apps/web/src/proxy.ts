@@ -139,8 +139,6 @@ export async function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
-
-
     // ── Từ đây: Chắc chắn là Private Route ──────────────────────────────────
 
     // CASE 1: Có accessToken còn hạn → kiểm tra role rồi cho đi tiếp
@@ -162,7 +160,7 @@ export async function proxy(request: NextRequest) {
         if (!isAllowed) {
             // Redirect về trang chủ phù hợp với từng role
             if (userRole === 'candidate') {
-                return NextResponse.redirect(new URL('/job-postings', request.url));
+                return NextResponse.redirect(new URL('/', request.url));
             }
             if (userRole === 'admin' || userRole === 'recruiter') {
                 return NextResponse.redirect(new URL('/dashboard', request.url));
