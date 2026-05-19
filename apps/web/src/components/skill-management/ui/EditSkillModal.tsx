@@ -36,7 +36,6 @@ export function EditSkillModal({ skill, existingCategories, onClose }: EditSkill
         } else if (state.message) {
             toast.error('Lỗi', state.message);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
 
     return (

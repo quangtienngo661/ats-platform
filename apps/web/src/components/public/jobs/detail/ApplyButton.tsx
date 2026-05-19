@@ -49,7 +49,6 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
         } else if (state.message) {
             toast.error('Ứng tuyển thất bại', state.message);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
 
     if (!isLoggedIn) {

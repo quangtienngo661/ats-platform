@@ -33,7 +33,7 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
     if (screening?.matchedSkills) {
         let parsedMatch = screening.matchedSkills;
         if (typeof parsedMatch === 'string') {
-            try { parsedMatch = JSON.parse(parsedMatch); } catch (e) { }
+            try { parsedMatch = JSON.parse(parsedMatch); } catch { /* ignore */ }
         }
         if (Array.isArray(parsedMatch)) {
             matchedHardSkills = parsedMatch;
@@ -47,7 +47,7 @@ export function CandidateOverviewTab({ application }: CandidateOverviewTabProps)
     if (screening?.missingSkills) {
         let parsedMiss = screening.missingSkills;
         if (typeof parsedMiss === 'string') {
-            try { parsedMiss = JSON.parse(parsedMiss); } catch (e) { }
+            try { parsedMiss = JSON.parse(parsedMiss); } catch { /* ignore */ }
         }
         if (Array.isArray(parsedMiss)) {
             missingSkillsList = parsedMiss;

@@ -62,7 +62,7 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
                             <Send className="w-3.5 h-3.5" />
                             {profile.applicationCount} đơn ứng tuyển
                         </span>
-                        {profile.yearsOfExperience && (
+                        {profile.yearsOfExperience && profile.yearsOfExperience > 0 && (
                             <span className="flex items-center gap-1.5 text-[12px] text-[#AEAEB2]">
                                 {profile.yearsOfExperience} năm kinh nghiệm
                             </span>

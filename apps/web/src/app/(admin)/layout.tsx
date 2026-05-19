@@ -23,14 +23,16 @@ export default async function AdminLayout({
       userRole = payload.role;
       userName = payload.fullName;
       userEmail = payload.email;
-    } catch {}
+    } catch {
+      // ignore token parse errors
+    }
   }
 
   const [notifications, unreadCount] = token
     ? await Promise.all([
-        getNotificationsAction(1, 20),
-        getUnreadCountAction(),
-      ])
+      getNotificationsAction(1, 20),
+      getUnreadCountAction(),
+    ])
     : [{ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
 
   return (

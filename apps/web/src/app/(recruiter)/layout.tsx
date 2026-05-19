@@ -19,7 +19,10 @@ export default async function HRRouteLayout({ children }: { children: React.Reac
       userRole = payload.role;
       userName = payload.fullName;
       userEmail = payload.email;
-    } catch {}
+    } catch {
+      // ignore token parse errors
+    }
+
   }
 
   const [notifications, unreadCount] = token

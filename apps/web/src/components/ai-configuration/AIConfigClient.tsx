@@ -8,7 +8,6 @@ import { ConfigCard } from '@/components/ai-configuration/ui/ConfigCard';
 import { AddProfileModal } from '@/components/ai-configuration/ui/AddProfileModal';
 import { SF, SFT } from '@/types/fonts/fonts';
 import {
-    addAIConfigAction,
     deleteAIConfigAction,
     duplicateAIConfigAction,
     setDefaultAIConfigAction,

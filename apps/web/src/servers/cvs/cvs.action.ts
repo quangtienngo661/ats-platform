@@ -105,7 +105,7 @@ export async function confirmCvAction(
             markAsConfirmed: String(markAsConfirmed)
         }).toString();
 
-        let message: string = '';
+        let message = '';
         const response = await http.post(`/cvs/${cvId}/confirm?${queryParams}`);
 
         if (syncToProfile && markAsConfirmed) {
