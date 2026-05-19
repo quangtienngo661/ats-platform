@@ -1,2 +1,2 @@
-// Re-export Prisma enums để các package khác không cần phụ thuộc trực tiếp vào @ats-platform/database
-export { UserRole, UserStatus } from '@ats-platform/database';
+// NOTE: File này đã bị vô hiệu hóa để ngăn ngừa lỗi rò rỉ Node.js module (Prisma) sang Frontend (Next.js Client Components).
+// Vui lòng import các Enums từ thư viện dùng chung `import { ... } from '@ats-platform/types'` (được định nghĩa trong `enums.ts`).

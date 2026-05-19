@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { SF, SFT } from '@/types/fonts/fonts';
-import { DifficultyLevel } from '@ats-platform/database';
+import { DifficultyLevel } from '@ats-platform/types';
 import { ChatBubble } from './ui/ChatBubble';
 import { AnswerInput } from './ui/AnswerInput';
 import { SessionSidebar } from './ui/SessionSidebar';

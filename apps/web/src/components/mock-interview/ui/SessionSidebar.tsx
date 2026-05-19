@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { BookOpen, BarChart3, Clock, ArrowRight, Zap, Flame } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
-import { DifficultyLevel } from '@ats-platform/database';
+import { DifficultyLevel } from '@ats-platform/types';
 
 const difficultyStyle: Record<string, { color: string; bg: string; label: string; icon: typeof Zap }> = {
     easy: { color: '#34C759', bg: '#F0FDF4', label: 'Dễ', icon: Zap },

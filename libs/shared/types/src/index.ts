@@ -11,8 +11,5 @@ export * from './lib/interfaces/cv-parsed-data/cv-parsed-data.interface';
 export * from './lib/interfaces/candidates/candidates.interface';
 export * from './lib/interfaces/applications/applications.interface';
 export * from './lib/interfaces/cv-screenings/cv-screenings.interface';
-// Re-export Prisma enums (UserRole, UserStatus) để các package frontend không cần import trực tiếp từ @ats-platform/database
-export * from './lib/prisma-enums';
-// NOTE: lib/enums (shared enums: Role, UserStatus...) được comment lại để tránh conflict tên với Prisma enums
-// Nếu cần dùng shared enums, import trực tiếp: import { Role } from '@ats-platform/types/lib/enums'
-// export * from './lib/enums';
+// Re-export shared enums thay vì dùng prisma-enums (đã bị gỡ bỏ để chống lỗi Turbopack)
+export * from './lib/enums';

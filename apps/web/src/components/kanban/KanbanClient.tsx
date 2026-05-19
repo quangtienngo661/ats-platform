@@ -18,7 +18,7 @@ import { toast } from '@/lib/toast';
 import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { useKanBanStore } from '@/stores/useKanbanStore';
 import { useSocketStore } from '@/stores/useSocketStore';
-import { ScreeningStatus } from '@ats-platform/database';
+import { ScreeningStatus } from '@ats-platform/types';
 
 // ── Helper: convert API ApplicationDto to UI Candidate card ─────────────────
 function mapApplicationToCandidate(app: IApplicationDto, stage: Stage): Candidate {

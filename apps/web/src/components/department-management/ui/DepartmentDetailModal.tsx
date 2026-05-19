@@ -1,7 +1,7 @@
 import { X, Users, Briefcase, Mail, Phone, Shield, CheckCircle, XCircle, Building2, UserPlus } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
-import { UserRole } from '@ats-platform/database';
+import { UserRole } from '@ats-platform/types';
 import { Department, DepartmentMember } from '@/types/interfaces/departments.interface';
 
 interface DepartmentDetailModalProps {

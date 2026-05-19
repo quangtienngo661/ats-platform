@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { Zap, BarChart3, Flame } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
-import { DifficultyLevel } from '@ats-platform/database';
+import { DifficultyLevel } from '@ats-platform/types';
 
 const difficultyConfig: Record<DifficultyLevel, {
     label: string;
