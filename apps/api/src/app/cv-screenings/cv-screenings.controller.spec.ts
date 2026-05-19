@@ -1,20 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { CvScreeningsController } from './cv-screenings.controller';
-import { CvScreeningsService } from './cv-screenings.service';
+import { mockRequest } from '../../test-utils/unit-test-helpers';
 
 describe('CvScreeningsController', () => {
-  let controller: CvScreeningsController;
+  it('delegates stats and screening result endpoints', async () => {
+    const service = {
+      getScreeningStats: jest.fn(),
+      getScreeningResultForCandidate: jest.fn(),
+      getScreeningResult: jest.fn(),
+    };
+    const controller = new CvScreeningsController(service as any);
+    const req = mockRequest({ userId: 'user-1' });
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [CvScreeningsController],
-      providers: [CvScreeningsService],
-    }).compile();
+    await controller.getScreeningStats('job-1');
+    await controller.getScreeningResultForCandidate(req, 'app-1');
+    await controller.getScreeningResult('app-1');
 
-    controller = module.get<CvScreeningsController>(CvScreeningsController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service.getScreeningStats).toHaveBeenCalledWith('job-1');
+    expect(service.getScreeningResultForCandidate).toHaveBeenCalledWith('app-1', 'user-1');
+    expect(service.getScreeningResult).toHaveBeenCalledWith('app-1');
   });
 });

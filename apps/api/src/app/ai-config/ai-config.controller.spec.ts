@@ -1,28 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { AiConfigController } from './ai-config.controller';
-import { AiConfigService } from './ai-config.service';
-import { PrismaService } from '../../common/prisma/prisma.service';
 
 describe('AiConfigController', () => {
-  let controller: AiConfigController;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AiConfigController],
-      providers: [
-        AiConfigService,
-        {
-          provide: PrismaService
-          ,
-          useValue: {},
-        },
-      ],
-    }).compile();
-
-    controller = module.get<AiConfigController>(AiConfigController);
+  const service = () => ({
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+    setDefault: jest.fn(),
+    remove: jest.fn(),
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('delegates CRUD and default operations to the service', () => {
+    const aiConfigService = service();
+    const controller = new AiConfigController(aiConfigService as any);
+
+    controller.create({ name: 'cfg' } as any);
+    controller.findAll();
+    controller.findOne('cfg-1');
+    controller.update('cfg-1', { name: 'updated' } as any);
+    controller.setDefault('cfg-1');
+    controller.remove('cfg-1');
+
+    expect(aiConfigService.create).toHaveBeenCalledWith({ name: 'cfg' });
+    expect(aiConfigService.findAll).toHaveBeenCalled();
+    expect(aiConfigService.findOne).toHaveBeenCalledWith('cfg-1');
+    expect(aiConfigService.update).toHaveBeenCalledWith('cfg-1', { name: 'updated' });
+    expect(aiConfigService.setDefault).toHaveBeenCalledWith('cfg-1');
+    expect(aiConfigService.remove).toHaveBeenCalledWith('cfg-1');
   });
 });

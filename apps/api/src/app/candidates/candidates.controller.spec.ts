@@ -1,30 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { CandidatesController } from './candidates.controller';
-import { CandidatesService } from './candidates.service';
+import { mockRequest } from '../../test-utils/unit-test-helpers';
 
 describe('CandidatesController', () => {
-  let controller: CandidatesController;
+  it('uses req.user for candidate self-service endpoints', () => {
+    const service = {
+      getProfile: jest.fn(),
+      updateProfile: jest.fn(),
+      findOne: jest.fn(),
+      findAll: jest.fn(),
+    };
+    const controller = new CandidatesController(service as any);
+    const req = mockRequest({ userId: 'user-1' });
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [CandidatesController],
-      providers: [
-        {
-          provide: CandidatesService,
-          useValue: {
-            getProfile: jest.fn(),
-            updateProfile: jest.fn(),
-            findOne: jest.fn(),
-            findAll: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+    controller.getProfile(req);
+    controller.updateProfile(req, { currentTitle: 'Backend' } as any);
+    controller.findOne('cand-1');
+    controller.findAll({ search: 'alice' } as any);
 
-    controller = module.get<CandidatesController>(CandidatesController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service.getProfile).toHaveBeenCalledWith('user-1');
+    expect(service.updateProfile).toHaveBeenCalledWith('user-1', { currentTitle: 'Backend' });
+    expect(service.findOne).toHaveBeenCalledWith('cand-1');
+    expect(service.findAll).toHaveBeenCalledWith({ search: 'alice' });
   });
 });
