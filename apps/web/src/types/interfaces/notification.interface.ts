@@ -1,4 +1,4 @@
-import { NotificationType, RelatedEntityType } from '@ats-platform/database';
+import { NotificationType, RelatedEntityType } from '@ats-platform/types';
 
 // ═══════════════════════════════════════════════════════════════
 // NOTIFICATION

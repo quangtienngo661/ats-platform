@@ -1,5 +1,5 @@
 import { IApplicationDto } from "@/types/interfaces/application.interface";
-import { ApplicationStatus } from "@ats-platform/database";
+import { ApplicationStatus } from "@ats-platform/types";
 import { create } from "zustand";
 
 interface KanbanState {

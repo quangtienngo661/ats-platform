@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "@ats-platform/database";
+import { UserRole, UserStatus } from "@ats-platform/types";
 import { IRecruiter, IUserDto } from "@ats-platform/types";
 export interface IUserResponseDto extends IUserDto {
     userId: string;

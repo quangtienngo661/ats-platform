@@ -1,5 +1,5 @@
 import { ICandidate } from "@ats-platform/types";
-import { UserStatus } from "@ats-platform/database";
+import { UserStatus } from "@ats-platform/types";
 export interface ICandidateDto extends ICandidate {
     candidateId: string;
     userId: string;

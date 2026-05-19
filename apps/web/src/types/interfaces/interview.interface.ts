@@ -1,4 +1,4 @@
-import { DifficultyLevel, InterviewStatus, InterviewType, ScheduleStatus } from '@ats-platform/database';
+import { DifficultyLevel, InterviewStatus, InterviewType, ScheduleStatus } from '@ats-platform/types';
 import { IApplicationDto } from './application.interface';
 import { IJobCategoryDto } from './job-category.interface';
 

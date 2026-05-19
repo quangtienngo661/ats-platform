@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "@ats-platform/database";
+import { UserRole, UserStatus } from "@ats-platform/types";
 import { IDepartment, IRecruiter } from "@ats-platform/types";
 
 export interface Department extends IDepartment {

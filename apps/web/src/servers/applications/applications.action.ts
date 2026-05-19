@@ -9,7 +9,7 @@ import {
     IPaginatedApplications,
     IApplicationCard,
 } from '@/types/interfaces/application.interface';
-import { AiRecommendation, ApplicationStatus } from '@ats-platform/database';
+import { AiRecommendation, ApplicationStatus } from '@ats-platform/types';
 import { IKanbanDto } from '@/types/interfaces/kanban.interface';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
