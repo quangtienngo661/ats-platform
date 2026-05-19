@@ -27,12 +27,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with: 
         fetch-depth: 0
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with: 
         node-version: ${{ matrix.node-version }}
         cache: npm
@@ -64,7 +64,7 @@ jobs:
       run: npx nx test api --runInBand --silent
 
     - name: NextJS cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.npm
