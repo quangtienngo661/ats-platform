@@ -11,7 +11,7 @@ import { InterviewSessionService } from './interview-session.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 
 @WebSocketGateway({
-    cors: { origin: '*' },
+    cors: { origin: process.env.CLIENT_URL },
 })
 export class InterviewGateway {
     @WebSocketServer()

@@ -47,10 +47,9 @@ export class AuthService {
   }
 
   private get apiBaseUrl() {
-    const explicit = process.env.API_BASE_URL;
-    if (explicit) return explicit.replace(/\/$/, '');
-    const port = process.env.SERVER_PORT || 5000;
-    return `http://localhost:${port}/api`;
+    const url = process.env.CLIENT_URL;
+    if (url) return url.replace(/\/$/, '');
+    return `${url}`;
   }
 
   private hashEmailVerificationToken(token: string) {
@@ -60,7 +59,7 @@ export class AuthService {
   }
 
   private buildEmailVerificationLink(token: string, type: string) {
-    return `${this.apiBaseUrl}/auth/verify-email?type=${type}&token=${encodeURIComponent(token)}`;
+    return `${this.apiBaseUrl}/api/auth/verify-email?type=${type}&token=${encodeURIComponent(token)}`;
   }
 
   private async issueEmailVerification(userId: string, email: string, jobName: string) {

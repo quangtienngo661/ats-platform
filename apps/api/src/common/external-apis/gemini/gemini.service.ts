@@ -155,7 +155,6 @@ export class GeminiService {
             clearTimeout(timeoutId);
 
             const duration = Math.round(performance.now() - startTime);
-            console.log(`${model} - ${duration}ms`);
             Logger.log(
                 `Gemini API call completed — action: ${actionType}, refId: ${refId}, duration: ${duration}ms`,
                 'GeminiService',
