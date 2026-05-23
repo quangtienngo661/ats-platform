@@ -16,9 +16,11 @@ COPY . .
 # Khai báo các biến môi trường cần thiết tại thời điểm Build (Build-time Env)
 # NEXT_PUBLIC_SOCKET_URL được baked vào bundle client JS tại lúc build
 ARG NEXT_PUBLIC_SOCKET_URL
+ARG DATABASE_URL
 ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 
 # Tiến hành build ứng dụng Next.js thông qua Nx
+RUN npx nx run database:prisma-generate
 RUN npx nx build web --prod
 
 # ==========================================
@@ -38,9 +40,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Sao chép các thư mục tĩnh và môi trường standalone từ stage builder
-COPY --from=builder /app/dist/apps/web/public ./dist/apps/web/public
+COPY --from=builder /app/dist/apps/web/public ./apps/web/public
 COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/static ./dist/apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/static ./apps/web/.next/static
 
 # Chuyển quyền thực thi sang user 'nextjs'
 USER nextjs
