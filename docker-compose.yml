@@ -114,13 +114,17 @@ services:
     container_name: ats-gateway
     restart: unless-stopped
     ports:
-      # - "443"
+      - "443:443"
       - "80:80"
     depends_on:
       - api
       - web
     networks:
       - gateway_net
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+
 
 volumes:
   postgres_data:
