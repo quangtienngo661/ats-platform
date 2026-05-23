@@ -14,7 +14,7 @@ export class MailService {
     return (
       process.env.SMTP_FROM ||
       process.env.SMTP_USER ||
-      'no-reply@localhost'
+      'no-reply@ats.vn'
     );
   }
 

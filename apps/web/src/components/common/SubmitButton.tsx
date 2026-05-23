@@ -3,8 +3,6 @@
 import { useFormStatus } from "react-dom";
 import { ArrowRight } from "lucide-react";
 import { SFT } from "@/types/fonts/fonts";
-import { useSocketStore } from "@/stores/useSocketStore";
-import { SOCKET_URL } from "@/types/constants/urls";
 
 type SubmitButtonProps = {
     content: string;

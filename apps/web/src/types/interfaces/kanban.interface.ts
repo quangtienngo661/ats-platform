@@ -1,4 +1,4 @@
-import { ScreeningStatus } from "@ats-platform/database";
+import { ScreeningStatus } from "@ats-platform/types";
 import { IApplicationDto } from "./application.interface";
 import { IJobPostingDto } from "./job-posting.interface";
 

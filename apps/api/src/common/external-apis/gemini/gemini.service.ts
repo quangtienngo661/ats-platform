@@ -22,7 +22,7 @@ export class GeminiService {
     async parseCV(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_Flash
+        model: string = GeminiModel.Flash,
     ) {
         const result = await this.generateContent(
             refId,
@@ -37,7 +37,7 @@ export class GeminiService {
     async screeningCV(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_1_Pro,
+        model: string = GeminiModel.Pro,
     ) {
         const result = await this.generateContent(
             refId,
@@ -53,7 +53,7 @@ export class GeminiService {
     async parseJD(
         refId: string,
         rawDescription: string,
-        model: string = GeminiModel.G_3_Flash
+        model: string = GeminiModel.Flash
     ) {
         const jdContent = `<jd_text>\n${rawDescription}\n</jd_text>`;
 
@@ -71,7 +71,7 @@ export class GeminiService {
     async generateInterviewQuestions(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_1_Pro,
+        model: string = GeminiModel.Pro,
     ) {
         const result = await this.generateContent(
             refId,
@@ -85,7 +85,7 @@ export class GeminiService {
     async checkInterviewFollowup(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_1_Pro,
+        model: string = GeminiModel.Flash,
     ) {
         const result = await this.generateContent(
             refId,
@@ -99,7 +99,7 @@ export class GeminiService {
     async evaluateInterviewAnswer(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_1_Pro,
+        model: string = GeminiModel.Flash,
     ) {
         const result = await this.generateContent(
             refId,
@@ -113,7 +113,7 @@ export class GeminiService {
     async generateInterviewResult(
         refId: string,
         content: string,
-        model: string = GeminiModel.G_3_1_Pro,
+        model: string = GeminiModel.Pro,
     ) {
         const result = await this.generateContent(
             refId,

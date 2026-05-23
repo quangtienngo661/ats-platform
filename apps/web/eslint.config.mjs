@@ -13,6 +13,7 @@ export default [
       '**/build/**',
       '**/coverage/**',
       '**/node_modules/**',
+      '**/next-env.d.ts',
     ],
   },
 ];

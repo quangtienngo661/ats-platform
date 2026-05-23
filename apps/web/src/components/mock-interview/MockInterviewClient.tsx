@@ -9,7 +9,7 @@ import { IInterviewTopic, ISessionSummary } from '@/types/interfaces/interview.i
 import { TopicSelector } from './ui/TopicSelector';
 import { DifficultySelector } from './ui/DifficultySelector';
 import { SessionCard } from './ui/SessionCard';
-import { DifficultyLevel } from '@ats-platform/database';
+import { DifficultyLevel } from '@ats-platform/types';
 import { startInterviewSessionAction, abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useSocketStore } from '@/stores/useSocketStore';

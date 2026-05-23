@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @WebSocketGateway({
     cors: {
         // TODO: setup cors for specific FE
-        origin: '*',
+        origin: process.env.CLIENT_URL,
     },
 })
 export class SocketIoService implements OnGatewayConnection, OnGatewayDisconnect {

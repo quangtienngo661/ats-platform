@@ -5,7 +5,7 @@ export interface ResponseFormat<T = unknown> {
     data?: T;
 }
 
-export const successResponse = (status: number = 200, data?: any): ResponseFormat => {
+export const successResponse = <T = unknown>(status = 200, data?: T): ResponseFormat<T> => {
     return {
         success: true,
         status,
@@ -13,14 +13,15 @@ export const successResponse = (status: number = 200, data?: any): ResponseForma
     };
 }
 
-export const errorResponse = (
-    status: number = 500,
-    message: string = "Lỗi máy chủ nội bộ",
-    data?: unknown
-): ResponseFormat => {
+export const errorResponse = <T = unknown>(
+    status = 500,
+    message = "Lỗi máy chủ nội bộ",
+    data?: T
+): ResponseFormat<T> => {
     return {
         success: false,
         status,
         message,
+        data,
     };
 }

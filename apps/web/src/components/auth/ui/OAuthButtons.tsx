@@ -1,5 +1,4 @@
 import { GitHubIcon, GoogleIcon } from '@/components/public/icons/common.icon';
-import { SERVER_URL } from '@/types/constants/urls';
 import { SFT } from '@/types/fonts/fonts';
 
 interface OAuthButtonsProps {

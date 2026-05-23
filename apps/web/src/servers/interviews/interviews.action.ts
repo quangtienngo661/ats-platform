@@ -13,7 +13,7 @@ import {
     IInterviewSchedule,
 } from '@/types/interfaces/interview.interface';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
-import { ApplicationStatus, DifficultyLevel, InterviewType } from '@ats-platform/database';
+import { ApplicationStatus, DifficultyLevel, InterviewType } from '@ats-platform/types';
 
 export type StartSessionActionState = {
     success: boolean;

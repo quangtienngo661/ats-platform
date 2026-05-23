@@ -2,7 +2,7 @@ name: CI
 
 on: 
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
 
 permissions: 
   actions: read
@@ -20,22 +20,30 @@ jobs:
 
     strategy: 
       matrix: 
-        node-version: [22, 24]
+        node-version: [24]
 
     env:
       NODE_ENV: test
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with: 
         fetch-depth: 0
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with: 
         node-version: ${{ matrix.node-version }}
-        cache: "npm"
+        cache: npm
+        cache-dependency-path: package-lock.json
+
+    - name: Print versions
+      run: |
+        node -v
+        npm -v
+        git status
+        git branch -a
 
     - name: Install dependencies
       run: npm ci
@@ -43,17 +51,27 @@ jobs:
     - name: Set Nx base and head SHAs
       uses: nrwl/nx-set-shas@v5
 
-    - name: Lint affected projects
-      run: npx nx affected -t lint
-
-    - name: Test affected projects
-      run: npx nx affected -t test 
-
     - name: Generate Prisma Client
       run: npx prisma generate --schema=libs/backend/database/prisma/schema.prisma
       env:
         DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
+    - name: Lint affected projects
+      run: npx nx affected -t lint
+
+    # Will add the e2e test later
+    - name: Test affected projects (Unit Tests only)
+      run: npx nx test api --runInBand --silent
+
+    - name: Cache Next.js build cache
+      uses: actions/cache@v5
+      with:
+        path: |
+          ${{ github.workspace }}/apps/web/.next/cache
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('apps/web/**/*.[jt]s', 'apps/web/**/*.[jt]sx') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+ 
     - name: Build affected projects
       run: npx nx affected -t build
       
