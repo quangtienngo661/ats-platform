@@ -43,6 +43,23 @@ export class MailService {
     return this.transporter;
   }
 
+  private getTemplatePath(fileName: string): string {
+    // 1. Đường dẫn trong môi trường đã build production (dist/apps/api)
+    const distPath = path.join(__dirname, 'assets', 'mail', fileName);
+    if (fs.existsSync(distPath)) return distPath;
+
+    // 2. Đường dẫn trong môi trường chạy dev từ source code (apps/api/src/common/mail)
+    const srcPath = path.join(__dirname, '..', '..', 'assets', 'mail', fileName);
+    if (fs.existsSync(srcPath)) return srcPath;
+
+    // 3. Đường dẫn dự phòng tương đối với thư mục làm việc hiện tại (process.cwd())
+    const workspacePath = path.join(process.cwd(), 'apps', 'api', 'src', 'assets', 'mail', fileName);
+    if (fs.existsSync(workspacePath)) return workspacePath;
+
+    // Mặc định trả về distPath để Nodemailer ném lỗi rõ ràng nếu không tìm thấy bất kỳ đâu
+    return distPath;
+  }
+
   async sendVerificationEmail(to: string, verifyLink: string) {
     const subject = 'Xác minh email của bạn';
     const text = `Vui lòng xác minh email bằng cách mở liên kết này: ${verifyLink}`;
@@ -56,7 +73,7 @@ export class MailService {
 
     let htmlContent = '';
     try {
-      const templatePath = path.join(__dirname, 'assets', 'mail', 'verification-email.html');
+      const templatePath = this.getTemplatePath('verification-email.html');
       htmlContent = fs.readFileSync(templatePath, 'utf8');
       htmlContent = htmlContent.replace(/{{verifyLink}}/g, verifyLink);
     } catch (err: any) {
@@ -85,7 +102,7 @@ export class MailService {
 
     let htmlContent = '';
     try {
-      const templatePath = path.join(__dirname, 'assets', 'mail', 'forgot-password-email.html');
+      const templatePath = this.getTemplatePath('forgot-password-email.html');
       htmlContent = fs.readFileSync(templatePath, 'utf8');
       htmlContent = htmlContent.replace(/{{resetLink}}/g, resetLink);
     } catch (err: any) {
