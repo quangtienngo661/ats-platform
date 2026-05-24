@@ -8,6 +8,12 @@ import { PrismaService } from '../prisma/prisma.service';
         // TODO: setup cors for specific FE
         origin: process.env.CLIENT_URL,
     },
+    allowRequest: (req, callback) => {
+        const origin = req.headers.origin;
+        const allowedOrigins = [process.env.CLIENT_URL];
+        const isAllowed = allowedOrigins.includes(origin);
+        callback(null, isAllowed);
+    }
 })
 export class SocketIoService implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server: Server;
