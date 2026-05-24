@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import nodemailer from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class MailService {
@@ -51,11 +53,22 @@ export class MailService {
     }
 
     const transporter = this.getTransporter();
+
+    let htmlContent = '';
+    try {
+      const templatePath = path.join(__dirname, 'assets', 'mail', 'verification-email.html');
+      htmlContent = fs.readFileSync(templatePath, 'utf8');
+      htmlContent = htmlContent.replace(/{{verifyLink}}/g, verifyLink);
+    } catch (err: any) {
+      this.logger.error(`Could not read verification email template: ${err.message}`);
+    }
+
     await transporter.sendMail({
       from: this.fromAddress,
       to,
       subject,
       text,
+      html: htmlContent || undefined,
     });
   }
 
@@ -69,11 +82,22 @@ export class MailService {
     }
 
     const transporter = this.getTransporter();
+
+    let htmlContent = '';
+    try {
+      const templatePath = path.join(__dirname, 'assets', 'mail', 'forgot-password-email.html');
+      htmlContent = fs.readFileSync(templatePath, 'utf8');
+      htmlContent = htmlContent.replace(/{{resetLink}}/g, resetLink);
+    } catch (err: any) {
+      this.logger.error(`Could not read forgot password email template: ${err.message}`);
+    }
+
     await transporter.sendMail({
       from: this.fromAddress,
       to,
       subject,
       text,
+      html: htmlContent || undefined,
     });
   }
 }
