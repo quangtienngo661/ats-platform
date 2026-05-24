@@ -51,8 +51,8 @@ export default function LoginForm() {
                 </div>
             )}
 
-            {/* OAuth buttons */}
-            <OAuthButtons errorMessage={oauthError} />
+            {/* OAuth buttons
+            <OAuthButtons errorMessage={oauthError} /> */}
 
             {/* Form */}
             <form action={formAction} className="flex flex-col gap-4">
