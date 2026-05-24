@@ -96,13 +96,15 @@ services:
       args:
         NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
         DATABASE_URL: ${DATABASE_URL}
+        NODE_ENV: ${NODE_ENV}
     restart: unless-stopped
     container_name: ats-web
     expose:
       - "3000"
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV}
       NEXT_SERVER_API_BASE_URL: ${NEXT_SERVER_API_BASE_URL}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
     depends_on:
       - api
     networks:

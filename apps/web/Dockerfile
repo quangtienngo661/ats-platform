@@ -42,7 +42,7 @@ RUN adduser --system --uid 1001 nextjs
 # Sao chép các thư mục tĩnh và môi trường standalone từ stage builder
 COPY --from=builder /app/dist/apps/web/public ./apps/web/public
 COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/static ./dist/apps/web/.next/static
 
 # Chuyển quyền thực thi sang user 'nextjs'
 USER nextjs
