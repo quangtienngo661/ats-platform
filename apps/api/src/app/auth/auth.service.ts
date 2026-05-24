@@ -231,13 +231,14 @@ export class AuthService {
       throw new BadRequestException('Mã xác minh không hợp lệ hoặc đã hết hạn');
     }
 
-    if ((user as any).emailVerified === true) {
-      // Still delete token so it can't be replayed.
-      await this.redisClient.del(tokenKey);
-      await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
-      return { message: 'Email đã được xác minh', redirectUrl: `${CLIENT_URL}/sign-in` };
-    }
     if (type === "verify") {
+      if ((user as any).emailVerified === true) {
+        // Still delete token so it can't be replayed.
+        await this.redisClient.del(tokenKey);
+        await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
+        return { message: 'Email đã được xác minh', redirectUrl: `${CLIENT_URL}/sign-in` };
+      }
+
       await this.prisma.user.update({
         where: { userId },
         data: { emailVerified: true },
