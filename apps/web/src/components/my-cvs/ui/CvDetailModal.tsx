@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import {
     X, Briefcase, GraduationCap, Code, Award, FolderGit2,
     User, Mail, Phone, CheckCircle, ChevronDown, ChevronUp, UserCheck
@@ -136,15 +136,20 @@ function ProjectItem({ proj }: { proj: ICvParsedData['projects'][number] }) {
 export function CvDetailModal({ cv, onClose }: CvDetailModalProps) {
     const [state, formAction] = useActionState(confirmCvAction, initialState);
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success) {
-            const timer = setTimeout(() => onClose(), 500);
+            const timer = setTimeout(() => onCloseRef.current(), 500);
             toast.success(state.message);
             return () => clearTimeout(timer);
         } else if (!state.success && state.message) {
             toast.error(state.message);
         }
-    }, [state, onClose]);
+    }, [state]);
 
     const data = cv.parsedData;
     if (!data) return null;
