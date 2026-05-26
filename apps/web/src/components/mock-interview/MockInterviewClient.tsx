@@ -13,6 +13,7 @@ import { DifficultyLevel } from '@ats-platform/types';
 import { startInterviewSessionAction, abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useSocketStore } from '@/stores/useSocketStore';
+import { CategoryDropdown } from './ui/CategoryDropdown';
 
 interface MockInterviewClientProps {
     topics: IInterviewTopic[];
@@ -26,6 +27,22 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     const [isStarting, setIsStarting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isAbandoning, setIsAbandoning] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+    // Trích xuất các category độc nhất từ danh sách topics
+    const categories = Array.from(
+        new Set(topics.map((t) => t.category?.name).filter((name): name is string => !!name))
+    );
+
+    const handleCategoryChange = (category: string | null) => {
+        setSelectedCategory(category);
+        setSelectedTopic(null);
+        setSelectedDifficulty(null);
+    };
+
+    const filteredTopics = selectedCategory
+        ? topics.filter((t) => t.category?.name === selectedCategory)
+        : topics;
 
     const socket = useSocketStore();
 
@@ -105,11 +122,18 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
 
                 {/* Step 1: Chọn chủ đề */}
                 <div className="mb-6">
-                    <p className="text-[12px] text-[#6E6E73] mb-3 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                        1. Chọn chủ đề
-                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                        <p className="text-[12px] text-[#6E6E73] uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
+                            1. Chọn chủ đề
+                        </p>
+                        <CategoryDropdown
+                            categories={categories}
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={handleCategoryChange}
+                        />
+                    </div>
                     <TopicSelector
-                        topics={topics}
+                        topics={filteredTopics}
                         selectedId={selectedTopic}
                         onSelect={setSelectedTopic}
                     />
