@@ -27,6 +27,11 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
     const addCv = useCvStore((store) => store.addCv);
     const handledCvId = useRef<string | null>(null);
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success) {
             if (state.data && handledCvId.current !== state.data.cvId) {
@@ -34,11 +39,11 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
                 addCv(state.data);
             }
             toast.success(state.message)
-            onClose();
+            onCloseRef.current();
         } else if (!state.success && state.message) {
             toast.error("Upload CV thất bại", state.message);
         }
-    }, [state, onClose, addCv])
+    }, [state, addCv])
 
     const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];

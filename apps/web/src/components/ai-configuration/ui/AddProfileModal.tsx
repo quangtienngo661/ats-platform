@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useActionState, useEffect } from 'react';
+import { useState, useActionState, useEffect, useRef } from 'react';
 import { Cpu, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ConfigProfile } from '../../../types/interfaces/configProfile.interface';
@@ -27,14 +27,19 @@ export function AddProfileModal({
 
     const [state, dispatch, isPending] = useActionState(createAIConfigFormAction, initialState);
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success && state.data) {
             toast.success('Thành công', state.message);
-            onClose();
+            onCloseRef.current();
         } else if (state.message) {
             toast.error('Lỗi', state.message);
         }
-    }, [state, onClose]);
+    }, [state]);
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">

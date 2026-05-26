@@ -32,14 +32,19 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
         nameRef.current?.focus();
     }, []);
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success && state.message) {
             toast.success('Thành công', state.message);
-            onClose();
+            onCloseRef.current();
         } else if (state.message) {
             toast.error('Lỗi', state.message);
         }
-    }, [state, onClose]);
+    }, [state]);
 
     return (
         <AnimatePresence>
