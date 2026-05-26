@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo } from 'react';
+import { useActionState, useEffect, useMemo, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CalendarPlus, X } from 'lucide-react';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
@@ -63,14 +63,19 @@ export function MutateInterviewScheduleModal({
 
     const disabled = isPending || (!schedule && applications.length === 0) || interviewers.length === 0;
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success && state.message) {
             toast.success('Thành công', state.message);
-            onClose();
+            onCloseRef.current();
         } else if (state.message) {
             toast.error('Lỗi', state.message);
         }
-    }, [state, onClose]);
+    }, [state]);
 
     return (
         <AnimatePresence>

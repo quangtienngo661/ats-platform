@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
@@ -43,13 +43,20 @@ export function MutateRecruiterModal({
     const actionToRun = isEdited ? updateRecruiterAction : createRecruiterAction;
     const [state, formAction] = useActionState(actionToRun, initialState);
 
+    const onCloseRef = useRef(onClose);
+    const onResultRef = useRef(onResult);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+        onResultRef.current = onResult;
+    }, [onClose, onResult]);
+
     useEffect(() => {
         if (state.success) {
-            if (onResult) onResult(state);
-            const timer = setTimeout(() => onClose(), 300);
+            if (onResultRef.current) onResultRef.current(state);
+            const timer = setTimeout(() => onCloseRef.current(), 300);
             return () => clearTimeout(timer);
         }
-    }, [state.success, onClose]);
+    }, [state.success]);
 
     return (
         <AnimatePresence>

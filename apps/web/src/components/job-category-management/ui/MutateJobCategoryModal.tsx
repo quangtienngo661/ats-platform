@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState, useEffect } from 'react';
+import { useState, useActionState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
@@ -30,13 +30,18 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
 
     const [state, formAction] = useActionState(performAction, initialState);
 
+    const onCloseRef = useRef(onClose);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     useEffect(() => {
         if (state.success) {
-            const timer = setTimeout(() => onClose(), 300);
+            const timer = setTimeout(() => onCloseRef.current(), 300);
             toast.success(state.message)
             return () => clearTimeout(timer);
         }
-    }, [state.success, onClose]);
+    }, [state.success]);
 
     // Determine modal title
     let title = 'Thêm danh mục mới';

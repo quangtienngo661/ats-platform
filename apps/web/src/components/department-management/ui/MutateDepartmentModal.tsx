@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState, useEffect } from 'react';
+import { useState, useActionState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
@@ -27,18 +27,25 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
     const actionToRun = isEdited ? updateDepartmentAction : createDepartmentAction;
     const [state, formAction] = useActionState(actionToRun, initialState);
 
+    const onCloseRef = useRef(onClose);
+    const onResultRef = useRef(onResult);
+    useEffect(() => {
+        onCloseRef.current = onClose;
+        onResultRef.current = onResult;
+    }, [onClose, onResult]);
+
     useEffect(() => {
         if (state.success) {
-            if (onResult) {
-                onResult(state);
+            if (onResultRef.current) {
+                onResultRef.current(state);
             }
 
             const timer = setTimeout(() => {
-                onClose();
+                onCloseRef.current();
             }, 300);
             return () => clearTimeout(timer);
         }
-    }, [state.success, onClose]);
+    }, [state.success]);
 
     return (
         <AnimatePresence>
