@@ -250,8 +250,8 @@ export class AuthService {
       return { message: 'Xác minh email thành công', redirectUrl: `${CLIENT_URL}/verification-success` };
     }
     else if (type === "reset") {
-      await this.redisClient.del(tokenKey);
-      await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
+      // await this.redisClient.del(tokenKey);
+      // await this.redisClient.del(`${this.emailVerifyUserKeyPrefix}${userId}`);
 
       return { message: 'Yêu cầu đặt lại mật khẩu thành công', redirectUrl: `${CLIENT_URL}/reset-password?token=${token}` };
     }
