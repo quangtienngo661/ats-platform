@@ -50,9 +50,6 @@ export default function RegisterForm() {
                 Đăng ký để bắt đầu hành trình của bạn
             </p>
 
-            {/* OAuth */}
-            <OAuthButtons />
-
             {/* Form */}
             <form action={formAction} className="flex flex-col gap-4">
                 {/* Full name */}
