@@ -223,7 +223,7 @@ export function PublicHeader({
                             ) : (
                                 <>
                                     <Link href="/sign-in" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-[14px] text-[#1D1D1F] hover:bg-[#F5F5F7] rounded-xl">Đăng nhập</Link>
-                                    <Link href="/sign-up" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-[14px] text-white bg-[#0071E3] rounded-xl text-center">Đăng ký</Link>
+                                    <Link href="/register" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-[14px] text-white bg-[#0071E3] rounded-xl text-center">Đăng ký</Link>
                                 </>
                             )}
                         </div>
