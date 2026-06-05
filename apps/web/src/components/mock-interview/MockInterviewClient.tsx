@@ -92,7 +92,7 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     }, [socket, router]);
 
     return (
-        <div className="w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
+        <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
 
             {/* ─── Header ─────────────────────────────────────────────────── */}
             <div className="mb-8">
