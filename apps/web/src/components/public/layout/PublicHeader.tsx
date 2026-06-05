@@ -191,7 +191,7 @@ export function PublicHeader({
                 {/* Mobile menu toggle */}
                 <button
                     onClick={() => setMobileOpen(!mobileOpen)}
-                    className="md:hidden p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors"
+                    className="md:hidden ml-auto p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors"
                 >
                     {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>

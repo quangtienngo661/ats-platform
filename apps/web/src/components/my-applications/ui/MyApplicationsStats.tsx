@@ -21,7 +21,7 @@ export function MyApplicationsStats({ applications }: MyApplicationsStatsProps) 
     ];
 
     return (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6">
             {stats.map((stat) => (
                 <div key={stat.label} className="bg-white rounded-2xl p-5 border border-[#E5E5EA]">
                     <div className="flex items-center gap-3">
