@@ -115,24 +115,14 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
                 })}
             </div>
 
-            <motion.div layout className="flex flex-col gap-3">
-                <AnimatePresence mode="popLayout">
-                    {filtered.map((application) => (
-                        <motion.div
-                            key={application.applicationId}
-                            layout
-                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <ApplicationCard
-                                application={application}
-                                onWithdrawSuccess={handleWithdrawSuccess}
-                            />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
+            <div className="flex flex-col gap-3">
+                {filtered.map((application) => (
+                    <ApplicationCard
+                        key={application.applicationId}
+                        application={application}
+                        onWithdrawSuccess={handleWithdrawSuccess}
+                    />
+                ))}
 
                 {filtered.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
@@ -144,7 +134,7 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
                         </p>
                     </div>
                 )}
-            </motion.div>
+            </div>
         </div>
     );
 }
