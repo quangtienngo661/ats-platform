@@ -87,7 +87,7 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
         : items.filter((application) => application.status === statusFilter);
 
     return (
-        <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
+        <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
             <MyApplicationsHeader />
             <MyApplicationsStats applications={items} />
 
