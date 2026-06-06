@@ -202,7 +202,7 @@ export class CVsService {
     }
 
     const absolutePath = path.isAbsolute(cv.filePath)
-      ? cv.filePath
+      ? `app/${cv.filePath}`
       : path.join(process.cwd(), cv.filePath);
 
     const fileName = path.basename(cv.filePath);

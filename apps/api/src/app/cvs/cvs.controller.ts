@@ -111,7 +111,7 @@ export class CVsController {
       throw new NotFoundException('File CV không còn tồn tại trên hệ thống lưu trữ');
     }
 
-    res.download(absolutePath, `${name || 'cv'}.pdf`);;
+    res.download(absolutePath, `${name || 'cv'} Resume.pdf`);;
   }
 
   @Resources('cv')

@@ -22,11 +22,6 @@ const statusConfig: Record<string, { label: string; bg: string; color: string }>
     cancelled: { label: 'Đã hủy', bg: '#F5F5F7', color: '#AEAEB2' },
 };
 
-const formatName = (fullName: string) => {
-    const formatedName = fullName.trim().replace(' ', '-');
-    return formatedName;
-}
-
 
 export default function CandidateDetailClient({ application, jobId }: CandidateDetailClientProps) {
     const name = application.candidate?.user?.fullName || 'N/A';
@@ -34,7 +29,7 @@ export default function CandidateDetailClient({ application, jobId }: CandidateD
     const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
     const status = statusConfig[application.status] || statusConfig.applied;
     const aiScore = application.screening?.overallScore;
-    const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${formatName(name)}`;
+    const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${name}`;
 
     return (
         <div className="lg:px-8 py-5" style={{ fontFamily: SFT }}>
