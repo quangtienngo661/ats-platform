@@ -201,7 +201,14 @@ export class CVsService {
       throw new NotFoundException('Không tìm thấy CV');
     }
 
-    const absolutePath = path.resolve(process.cwd(), cv.filePath.startsWith('/') ? `.${cv.filePath}` : cv.filePath);
+    const absolutePath1 = path.resolve(process.cwd(), cv.filePath.startsWith('/') ? `.${cv.filePath}` : cv.filePath);
+
+    const absolutePath = path.isAbsolute(cv.filePath)
+      ? cv.filePath
+      : path.join(process.cwd(), cv.filePath);
+
+    // console.log('absolutePath1', absolutePath1);
+    // console.log('absolutePath', absolutePath);
 
     const fileName = path.basename(cv.filePath);
 
