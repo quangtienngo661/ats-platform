@@ -194,7 +194,7 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
 
             {/* ─── History Section ────────────────────────────────────────── */}
             {history.length > 0 && (
-                <div>
+                <div className={`transition-opacity duration-200 ${isStarting ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex items-center gap-2 mb-4">
                         <History className="w-4 h-4 text-[#6E6E73]" />
                         <span className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>

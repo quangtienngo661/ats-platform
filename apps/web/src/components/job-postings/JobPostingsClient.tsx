@@ -28,7 +28,8 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingJob, setEditingJob] = useState<IJobPostingDto | null>(null);
 
-    const filtered = filter === 'all' ? jobs : jobs.filter(j => j.status === filter);
+    const ownedJobs = jobs.filter(j => j.recruiter?.recruiterId === currentRecruiter?.recruiterId);
+    const filtered = filter === 'all' ? ownedJobs : ownedJobs.filter(j => j.status === filter);
 
     const handleAdd = () => {
         setEditingJob(null);
@@ -54,7 +55,7 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
     return (
         <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
             <JobPostingsHeader onAdd={handleAdd} />
-            <JobPostingsStats jobs={jobs} />
+            <JobPostingsStats jobs={ownedJobs} />
 
             {/* Filter tabs */}
             <div className="flex items-center gap-2 mb-5">
