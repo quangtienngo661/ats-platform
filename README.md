@@ -256,35 +256,41 @@ The project uses modern technologies with versions pinned to `package.json`:
    SERVER_PORT=5000
    CLIENT_PORT=3000
 
-   # PostgreSQL database connection
-   DATABASE_URL="postgresql://postgres:your_password@localhost:5432/ats-db?schema=public"
+   # PostgreSQL Database Configuration
+   POSTGRES_USER=your_postgres_user
+   POSTGRES_PASSWORD=your_postgres_password
+   POSTGRES_DB=your_database_name
+   DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
 
-   # JWT signing secret
-   JWT_SECRET="your_super_secret_signing_key"
+   # JWT Secret
+   JWT_SECRET=your_jwt_secret_key
 
-   # Redis connection for cache & BullMQ
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
-
-   # Email configuration (registration verification)
+   # Email Configuration (bật/tắt gửi mail: nếu false thì chỉ log, không gửi thật)
    SMTP_ENABLED=true
-   SMTP_HOST="smtp.gmail.com"
+   SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
-   SMTP_SECURE=false
-   SMTP_USER="your-email@gmail.com"
-   SMTP_PASS="your-app-password-from-google"
-   SMTP_FROM="ATS Platform <noreply@ats-platform.com>"
+   SMTP_SECURE=false 
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASS=your_app_password
+   SMTP_FROM="ATS Platform <your_email@gmail.com>"
 
-   # URL configuration for CORS & redirects
-   API_BASE_URL="http://localhost:5000"
-   CLIENT_URL="http://localhost:3000"
+   # URLs Configuration
+   API_BASE_URL=https://your_domain.com/api
+   CLIENT_URL=https://your_domain.com
 
-   # Google Gemini API key
-   GOOGLE_API_KEY="your_google_gemini_api_key_here"
+   # Google AI / API Key
+   GOOGLE_API_KEY=your_google_api_key
 
-   # Next.js frontend environment variables
-   NEXT_PUBLIC_API_BASE_URL="http://localhost:5000"
-   NEXT_PUBLIC_SOCKET_URL="http://localhost:5000"
+   # Frontend Configuration
+   NEXT_PUBLIC_API_BASE_URL=https://your_domain.com/api
+   NEXT_PUBLIC_SOCKET_URL=https://your_domain.com
+
+   # Environment
+   NODE_ENV=production
+
+   # Redis Configuration
+   REDIS_HOST=redis
+   REDIS_PORT=6379
    ```
 
 4. **Start Infrastructure (PostgreSQL & Redis):**

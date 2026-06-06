@@ -4,6 +4,7 @@ import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { ICvDto } from '@/types/interfaces/cv.interface';
 import { ICvParsedData } from '@ats-platform/types';
+import { SERVER_URL } from '@/types/constants/urls';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,11 +82,6 @@ export async function getCvParsedDataAction(cvId: string): Promise<ICvParsedData
 }
 
 // ─── GET CV DOWNLOAD URL ──────────────────────────────────────────────────────
-export async function getCvDownloadUrlAction(cvId: string): Promise<string> {
-    // Trả về URL để client redirect tới — server không xử lý stream file
-    const { SERVER_URL } = await import('@/types/constants/urls');
-    return `${SERVER_URL}/cvs/${cvId}/download`;
-}
 
 // ─── CONFIRM CV ───────────────────────────────────────────────────────────────
 export async function confirmCvAction(

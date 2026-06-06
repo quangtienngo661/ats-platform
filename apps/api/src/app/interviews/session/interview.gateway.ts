@@ -10,8 +10,10 @@ import { Server, Socket } from 'socket.io';
 import { InterviewSessionService } from './interview-session.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 @WebSocketGateway({
-    cors: { origin: process.env.CLIENT_URL },
+    cors: { origin: NODE_ENV === 'development' ? '*' : process.env.CLIENT_URL },
 })
 export class InterviewGateway {
     @WebSocketServer()

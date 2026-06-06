@@ -11,6 +11,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { CLIENT_URL } from '../../common/constants/urls';
 
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +48,7 @@ export class AuthService {
   }
 
   private get apiBaseUrl() {
-    const url = process.env.CLIENT_URL;
+    const url = NODE_ENV === 'development' ? "localhost:4200" : process.env.CLIENT_URL;
     if (url) return url.replace(/\/$/, '');
     return `${url}`;
   }

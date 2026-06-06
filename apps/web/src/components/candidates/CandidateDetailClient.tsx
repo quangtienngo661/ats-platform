@@ -5,6 +5,7 @@ import { ArrowLeft, Star, Clock, Briefcase, Mail } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { CandidateOverviewTab } from './ui/CandidateOverviewTab';
+import { SERVER_URL } from '@/types/constants/urls';
 
 interface CandidateDetailClientProps {
     application: IApplicationDto;
@@ -21,12 +22,19 @@ const statusConfig: Record<string, { label: string; bg: string; color: string }>
     cancelled: { label: 'Đã hủy', bg: '#F5F5F7', color: '#AEAEB2' },
 };
 
+const formatName = (fullName: string) => {
+    const formatedName = fullName.trim().replace(' ', '-');
+    return formatedName;
+}
+
+
 export default function CandidateDetailClient({ application, jobId }: CandidateDetailClientProps) {
     const name = application.candidate?.user?.fullName || 'N/A';
     const email = application.candidate?.user?.email || '';
     const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
     const status = statusConfig[application.status] || statusConfig.applied;
     const aiScore = application.screening?.overallScore;
+    const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${formatName(name)}`;
 
     return (
         <div className="lg:px-8 py-5" style={{ fontFamily: SFT }}>
@@ -77,9 +85,14 @@ export default function CandidateDetailClient({ application, jobId }: CandidateD
 
                     {/* Quick Actions */}
                     <div className="flex gap-2 flex-shrink-0 my-auto">
-                        <button className="px-4 py-2 text-[13px] border border-[#E5E5EA] hover:bg-[#F5F5F7] rounded-xl transition-all" style={{ fontWeight: 500 }}>
+                        <a
+                            className="px-4 py-2 text-[13px] border border-[#E5E5EA] hover:bg-[#F5F5F7] rounded-xl transition-all"
+                            href={linkDownload}
+                            target="_blank"
+                            download
+                        >
                             Tải CV
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
