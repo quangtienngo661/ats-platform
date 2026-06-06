@@ -12,6 +12,7 @@ import {
   Query,
   Req,
   Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,6 +29,7 @@ import * as fs from 'fs/promises';
 import { Resources } from '../../common/decorators/resources.decorator';
 import { OwnershipGuard } from '../../common/guards/resources.guard';
 import { UploadCvDto } from './dtos/cvs.dto';
+import { createReadStream, existsSync } from 'fs';
 
 @ApiTags('CV')
 @ApiBearerAuth()
@@ -97,15 +99,19 @@ export class CVsController {
   @Roles(UserRole.admin, UserRole.recruiter, UserRole.candidate)
   @Get(':cvId/download')
   @Resources('cv')
-  @UseGuards(OwnershipGuard)
   @ApiOperation({ summary: 'Tải xuống CV', description: 'Tải file CV gốc (PDF).' })
   @ApiResponse({ status: 200, description: 'File CV' })
   async downloadCV(
     @Param('cvId') cvId: string,
+    @Query('name') name: string,
     @Res() res: Response,
   ) {
-    const { absolutePath, fileName } = await this.cvsService.downloadCV(cvId);
-    res.download(absolutePath, fileName);
+    const { absolutePath } = await this.cvsService.downloadCV(cvId);
+    if (!existsSync(absolutePath)) {
+      throw new NotFoundException('File CV không còn tồn tại trên hệ thống lưu trữ');
+    }
+
+    res.download(absolutePath, `${name || 'cv'}.pdf`);;
   }
 
   @Resources('cv')

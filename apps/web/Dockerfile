@@ -33,7 +33,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV NEXT_SERVER_API_BASE_URL=${NEXT_SERVER_API_BASE_URL}
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 # Thiết lập User không có quyền root (Non-root) nhằm nâng cao bảo mật hệ thống
 RUN addgroup --system --gid 1001 nodejs
