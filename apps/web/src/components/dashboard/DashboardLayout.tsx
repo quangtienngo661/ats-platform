@@ -41,6 +41,8 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
   const pathname = usePathname();
   const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
 
+  const formattedRole = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Recruiter';
+
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
@@ -176,7 +178,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
               {userName || 'HR Manager'}
             </p>
             <p className="text-[11px] text-[#AEAEB2] truncate" style={{ fontFamily: SFT }}>
-              {userEmail || userRole || 'recruiter'}
+              {userEmail || formattedRole || 'recruiter'}
             </p>
           </div>
         </div>

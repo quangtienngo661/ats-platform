@@ -14,6 +14,7 @@ import { ISkillDto } from '@/types/interfaces/skill.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
 import { deleteJobPostingAction } from '@/servers/job-postings/job-postings.action';
+import { Role } from '../../../../../libs/shared/types/src/lib/enums';
 
 interface JobPostingsClientProps {
     jobs: IJobPostingDto[];
@@ -29,7 +30,14 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
     const [editingJob, setEditingJob] = useState<IJobPostingDto | null>(null);
 
     const ownedJobs = jobs.filter(j => j.recruiter?.recruiterId === currentRecruiter?.recruiterId);
-    const filtered = filter === 'all' ? ownedJobs : ownedJobs.filter(j => j.status === filter);
+
+    let filtered: IJobPostingDto[] = [];
+
+    if (!currentRecruiter || currentRecruiter.user?.role === Role.admin) {
+        filtered = jobs;
+    } else {
+        filtered = filter === 'all' ? ownedJobs : ownedJobs.filter(j => j.status === filter);
+    }
 
     const handleAdd = () => {
         setEditingJob(null);
@@ -55,7 +63,7 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
     return (
         <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
             <JobPostingsHeader onAdd={handleAdd} />
-            <JobPostingsStats jobs={ownedJobs} />
+            <JobPostingsStats jobs={filtered} />
 
             {/* Filter tabs */}
             <div className="flex items-center gap-2 mb-5">
