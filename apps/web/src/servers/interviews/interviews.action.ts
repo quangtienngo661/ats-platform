@@ -13,7 +13,7 @@ import {
     IInterviewSchedule,
 } from '@/types/interfaces/interview.interface';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
-import { ApplicationStatus, DifficultyLevel, InterviewType } from '@ats-platform/types';
+import { ApplicationStatus, DifficultyLevel, InterviewType, ScheduleStatus } from '@ats-platform/types';
 
 export type StartSessionActionState = {
     success: boolean;
@@ -233,6 +233,41 @@ export async function updateInterviewScheduleAction(
     } catch (error) {
         return { success: false, message: extractMessage(error, 'Đổi lịch phỏng vấn thất bại') };
     }
+}
+
+async function updateInterviewScheduleStatusAction(
+    interviewId: string,
+    status: ScheduleStatus,
+    successMessage: string,
+    fallbackMessage: string,
+): Promise<InterviewScheduleActionState> {
+    if (!interviewId) return { success: false, message: 'Thiáº¿u ID lá»‹ch phá»ng váº¥n' };
+
+    try {
+        const response = await http.patch(`/interviews/schedules/${interviewId}`, { status });
+        revalidatePath('/interviews');
+        return { success: true, message: successMessage, data: response.data ?? response };
+    } catch (error) {
+        return { success: false, message: extractMessage(error, fallbackMessage) };
+    }
+}
+
+export async function cancelInterviewScheduleAction(interviewId: string): Promise<InterviewScheduleActionState> {
+    return updateInterviewScheduleStatusAction(
+        interviewId,
+        ScheduleStatus.cancelled,
+        'Hủy lịch phỏng vấn thành công',
+        'Hủy lịch phỏng vấn thất bại',
+    );
+}
+
+export async function completeInterviewScheduleAction(interviewId: string): Promise<InterviewScheduleActionState> {
+    return updateInterviewScheduleStatusAction(
+        interviewId,
+        ScheduleStatus.completed,
+        'Cập nhật lịch phỏng vấn thành công',
+        'Cập nhật lịch phỏng vấn thất bại',
+    );
 }
 
 export async function getSchedulableInterviewApplicationsAction(): Promise<IApplicationDto[]> {

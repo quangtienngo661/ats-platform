@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Đặt lại mật khẩu | TalentAI',
     description: 'Tạo mật khẩu mới cho tài khoản TalentAI',

@@ -1,5 +1,5 @@
-import { Prisma } from '@ats-platform/database';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ApplicationStatus, Prisma, UserRole } from '@ats-platform/database';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { FindCandidatesQueryDto, UpdateCandidateProfileDto } from './dtos/candidates.dto';
 import { candidateIncludeOptions } from '../../common/utils/include-options.util';
@@ -76,7 +76,53 @@ export class CandidatesService {
 		});
 	}
 
-	async findOne(candidateId: string) {
+	private async getRecruiterDepartmentId(userId: string) {
+		const recruiter = await this.prisma.recruiter.findUnique({
+			where: { userId },
+			select: { departmentId: true },
+		});
+
+		if (!recruiter) {
+			throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
+		}
+
+		return recruiter.departmentId;
+	}
+
+	private getRecruiterCandidateScope(departmentId: string): Prisma.CandidateWhereInput {
+		return {
+			applications: {
+				some: {
+					status: { not: ApplicationStatus.cancelled },
+					jobPosting: { departmentId },
+				},
+			},
+		};
+	}
+
+	private async assertCanViewCandidate(candidateId: string, userId: string, role: UserRole) {
+		if (role === UserRole.admin) return;
+		if (role !== UserRole.recruiter) {
+			throw new ForbiddenException('Bạn không có quyền truy cập ứng viên này');
+		}
+
+		const departmentId = await this.getRecruiterDepartmentId(userId);
+		const candidate = await this.prisma.candidate.findFirst({
+			where: {
+				candidateId,
+				...this.getRecruiterCandidateScope(departmentId),
+			},
+			select: { candidateId: true },
+		});
+
+		if (!candidate) {
+			throw new ForbiddenException('Bạn không có quyền truy cập ứng viên ngoài phạm vi khoa');
+		}
+	}
+
+	async findOne(candidateId: string, userId: string, role: UserRole) {
+		await this.assertCanViewCandidate(candidateId, userId, role);
+
 		const candidate = await this.prisma.candidate.findUnique({
 			where: { candidateId },
 			include: {
@@ -115,11 +161,11 @@ export class CandidatesService {
 		};
 	}
 
-	async findAll(query: FindCandidatesQueryDto) {
+	async findAll(query: FindCandidatesQueryDto, userId: string, role: UserRole) {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 10;
 
-		const where: Prisma.CandidateWhereInput = {
+		const baseWhere: Prisma.CandidateWhereInput = {
 			...(query.search
 				? {
 					OR: [
@@ -138,6 +184,19 @@ export class CandidatesService {
 				}
 				: {}),
 		};
+		let where = baseWhere;
+
+		if (role === UserRole.recruiter) {
+			const departmentId = await this.getRecruiterDepartmentId(userId);
+			where = {
+				AND: [
+					baseWhere,
+					this.getRecruiterCandidateScope(departmentId),
+				],
+			};
+		} else if (role !== UserRole.admin) {
+			throw new ForbiddenException('Bạn không có quyền tìm kiếm ứng viên');
+		}
 
 		const [candidates, total] = await this.prisma.$transaction([
 			this.prisma.candidate.findMany({

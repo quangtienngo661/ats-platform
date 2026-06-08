@@ -99,6 +99,13 @@ export default function InterviewScheduleClient({
         router.push(`/interviews?weekStart=${nextWeek}`);
     };
 
+    const handleScheduleChanged = () => {
+        setSelectedSchedule(null);
+        setReschedulingSchedule(null);
+        setShowCreateModal(false);
+        router.refresh();
+    };
+
     return (
         <div className="flex h-full flex-col bg-[#F5F5F7]" style={{ fontFamily: SFT }}>
             <div className="border-b border-[#F2F2F7] bg-white px-4 py-4 lg:px-6">
@@ -135,6 +142,7 @@ export default function InterviewScheduleClient({
                 <ScheduleDetailDrawer
                     schedule={selectedSchedule}
                     onClose={() => setSelectedSchedule(null)}
+                    onChanged={handleScheduleChanged}
                     onReschedule={(schedule) => {
                         setSelectedSchedule(null);
                         setReschedulingSchedule(schedule);
@@ -149,7 +157,10 @@ export default function InterviewScheduleClient({
                     currentRecruiter={currentRecruiter}
                     defaultDate={weekDays.find((day) => day.dateKey >= today)?.dateKey ?? weekDays[0]?.dateKey ?? today}
                     minDate={today}
-                    onClose={() => setShowCreateModal(false)}
+                    onClose={() => {
+                        setShowCreateModal(false);
+                        router.refresh();
+                    }}
                 />
             )}
 
@@ -161,7 +172,10 @@ export default function InterviewScheduleClient({
                     currentRecruiter={currentRecruiter}
                     defaultDate={getScheduleDateKey(reschedulingSchedule)}
                     minDate={today}
-                    onClose={() => setReschedulingSchedule(null)}
+                    onClose={() => {
+                        setReschedulingSchedule(null);
+                        router.refresh();
+                    }}
                 />
             )}
         </div>

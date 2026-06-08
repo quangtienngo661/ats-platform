@@ -1,12 +1,17 @@
 'use client';
 
+import { useTransition } from 'react';
 import { motion } from 'motion/react';
-import { Building2, Briefcase, CalendarDays, Clock, RefreshCw, UserRound, X } from 'lucide-react';
+import { Ban, Building2, Briefcase, CalendarDays, CheckCircle2, Clock, RefreshCw, UserRound, X } from 'lucide-react';
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
+import { cancelInterviewScheduleAction, completeInterviewScheduleAction } from '@/servers/interviews/interviews.action';
+import { toast } from '@/lib/toast';
+import { ScheduleStatus } from '@ats-platform/types';
 
 interface ScheduleDetailDrawerProps {
     schedule: IInterviewSchedule;
     onClose: () => void;
+    onChanged: () => void;
     onReschedule: (schedule: IInterviewSchedule) => void;
 }
 
@@ -24,7 +29,8 @@ const statusLabels: Record<string, string> = {
     cancelled: 'Đã hủy',
 };
 
-export function ScheduleDetailDrawer({ schedule, onClose, onReschedule }: ScheduleDetailDrawerProps) {
+export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedule }: ScheduleDetailDrawerProps) {
+    const [isPending, startTransition] = useTransition();
     const candidate = schedule.application?.candidate;
     const candidateName = candidate?.user?.fullName ?? 'Ứng viên';
     const candidateEmail = candidate?.user?.email ?? 'Chưa có email';
@@ -38,6 +44,21 @@ export function ScheduleDetailDrawer({ schedule, onClose, onReschedule }: Schedu
         { icon: Briefcase, label: 'Vị trí', value: jobTitle },
         { icon: Building2, label: 'Khoa', value: departmentName },
     ];
+
+    const canMutate = schedule.status === ScheduleStatus.scheduled;
+
+    const handleStatusChange = (action: (interviewId: string) => Promise<{ success: boolean; message: string }>) => {
+        startTransition(async () => {
+            const result = await action(schedule.interviewId);
+            if (result.success) {
+                toast.success('Thành công', result.message);
+                onChanged();
+                return;
+            }
+
+            toast.error('Lỗi', result.message);
+        });
+    };
 
     return (
         <div className="fixed inset-0 z-40 flex justify-end bg-black/20" onClick={onClose}>
@@ -90,11 +111,36 @@ export function ScheduleDetailDrawer({ schedule, onClose, onReschedule }: Schedu
                     </div>
                 </div>
 
-                <div className="border-t border-[#F2F2F7] p-5">
+                <div className="flex flex-col gap-2 border-t border-[#F2F2F7] p-5">
+                    {canMutate && (
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleStatusChange(completeInterviewScheduleAction)}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#D1F0D7] px-3 py-3 text-[13px] text-[#248A3D] transition-colors hover:bg-[#F0FBF2] disabled:cursor-not-allowed disabled:opacity-60"
+                                style={{ fontWeight: 800 }}
+                            >
+                                <CheckCircle2 className="h-4 w-4" />
+                                Hoàn tất
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleStatusChange(cancelInterviewScheduleAction)}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#FFD7D7] px-3 py-3 text-[13px] text-[#FF3B30] transition-colors hover:bg-[#FFF2F2] disabled:cursor-not-allowed disabled:opacity-60"
+                                style={{ fontWeight: 800 }}
+                            >
+                                <Ban className="h-4 w-4" />
+                                Hủy lịch
+                            </button>
+                        </div>
+                    )}
                     <button
                         type="button"
+                        disabled={!canMutate || isPending}
                         onClick={() => onReschedule(schedule)}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-3 text-[14px] text-white shadow-sm transition-colors hover:bg-[#0077ED]"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-3 text-[14px] text-white shadow-sm transition-colors hover:bg-[#0077ED] disabled:cursor-not-allowed disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2]"
                         style={{ fontWeight: 800 }}
                     >
                         <RefreshCw className="h-4 w-4" />

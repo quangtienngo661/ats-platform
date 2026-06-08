@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 @WebSocketGateway({
     cors: {
-        // TODO: setup cors for specific FE
         origin: process.env.CLIENT_URL,
     },
     allowRequest: (req, callback) => {
