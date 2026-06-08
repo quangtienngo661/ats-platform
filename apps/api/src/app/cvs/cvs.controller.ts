@@ -114,10 +114,10 @@ export class CVsController {
 
     console.log(absolutePath);
 
-    res.download(absolutePath, `${name || 'cv'} Resume.pdf`);
+    res.download(absolutePath, `${name || 'cv'} Resume.pdf`).;
   }
 
-  @Resources('cv')
+  @Resources('cv')  
   @UseGuards(OwnershipGuard)
   @Post(':cvId/confirm')
   @ApiOperation({ summary: 'Xác nhận dữ liệu CV', description: 'Xác nhận dữ liệu AI phân tích là chính xác. Tùy chọn đồng bộ vào hồ sơ ứng viên.' })
