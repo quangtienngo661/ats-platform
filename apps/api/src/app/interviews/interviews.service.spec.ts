@@ -56,6 +56,30 @@ describe('InterviewsService', () => {
     ).rejects.toThrow('tr');
   });
 
+  it('rejects schedule conflicts for the same interviewer and time', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      status: ApplicationStatus.interview,
+      jobPosting: { departmentId: 'dep-1' },
+    });
+    prisma.recruiter.findUnique.mockResolvedValue({
+      recruiterId: 'rec-1',
+      departmentId: 'dep-1',
+      user: { userId: 'interviewer-1', role: UserRole.recruiter },
+    });
+    prisma.interviewSchedule.findFirst.mockResolvedValue({ interviewId: 'existing' });
+
+    await expect(
+      service.createSchedule('admin-1', UserRole.admin, {
+        applicationId: 'app-1',
+        interviewerId: 'interviewer-1',
+        interviewType: InterviewType.online,
+        scheduledDate: '2026-06-01',
+        scheduledTime: '2026-06-01T09:00:00.000Z',
+      } as any),
+    ).rejects.toThrow('thời điểm');
+  });
+
   it('filters my schedules for candidates with date range pagination', async () => {
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
     prisma.interviewSchedule.findMany.mockResolvedValue([{ interviewId: 'int-1' }]);

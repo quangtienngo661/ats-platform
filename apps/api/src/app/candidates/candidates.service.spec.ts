@@ -1,5 +1,6 @@
 import { CandidatesService } from './candidates.service';
 import { createPrismaMock } from '../../test-utils/unit-test-helpers';
+import { UserRole } from '@ats-platform/database';
 
 describe('CandidatesService', () => {
   let service: CandidatesService;
@@ -72,7 +73,7 @@ describe('CandidatesService', () => {
     ]);
     prisma.candidate.count.mockResolvedValue(1);
 
-    await service.findAll({ search: 'alice', status: 'active' as any, page: 2, limit: 5 });
+    await service.findAll({ search: 'alice', status: 'active' as any, page: 2, limit: 5 }, 'admin-1', UserRole.admin);
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.candidate.findMany).toHaveBeenCalledWith(
@@ -82,6 +83,30 @@ describe('CandidatesService', () => {
         where: expect.objectContaining({
           OR: expect.any(Array),
           user: { status: 'active' },
+        }),
+      }),
+    );
+  });
+
+  it('scopes candidate search to recruiter department applications', async () => {
+    prisma.recruiter.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
+    prisma.candidate.findMany.mockResolvedValue([]);
+    prisma.candidate.count.mockResolvedValue(0);
+
+    await service.findAll({ page: 1, limit: 10 }, 'rec-user-1', UserRole.recruiter);
+
+    expect(prisma.candidate.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            expect.objectContaining({
+              applications: expect.objectContaining({
+                some: expect.objectContaining({
+                  jobPosting: { departmentId: 'dep-1' },
+                }),
+              }),
+            }),
+          ]),
         }),
       }),
     );

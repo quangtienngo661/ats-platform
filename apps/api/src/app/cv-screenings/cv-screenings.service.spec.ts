@@ -1,4 +1,4 @@
-import { AiRecommendation, ScreeningStatus } from '@ats-platform/database';
+import { AiRecommendation, ScreeningStatus, UserRole } from '@ats-platform/database';
 import { CvScreeningsService } from './cv-screenings.service';
 import { createPrismaMock, createQueueMock } from '../../test-utils/unit-test-helpers';
 
@@ -73,14 +73,14 @@ describe('CvScreeningsService', () => {
   });
 
   it('aggregates screening stats', async () => {
-    prisma.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1', title: 'Backend' });
+    prisma.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1', title: 'Backend', departmentId: 'dep-1' });
     prisma.cVScreening.findMany.mockResolvedValue([
       { status: ScreeningStatus.completed, overallScore: 80, aiRecommendation: AiRecommendation.hire },
       { status: ScreeningStatus.failed, overallScore: null, aiRecommendation: null },
       { status: ScreeningStatus.completed, overallScore: 60, aiRecommendation: AiRecommendation.interview },
     ]);
 
-    await expect(service.getScreeningStats('job-1')).resolves.toEqual(
+    await expect(service.getScreeningStats('job-1', 'admin-1', UserRole.admin)).resolves.toEqual(
       expect.objectContaining({
         total: 3,
         averageScore: 70,
@@ -88,6 +88,24 @@ describe('CvScreeningsService', () => {
         byRecommendation: expect.objectContaining({ hire: 1, interview: 1 }),
       }),
     );
+  });
+
+  it('allows only same-department recruiters to view full screening results', async () => {
+    prisma.cVScreening.findUnique.mockResolvedValue({
+      screeningId: 'screen-1',
+      applicationId: 'app-1',
+      application: {
+        jobPosting: { departmentId: 'dep-1' },
+      },
+    });
+    prisma.recruiter.findUnique.mockResolvedValueOnce({ departmentId: 'dep-1' });
+
+    await expect(service.getScreeningResult('app-1', 'rec-1', UserRole.recruiter)).resolves.toEqual(
+      expect.objectContaining({ screeningId: 'screen-1' }),
+    );
+
+    prisma.recruiter.findUnique.mockResolvedValueOnce({ departmentId: 'dep-2' });
+    await expect(service.getScreeningResult('app-1', 'rec-2', UserRole.recruiter)).rejects.toThrow('quy');
   });
 
   it('calculates scores and normalizes fractional thresholds', () => {

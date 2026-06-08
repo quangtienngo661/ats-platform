@@ -171,8 +171,6 @@ export class GeminiService {
                 status: AiLogStatus.success,
             });
 
-            console.log(response.text);
-
             return {
                 text: JSON.parse(response.text),
             };

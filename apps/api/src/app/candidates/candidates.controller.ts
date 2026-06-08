@@ -42,8 +42,11 @@ export class CandidatesController {
   @ApiOperation({ summary: 'Xem chi tiết ứng viên', description: 'Nhà tuyển dụng hoặc admin xem thông tin ứng viên.' })
   @ApiResponse({ status: 200, description: 'Thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy ứng viên' })
-  findOne(@Param('id') id: string) {
-    return this.candidatesService.findOne(id);
+  findOne(
+    @Param('id') id: string,
+    @Req() req: Request & { user: { userId: string; role: UserRole } },
+  ) {
+    return this.candidatesService.findOne(id, req.user.userId, req.user.role);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -51,7 +54,10 @@ export class CandidatesController {
   @Get()
   @ApiOperation({ summary: 'Tìm kiếm ứng viên', description: 'Tìm kiếm ứng viên theo tên, email, chức danh. Hỗ trợ phân trang.' })
   @ApiResponse({ status: 200, description: 'Thành công' })
-  findAll(@Query() query: FindCandidatesQueryDto) {
-    return this.candidatesService.findAll(query);
+  findAll(
+    @Query() query: FindCandidatesQueryDto,
+    @Req() req: Request & { user: { userId: string; role: UserRole } },
+  ) {
+    return this.candidatesService.findAll(query, req.user.userId, req.user.role);
   }
 }

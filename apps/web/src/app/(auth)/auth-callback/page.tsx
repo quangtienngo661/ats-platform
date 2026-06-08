@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface AuthCallbackPageProps {
     searchParams: Promise<{ token?: string; error?: string }>;
 }

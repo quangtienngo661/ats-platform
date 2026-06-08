@@ -14,7 +14,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
   imports: [
     CandidatesModule,
-    // TODO: Register CV Screening Queue and Mock Interview Queue (Need assessment first)
     BullModule.registerQueue({
       name: 'cv-processing',
       defaultJobOptions: { removeOnComplete: true },

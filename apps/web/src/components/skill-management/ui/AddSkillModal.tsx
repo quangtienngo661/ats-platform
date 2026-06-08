@@ -28,7 +28,6 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
             onClose();
         } else if (state.message) {
             toast.error('Lỗi', state.message);
-            console.error()
         }
     }, [state]);
 
@@ -135,4 +134,3 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
         </AnimatePresence>
     );
 }
-

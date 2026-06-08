@@ -1,10 +1,15 @@
 import * as fs from 'fs/promises';
+import { existsSync } from 'fs';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CVsController } from './cvs.controller';
 import { createPrismaMock, mockRequest, mockResponse } from '../../test-utils/unit-test-helpers';
 
 jest.mock('fs/promises', () => ({
   unlink: jest.fn(),
+}));
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  existsSync: jest.fn(),
 }));
 
 describe('CVsController', () => {
@@ -25,6 +30,7 @@ describe('CVsController', () => {
     prisma = createPrismaMock();
     controller = new CVsController(service, prisma as any);
     (fs.unlink as jest.Mock).mockResolvedValue(undefined);
+    (existsSync as jest.Mock).mockReturnValue(true);
   });
 
   it('resolves candidate id for self-service CV endpoints', async () => {
@@ -65,8 +71,8 @@ describe('CVsController', () => {
     service.downloadCV.mockResolvedValue({ absolutePath: 'abs/cv.pdf', fileName: 'cv.pdf' });
     const res = mockResponse();
 
-    await controller.downloadCV('cv-1', res);
+    await controller.downloadCV('cv-1', 'alice', res);
 
-    expect(res.download).toHaveBeenCalledWith('abs/cv.pdf', 'cv.pdf');
+    expect(res.download).toHaveBeenCalledWith('abs/cv.pdf', 'alice Resume.pdf');
   });
 });

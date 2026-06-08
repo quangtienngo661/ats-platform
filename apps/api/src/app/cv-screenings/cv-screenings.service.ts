@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { AiRecommendation, ScreeningStatus } from '@ats-platform/database';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { AiRecommendation, ScreeningStatus, UserRole } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -11,6 +11,23 @@ export class CvScreeningsService {
     private readonly prisma: PrismaService,
     @InjectQueue('cv-screening') private readonly screeningQueue: Queue
   ) { }
+
+  private async assertCanAccessJob(userId: string, role: UserRole, departmentId: string) {
+    if (role === UserRole.admin) return;
+    if (role !== UserRole.recruiter) {
+      throw new ForbiddenException('Bạn không có quyền truy cập dữ liệu sàng lọc này');
+    }
+
+    const recruiter = await this.prisma.recruiter.findUnique({
+      where: { userId },
+      select: { departmentId: true },
+    });
+
+    if (!recruiter || recruiter.departmentId !== departmentId) {
+      throw new ForbiddenException('Bạn không có quyền truy cập dữ liệu sàng lọc của khoa này');
+    }
+  }
+
   async createScreeningRecord(applicationId: string, cvId: string, configId?: string): Promise<any> {
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -65,7 +82,7 @@ export class CvScreeningsService {
 
     return screening;
   }
-  async getScreeningResult(applicationId: string): Promise<any> {
+  async getScreeningResult(applicationId: string, userId: string, role: UserRole): Promise<any> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
       include: {
@@ -85,6 +102,9 @@ export class CvScreeningsService {
             status: true,
             candidateId: true,
             jobId: true,
+            jobPosting: {
+              select: { departmentId: true },
+            },
           },
         },
       },
@@ -93,6 +113,8 @@ export class CvScreeningsService {
     if (!screening) {
       throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
     }
+
+    await this.assertCanAccessJob(userId, role, screening.application.jobPosting.departmentId);
 
     return screening;
   }
@@ -131,12 +153,14 @@ export class CvScreeningsService {
       screenedAt: screening.screenedAt,
     };
   }
-  async getScreeningStats(jobId: string): Promise<any> {
+  async getScreeningStats(jobId: string, userId: string, role: UserRole): Promise<any> {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
-      select: { jobId: true, title: true },
+      select: { jobId: true, title: true, departmentId: true },
     });
     if (!job) throw new NotFoundException(`Không tìm thấy tin tuyển dụng '${jobId}'`);
+
+    await this.assertCanAccessJob(userId, role, job.departmentId);
 
     const screenings = await this.prisma.cVScreening.findMany({
       where: { application: { jobId } },

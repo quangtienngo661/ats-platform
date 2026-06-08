@@ -5,7 +5,7 @@ import { UpdateInterviewScheduleDto } from './dto/update-interview.dto';
 import { GetInterviewSchedulesQueryDto } from './dto/get-interview-schedules-query.dto';
 import { CreateInterviewTopicDto } from './dto/create-interview-topic.dto';
 import { UpdateInterviewTopicDto } from './dto/update-interview-topic.dto';
-import { ApplicationStatus, Prisma, UserRole } from '@ats-platform/database';
+import { ApplicationStatus, Prisma, ScheduleStatus, UserRole } from '@ats-platform/database';
 import { interviewTopicCategorySelect, interviewTopicIncludeOptions, scheduleIncludeOptions } from '../../common/utils/include-options.util';
 
 
@@ -97,6 +97,28 @@ export class InterviewsService {
         }
     }
 
+    private async assertNoScheduleConflict(
+        interviewerId: string,
+        scheduledDate: Date,
+        scheduledTime: Date,
+        excludedInterviewId?: string,
+    ) {
+        const conflict = await this.prisma.interviewSchedule.findFirst({
+            where: {
+                interviewerId,
+                scheduledDate,
+                scheduledTime,
+                status: ScheduleStatus.scheduled,
+                ...(excludedInterviewId ? { NOT: { interviewId: excludedInterviewId } } : {}),
+            },
+            select: { interviewId: true },
+        });
+
+        if (conflict) {
+            throw new BadRequestException('Người phỏng vấn đã có lịch ở thời điểm này');
+        }
+    }
+
     private async assertCanViewSchedule(userId: string, role: string, interviewId: string) {
         const schedule = await this.prisma.interviewSchedule.findUnique({
             where: { interviewId },
@@ -131,6 +153,9 @@ export class InterviewsService {
             select: {
                 interviewId: true,
                 scheduledBy: true,
+                interviewerId: true,
+                scheduledDate: true,
+                scheduledTime: true,
                 application: { select: { jobPosting: { select: { departmentId: true } } } },
             },
         });
@@ -144,6 +169,9 @@ export class InterviewsService {
     async createSchedule(userId: string, role: string, dto: CreateInterviewScheduleDto) {
         const application = await this.assertCanScheduleApplication(userId, role, dto.applicationId);
         await this.assertCanUseInterviewer(userId, role, dto.interviewerId, application.jobPosting.departmentId);
+        const scheduledDate = new Date(dto.scheduledDate);
+        const scheduledTime = new Date(dto.scheduledTime);
+        await this.assertNoScheduleConflict(dto.interviewerId, scheduledDate, scheduledTime);
 
         return this.prisma.interviewSchedule.create({
             data: {
@@ -151,8 +179,8 @@ export class InterviewsService {
                 scheduledBy: userId,
                 interviewerId: dto.interviewerId,
                 interviewType: dto.interviewType,
-                scheduledDate: new Date(dto.scheduledDate),
-                scheduledTime: new Date(dto.scheduledTime),
+                scheduledDate,
+                scheduledTime,
                 onlineMeetingLink: dto.onlineMeetingLink,
             },
             include: scheduleIncludeOptions,
@@ -247,6 +275,17 @@ export class InterviewsService {
         if (dto.scheduledTime) updateData.scheduledTime = new Date(dto.scheduledTime);
         if (dto.onlineMeetingLink !== undefined) updateData.onlineMeetingLink = dto.onlineMeetingLink;
         if (dto.status) updateData.status = dto.status;
+
+        const nextInterviewerId = updateData.interviewerId ?? schedule.interviewerId;
+        const nextScheduledDate = updateData.scheduledDate ?? schedule.scheduledDate;
+        const nextScheduledTime = updateData.scheduledTime ?? schedule.scheduledTime;
+        if (
+            dto.interviewerId !== undefined ||
+            dto.scheduledDate !== undefined ||
+            dto.scheduledTime !== undefined
+        ) {
+            await this.assertNoScheduleConflict(nextInterviewerId, nextScheduledDate, nextScheduledTime, interviewId);
+        }
 
         return this.prisma.interviewSchedule.update({
             where: { interviewId },

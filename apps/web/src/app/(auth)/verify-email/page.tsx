@@ -1,6 +1,8 @@
 import VerifyEmailView from '@/components/auth/forms/VerifyEmailView';
 import { AuthShell } from '@/components/auth/ui/AuthShell';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Xác thực email | TalentAI',
     description: 'Xác thực địa chỉ email tài khoản TalentAI',
