@@ -36,8 +36,6 @@ export function PublicHeader({
         ] : []),
     ];
 
-    console.log(initialNotifications, initialUnreadCount);
-
     const handleLogout = async () => {
         setAvatarOpen(false);
         socket.disconnect();
