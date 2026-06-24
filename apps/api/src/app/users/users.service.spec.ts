@@ -1,18 +1,97 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+import { UserRole, UserStatus } from '@ats-platform/database';
 import { UsersService } from './users.service';
+import { createPrismaMock, createPrismaTransactionMock } from '../../test-utils/unit-test-helpers';
+
+jest.mock('bcrypt', () => ({
+  hashSync: jest.fn(),
+  compareSync: jest.fn(),
+}));
 
 describe('UsersService', () => {
   let service: UsersService;
+  let prisma: ReturnType<typeof createPrismaMock>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService],
-    }).compile();
-
-    service = module.get<UsersService>(UsersService);
+  beforeEach(() => {
+    prisma = createPrismaMock();
+    service = new UsersService(prisma as any);
+    (bcrypt.hashSync as jest.Mock).mockReturnValue('hashed-password');
+    (bcrypt.compareSync as jest.Mock).mockReturnValue(true);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('creates a user with hashed password inside a transaction', async () => {
+    const tx = createPrismaTransactionMock();
+    prisma.user.findUnique.mockResolvedValue(null);
+    tx.user.create.mockResolvedValue({ userId: 'user-1', email: 'a@test.com' });
+    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+    await service.create({
+      email: 'a@test.com',
+      password: 'secret',
+      fullName: 'Alice',
+      role: UserRole.admin,
+      status: UserStatus.active,
+    });
+
+    expect(bcrypt.hashSync).toHaveBeenCalledWith('secret', 10);
+    expect(tx.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ passwordHash: 'hashed-password', emailVerified: true }),
+        omit: { passwordHash: true },
+      }),
+    );
+  });
+
+  it('rejects duplicate user emails', async () => {
+    prisma.user.findUnique.mockResolvedValue({ userId: 'existing' });
+
+    await expect(
+      service.create({
+        email: 'a@test.com',
+        password: 'secret',
+        fullName: 'Alice',
+        role: UserRole.admin,
+        status: UserStatus.active,
+      }),
+    ).rejects.toThrow('Email');
+  });
+
+  it('changes password only when the current password matches', async () => {
+    prisma.user.findUnique.mockResolvedValue({ passwordHash: 'old-hash' });
+    prisma.user.update.mockResolvedValue({ userId: 'user-1' });
+
+    await service.changePassword('user-1', { currentPassword: 'old', newPassword: 'new' });
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { passwordHash: 'hashed-password' } }),
+    );
+
+    (bcrypt.compareSync as jest.Mock).mockReturnValue(false);
+    await expect(
+      service.changePassword('user-1', { currentPassword: 'wrong', newPassword: 'new' }),
+    ).rejects.toThrow('kh');
+  });
+
+  it('rejects empty updates and duplicate update emails', async () => {
+    await expect(service.update('user-1', {})).rejects.toThrow('c');
+
+    prisma.user.findUnique
+      .mockResolvedValueOnce({ userId: 'user-1', email: 'old@test.com' })
+      .mockResolvedValueOnce({ userId: 'other' });
+
+    await expect(service.update('user-1', { email: 'new@test.com' })).rejects.toThrow('Email');
+  });
+
+  it('maps Prisma update/delete not-found errors to NotFoundException', async () => {
+    prisma.user.findUnique.mockResolvedValue({ userId: 'user-1', email: 'a@test.com' });
+    prisma.user.update.mockRejectedValue({ code: 'P2025' });
+
+    await expect(service.update('user-1', { fullName: 'Alice' })).rejects.toThrow('Kh');
+
+    prisma.user.delete.mockRejectedValue({ code: 'P2025' });
+    await expect(service.remove('missing')).rejects.toThrow('Kh');
   });
 });

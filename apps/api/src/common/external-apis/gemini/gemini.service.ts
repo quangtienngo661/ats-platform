@@ -1,0 +1,206 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { GenerateContentConfig, GoogleGenAI } from '@google/genai';
+import { ConfigService } from '@nestjs/config';
+import { GeminiModel } from '../../types/enums/gemini-model.enum';
+import { AiUsageLogsService } from '../../../app/ai-usage-logs/ai-usage-logs.service';
+import { AiActionType, AiLogStatus } from '@ats-platform/database';
+import { cvParsingConfig, jdParsingConfig, screeningConfig, mockInterviewGenerateConfig, mockInterviewFollowupConfig, mockInterviewEvaluateConfig, mockInterviewResultConfig } from '../../configs/gemini.config';
+
+@Injectable()
+export class GeminiService {
+    private readonly ai: GoogleGenAI;
+
+    constructor(
+        private configService: ConfigService,
+        private readonly aiUsageLogsService: AiUsageLogsService
+    ) {
+        this.ai = new GoogleGenAI({
+            apiKey: this.configService.getOrThrow('GOOGLE_API_KEY'),
+        });
+    }
+
+    async parseCV(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.cv_parsing,
+            cvParsingConfig,
+        );
+        return result.text;
+    }
+
+    async screeningCV(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Pro,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.cv_scoring,
+            screeningConfig
+        );
+
+        return result.text;
+    }
+
+    async parseJD(
+        refId: string,
+        rawDescription: string,
+        model: string = GeminiModel.Flash
+    ) {
+        const jdContent = `<jd_text>\n${rawDescription}\n</jd_text>`;
+
+        const result = await this.generateContent(
+            refId,
+            model,
+            jdContent,
+            AiActionType.job_parsing,
+            jdParsingConfig
+        );
+
+        return result.text;
+    }
+
+    async generateInterviewQuestions(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Pro,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewGenerateConfig,
+        );
+        return result.text;
+    }
+    async checkInterviewFollowup(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewFollowupConfig,
+        );
+        return result.text;
+    }
+    async evaluateInterviewAnswer(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Flash,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewEvaluateConfig,
+        );
+        return result.text;
+    }
+    async generateInterviewResult(
+        refId: string,
+        content: string,
+        model: string = GeminiModel.Pro,
+    ) {
+        const result = await this.generateContent(
+            refId,
+            model,
+            content,
+            AiActionType.mock_interview,
+            mockInterviewResultConfig,
+        );
+        return result.text;
+    }
+
+    private async generateContent(
+        refId: string,
+        model: string,
+        content: string,
+        actionType: AiActionType,
+        config?: GenerateContentConfig,
+    ) {
+        const startTime = performance.now();
+
+        const timeoutStr = 120000;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutStr);
+
+        try {
+            Logger.log(
+                `Gemini API call started — action: ${actionType}, refId: ${refId}`,
+                'GeminiService',
+            );
+
+            const finalConfig = { ...config, abortSignal: controller.signal };
+
+            const response = await this.ai.models.generateContent({
+                model,
+                contents: content,
+                config: finalConfig
+            });
+
+            clearTimeout(timeoutId);
+
+            const duration = Math.round(performance.now() - startTime);
+            Logger.log(
+                `Gemini API call completed — action: ${actionType}, refId: ${refId}, duration: ${duration}ms`,
+                'GeminiService',
+            );
+            const { promptTokenCount, candidatesTokenCount } = response.usageMetadata;
+
+            void this.aiUsageLogsService.create({
+                refId,
+                actionType,
+                model,
+                promptTokenCount,
+                candidatesTokenCount,
+                duration,
+                status: AiLogStatus.success,
+            });
+
+            return {
+                text: JSON.parse(response.text),
+            };
+
+        } catch (error) {
+            clearTimeout(timeoutId);
+            const duration = Math.round(performance.now() - startTime);
+            if (error.name === 'AbortError') {
+                Logger.error(`Gemini API TIMEOUT after 15s. BullMQ will retry this job...`, 'GeminiService');
+            } else {
+                Logger.error(`Gemini API ERROR. BullMQ will retry this job...`, error.stack, 'GeminiService');
+            }
+
+            void this.aiUsageLogsService.create({
+                refId,
+                actionType,
+                model,
+                promptTokenCount: 0,
+                candidatesTokenCount: 0,
+                duration,
+                status: AiLogStatus.failed,
+            });
+
+            Logger.error(
+                `Gemini API call failed — action: ${actionType}, refId: ${refId}`,
+                error.stack,
+                'GeminiService',
+            );
+
+            throw error;
+        }
+    }
+}

@@ -10,7 +10,7 @@
     "moduleResolution": "node"
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/test-utils/**/*.ts"],
   "references": [
     {
       "path": "../../libs/backend/database/tsconfig.lib.json"

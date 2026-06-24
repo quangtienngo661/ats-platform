@@ -9,14 +9,28 @@
     "prisma-migrate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma migrate dev --name init",
+        "command": "npx prisma migrate dev --name",
         "cwd": "libs/backend/database"
       }
-    }, 
+    },
     "prisma-generate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma generate",
+        "cwd": "libs/backend/database"
+      }
+    },
+    "prisma-reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate reset",
+        "cwd": "libs/backend/database"
+      }
+    },
+    "prisma-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate deploy",
         "cwd": "libs/backend/database"
       }
     }
