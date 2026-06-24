@@ -1,5 +1,5 @@
-import { ICandidate } from "@ats-platform/types";
-import { UserStatus } from "@ats-platform/types";
+import { ICandidate, UserStatus, IPaginatedResponse } from "@ats-platform/types";
+
 export interface ICandidateDto extends ICandidate {
     candidateId: string;
     userId: string;
@@ -25,9 +25,4 @@ export interface IFindCandidatesQuery {
     limit?: number;
 }
 
-export interface IPaginatedCandidates {
-    data: ICandidateDto[];
-    total: number;
-    page: number;
-    limit: number;
-}
+export type IPaginatedCandidates = IPaginatedResponse<ICandidateDto>;

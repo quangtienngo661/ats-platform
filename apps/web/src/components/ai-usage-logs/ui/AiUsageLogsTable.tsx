@@ -4,11 +4,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { FileText, Target, MessageSquare, Briefcase, Clock, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IAiUsageLogDto } from '@/types/interfaces/ai-usage-log.interface';
-import { IAiUsageLogPagination } from '@/servers/ai-usage-logs/ai-usage-logs.action';
+import { IPaginationMeta } from '@ats-platform/types';
 
 interface AiUsageLogsTableProps {
     logs: IAiUsageLogDto[];
-    pagination: IAiUsageLogPagination;
+    pagination: IPaginationMeta;
 }
 
 // ── Action type config ─────────────────────────────────────────────────────

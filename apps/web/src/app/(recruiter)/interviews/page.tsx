@@ -81,10 +81,9 @@ export default async function InterviewSchedulePage({ searchParams }: InterviewS
     const departmentRecruiters = departmentId
         ? recruiters.filter((recruiter) => recruiter.user?.userId && recruiter.department?.departmentId === departmentId)
         : [];
-
     return (
         <InterviewScheduleClient
-            schedules={schedules.data}
+            schedules={schedules.items}
             applications={applications}
             interviewers={departmentRecruiters}
             currentRecruiter={currentRecruiter}

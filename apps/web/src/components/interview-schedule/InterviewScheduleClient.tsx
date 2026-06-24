@@ -54,7 +54,7 @@ function getScheduleDateKey(schedule: IInterviewSchedule) {
 const weekdayLabels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6'];
 
 export default function InterviewScheduleClient({
-    schedules,
+    schedules: schedulesProp,
     applications,
     interviewers,
     currentRecruiter,
@@ -62,6 +62,7 @@ export default function InterviewScheduleClient({
     minWeekStart,
     today,
 }: InterviewScheduleClientProps) {
+    const schedules = schedulesProp ?? [];
     const router = useRouter();
     const [selectedSchedule, setSelectedSchedule] = useState<IInterviewSchedule | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -129,7 +130,7 @@ export default function InterviewScheduleClient({
                 </div>
             </div>
 
-            <ScheduleSummaryStrip schedules={schedules} applications={applications} interviewers={interviewers} />
+            <ScheduleSummaryStrip schedules={schedules ?? []} applications={applications ?? []} interviewers={interviewers ?? []} />
 
             <WeekCalendarGrid
                 weekDays={weekDays}

@@ -1,4 +1,4 @@
-import { NotificationType, RelatedEntityType } from '@ats-platform/types';
+import { NotificationType, RelatedEntityType, IPaginatedResponse } from '@ats-platform/types';
 
 // ═══════════════════════════════════════════════════════════════
 // NOTIFICATION
@@ -20,12 +20,4 @@ export interface INotification {
 // PAGINATED NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
 
-export interface IPaginatedNotifications {
-    data: INotification[];
-    meta: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-    };
-}
+export type IPaginatedNotifications = IPaginatedResponse<INotification>;

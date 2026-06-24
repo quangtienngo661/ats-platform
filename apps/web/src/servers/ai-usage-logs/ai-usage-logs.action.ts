@@ -1,31 +1,29 @@
-import http from "@/lib/http"
-import { IAiUsageLogDto } from "@/types/interfaces/ai-usage-log.interface"
+"use server";
+
+import http from "@/lib/http";
+import { IAiUsageLogDto } from "@/types/interfaces/ai-usage-log.interface";
+import { IPaginatedResponse } from "@ats-platform/types";
 
 export type AiUsageLogState = {
-    success: boolean,
-    message: string,
-}
+    success: boolean;
+    message: string;
+};
 
-export interface IAiUsageLogPagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
-
-export interface IAiUsageLogResponse {
-    items: IAiUsageLogDto[];
-    pagination: IAiUsageLogPagination;
-}
+export type IAiUsageLogResponse = IPaginatedResponse<IAiUsageLogDto>;
 
 export const getAIUsageLogsAction = async (page = 1): Promise<IAiUsageLogResponse | AiUsageLogState> => {
     try {
-        const response = await http.get(`/ai-usage-logs?page=${page}`)
-        return response.data;
-    } catch (error) {
+        const response = await http.get(`/ai-usage-logs?page=${page}`);
+        return response.data as IAiUsageLogResponse;
+    } catch {
         return {
-            success: false,
-            message: 'Failed to get AI usage logs',
-        }
+            items: [],
+            pagination: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 0
+            }
+        };
     }
-}
+};

@@ -61,7 +61,7 @@ export async function applyForJobAction(
     try {
         const response = await http.post('/applications', { jobId, cvId });
         revalidatePath('/my-applications');
-        return { success: true, message: 'Ứng tuyển thành công', data: response.data ?? response };
+        return { success: true, message: 'Ứng tuyển thành công', data: response.data as IApplicationDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Ứng tuyển thất bại') };
     }
@@ -71,7 +71,8 @@ export async function applyForJobAction(
 export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
     try {
         const response = await http.get('/applications/my');
-        const result = response.data.map((item: IApplicationDto) => mapDtoToCard(item));
+        const rawItems = (response.data ?? []) as IApplicationDto[];
+        const result = rawItems.map((item: IApplicationDto) => mapDtoToCard(item));
         return result;
     } catch {
         return [];
@@ -84,7 +85,7 @@ export async function withdrawApplicationAction(applicationId: string): Promise<
     try {
         const response = await http.post(`/applications/${applicationId}/withdraw`);
         revalidatePath('/my-applications');
-        return { success: true, message: 'Rút đơn ứng tuyển thành công', data: response.data ?? response };
+        return { success: true, message: 'Rút đơn ứng tuyển thành công', data: response.data as IApplicationDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Rút đơn ứng tuyển thất bại') };
     }
@@ -103,18 +104,17 @@ export async function getKanbanBoardAction(jobId: string): Promise<IKanbanDto> {
     if (!jobId) return {} as IKanbanDto;
     try {
         const response = await http.get(`/applications/board/${jobId}`);
-        return response.data ?? response;
+        return response.data as IKanbanDto;
     } catch {
         return {} as IKanbanDto;
     }
 }
 
-// ─── GET APPLICATIONS BY JOB ──────────────────────────────────────────────────
 export async function getApplicationsByJobAction(
     jobId: string,
     query?: IGetApplicationsByJobQuery
 ): Promise<IPaginatedApplications> {
-    if (!jobId) return { data: [], total: 0, page: 1, limit: 10 };
+    if (!jobId) return { items: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
     try {
         const params: Record<string, string | number | boolean> = {};
         if (query?.includeCancelled !== undefined) params.includeCancelled = query.includeCancelled;
@@ -122,16 +122,9 @@ export async function getApplicationsByJobAction(
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get(`/applications/job/${jobId}`, { params });
-        const payload = {
-            data: response.data.items,
-            total: response.data.pagination.total,
-            page: response.data.pagination.page,
-            limit: response.data.pagination.limit
-        }
-
-        return payload
+        return response.data as IPaginatedApplications;
     } catch {
-        return { data: [], total: 0, page: 1, limit: 10 };
+        return { items: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
     }
 }
 
@@ -154,7 +147,7 @@ export async function updateApplicationStatusAction(
 
         const response = await http.patch(`/applications/${applicationId}/status`, payload);
         revalidatePath('/', 'layout');
-        return { success: true, message: 'Cập nhật trạng thái thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật trạng thái thành công', data: response.data as IApplicationDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật trạng thái thất bại') };
     }
@@ -172,7 +165,7 @@ export async function triggerCvScreeningAction(
 
     try {
         const response = await http.post(`/applications/${applicationId}/trigger-screening`, { configId });
-        return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data ?? response };
+        return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data as any };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Kích hoạt sàng lọc CV thất bại') };
     }
@@ -183,7 +176,7 @@ export async function getApplicationHistoryAction(applicationId: string): Promis
     if (!applicationId) return [];
     try {
         const response = await http.get(`/applications/${applicationId}/history`);
-        return response.data ?? response;
+        return response.data as IApplicationHistoryItem[];
     } catch {
         return [];
     }
@@ -194,7 +187,7 @@ export async function getApplicationByIdAction(applicationId: string): Promise<I
     if (!applicationId) return {} as IApplicationDto;
     try {
         const response = await http.get(`/applications/${applicationId}`);
-        return response.data ?? response;
+        return response.data as IApplicationDto;
     } catch {
         return {} as IApplicationDto;
     }

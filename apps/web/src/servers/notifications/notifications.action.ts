@@ -15,6 +15,7 @@ function extractMessage(error: unknown, fallback: string): string {
 }
 
 // ─── Server Actions ───────────────────────────────────────────────────────────
+
 export async function getNotificationsAction(
     page = 1,
     limit = 20,
@@ -25,11 +26,13 @@ export async function getNotificationsAction(
         if (isRead !== undefined) params.set('isRead', String(isRead));
 
         const response = await http.get(`/notifications?${params.toString()}`);
+        console.log(response.data);
         return response.data as IPaginatedNotifications;
     } catch {
-        return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } };
+        return { items: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } };
     }
 }
+
 export async function getUnreadCountAction(): Promise<number> {
     try {
         const response = await http.get('/notifications/unread-count');

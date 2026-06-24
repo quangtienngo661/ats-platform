@@ -1,5 +1,6 @@
-import { IJobPosting, IJobPostingSkills } from "@ats-platform/types";
+import { IJobPosting, IJobPostingSkills, IPaginatedResponse } from "@ats-platform/types";
 import { IApplicationDto } from "./application.interface";
+
 export interface IJobPostingDto extends Omit<IJobPosting, 'salaryMin' | 'salaryMax' | 'parsedRequirements' | 'publishedAt'> {
     jobId: string;
     title: string;
@@ -69,9 +70,4 @@ export interface IFindJobPostingsQuery {
     limit?: number;
 }
 
-export interface IPaginatedJobPostings {
-    data: IJobPostingDto[];
-    total: number;
-    page: number;
-    limit: number;
-}
+export type IPaginatedJobPostings = IPaginatedResponse<IJobPostingDto>;

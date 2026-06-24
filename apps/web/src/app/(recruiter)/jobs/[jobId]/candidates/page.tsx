@@ -11,7 +11,7 @@ interface JobCandidateListPageProps {
 export default async function JobCandidateListPage({ params }: JobCandidateListPageProps) {
     const { jobId } = await params;
     const applicationsResult = await getApplicationsByJobAction(jobId, { includeCancelled: false });
-    const applications = applicationsResult.data;
+    const applications = applicationsResult.items;
 
     return (
         <div className="flex flex-col h-full bg-[#F5F5F7]">

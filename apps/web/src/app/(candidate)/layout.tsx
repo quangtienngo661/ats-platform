@@ -38,7 +38,7 @@ export default async function CandidateLayout({ children }: { children: ReactNod
         <div className="flex flex-col min-h-screen bg-[#F5F5F7]">
             <PublicHeader
                 userInfo={userInfo}
-                initialNotifications={notifications.data}
+                initialNotifications={notifications.items}
                 initialUnreadCount={unreadCount}
             />
             <main className="flex flex-col flex-grow pt-[60px]">

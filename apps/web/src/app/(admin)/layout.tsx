@@ -27,20 +27,19 @@ export default async function AdminLayout({
       // ignore token parse errors
     }
   }
-
   const [notifications, unreadCount] = token
     ? await Promise.all([
       getNotificationsAction(1, 20),
       getUnreadCountAction(),
     ])
-    : [{ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
+    : [{ items: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
 
   return (
     <DashboardLayout
       userRole={userRole}
       userName={userName}
       userEmail={userEmail}
-      initialNotifications={notifications.data}
+      initialNotifications={notifications.items}
       initialUnreadCount={unreadCount}
     >
       {children}

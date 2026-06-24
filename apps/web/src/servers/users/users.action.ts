@@ -28,7 +28,7 @@ function extractMessage(error: unknown): string {
 export async function getMeAction(): Promise<IUserResponseDto | null> {
     try {
         const response = await http.get('/users/me');
-        return response.data ?? response;
+        return response.data as IUserResponseDto;
     } catch {
         return null;
     }
@@ -49,7 +49,7 @@ export async function updateMeAction(
         if (phone) payload.phone = phone;
 
         const response = await http.patch('/users/me', payload);
-        return { success: true, message: 'Cập nhật thông tin thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật thông tin thành công', data: response.data as IUserResponseDto };
     } catch (err) {
         return { success: false, message: extractMessage(err) };
     }

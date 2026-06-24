@@ -31,7 +31,7 @@ function extractMessage(error: unknown, fallback: string): string {
 export async function getMyRecruiterProfileAction(): Promise<IRecruiterDto | null> {
     try {
         const response = await http.get('/recruiters/me');
-        return response.data ?? response;
+        return response.data as IRecruiterDto;
     } catch {
         return null;
     }
@@ -49,7 +49,7 @@ export async function updateMyRecruiterProfileAction(
         if (position !== undefined) payload.position = position;
 
         const response = await http.patch('/recruiters/me', payload);
-        return { success: true, message: 'Cập nhật hồ sơ thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật hồ sơ thành công', data: response.data as IRecruiterDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật hồ sơ thất bại') };
     }
@@ -59,7 +59,7 @@ export async function updateMyRecruiterProfileAction(
 export async function getRecruitersAction(): Promise<IRecruiterDto[]> {
     try {
         const response = await http.get('/recruiters');
-        return response.data ?? response;
+        return response.data as IRecruiterDto[];
     } catch {
         return [];
     }
@@ -70,7 +70,7 @@ export async function getRecruiterByIdAction(id: string): Promise<IRecruiterDto 
     if (!id) return null;
     try {
         const response = await http.get(`/recruiters/${id}`);
-        return response.data ?? response;
+        return response.data as IRecruiterDto;
     } catch {
         return null;
     }
@@ -92,7 +92,7 @@ export async function createRecruiterAction(
     try {
         const response = await http.post('/recruiters', { userId, departmentId, position });
         revalidatePath('/recruiter-management');
-        return { success: true, message: 'Tạo nhà tuyển dụng thành công', data: response.data ?? response };
+        return { success: true, message: 'Tạo nhà tuyển dụng thành công', data: response.data as IRecruiterDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Tạo nhà tuyển dụng thất bại') };
     }
@@ -116,7 +116,7 @@ export async function updateRecruiterAction(
 
         const response = await http.patch(`/recruiters/${recruiterId}`, payload);
         revalidatePath('/recruiter-management');
-        return { success: true, message: 'Cập nhật nhà tuyển dụng thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật nhà tuyển dụng thành công', data: response.data as IRecruiterDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật nhà tuyển dụng thất bại') };
     }

@@ -78,10 +78,17 @@ export async function createDepartmentAction(
         return { success: false, message: extractMessage(error, "Tạo phòng ban thất bại") };
     }
 }
+
 export async function getDepartmentsAction(): Promise<DepartmentDto[]> {
-    const response = await http.get(`/departments`);
-    return mapDepartment(response.data);
+    try {
+        const response = await http.get(`/departments`);
+        return mapDepartment(response.data);
+    } catch (error: any) {
+        console.error("[getDepartmentsAction]", extractMessage(error, "Không thể tải danh sách phòng ban"));
+        return [];
+    }
 }
+
 export async function getDepartmentByIdAction(id: string): Promise<DepartmentDto | null> {
     if (!id) return null;
     try {

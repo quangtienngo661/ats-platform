@@ -17,9 +17,8 @@ export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
         getApplicationsByJobAction(jobId, { includeCancelled: true }),
         getAIConfigAction(),
     ]);
-
     const boardData = kanbanResult.board;
-    const applications = applicationsResult.data;
+    const applications = applicationsResult.items;
     const cancelledApplications = applications.filter((app) => app.status === 'cancelled');
 
     return (

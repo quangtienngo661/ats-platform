@@ -98,14 +98,9 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get('/job-postings', { params });
-        return {
-            data: response.data.items,
-            total: response.data.pagination.total,
-            page: query?.page ?? 1,
-            limit: query?.limit ?? 20,
-        };
+        return response.data as IPaginatedJobPostings;
     } catch {
-        return { data: [], total: 0, page: 1, limit: 20 };
+        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
     }
 }
 

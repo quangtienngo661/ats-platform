@@ -35,8 +35,8 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     return (
         <>
             <JobSearchClient
-                initialJobs={jobs.data}
-                total={jobs.total}
+                initialJobs={jobs.items}
+                total={jobs.pagination.total}
                 categories={categories}
                 currentPage={page}
                 initialQuery={{

@@ -48,8 +48,8 @@ export class NotificationsService {
         ]);
 
         return {
-            data: notifications,
-            meta: {
+            items: notifications,
+            pagination: {
                 total,
                 page,
                 limit,
