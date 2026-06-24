@@ -3,7 +3,7 @@
 import { SFT } from '@/types/fonts/fonts';
 import { AiUsageLogsHeader } from './ui/AiUsageLogsHeader';
 import { IAiUsageLogDto } from '@/types/interfaces/ai-usage-log.interface';
-import { IAiUsageLogPagination } from '@/servers/ai-usage-logs/ai-usage-logs.action';
+import { IPaginationMeta } from '@ats-platform/types';
 import { AiUsageLogsStats } from './ui/AiUsageLogsStats';
 import { AiUsageLogsFilter } from './ui/AiUsageLogsFilter';
 import { AiUsageLogsTable } from './ui/AiUsageLogsTable';
@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 interface AiUsageLogsClientProps {
     logs: IAiUsageLogDto[];
-    pagination: IAiUsageLogPagination;
+    pagination: IPaginationMeta;
 }
 
 export type ActionTypeFilter = 'all' | IAiUsageLogDto['actionType'];

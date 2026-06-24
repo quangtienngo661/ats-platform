@@ -53,7 +53,7 @@ export async function uploadCvAction(
 export async function getMyCvsAction(): Promise<ICvDto[]> {
     try {
         const response = await http.get('/cvs/me');
-        return response.data ?? response;
+        return response.data as ICvDto[];
     } catch {
         return [];
     }
@@ -64,7 +64,7 @@ export async function getCvByIdAction(cvId: string): Promise<ICvDto | null> {
     if (!cvId) return null;
     try {
         const response = await http.get(`/cvs/${cvId}`);
-        return response.data ?? response;
+        return response.data as ICvDto;
     } catch {
         return null;
     }
@@ -75,7 +75,7 @@ export async function getCvParsedDataAction(cvId: string): Promise<ICvParsedData
     if (!cvId) return null;
     try {
         const response = await http.get(`/cvs/${cvId}/parsed-data`);
-        return response.data ?? response;
+        return response.data as ICvParsedData;
     } catch {
         return null;
     }
@@ -113,7 +113,7 @@ export async function confirmCvAction(
         }
 
         revalidatePath('/profile');
-        return { success: true, message: message, data: response.data ?? response };
+        return { success: true, message: message, data: response.data as ICvDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Xác nhận CV thất bại') };
     }

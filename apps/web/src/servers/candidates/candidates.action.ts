@@ -110,7 +110,6 @@ export async function updateMyCandidateProfileAction(
     }
 }
 
-// ─── GET ALL CANDIDATES ───────────────────────────────────────────────────────
 export async function getCandidatesAction(query?: IFindCandidatesQuery): Promise<IPaginatedCandidates> {
     try {
         const params: Record<string, string | number> = {};
@@ -120,9 +119,9 @@ export async function getCandidatesAction(query?: IFindCandidatesQuery): Promise
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get('/candidates', { params });
-        return response.data ?? response;
+        return response.data as IPaginatedCandidates;
     } catch {
-        return { data: [], total: 0, page: 1, limit: 10 };
+        return { items: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
     }
 }
 

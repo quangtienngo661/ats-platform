@@ -63,8 +63,12 @@ const convertToAPI = async (data: ConfigProfile): Promise<IAiConfig> => {
 
 // ─── 1. Lấy danh sách ────────────────────────────────────────────────────────
 export async function getAIConfigAction(): Promise<ConfigProfile[]> {
-    const profiles = await http.get(`/ai-config`);
-    return await convertToUI(profiles.data) as ConfigProfile[];
+    try {
+        const profiles = await http.get(`/ai-config`);
+        return await convertToUI(profiles.data) as ConfigProfile[];
+    } catch {
+        return [];
+    }
 }
 
 // ─── 2. Thêm mới ─────────────────────────────────────────────────────────────

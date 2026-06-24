@@ -28,7 +28,7 @@ function extractMessage(error: unknown, fallback: string): string {
 export async function getSkillsAction(): Promise<ISkillDto[]> {
     try {
         const response = await http.get('/skills');
-        return response.data ?? response;
+        return response.data as ISkillDto[];
     } catch {
         return [];
     }
@@ -42,7 +42,7 @@ export async function searchSkillsAction(name?: string, category?: string): Prom
         if (category) params.category = category;
 
         const response = await http.get('/skills/search', { params });
-        return response.data ?? response;
+        return response.data as ISkillDto[];
     } catch {
         return [];
     }
@@ -53,7 +53,7 @@ export async function getSkillByIdAction(id: string): Promise<ISkillDto | null> 
     if (!id) return null;
     try {
         const response = await http.get(`/skills/${id}`);
-        return response.data ?? response;
+        return response.data as ISkillDto;
     } catch {
         return null;
     }
@@ -74,7 +74,7 @@ export async function createSkillAction(
     try {
         const response = await http.post('/skills', { name, category });
         revalidatePath('/skill-management');
-        return { success: true, message: 'Tạo kỹ năng thành công', data: response.data ?? response };
+        return { success: true, message: 'Tạo kỹ năng thành công', data: response.data as ISkillDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Tạo kỹ năng thất bại') };
     }
@@ -98,7 +98,7 @@ export async function updateSkillAction(
 
         const response = await http.patch(`/skills/${skillId}`, payload);
         revalidatePath('/skill-management');
-        return { success: true, message: 'Cập nhật kỹ năng thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật kỹ năng thành công', data: response.data as ISkillDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật kỹ năng thất bại') };
     }

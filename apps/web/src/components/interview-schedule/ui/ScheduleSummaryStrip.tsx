@@ -8,7 +8,10 @@ interface ScheduleSummaryStripProps {
     interviewers: IRecruiterDto[];
 }
 
-export function ScheduleSummaryStrip({ schedules, applications, interviewers }: ScheduleSummaryStripProps) {
+export function ScheduleSummaryStrip({ schedules: s, applications: a, interviewers: iv }: ScheduleSummaryStripProps) {
+    const schedules = s ?? [];
+    const applications = a ?? [];
+    const interviewers = iv ?? [];
     const scheduled = schedules.filter((schedule) => schedule.status === 'scheduled').length;
     const completed = schedules.filter((schedule) => schedule.status === 'completed').length;
 

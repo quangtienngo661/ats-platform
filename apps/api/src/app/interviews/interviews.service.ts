@@ -235,8 +235,8 @@ export class InterviewsService {
         ]);
 
         return {
-            data: schedules,
-            meta: {
+            items: schedules,
+            pagination: {
                 total,
                 page,
                 limit,

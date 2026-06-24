@@ -24,7 +24,7 @@ export async function getScreeningStatsAction(jobId: string): Promise<IScreening
     if (!jobId) return null;
     try {
         const response = await http.get('/screening/stats', { params: { jobId } });
-        return response.data ?? response;
+        return response.data as IScreeningStats;
     } catch {
         return null;
     }
@@ -35,7 +35,7 @@ export async function getMyScreeningResultAction(applicationId: string): Promise
     if (!applicationId) return null;
     try {
         const response = await http.get(`/screening/me/${applicationId}`);
-        return response.data ?? response;
+        return response.data as ICandidateScreeningResult;
     } catch {
         return null;
     }
@@ -46,7 +46,7 @@ export async function getScreeningResultAction(applicationId: string): Promise<I
     if (!applicationId) return null;
     try {
         const response = await http.get(`/screening/${applicationId}`);
-        return response.data ?? response;
+        return response.data as IScreeningResultDto;
     } catch {
         return null;
     }

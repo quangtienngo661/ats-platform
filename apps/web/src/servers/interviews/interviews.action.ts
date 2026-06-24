@@ -175,6 +175,8 @@ export async function deleteInterviewTopicAction(
     }
 }
 
+
+
 export async function getMyInterviewSchedulesAction(
     query?: IInterviewScheduleQuery,
 ): Promise<IPaginatedInterviewSchedules> {
@@ -188,13 +190,9 @@ export async function getMyInterviewSchedulesAction(
         if (query?.limit) params.limit = query.limit;
 
         const response = await http.get('/interviews/schedules/my', { params });
-        const payload = response.data ?? response;
-        return {
-            data: payload.data ?? [],
-            meta: payload.meta ?? { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 },
-        };
+        return response.data as IPaginatedInterviewSchedules;
     } catch {
-        return { data: [], meta: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
+        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
     }
 }
 
@@ -241,7 +239,7 @@ async function updateInterviewScheduleStatusAction(
     successMessage: string,
     fallbackMessage: string,
 ): Promise<InterviewScheduleActionState> {
-    if (!interviewId) return { success: false, message: 'Thiáº¿u ID lá»‹ch phá»ng váº¥n' };
+    if (!interviewId) return { success: false, message: 'Thiếu ID lịch phỏng vấn' };
 
     try {
         const response = await http.patch(`/interviews/schedules/${interviewId}`, { status });

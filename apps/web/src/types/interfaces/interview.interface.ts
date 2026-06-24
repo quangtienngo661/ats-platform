@@ -1,4 +1,4 @@
-import { DifficultyLevel, InterviewStatus, InterviewType, ScheduleStatus } from '@ats-platform/types';
+import { DifficultyLevel, InterviewStatus, InterviewType, ScheduleStatus, IPaginatedResponse } from '@ats-platform/types';
 import { IApplicationDto } from './application.interface';
 import { IJobCategoryDto } from './job-category.interface';
 
@@ -34,15 +34,7 @@ export interface IInterviewScheduleQuery {
     limit?: number;
 }
 
-export interface IPaginatedInterviewSchedules {
-    data: IInterviewSchedule[];
-    meta: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-    };
-}
+export type IPaginatedInterviewSchedules = IPaginatedResponse<IInterviewSchedule>;
 
 export interface IInterviewTopic {
     topicId: string;

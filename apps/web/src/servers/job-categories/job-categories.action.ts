@@ -28,7 +28,7 @@ function extractMessage(error: unknown, fallback: string): string {
 export async function getJobCategoriesAction(): Promise<IJobCategoryDto[]> {
     try {
         const response = await http.get('/job-categories');
-        return response.data ?? response;
+        return response.data as IJobCategoryDto[];
     } catch {
         return [];
     }
@@ -39,7 +39,7 @@ export async function getJobCategoryByIdAction(id: string): Promise<IJobCategory
     if (!id) return null;
     try {
         const response = await http.get(`/job-categories/${id}`);
-        return response.data ?? response;
+        return response.data as IJobCategoryDto;
     } catch {
         return null;
     }
@@ -63,7 +63,7 @@ export async function createJobCategoryAction(
 
         const response = await http.post('/job-categories', payload);
         revalidatePath('/job-category-management');
-        return { success: true, message: 'Tạo danh mục thành công', data: response.data ?? response };
+        return { success: true, message: 'Tạo danh mục thành công', data: response.data as IJobCategoryDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Tạo danh mục thất bại') };
     }
@@ -87,7 +87,7 @@ export async function updateJobCategoryAction(
 
         const response = await http.patch(`/job-categories/${categoryId}`, payload);
         revalidatePath('/job-category-management');
-        return { success: true, message: 'Cập nhật danh mục thành công', data: response.data ?? response };
+        return { success: true, message: 'Cập nhật danh mục thành công', data: response.data as IJobCategoryDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật danh mục thất bại') };
     }

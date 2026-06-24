@@ -1,7 +1,8 @@
-import { IApplication, IApplicationCard, IKanbanColumn } from "@ats-platform/types";
+import { IApplication, IApplicationCard, IKanbanColumn, IPaginatedResponse } from "@ats-platform/types";
 import { ICandidateDto } from "./candidate.interface";
 import { IJobPostingDto } from "./job-posting.interface";
 import { IScreeningResultDto } from "./cv-screening.interface";
+
 export interface IApplicationDto extends IApplication {
     applicationId: string;
     jobId: string;
@@ -24,6 +25,7 @@ export interface IApplicationDto extends IApplication {
     candidate?: ICandidateDto;
     screening?: IScreeningResultDto | null;
 }
+
 export interface IApplicationHistoryItem {
     historyId: string;
     applicationId: string;
@@ -38,12 +40,7 @@ export interface IGetApplicationsByJobQuery {
     limit?: number;
 }
 
-export interface IPaginatedApplications {
-    data: IApplicationDto[];
-    total: number;
-    page: number;
-    limit: number;
-}
+export type IPaginatedApplications = IPaginatedResponse<IApplicationDto>;
 
 // Re-export lib types cho tiện dùng
 export type { IApplicationCard, IKanbanColumn };

@@ -6,7 +6,7 @@ import { getSkillsAction } from '@/servers/skills/skills.action';
 
 export default async function JobPostingsPage() {
     const result = await getJobPostingsAction();
-    const { data: jobs } = result;
+    const { items: jobs } = result;
     const skillsDb = await getSkillsAction();
     const categories = await getJobCategoriesAction();
     const currentRecruiter = await getMyRecruiterProfileAction();
@@ -20,5 +20,3 @@ export default async function JobPostingsPage() {
         />
     );
 }
-
-
