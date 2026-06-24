@@ -26,7 +26,6 @@ export async function getNotificationsAction(
         if (isRead !== undefined) params.set('isRead', String(isRead));
 
         const response = await http.get(`/notifications?${params.toString()}`);
-        console.log(response.data);
         return response.data as IPaginatedNotifications;
     } catch {
         return { items: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } };
