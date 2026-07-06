@@ -1,5 +1,6 @@
 import { InterviewChatHydrator } from '@/components/hydrators/InterviewChatHydrator';
 import InterviewChatClient from '@/components/mock-interview/InterviewChatClient';
+import InterviewGeneratingClient from '@/components/mock-interview/InterviewGeneratingClient';
 import { getInterviewById, resumeInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { notFound, redirect } from 'next/navigation';
 
@@ -17,6 +18,10 @@ export default async function InterviewChatPage({ params }: { params: Promise<{ 
         const session = await getInterviewById(sessionId);
         if (session?.status === 'pending_result' || session?.status === 'completed') {
             redirect(`/mock-interview/${sessionId}/result`);
+        }
+
+        if (session?.status === 'generating') {
+            return <InterviewGeneratingClient sessionId={sessionId} topicName={session.topic?.name ?? ''} />;
         }
 
         notFound();
