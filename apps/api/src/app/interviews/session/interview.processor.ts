@@ -69,10 +69,18 @@ export class InterviewProcessor extends WorkerHost {
 
                 this.logger.log(`QnA ${qnaId} evaluated — Score: ${aiResult.score}/100`);
             } catch (error) {
+                const maxAttempts = job.opts.attempts ?? 1;
+                const isFinalAttempt = job.attemptsMade + 1 >= maxAttempts;
+
                 this.logger.error(
-                    `Failed to evaluate QnA ${qnaId}: ${error.message}`,
+                    `Failed to evaluate QnA ${qnaId} (attempt ${job.attemptsMade + 1}/${maxAttempts}): ${error.message}`,
                     error.stack,
                 );
+
+                if (!isFinalAttempt) {
+                    // Còn lượt retry — để BullMQ tự retry, chưa ghi [ERROR] và chưa finalize
+                    throw error;
+                }
 
                 // Ghi lỗi vào feedback để endSession biết câu này bị lỗi chấm
                 await this.prisma.interviewQnA.update({
@@ -90,6 +98,9 @@ export class InterviewProcessor extends WorkerHost {
                 if (qna) {
                     await this.finalizePendingSessionIfReady(qna.sessionId);
                 }
+
+                // Hết lượt retry — ném lại lỗi để BullMQ ghi nhận job "failed", không phải "completed"
+                throw error;
             }
         }
     }

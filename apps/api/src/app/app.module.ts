@@ -36,7 +36,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         port: parseInt(process.env.REDIS_PORT) || 6379,
       },
       defaultJobOptions: {
-        attempts: 1,
+        attempts: 3,
         backoff: {
           type: 'exponential',
           delay: 10000,
