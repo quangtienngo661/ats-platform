@@ -34,8 +34,8 @@ describe('NotificationsService', () => {
     prisma.notification.count.mockResolvedValue(1);
 
     await expect(service.findAll('user-1', { page: 2, limit: 5, isRead: false })).resolves.toEqual({
-      data: [{ notificationId: 'n-1' }],
-      meta: { total: 1, page: 2, limit: 5, totalPages: 1 },
+      items: [{ notificationId: 'n-1' }],
+      pagination: { total: 1, page: 2, limit: 5, totalPages: 1 },
     });
 
     expect(prisma.notification.findMany).toHaveBeenCalledWith(

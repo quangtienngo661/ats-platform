@@ -93,8 +93,8 @@ describe('InterviewsService', () => {
         toDate: '2026-06-02',
       } as any),
     ).resolves.toEqual({
-      data: [{ interviewId: 'int-1' }],
-      meta: { total: 1, page: 2, limit: 5, totalPages: 1 },
+      items: [{ interviewId: 'int-1' }],
+      pagination: { total: 1, page: 2, limit: 5, totalPages: 1 },
     });
 
     expect(prisma.interviewSchedule.findMany).toHaveBeenCalledWith(
