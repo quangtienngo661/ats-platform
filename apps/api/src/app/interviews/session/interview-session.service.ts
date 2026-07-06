@@ -17,6 +17,7 @@ export class InterviewSessionService {
         private readonly geminiService: GeminiService,
         private readonly socketIoService: SocketIoService,
         @InjectQueue('interview-evaluation') private readonly evaluationQueue: Queue,
+        @InjectQueue('interview-generation') private readonly generationQueue: Queue,
     ) { }
 
     async startSession(userId: string, dto: StartSessionDto) {
@@ -32,50 +33,25 @@ export class InterviewSessionService {
         });
         if (!candidate) throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
 
-        const promptContent = JSON.stringify({
-            topic: topic.name,
-            category: topic.category?.name || 'Không rõ',
-            difficulty: dto.difficultyLevel,
+        const session = await this.prisma.interviewSession.create({
+            data: {
+                candidateId: candidate.candidateId,
+                topicId: dto.topicId,
+                difficultyLevel: dto.difficultyLevel,
+                status: InterviewStatus.generating,
+            },
+        });
+
+        await this.generationQueue.add('generate_questions', {
+            sessionId: session.sessionId,
+            candidateId: candidate.candidateId,
+            topicName: topic.name,
+            categoryName: topic.category?.name || 'Không rõ',
+            difficultyLevel: dto.difficultyLevel,
             candidateContext: dto.candidateContext || null,
         });
 
-        this.logger.log(`Generating 10 questions for topic: ${topic.name}, difficulty: ${dto.difficultyLevel}`);
-        const aiResult = await this.geminiService.generateInterviewQuestions(
-            candidate.candidateId,
-            promptContent,
-        );
-
-        if (!Array.isArray(aiResult) || aiResult.length < 10) {
-            throw new BadRequestException(
-                `AI chỉ tạo được ${aiResult?.length ?? 0} câu hỏi thay vì 10 câu. Vui lòng thử lại.`,
-            );
-        }
-
-        const session = await this.prisma.$transaction(async (tx) => {
-            const newSession = await tx.interviewSession.create({
-                data: {
-                    candidateId: candidate.candidateId,
-                    topicId: dto.topicId,
-                    difficultyLevel: dto.difficultyLevel,
-                    status: InterviewStatus.in_progress,
-                },
-                include: sessionIncludeOptions
-            });
-
-            const qnaData = aiResult.slice(0, 10).map((q: any, index: number) => ({
-                sessionId: newSession.sessionId,
-                orderIndex: index + 1,
-                difficulty: q.difficulty,
-                questionText: q.questionText,
-                expectedPoints: q.expectedPoints,
-            }));
-
-            await tx.interviewQnA.createMany({ data: qnaData });
-
-            return newSession;
-        });
-
-        this.logger.log(`Session ${session.sessionId} created with 10 questions`);
+        this.logger.log(`Session ${session.sessionId} created (generating), question generation queued for topic: ${topic.name}`);
         return { sessionId: session.sessionId };
     }
 
@@ -342,7 +318,7 @@ export class InterviewSessionService {
         if (session.candidateId !== candidate.candidateId) {
             throw new BadRequestException('Phiên phỏng vấn này không thuộc về người dùng hiện tại');
         }
-        if (session.status !== InterviewStatus.in_progress) {
+        if (![InterviewStatus.in_progress, InterviewStatus.generating].includes(session.status as any)) {
             throw new BadRequestException('Chỉ có thể hủy phiên phỏng vấn đang diễn ra');
         }
 

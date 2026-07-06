@@ -5,6 +5,7 @@ import { InterviewsController } from './interviews.controller';
 import { InterviewSessionService } from './session/interview-session.service';
 import { InterviewGateway } from './session/interview.gateway';
 import { InterviewProcessor } from './session/interview.processor';
+import { InterviewGenerationProcessor } from './session/interview-generation.processor';
 import { PrismaModule } from '../../common/prisma/prisma.module';
 import { GeminiModule } from '../../common/external-apis/gemini/gemini.module';
 import { SocketIoModule } from '../../common/socket-io/socket-io.module';
@@ -14,7 +15,10 @@ import { SocketIoModule } from '../../common/socket-io/socket-io.module';
         PrismaModule,
         GeminiModule,
         SocketIoModule,
-        BullModule.registerQueue({ name: 'interview-evaluation' }),
+        BullModule.registerQueue(
+            { name: 'interview-evaluation' },
+            { name: 'interview-generation' },
+        ),
     ],
     controllers: [InterviewsController],
     providers: [
@@ -22,6 +26,7 @@ import { SocketIoModule } from '../../common/socket-io/socket-io.module';
         InterviewSessionService,
         InterviewGateway,
         InterviewProcessor,
+        InterviewGenerationProcessor,
     ],
     exports: [InterviewsService, InterviewSessionService],
 })

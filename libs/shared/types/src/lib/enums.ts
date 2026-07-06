@@ -98,6 +98,7 @@ export type AiLogStatus = typeof AiLogStatus[keyof typeof AiLogStatus];
 // ============================================================
 
 export const InterviewStatus = {
+  generating: 'generating',
   in_progress: 'in_progress',
   completed: 'completed',
   abandon: 'abandon',

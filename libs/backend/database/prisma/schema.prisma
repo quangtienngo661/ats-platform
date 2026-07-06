@@ -101,6 +101,7 @@ enum AiLogStatus {
 }
 
 enum InterviewStatus {
+  generating
   in_progress
   completed
   abandon

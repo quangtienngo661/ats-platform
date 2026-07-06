@@ -9,6 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { InterviewSessionService } from './interview-session.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
+import { InterviewStatus } from '@ats-platform/database';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -43,6 +44,19 @@ export class InterviewGateway {
             // Thêm client vào room của session
             client.join(room);
             this.logger.log(`Client ${client.id} joined interview room: ${room}`);
+
+            // Session có thể vẫn đang được AI tạo câu hỏi (async) — báo client chờ
+            const session = await this.prisma.interviewSession.findUnique({
+                where: { sessionId },
+                select: { status: true },
+            });
+
+            if (session?.status === InterviewStatus.generating) {
+                client.emit('interview:session_generating', {
+                    message: 'AI đang tạo câu hỏi phỏng vấn, vui lòng chờ trong giây lát...',
+                });
+                return;
+            }
 
             // Lấy câu hỏi hiện tại (hỗ trợ cả reconnect)
             const currentQuestion = await this.interviewSessionService.getCurrentQuestion(sessionId);

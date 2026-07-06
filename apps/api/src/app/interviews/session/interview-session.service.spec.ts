@@ -2,7 +2,6 @@ import { InterviewStatus } from '@ats-platform/database';
 import { InterviewSessionService } from './interview-session.service';
 import {
   createPrismaMock,
-  createPrismaTransactionMock,
   createQueueMock,
   createSocketMock,
 } from '../../../test-utils/unit-test-helpers';
@@ -23,6 +22,7 @@ describe('InterviewSessionService', () => {
   };
   let socket: ReturnType<typeof createSocketMock>;
   let queue: ReturnType<typeof createQueueMock>;
+  let generationQueue: ReturnType<typeof createQueueMock>;
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -33,31 +33,35 @@ describe('InterviewSessionService', () => {
     };
     socket = createSocketMock();
     queue = createQueueMock();
-    service = new InterviewSessionService(prisma as any, gemini as any, socket as any, queue as any);
+    generationQueue = createQueueMock();
+    service = new InterviewSessionService(prisma as any, gemini as any, socket as any, queue as any, generationQueue as any);
   });
 
-  it('starts a session only when AI returns at least ten questions', async () => {
-    const tx = createPrismaTransactionMock();
+  it('creates a session in "generating" status and queues question generation', async () => {
     prisma.interviewTopic.findUnique.mockResolvedValue({ topicId: 'topic-1', name: 'Backend', category: { name: 'IT' } });
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
-    gemini.generateInterviewQuestions.mockResolvedValue(tenQuestions);
-    tx.interviewSession.create.mockResolvedValue({ sessionId: 'session-1' });
-    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+    prisma.interviewSession.create.mockResolvedValue({ sessionId: 'session-1', status: InterviewStatus.generating });
 
     await expect(
       service.startSession('user-1', { topicId: 'topic-1', difficultyLevel: 'medium' } as any),
     ).resolves.toEqual({ sessionId: 'session-1' });
 
-    expect(tx.interviewQnA.createMany).toHaveBeenCalledWith({
-      data: expect.arrayContaining([
-        expect.objectContaining({ sessionId: 'session-1', orderIndex: 1, questionText: 'Question 1' }),
-      ]),
+    expect(prisma.interviewSession.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        candidateId: 'cand-1',
+        topicId: 'topic-1',
+        difficultyLevel: 'medium',
+        status: InterviewStatus.generating,
+      }),
     });
-
-    gemini.generateInterviewQuestions.mockResolvedValue(tenQuestions.slice(0, 3));
-    await expect(
-      service.startSession('user-1', { topicId: 'topic-1', difficultyLevel: 'medium' } as any),
-    ).rejects.toThrow('10');
+    expect(prisma.interviewQnA.createMany).not.toHaveBeenCalled();
+    expect(generationQueue.add).toHaveBeenCalledWith('generate_questions', expect.objectContaining({
+      sessionId: 'session-1',
+      candidateId: 'cand-1',
+      topicName: 'Backend',
+      categoryName: 'IT',
+      difficultyLevel: 'medium',
+    }));
   });
 
   it('returns follow-up questions without queuing evaluation', async () => {
@@ -156,6 +160,21 @@ describe('InterviewSessionService', () => {
       sessionId: 'session-1',
       candidateId: 'cand-1',
       status: InterviewStatus.in_progress,
+    });
+    prisma.interviewSession.update.mockResolvedValue({ sessionId: 'session-1', status: InterviewStatus.abandon });
+
+    await expect(service.abandonSession('session-1', 'user-1')).resolves.toEqual({
+      sessionId: 'session-1',
+      status: InterviewStatus.abandon,
+    });
+  });
+
+  it('also allows abandoning a session still generating questions', async () => {
+    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    prisma.interviewSession.findUnique.mockResolvedValue({
+      sessionId: 'session-1',
+      candidateId: 'cand-1',
+      status: InterviewStatus.generating,
     });
     prisma.interviewSession.update.mockResolvedValue({ sessionId: 'session-1', status: InterviewStatus.abandon });
 
