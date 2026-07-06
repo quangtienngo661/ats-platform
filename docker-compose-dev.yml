@@ -1,0 +1,133 @@
+networks: 
+  gateway_net:
+    driver: bridge
+
+services:
+  # ----------------------------------------
+  # 1. Cơ sở dữ liệu PostgreSQL
+  # ----------------------------------------
+  postgres:
+    image: postgres:18.4-alpine
+    container_name: ats-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-ats-db}
+      TZ: Asia/Ho_Chi_Minh
+    # port:
+    #   - "5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - gateway_net
+
+  # ----------------------------------------
+  # 2. Redis Cache & Hàng đợi BullMQ
+  # ----------------------------------------
+  redis:
+    image: redis:8-alpine
+    container_name: ats-redis
+    # port:
+    #   - "6379"
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - gateway_net
+
+  # ----------------------------------------
+  # 3. Backend NestJS API
+  # ----------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      args: 
+        DATABASE_URL: ${DATABASE_URL}
+        SERVER_PORT: ${SERVER_PORT}
+    restart: unless-stopped
+    container_name: ats-api
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      SERVER_PORT: ${SERVER_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      SMTP_ENABLED: ${SMTP_ENABLED:-false}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      CLIENT_URL: ${CLIENT_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gateway_net
+    volumes:
+      - ./uploads:/app/uploads
+
+  # # ----------------------------------------
+  # # 4. Frontend Next.js Web
+  # # ----------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+        DATABASE_URL: ${DATABASE_URL}
+        NODE_ENV: ${NODE_ENV}
+    restart: unless-stopped
+    container_name: ats-web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+    depends_on:
+      - api
+    networks:
+      - gateway_net
+
+  # gateway: 
+    # build: 
+    #   context: .
+    #   dockerfile: nginx/Dockerfile
+    # container_name: ats-gateway
+    # restart: unless-stopped
+    # ports:
+    #   - "443:443"
+    #   - "80:80"
+    # depends_on:
+    #   - api
+    #   - web
+    # networks:
+    #   - gateway_net
+    # volumes:
+    #   - /etc/letsencrypt:/etc/letsencrypt:ro
+    #   - /var/www/certbot:/var/www/certbot:ro
+
+
+volumes:
+  postgres_data:
