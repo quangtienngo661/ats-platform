@@ -55,6 +55,9 @@ uploads
 important-notes
 scratch
 note.txt
+
+# local copy of the global ~/.claude hook setup — not part of the app
+/files/
 .claude/worktrees
 .nx/polygraph
 .nx/self-healing
