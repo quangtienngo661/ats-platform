@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from '../../common/mail/mail.module';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 dotenv.config();
 
@@ -24,7 +25,8 @@ dotenv.config();
     BullModule.registerQueue({
       name: 'send-verification-email',
       defaultJobOptions: { removeOnComplete: true },
-    })
+    }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 5 }]),
   ],
   controllers: [AuthController],
   providers: [

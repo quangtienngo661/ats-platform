@@ -15,16 +15,19 @@ import { LoginDto, RegisterDto, RequestEmailVerificationDto, VerifyEmailDto, For
 import { Request, Response } from 'express';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Xác thực')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @ApiOperation({ summary: 'Đăng nhập', description: 'Xác thực người dùng bằng email và mật khẩu. Trả về accessToken và đặt refreshToken vào cookie.' })
   @ApiResponse({ status: 200, description: 'Đăng nhập thành công' })
   @ApiResponse({ status: 401, description: 'Email hoặc mật khẩu không đúng' })
+  @ApiResponse({ status: 429, description: 'Quá nhiều yêu cầu, vui lòng thử lại sau' })
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken, refreshTokenId } = await this.authService.login(loginDto);
 
@@ -40,10 +43,13 @@ export class AuthController {
     return { accessToken };
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản', description: 'Tạo tài khoản ứng viên mới và gửi email xác thực.' })
   @ApiResponse({ status: 201, description: 'Đăng ký thành công' })
   @ApiResponse({ status: 400, description: 'Dữ liệu không hợp lệ hoặc email đã tồn tại' })
+  @ApiResponse({ status: 429, description: 'Quá nhiều yêu cầu, vui lòng thử lại sau' })
   async register(@Body() registerDto: RegisterDto) {
     const result = await this.authService.register(registerDto);
     return result;
@@ -92,9 +98,11 @@ export class AuthController {
     return res.redirect(302, result.redirectUrl);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('forgot-password')
   @ApiOperation({ summary: 'Quên mật khẩu', description: 'Gửi email chứa link đặt lại mật khẩu.' })
   @ApiResponse({ status: 200, description: 'Email đặt lại mật khẩu đã được gửi' })
+  @ApiResponse({ status: 429, description: 'Quá nhiều yêu cầu, vui lòng thử lại sau' })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     const result = await this.authService.forgotPassword(dto.email);
     return result;
