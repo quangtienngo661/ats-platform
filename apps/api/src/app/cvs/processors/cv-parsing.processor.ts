@@ -8,6 +8,10 @@ import { Logger } from "@nestjs/common";
 import { SocketIoService } from "../../../common/socket-io/socket-io.service";
 import { NotificationsService } from "../../notifications/notifications.service";
 
+export interface ParseCvJobData {
+    cvId: string;
+}
+
 @Processor('cv-processing', { concurrency: 5 })
 export class CvParsingProcessor extends WorkerHost {
     constructor(
@@ -19,7 +23,7 @@ export class CvParsingProcessor extends WorkerHost {
     ) {
         super();
     }
-    async process(job: Job): Promise<any> {
+    async process(job: Job<ParseCvJobData, void, string>): Promise<void> {
         if (job.name === 'parse-cv') {
             const { cvId } = job.data;
 

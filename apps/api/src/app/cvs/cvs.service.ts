@@ -8,6 +8,7 @@ import * as fs from 'fs/promises';
 import { candidateIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ParseCvJobData } from './processors/cv-parsing.processor';
 
 const PDF_MAGIC_BYTES = Buffer.from('%PDF-', 'ascii');
 
@@ -21,6 +22,19 @@ export class CVsService {
     private readonly pdfService: PdfService,
     @InjectQueue('cv-processing') private readonly cvProcessingQueue: Queue,
   ) { }
+
+  async resolveCandidateIdByUserId(userId: string): Promise<string> {
+    const candidate = await this.prisma.candidate.findUnique({
+      where: { userId },
+      select: { candidateId: true },
+    });
+
+    if (!candidate) {
+      throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    }
+
+    return candidate.candidateId;
+  }
 
   async uploadCV(candidateId: string, file: Express.Multer.File, fileName: string) {
     const fileBuffer = await fs.readFile(file.path);
@@ -58,7 +72,7 @@ export class CVsService {
 
     await this.cvProcessingQueue.add('parse-cv', {
       cvId: cvRecord.cvId,
-    });
+    } satisfies ParseCvJobData);
 
     return cvRecord;
   }
