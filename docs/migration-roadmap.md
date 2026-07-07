@@ -21,14 +21,14 @@ Extraction order follows coupling depth — least coupled services first.
 Fixes issues that block everything else. All items use already-installed packages.
 
 ```
-[ ] BullMQ: raise attempts from 1 to 3 per queue                   ~1h
-[ ] Activate @nestjs/throttler — rate limit /auth/* endpoints       ~3h
-[ ] Activate @nestjs/swagger — expose /api/docs                     ~2h
-[ ] Fail-fast env validation on startup (Joi or class-validator)    ~2h
-[ ] Add createdAt to JobPosting schema (Prisma migration)           ~30m
+[x] BullMQ: raise attempts from 1 to 3 per queue                   ~1h
+[x] Activate @nestjs/throttler — rate limit /auth/* endpoints       ~3h
+[x] Activate @nestjs/swagger — expose /api/docs                     ~2h (mounted at /api, shares the global prefix, not a distinct /api/docs path — see other-notes.md)
+[x] Fail-fast env validation on startup (Joi or class-validator)    ~2h (done via class-validator)
+[x] Add createdAt to JobPosting schema (Prisma migration)           ~30m
 [ ] Winston structured logging + correlation ID middleware           ~1 day
-[ ] GlobalExceptionFilter: log 5xx errors with stack trace          ~1h
-[ ] Helmet security headers in main.ts                              ~1h
+[x] GlobalExceptionFilter: log 5xx errors with stack trace          ~1h
+[x] Helmet security headers in main.ts                              ~1h
 ```
 
 ---

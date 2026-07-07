@@ -136,8 +136,8 @@
 **M6. `CandidateSkillSource` enum has no model**
 - `CandidateSkill` model was never implemented — the enum is orphaned
 
-**M7. `JobPosting` missing `createdAt`**
-- Only `publishedAt` is recorded; creation timestamp is absent
+**M7. ~~`JobPosting` missing `createdAt`~~** ✅ Fixed 2026-07-06
+- ~~Only `publishedAt` is recorded; creation timestamp is absent~~ — added via migration `20260706080103_add_job_posting_created_at`, backfilled with `@default(now())`.
 
 **M8. Email notifications incomplete**
 - Only verification email is implemented
