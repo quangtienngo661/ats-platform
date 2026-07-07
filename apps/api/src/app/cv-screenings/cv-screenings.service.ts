@@ -1,15 +1,62 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { AiRecommendation, ScreeningStatus, UserRole } from '@ats-platform/database';
+import { AiConfig, AiRecommendation, Prisma, ScreeningStatus, UserRole } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ProcessCvScreeningJobData } from './processors/cv-screenings.processor';
+
+const screeningResultIncludeOptions = {
+  aiConfig: {
+    select: {
+      configId: true,
+      name: true,
+      skillsWeight: true,
+      experienceWeight: true,
+      educationWeight: true,
+      minimumScoreThreshold: true,
+    },
+  },
+  application: {
+    select: {
+      applicationId: true,
+      status: true,
+      candidateId: true,
+      jobId: true,
+      jobPosting: {
+        select: { departmentId: true },
+      },
+    },
+  },
+} satisfies Prisma.CVScreeningInclude;
+
+interface ScreeningResultForCandidate {
+  screeningId: string;
+  applicationId: string;
+  status: ScreeningStatus;
+  matchedSkills: Prisma.JsonValue | null;
+  screenedAt: Date | null;
+}
+
+interface ScreeningStatsJobSummary {
+  jobId: string;
+  title: string;
+  departmentId: string;
+}
+
+interface ScreeningStats {
+  job: ScreeningStatsJobSummary;
+  total: number;
+  byStatus: Record<ScreeningStatus, number>;
+  byRecommendation: Record<AiRecommendation, number>;
+  averageScore: number | null;
+}
 
 @Injectable()
 export class CvScreeningsService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('cv-screening') private readonly screeningQueue: Queue
+    @InjectQueue('cv-screening') private readonly screeningQueue: Queue<ProcessCvScreeningJobData, void, string>
   ) { }
 
   private async assertCanAccessJob(userId: string, role: UserRole, departmentId: string) {
@@ -28,7 +75,16 @@ export class CvScreeningsService {
     }
   }
 
-  async createScreeningRecord(applicationId: string, cvId: string, configId?: string): Promise<any> {
+  async createScreeningRecord(
+    applicationId: string,
+    cvId: string,
+    configId?: string,
+  ): Promise<
+    Prisma.CVScreeningGetPayload<{
+      include: typeof cvScreeningIncludeOptions;
+      omit: { cvId: true; applicationId: true };
+    }>
+  > {
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
     });
@@ -82,32 +138,14 @@ export class CvScreeningsService {
 
     return screening;
   }
-  async getScreeningResult(applicationId: string, userId: string, role: UserRole): Promise<any> {
+  async getScreeningResult(
+    applicationId: string,
+    userId: string,
+    role: UserRole,
+  ): Promise<Prisma.CVScreeningGetPayload<{ include: typeof screeningResultIncludeOptions }>> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
-      include: {
-        aiConfig: {
-          select: {
-            configId: true,
-            name: true,
-            skillsWeight: true,
-            experienceWeight: true,
-            educationWeight: true,
-            minimumScoreThreshold: true,
-          },
-        },
-        application: {
-          select: {
-            applicationId: true,
-            status: true,
-            candidateId: true,
-            jobId: true,
-            jobPosting: {
-              select: { departmentId: true },
-            },
-          },
-        },
-      },
+      include: screeningResultIncludeOptions,
     });
 
     if (!screening) {
@@ -118,7 +156,10 @@ export class CvScreeningsService {
 
     return screening;
   }
-  async getScreeningResultForCandidate(applicationId: string, userId: string): Promise<any> {
+  async getScreeningResultForCandidate(
+    applicationId: string,
+    userId: string,
+  ): Promise<ScreeningResultForCandidate> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
       include: {
@@ -153,7 +194,7 @@ export class CvScreeningsService {
       screenedAt: screening.screenedAt,
     };
   }
-  async getScreeningStats(jobId: string, userId: string, role: UserRole): Promise<any> {
+  async getScreeningStats(jobId: string, userId: string, role: UserRole): Promise<ScreeningStats> {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
       select: { jobId: true, title: true, departmentId: true },
@@ -211,7 +252,7 @@ export class CvScreeningsService {
     skillsScore: number,
     experienceScore: number,
     educationScore: number,
-    config: { skillsWeight: any; experienceWeight: any; educationWeight: any },
+    config: { skillsWeight: number; experienceWeight: number; educationWeight: number },
   ): number {
     const wSkills = Number(config.skillsWeight);
     const wExp = Number(config.experienceWeight);
@@ -238,7 +279,7 @@ export class CvScreeningsService {
     if (value > 0 && value < 1) return value * 100;
     return value;
   }
-  async getActiveConfig(configId?: string): Promise<any> {
+  async getActiveConfig(configId?: string): Promise<AiConfig> {
     if (configId) {
       const config = await this.prisma.aiConfig.findUnique({ where: { configId } });
       if (!config) {

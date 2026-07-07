@@ -9,6 +9,13 @@ import { SocketIoService } from '../../../common/socket-io/socket-io.service';
 import { applicationIncludeOptions } from '../../../common/utils/include-options.util';
 import { NotificationsService } from '../../notifications/notifications.service';
 
+export interface ProcessCvScreeningJobData {
+  screeningId: string;
+  cvId: string;
+  applicationId: string;
+  configId: string;
+}
+
 @Processor('cv-screening', { concurrency: 5 })
 export class CvScreeningProcessor extends WorkerHost {
   constructor(
@@ -20,7 +27,7 @@ export class CvScreeningProcessor extends WorkerHost {
   ) {
     super();
   }
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(job: Job<ProcessCvScreeningJobData, void, string>): Promise<void> {
     if (job.name === 'process-cv-screening') {
       const { screeningId, cvId, applicationId, configId } = job.data;
       try {
