@@ -6,6 +6,10 @@ import { GeminiService } from '../../../common/external-apis/gemini/gemini.servi
 import { InterviewStatus } from '@ats-platform/database';
 import { InterviewSessionService } from './interview-session.service';
 
+export interface EvaluateQnaJobData {
+    qnaId: string;
+}
+
 @Processor('interview-evaluation', { concurrency: 3 })
 export class InterviewProcessor extends WorkerHost {
     private readonly logger = new Logger(InterviewProcessor.name);
@@ -21,7 +25,7 @@ export class InterviewProcessor extends WorkerHost {
     // ═══════════════════════════════════════════════════════════════
     // process — Entry point của BullMQ Worker
     // ═══════════════════════════════════════════════════════════════
-    async process(job: Job<any, any, string>): Promise<any> {
+    async process(job: Job<EvaluateQnaJobData, void, string>): Promise<void> {
         if (job.name === 'evaluate_qna') {
             const { qnaId } = job.data;
             this.logger.log(`Evaluating QnA: ${qnaId}`);

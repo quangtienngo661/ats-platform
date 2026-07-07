@@ -7,6 +7,7 @@ import { Queue } from 'bullmq';
 import { InterviewStatus } from '@ats-platform/database';
 import { SocketIoService } from '../../../common/socket-io/socket-io.service';
 import { sessionIncludeOptions } from '../../../common/utils/include-options.util';
+import { EvaluateQnaJobData } from './interview.processor';
 
 @Injectable()
 export class InterviewSessionService {
@@ -53,6 +54,29 @@ export class InterviewSessionService {
 
         this.logger.log(`Session ${session.sessionId} created (generating), question generation queued for topic: ${topic.name}`);
         return { sessionId: session.sessionId };
+    }
+
+    async verifySessionOwnership(userId: string, sessionId: string): Promise<boolean> {
+        const candidate = await this.prisma.candidate.findUnique({
+            where: { userId },
+            select: { candidateId: true },
+        });
+
+        const session = await this.prisma.interviewSession.findUnique({
+            where: { sessionId },
+            select: { candidateId: true },
+        });
+
+        return !!candidate && !!session && session.candidateId === candidate.candidateId;
+    }
+
+    async getSessionStatus(sessionId: string): Promise<InterviewStatus | null> {
+        const session = await this.prisma.interviewSession.findUnique({
+            where: { sessionId },
+            select: { status: true },
+        });
+
+        return session?.status ?? null;
     }
 
     async getCurrentQuestion(sessionId: string) {
@@ -120,7 +144,7 @@ export class InterviewSessionService {
                 qnaId,
             };
         } else {
-            await this.evaluationQueue.add('evaluate_qna', { qnaId });
+            await this.evaluationQueue.add('evaluate_qna', { qnaId } satisfies EvaluateQnaJobData);
 
             const nextQuestion = await this.getCurrentQuestion(sessionId);
             if (nextQuestion) {

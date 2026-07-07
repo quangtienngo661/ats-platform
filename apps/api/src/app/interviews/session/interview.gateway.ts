@@ -4,11 +4,9 @@ import {
     MessageBody,
     SubscribeMessage,
     WebSocketGateway,
-    WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { InterviewSessionService } from './interview-session.service';
-import { PrismaService } from '../../../common/prisma/prisma.service';
 import { InterviewStatus } from '@ats-platform/database';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -17,14 +15,10 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
     cors: { origin: NODE_ENV === 'development' ? '*' : process.env.CLIENT_URL },
 })
 export class InterviewGateway {
-    @WebSocketServer()
-    server: Server;
-
     private readonly logger = new Logger(InterviewGateway.name);
 
     constructor(
         private readonly interviewSessionService: InterviewSessionService,
-        private readonly prisma: PrismaService,
     ) { }
 
     // ═══════════════════════════════════════════════════════════════
@@ -46,12 +40,9 @@ export class InterviewGateway {
             this.logger.log(`Client ${client.id} joined interview room: ${room}`);
 
             // Session có thể vẫn đang được AI tạo câu hỏi (async) — báo client chờ
-            const session = await this.prisma.interviewSession.findUnique({
-                where: { sessionId },
-                select: { status: true },
-            });
+            const status = await this.interviewSessionService.getSessionStatus(sessionId);
 
-            if (session?.status === InterviewStatus.generating) {
+            if (status === InterviewStatus.generating) {
                 client.emit('interview:session_generating', {
                     message: 'AI đang tạo câu hỏi phỏng vấn, vui lòng chờ trong giây lát...',
                 });
@@ -183,17 +174,9 @@ export class InterviewGateway {
             return false;
         }
 
-        const candidate = await this.prisma.candidate.findUnique({
-            where: { userId },
-            select: { candidateId: true },
-        });
+        const isOwner = await this.interviewSessionService.verifySessionOwnership(userId, sessionId);
 
-        const session = await this.prisma.interviewSession.findUnique({
-            where: { sessionId },
-            select: { candidateId: true },
-        });
-
-        if (!candidate || !session || session.candidateId !== candidate.candidateId) {
+        if (!isOwner) {
             client.emit('interview:error', { message: 'Bạn không có quyền truy cập phiên phỏng vấn này' });
             return false;
         }
