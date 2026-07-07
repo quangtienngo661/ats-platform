@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { CLIENT_URL } from '../../common/constants/urls';
+import { SendVerificationEmailJobData } from '../../common/mail/processors/send-verification.processor';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -86,7 +87,8 @@ export class AuthService {
     }
 
     try {
-      await this.emailQueue.add(jobName, { email, link }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
+      const jobData: SendVerificationEmailJobData = { email, link };
+      await this.emailQueue.add(jobName, jobData, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
     } catch (err) {
       await this.redisClient.del(tokenKey);
       await this.redisClient.del(userKey);

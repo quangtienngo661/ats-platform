@@ -3,12 +3,17 @@ import { Job } from "bullmq";
 import { MailService } from "../mail.service";
 import { Logger } from "@nestjs/common";
 
+export interface SendVerificationEmailJobData {
+    email: string;
+    link: string;
+}
+
 @Processor('send-verification-email', { concurrency: 5 })
 export class SendVerificationProcessor extends WorkerHost {
     constructor(private readonly mailService: MailService) {
         super();
     }
-    async process(job: Job) {
+    async process(job: Job<SendVerificationEmailJobData, void, string>): Promise<void> {
         if (job.name === 'send-register-verification-email') {
             const { email, link } = job.data;
             await this.mailService.sendVerificationEmail(email, link);
