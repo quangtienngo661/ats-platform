@@ -26,10 +26,11 @@ import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 import { SocketIoModule } from '../common/socket-io/socket-io.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { validate } from '../common/configs/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate }),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
