@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationError } from 'class-validator';
 import { AppModule } from './app/app.module';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -64,6 +65,18 @@ async function bootstrap() {
     },
   }));
   app.use(cookieParser());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          'script-src': ["'self'", "'unsafe-inline'"],
+          'style-src': ["'self'", "'unsafe-inline'", 'https:'],
+          'img-src': ["'self'", 'data:', 'https:'],
+        },
+      },
+    }),
+  );
 
   app.enableCors({
     origin: process.env.NODE_ENV === 'production'
