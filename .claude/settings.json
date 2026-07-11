@@ -6,8 +6,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/confirm-destructive-ops.sh"],
+            "command": "C:\\Program Files\\Git\\bin\\bash.exe",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/confirm-destructive-ops.sh"
+            ],
             "timeout": 10
           }
         ]
