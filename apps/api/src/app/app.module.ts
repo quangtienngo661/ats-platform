@@ -27,10 +27,20 @@ import { SocketIoModule } from '../common/socket-io/socket-io.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { validate } from '../common/configs/env.validation';
+import { ClsModule } from 'nestjs-cls';
+import { Request } from 'express';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+        generateId: true,
+        idGenerator: (req: Request) => req.headers['x-request-id'] as string,
+      },
+    }),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
