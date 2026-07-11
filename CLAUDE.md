@@ -26,7 +26,7 @@ Current phase (as of Jul 2026): **Phase 0 — Foundation Fixes** (`docs/migratio
 
 - `apps/api`, `apps/web` — the two deployable apps, each with their own CLAUDE.md.
 - `libs/backend/database`, `libs/shared/types` — the two shared libs, covered together in `libs/CLAUDE.md`.
-- `docs/` — `current-state.md` (source audit) and `migration-roadmap.md` (Phase 0–5 plan) are the canonical, current project-status references. `overall-assessment-4th-july.md` is an earlier draft covering the same ground — prefer the two split docs over it. `claude-md-structure.md` is a local copy of the section skeleton defined in `~/.claude/CLAUDE.md`.
+- `docs/` — `current-state.md` (source audit) and `migration-roadmap.md` (Phase 0–5 plan) are the canonical, current project-status references. `overall-assessment-4th-july.md` is an earlier draft covering the same ground — prefer the two split docs over it. `claude-md-structure.md` is a local copy of the section skeleton defined in `~/.claude/CLAUDE.md`. `docs/architecture-decisions/` holds ADRs (numbered `NNNN-slug.md`, template at `0000-template.md`) — the "why/trade-offs" for significant migration decisions; `migration-roadmap.md` links out to these rather than repeating the rationale inline.
 - `important-notes/` — ~30 ad hoc design/planning markdown files (implementation plans, ERD/sequence diagrams, progress assessments) accumulated over the build, not dated/organized the way `docs/` is. Treat `docs/` as authoritative for current status and roadmap; check `important-notes/` for background before assuming a feature was never designed.
 - `docker-compose.yml` (prod-shaped, 5 containers: Postgres, Redis, API, web, Nginx gateway) vs `docker-compose-dev.yml` (local Postgres+Redis only) — see §7.
 - `nginx/` — reverse proxy + Let's Encrypt config for the Docker Compose prod deploy (see root `README.md`).
@@ -34,6 +34,7 @@ Current phase (as of Jul 2026): **Phase 0 — Foundation Fixes** (`docs/migratio
 ## 4. Code Conventions
 
 Cross-cutting conventions both apps rely on — backend/frontend-specific conventions live in their own CLAUDE.md, not here:
+
 - **API response envelope**: `{ success, status, data }` on success / `{ success: false, status, message }` on error — built from `ResponseFormat`/`successResponse`/`errorResponse` in `@ats-platform/types`. Never redefine an equivalent shape.
 - **Pagination**: `{ items, pagination: { page, limit, total, totalPages } }` everywhere a list crosses a service/API/server-action boundary — the canonical type is `IPaginatedResponse<T>` in `@ats-platform/types`.
 - **Enums**: import from `@ats-platform/types` (`enums.ts`), not `@ats-platform/database` — the latter leaks a Node.js module into Next.js Client Components. See `libs/CLAUDE.md` for why they're hand-duplicated instead of re-exported.
@@ -43,6 +44,7 @@ Cross-cutting conventions both apps rely on — backend/frontend-specific conven
 ## 5. Current Anti-patterns — Do Not Follow
 
 Per-app anti-patterns (BullMQ retry config, synchronous Gemini call, `dto`/`dtos` folder drift, Tailwind hex sprawl, `extractMessage` duplication, etc.) are documented in `apps/api/CLAUDE.md` §5 and `apps/web/CLAUDE.md` §5 — don't repeat them here. Repo-wide:
+
 - **Nx module boundaries aren't enforced by tags.** `eslint.config.mjs`'s `@nx/enforce-module-boundaries` rule sets `sourceTag: '*'` → `onlyDependOnLibsWithTags: ['*']`, i.e. every project is allowed to depend on every other. Don't assume the linter would catch `apps/web` importing `libs/backend/database`, or `libs/shared/types` importing backend-only code — check the actual import.
 - **`docs/` was added the same day as this CLAUDE.md set and was still uncommitted as of Jul 2026** (`git status --short` showed it untracked alongside the CLAUDE.md files) — re-check `git status` rather than trusting this note once time has passed; if something in `docs/` visibly contradicts the code you're reading, trust the code and flag the discrepancy rather than silently trusting the doc.
 

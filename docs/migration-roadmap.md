@@ -1,6 +1,19 @@
 # ATS Platform — Migration Roadmap
+
 > Target: Production-ready, feature-complete ATS with RAG, Video Call, and Microservices
 > Timeline: July 2026 → January 2027
+
+Quyết định kiến trúc quan trọng (lý do, trade-off, lựa chọn đã cân nhắc) được ghi chi tiết dưới dạng ADR ở `docs/architecture-decisions/` — file này chỉ giữ checklist + timeline, không lặp lại phần giải thích "tại sao".
+
+---
+
+## Progress Log
+
+Mốc tiến độ quan trọng, cập nhật mỗi khi hoàn thành một phần đáng kể — không thay thế checklist từng phase bên dưới (vẫn dùng `[x]`/`[ ]` ở đó), chỉ tóm tắt theo thời gian để dễ nhìn lại khi viết báo cáo.
+
+- **2026-07-06 → 07**: Phase 0 hoàn tất toàn bộ (BullMQ retry, rate limiting, structured logging, magic-byte validation, async `startSession()`, Helmet, env validation, Swagger). Ngoài phạm vi Phase 0, dọn thêm: bỏ direct Prisma access ở `cvs.controller.ts`/`interview.gateway.ts`, xoá `@WebSocketServer()` thừa, type hết `any` ở 5 BullMQ processor + `cv-screenings.service.ts`. Chi tiết: `.claude/rules/apis/anti-patterns.md` Status Tracker.
+- **2026-07-11**: Phát hiện + fix container `ats-api` (docker-compose.yml prod) crash-loop do `@napi-rs/canvas` cài nhầm bản glibc trong khi base image là Alpine (musl). Xem [ADR 0001](../architecture-decisions/0001-docker-base-image-glibc.md). Đã sửa `apps/api/Dockerfile`, **đang chờ verify sau rebuild**.
+- **2026-07-11**: Rà soát `schema.prisma` cho kế hoạch RAG + microservices — phát hiện thiếu index trên nhiều cột FK, chưa chốt nguồn dữ liệu embed (`Candidate.profileData` vs `CVParsedData.*`), chưa gán service sở hữu cho bảng dùng chung (`Department`/`Skill`/`JobCategory`/`AiConfig`). Đã đưa vào checklist Phase 1/2/4 bên dưới.
 
 ---
 
@@ -16,6 +29,7 @@ Extraction order follows coupling depth — least coupled services first.
 ---
 
 ## Phase 0 — Foundation Fixes
+
 **Duration: 2 weeks | Start: immediately**
 
 Fixes issues that block everything else. All items use already-installed packages.
@@ -34,11 +48,13 @@ Fixes issues that block everything else. All items use already-installed package
 ---
 
 ## Phase 1 — Complete Core Workflows
+
 **Duration: 3–4 weeks | Month: July–August 2026**
 
 Close broken end-to-end flows before adding new features. A demo that fails mid-workflow is worse than a demo with fewer features.
 
 ### Candidate flows
+
 ```
 [ ] Candidate view of their InterviewSchedule (route + UI)          ~2 days
 [ ] Application timeline visualization (backed by ApplicationHistory) ~2 days
@@ -46,6 +62,7 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ```
 
 ### Recruiter flows
+
 ```
 [ ] ApplicationNote — internal notes per application                ~2 days
 [ ] Interview feedback form (structured post-interview evaluation)  ~2 days
@@ -55,15 +72,19 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ```
 
 ### Technical debt
+
 ```
-[ ] Refactor startSession() → async BullMQ job (remove sync Gemini call) ~2 days
-[ ] File upload: magic byte validation + UUID-based safe rename      ~1 day
+[x] Refactor startSession() → async BullMQ job (remove sync Gemini call) ~2 days — done 2026-07, see Progress Log
+[x] File upload: magic byte validation                               ~1 day — %PDF- signature check done 2026-07; UUID-based safe rename not separately verified, confirm before fully closing
 [ ] Graceful shutdown: SIGTERM handler + BullMQ worker drain         ~3h
 [ ] Health check endpoint: GET /health (Postgres + Redis)            ~3h
-[ ] CandidateSkill model + migration (resolve orphan enum)           ~1 day
+[ ] CandidateSkill model + migration (resolve orphan enum)           ~1 day — blocks Phase 2 skill-taxonomy/RAG matching, do early
+[ ] Minimal PostgreSQL backup (pg_dump cron, local disk)             ~2h — moved up from Phase 5 per Risk Register; full S3/R2 pipeline stays in Phase 5
+[ ] Add missing indexes on FK columns: applications.job_id/candidate_id, cv_screenings.cv_id/config_id, job_postings.department_id/category_id, interview_sessions.candidate_id ~1h
 ```
 
 ### Email notifications
+
 ```
 [ ] Email on application status change (interview, offer, rejected)  ~2 days
 [ ] Email on InterviewSchedule creation → send meeting details       ~1 day
@@ -73,27 +94,33 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ---
 
 ## Phase 2 — AI Upgrade with RAG
+
 **Duration: 3–4 weeks | Month: September 2026**
 
 Replace direct LLM generation with retrieval-augmented generation where it adds measurable value. RAG does not replace Gemini — it enriches the prompt with retrieved context before generation.
 
 ### RAG targets by use case
 
-| Use case | RAG benefit |
-|---|---|
-| CV parsing | None — extraction task, LLM already sufficient |
-| JD parsing | Medium — retrieve skill taxonomy to normalize output |
-| CV screening | High — retrieve historical screenings to calibrate score consistency |
+| Use case                      | RAG benefit                                                                      |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| CV parsing                    | None — extraction task, LLM already sufficient                                   |
+| JD parsing                    | Medium — retrieve skill taxonomy to normalize output                             |
+| CV screening                  | High — retrieve historical screenings to calibrate score consistency             |
 | Interview question generation | Highest — retrieve from curated question bank instead of generating from scratch |
 
 ### Infrastructure
+
 ```
+[ ] Decide source-of-truth for candidate structured data before EmbeddingService:
+    Candidate.profileData (Json) vs CVParsedData.* currently both exist, no documented precedence ~half day (decision + ADR)
 [ ] Enable pgvector extension on existing PostgreSQL instance        ~2h
 [ ] EmbeddingService — Google text-embedding-004 via existing API key ~1 day
 [ ] RagService — cosine similarity search, configurable top-K        ~2 days
+    Note: Prisma has no native vector type — use Unsupported("vector(N)") + raw SQL for similarity queries
 ```
 
 ### Features
+
 ```
 [ ] Question bank schema + Admin UI (input, embed, store questions)  ~3 days
 [ ] generateInterviewQuestions → inject retrieved questions as context ~2 days
@@ -104,6 +131,7 @@ Replace direct LLM generation with retrieval-augmented generation where it adds 
 ```
 
 ### Analytics
+
 ```
 [ ] Funnel conversion chart: Applied → Screening → Interview → Offer → Hired ~2 days
 [ ] Time-in-stage metrics per application (uses currentStageSince)   ~1 day
@@ -114,6 +142,7 @@ Replace direct LLM generation with retrieval-augmented generation where it adds 
 ---
 
 ## Phase 3 — Video Call Integration
+
 **Duration: 3 weeks | Month: October 2026**
 
 LiveKit chosen for: open-source, self-hostable via Docker, official React SDK, built-in TURN/STUN server, Node.js SDK for token management.
@@ -121,21 +150,26 @@ LiveKit chosen for: open-source, self-hostable via Docker, official React SDK, b
 `InterviewSchedule.onlineMeetingLink` and `InterviewType.online` already exist in the schema — no new models required, only a room name field to add.
 
 ### Infrastructure
+
 ```
 [ ] Add LiveKit service to docker-compose.yml                        ~2h
 [ ] livekit.yaml config (API key, secret, TURN settings)             ~2h
 ```
 
 ### Backend
+
 ```
 [ ] LiveKitService — create room, generate participant tokens         ~2 days
 [ ] Auto-close room after scheduled time + 30 min buffer             ~3h
 [ ] Integrate with InterviewSchedule: trigger room creation on save   ~1 day
 [ ] Notification to candidate with meeting link on schedule creation  ~1 day
 [ ] Add livekitRoomName to InterviewSchedule schema                  ~30m
+[ ] Same migration: merge scheduledDate+scheduledTime → scheduledAt, add interviewDurationMinutes
+    (currently "30 min buffer" is hard-coded in code, not configurable data)  ~30m
 ```
 
 ### Frontend
+
 ```
 [ ] VideoCallRoom page — @livekit/components-react                   ~3 days
 [ ] Waiting room: candidate enters, recruiter admits                  ~1 day
@@ -147,6 +181,7 @@ LiveKit chosen for: open-source, self-hostable via Docker, official React SDK, b
 ---
 
 ## Phase 4 — Microservices Extraction
+
 **Duration: 4–6 weeks | Month: November–December 2026**
 
 Strategy: Strangler Fig — extract services incrementally from the monolith. Keep Shared DB throughout this phase; per-service DB split is post-January.
@@ -154,6 +189,7 @@ Strategy: Strangler Fig — extract services incrementally from the monolith. Ke
 Transport: NATS for async event messaging + gRPC for sync inter-service calls (e.g. auth token validation).
 
 ### Target architecture
+
 ```
 Internet → Nginx → NestJS API Gateway
                        ├── auth-service      (JWT, refresh token)
@@ -168,10 +204,13 @@ Internet → Nginx → NestJS API Gateway
 ```
 
 ### Extraction order
+
 ```
 Step 1: Transport layer setup
 [ ] NATS server in docker-compose                                    ~2h
 [ ] NestJS hybrid app mode (HTTP + Microservice transport)           ~1 day
+[ ] Minimal outbox pattern (event_outbox table + publisher poll) — avoids the dual-write
+    problem (DB write succeeds, event publish fails) before any service depends on events ~2 days
 
 Step 2: ai-service (isolated — receives input, calls Gemini, returns output)
 [ ] Extract GeminiService + RagService + EmbeddingService            ~1 week
@@ -189,6 +228,9 @@ Step 5: cv-service
 [ ] Extract CVs module + PdfService + cv-processing queue            ~1 week
 
 Step 6: Core services (highest coupling — do last)
+[ ] Decide owning service for shared reference tables first: Department, Skill, JobCategory
+    → job-service; AiConfig → ai-service. Application/CVScreening/InterviewSchedule each FK
+    across ≥2 planned services today — plan soft-reference (ID only, no Prisma relation) before splitting ~1 day (decision + ADR)
 [ ] job-service, application-service                                 ~2 weeks
 [ ] interview-service (depends on ai-service + video-service)        ~1 week
 
@@ -199,6 +241,7 @@ Step 7: video-service
 ---
 
 ## Phase 5 — Production Hardening
+
 **Duration: 2–3 weeks | Month: December 2026 – January 2027**
 
 Run in parallel with Phase 4 where possible.
@@ -245,14 +288,15 @@ January 2027    Phase 4 complete + Phase 5 + buffer
 
 ## Risk Register
 
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| RAG retrieval quality (noise) | Medium | Medium | Offline evaluation set before deploy |
-| Distributed transaction failure across services | High | High | Shared DB for entire Phase 4; Saga after January |
-| LiveKit TURN config for NAT traversal | Low | Low | Built-in TURN; coturn as fallback |
-| Timeline slip (solo developer) | High | High | Phase 4 is deprioritized if Phase 1–3 slip |
-| Gemini API cost increase with RAG | Low | Medium | RAG shortens prompts; net cost similar or lower |
-| PostgreSQL data loss before backup is set up | Medium | Critical | Do backup setup in Phase 0, not Phase 5 |
+| Risk                                                              | Probability | Impact   | Mitigation                                                                                                                                    |
+| ----------------------------------------------------------------- | ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| RAG retrieval quality (noise)                                     | Medium      | Medium   | Offline evaluation set before deploy                                                                                                          |
+| Distributed transaction failure across services                   | High        | High     | Shared DB for entire Phase 4; Saga after January                                                                                              |
+| LiveKit TURN config for NAT traversal                             | Low         | Low      | Built-in TURN; coturn as fallback                                                                                                             |
+| Timeline slip (solo developer)                                    | High        | High     | Phase 4 is deprioritized if Phase 1–3 slip                                                                                                    |
+| Gemini API cost increase with RAG                                 | Low         | Medium   | RAG shortens prompts; net cost similar or lower                                                                                               |
+| Gemini API quota/billing exhaustion (distinct from cost increase) | Medium      | High     | Already occurred in dev, 2026-07 (RESOURCE_EXHAUSTED on the real key) — set up billing alerts, keep a mocked-response fallback path for demos |
+| PostgreSQL data loss before backup is set up                      | Medium      | Critical | Do backup setup in Phase 1 (moved up from Phase 5), see Technical debt checklist                                                              |
 
 ---
 
