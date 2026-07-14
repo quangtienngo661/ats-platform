@@ -13,9 +13,18 @@ Live source of truth for what's fixed — flip a row here when an item's status 
 
 | Item | Status | Last verified |
 |---|---|---|
-| BullMQ `attempts: 1` globally | ✅ Fixed | 2026-07 |
+| BullMQ retry: `attempts: 3` actually reaching every queue | 🟡 Fixed in code, **verify pending** — see "The registerQueue trap" below | 2026-07-14 |
+| `cv-screenings.processor` swallows errors → BullMQ records failed jobs as `completed` | 🟡 Fixed in code, verify pending | 2026-07-14 |
+| Privilege escalation via `PATCH /candidates/me` `userInfo` | ✅ Fixed + verified end-to-end (400 + DB row unchanged) | 2026-07-14 |
+| `UserStatus.inactive` never enforced (login/refresh/JWT/socket) | ✅ Fixed + verified (pre-issued token → 401) | 2026-07-14 |
+| `GET /job-postings` leaks `draft`/`closed` to anonymous **and to candidates** | ✅ Fixed + verified | 2026-07-14 |
+| Swagger UI exposed in production | ✅ Fixed + verified | 2026-07-14 |
+| Throttler counters in process memory (reset on restart, not multi-instance) | 🟡 Fixed in code (Redis storage), verify pending | 2026-07-14 |
+| `isReverted: true` bypasses the ApplicationStatus state machine + skips notification | 🟡 Fixed in code, verify pending | 2026-07-14 |
+| Interview sessions stuck `in_progress` forever (`abandon` unreachable) | 🟡 Fixed in code (periodic sweep), verify pending | 2026-07-14 |
+| `nx test api` silently skipped every spec under `src/common/**` | 🟡 Fixed (testMatch widened), verify pending | 2026-07-14 |
 | No API-layer rate limiting | ✅ Fixed | 2026-07 |
-| No structured logging (5xx) | ✅ Fixed | 2026-07 |
+| No structured logging (5xx) | ✅ Fixed — but HTTP-only; BullMQ/Socket.IO are NOT covered | 2026-07-14 |
 | File upload has no magic-byte validation | ✅ Fixed | 2026-07 |
 | `startSession()` calls Gemini synchronously | ✅ Fixed | 2026-07 |
 | Controller/gateway direct `PrismaService` access (`cvs.controller.ts`, `interview.gateway.ts`) | ✅ Fixed | 2026-07-06 |
@@ -23,6 +32,20 @@ Live source of truth for what's fixed — flip a row here when an item's status 
 | BullMQ processor `Job<any>` / bare `Job` typing (all 5 processor files) | ✅ Fixed (5/5 typed) | 2026-07-06 |
 | `cv-screenings.service.ts` heavy `any` typing | ✅ Fixed (0 remaining) | 2026-07-06 |
 | `dto/` vs `dtos/` folder split | ⬜ Open — by design, fix opportunistically per module, not in one pass | 2026-07-06 |
+
+**Legend:** ✅ = fixed AND proven at runtime. 🟡 = code written + unit tests pass, but not yet exercised end-to-end. **Never promote 🟡 → ✅ on the strength of unit tests alone** — that is exactly how the BullMQ retry row stayed wrong (and green) for two months.
+
+## The registerQueue trap — read this before touching any BullMQ module
+
+`BullModule.forRoot()` in `app.module.ts` holds the global `defaultJobOptions` (`attempts: 3`, exponential backoff, `removeOnComplete`). **`@nestjs/bullmq` merges shallowly**: `bull.providers.ts` does `{ ...sharedConfig, ...queueOption }` (verified against both the installed `node_modules` build and the upstream TypeScript source at tag `@nestjs/bullmq@11.0.4`).
+
+So passing `defaultJobOptions` to `registerQueue()` **replaces the global object wholesale** instead of merging into it. Three modules did exactly that — `registerQueue({ name: 'cv-processing', defaultJobOptions: { removeOnComplete: true } })` — which silently deleted `attempts` and `backoff` for those queues. `cv-processing` and `cv-screening` (the two AI pipelines — i.e. the jobs most likely to fail) ran with **1 attempt and no retry** for the whole time this tracker claimed retry was "Fixed". `cv-parsing.processor.ts` correctly rethrew for a retry that could never happen.
+
+**Rule: never pass `defaultJobOptions` to `registerQueue()`.** Every default belongs in `forRoot`. A per-*job* override at `queue.add(name, data, opts)` is fine and DOES merge correctly (`auth.service.ts` uses one deliberately, for a shorter email-retry backoff).
+
+## `minimumScoreThreshold` / `aiRecommendation` are NOT dead fields
+
+They are computed, stored, and shown to recruiters, but deliberately **never** drive an automatic `Application.status` change. That is a decision, not an unfinished feature: GDPR Art. 22 forbids fully-automated hiring decisions. See [ADR 0002](../../../docs/architecture-decisions/0002-no-auto-reject-on-ai-score.md). Do not "complete" this into an auto-reject.
 
 **Fixed (Jul 2026):**
 - ~~BullMQ `attempts: 1` globally~~ — raised to `attempts: 3` in `app.module.ts`. `interview.processor.ts`'s catch block now checks `job.attemptsMade + 1 >= job.opts.attempts` and rethrows on any non-final attempt (so BullMQ actually retries) and rethrows again after writing `[ERROR]` feedback + finalizing on the final attempt (so the job is correctly recorded as `failed`, not `completed`). Covered by `interview.processor.spec.ts` (previously zero coverage).

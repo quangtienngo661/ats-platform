@@ -14,6 +14,7 @@ Mốc tiến độ quan trọng, cập nhật mỗi khi hoàn thành một phầ
 - **2026-07-06 → 07**: Phase 0 hoàn tất toàn bộ (BullMQ retry, rate limiting, structured logging, magic-byte validation, async `startSession()`, Helmet, env validation, Swagger). Ngoài phạm vi Phase 0, dọn thêm: bỏ direct Prisma access ở `cvs.controller.ts`/`interview.gateway.ts`, xoá `@WebSocketServer()` thừa, type hết `any` ở 5 BullMQ processor + `cv-screenings.service.ts`. Chi tiết: `.claude/rules/apis/anti-patterns.md` Status Tracker.
 - **2026-07-11**: Phát hiện + fix container `ats-api` (docker-compose.yml prod) crash-loop do `@napi-rs/canvas` cài nhầm bản glibc trong khi base image là Alpine (musl). Xem [ADR 0001](../architecture-decisions/0001-docker-base-image-glibc.md). Đã sửa `apps/api/Dockerfile`, **đang chờ verify sau rebuild**.
 - **2026-07-11**: Rà soát `schema.prisma` cho kế hoạch RAG + microservices — phát hiện thiếu index trên nhiều cột FK, chưa chốt nguồn dữ liệu embed (`Candidate.profileData` vs `CVParsedData.*`), chưa gán service sở hữu cho bảng dùng chung (`Department`/`Skill`/`JobCategory`/`AiConfig`). Đã đưa vào checklist Phase 1/2/4 bên dưới.
+- **2026-07-12 → 14**: Audit toàn bộ service layer đối chiếu schema (`docs/audit/`) + research so sánh với ATS thật (`docs/research/`) + kiểm chứng lại từng mục Phase 0 trên code. **Kết quả: Phase 0 chưa thật sự xong — vài mục đã tick nhưng không có tác dụng lúc chạy** (chi tiết ở Phase 0 bên dưới). Phát sinh **Phase 0.5 — Stabilization**, chèn trước khi chạy tiếp Phase 1.
 
 ---
 
@@ -34,16 +35,138 @@ Extraction order follows coupling depth — least coupled services first.
 
 Fixes issues that block everything else. All items use already-installed packages.
 
+> **Cảnh báo (2026-07-14):** các dấu `[x]` dưới đây từng sai sự thật. Một lượt kiểm chứng trực tiếp trên code (không tin checkbox) cho thấy 2 mục "đã xong" thực chất **không hoạt động lúc chạy**. Đã đánh dấu lại bên dưới. Bài học: tick checkbox khi code được *viết*, không phải khi hành vi được *chứng minh*.
+
 ```
-[x] BullMQ: raise attempts from 1 to 3 per queue                   ~1h
-[x] Activate @nestjs/throttler — rate limit /auth/* endpoints       ~3h
+[~] BullMQ: raise attempts from 1 to 3 per queue                   ~1h
+    → SAI. `forRoot` có attempts:3, nhưng 3 module gọi registerQueue kèm
+      `defaultJobOptions` — @nestjs/bullmq gộp NÔNG nên nó ĐÈ CHẾT attempts/backoff.
+      cv-processing + cv-screening chạy 1 lần, không retry. Sửa ở Phase 0.5.
+[~] Activate @nestjs/throttler — rate limit /auth/* endpoints       ~3h
+    → MỘT PHẦN. Chỉ phủ login/register/forgot-password; refresh/logout/reset-password
+      bỏ trống, và bộ đếm nằm trong RAM (restart là reset). Sửa ở Phase 0.5.
 [x] Activate @nestjs/swagger — expose /api/docs                     ~2h (mounted at /api, shares the global prefix, not a distinct /api/docs path — see other-notes.md)
+    → Đã có, nhưng phơi ra cả ở production (không có rào NODE_ENV). Sửa ở Phase 0.5.
 [x] Fail-fast env validation on startup (Joi or class-validator)    ~2h (done via class-validator)
+    → Kiểm chứng OK: không tìm thấy env var nào app đọc lúc chạy mà thiếu trong schema validate.
 [x] Add createdAt to JobPosting schema (Prisma migration)           ~30m
-[ ] Winston structured logging + correlation ID middleware           ~1 day
+[x] Winston structured logging + correlation ID middleware           ~1 day
+    → Checkbox này TRƯỚC ĐÂY ghi `[ ]` nhưng đã làm xong ở commit 1d2ebf2.
+      Giới hạn: correlation ID chỉ đi theo request HTTP, KHÔNG vào BullMQ job hay
+      Socket.IO handler — tức là không lần vết được đúng phần AI chạy nền.
 [x] GlobalExceptionFilter: log 5xx errors with stack trace          ~1h
+    → Chỉ có thẩm quyền trên HTTP; lỗi ném ra từ processor/gateway không đi qua đây.
 [x] Helmet security headers in main.ts                              ~1h
+    → Kiểm chứng OK, CSP có tùy chỉnh, CORS không dùng wildcard.
 ```
+
+**Mô hình chung của Phase 0:** mọi thứ nó xây đều là **lưới an toàn hình dạng HTTP**, trong khi nửa rủi ro nhất của hệ thống chạy **bất đồng bộ** (BullMQ + Socket.IO). Phase 0 bảo vệ phần dễ và bỏ trống đúng phần AI. Đó là lý do Phase 0.5 tồn tại.
+
+---
+
+## Phase 0.5 — Stabilization
+
+**Duration: ~1 week | Start: 2026-07-14**
+
+Vá lỗi, **không thêm tính năng**. Chỉ đụng `apps/api`, không đụng `apps/web`. Cơ sở: `docs/audit/2026-07-12-*.md` (3 audit service-vs-schema) và lượt kiểm chứng Phase 0.
+
+Quy trình cho từng nhóm: code → **review độc lập** (`/code-review`) → **verify chạy thật** (agent `verify-runner`, gọi API thật + đọc DB thật, không chỉ unit test).
+
+### Nhóm 1 — Bảo mật ✅ (verified 2026-07-14)
+
+```
+[x] Vá leo quyền: PATCH /candidates/me nhận `userInfo` chỉ @IsObject() rồi spread
+    thẳng vào prisma.user.update() → candidate tự set role:admin. Siết thành DTO
+    lồng chỉ cho fullName + phoneNumber.                                     ~2h
+[x] UserStatus.inactive không chặn login: enforce ở login, refresh, JwtStrategy
+    (đọc lại DB mỗi request) VÀ ở handshake Socket.IO.                       ~3h
+[x] GET /job-postings + /:id lộ tin draft/closed: thêm OptionalJwtAuthGuard,
+    chỉ recruiter/admin thấy tin chưa công bố (candidate đăng nhập cũng KHÔNG). ~2h
+[x] Rào Swagger sau NODE_ENV !== 'production'                                ~15m
+[x] Thêm ThrottlerGuard cho POST /auth/reset-password                        ~15m
+```
+
+### Nhóm 2 — Độ tin cậy luồng bất đồng bộ ✅ (verified 2026-07-14, 1 mục còn lại có kịch bản test)
+
+Chi tiết bằng chứng: `docs/audit/2026-07-14-phase-0.5-verification.md`.
+
+```
+[x] Gỡ `defaultJobOptions` khỏi mọi registerQueue; dồn hết default về forRoot
+    → mọi queue thật sự kế thừa attempts:3 + backoff. Verify: log thật cho thấy
+    3 lần thử với backoff ~10s/~20s trên cv-processing.                      ~1h
+[x] cv-screenings.processor nuốt lỗi (không rethrow) → BullMQ ghi job là
+    `completed` dù thất bại. Thêm rethrow theo khuôn interview.processor.
+    Verify: screening thật kết thúc status=failed + error_log, đúng như kỳ vọng.
+    (Chưa tự tay kiểm tra riêng việc job vào đúng "failed set" của BullMQ trong
+    Redis — cờ này do unit test cv-screenings.processor.spec.ts phủ.)         ~2h
+[x] Throttler storage → Redis (tự implement trên ioredis, không thêm dep).
+    Verify: key `throttle:*` có thật trong Redis; restart container `ats-api`
+    xong gọi login ngay vẫn 429 — bộ đếm sống qua restart.                   ~3h
+[x] Trần retry: chặn retrigger screening khi retryCount >= 3.
+    Verify: gọi lại trigger-screening với retry_count=3 → 409 tiếng Việt.     ~1h
+[~] Session phỏng vấn treo `in_progress` vĩnh viễn → job quét định kỳ
+    (queue `interview-maintenance`, 5 phút/lần) + dấu hoạt động trong Redis.
+    Scheduler đã đăng ký trong Redis + 4 unit test cho logic quét, nhưng CHƯA
+    quan sát được một lần quét thật chạy (mỗi lần restart container để test mục
+    khác lại tính lại đồng hồ 5 phút). Kịch bản tự chạy: §4.1 trong file verify. ~1 ngày
+[x] Mở rộng jest testMatch sang src/common/** — 6 spec ở đó TRƯỚC ĐÂY không
+    bao giờ chạy trong `nx test api` lẫn CI.                                 ~1h
+```
+
+### Nhóm 3 — Toàn vẹn nghiệp vụ ✅ (verified 2026-07-14, 100% PASS)
+
+Chi tiết bằng chứng: `docs/audit/2026-07-14-phase-0.5-verification.md`.
+
+```
+[x] `isReverted: true` bypass hoàn toàn VALID_TRANSITIONS (applied → hired trong
+    1 call) và bỏ qua notification. Giờ chỉ được lùi về trạng thái đơn ĐÃ TỪNG
+    đi qua (đọc từ ApplicationHistory), và đi chung đường notification.
+    Verify: revert sang trạng thái chưa từng có → 400; revert hợp lệ → 200 +
+    notification thật được tạo (trước đây không bao giờ tạo).                ~3h
+[x] ScheduleStatus không validate transition (completed → scheduled được chấp
+    nhận). Thêm map transition. Verify: PATCH completed→scheduled → 400.      ~1h
+[x] JobStatus không validate transition + publishedAt bị reset mỗi lần lưu
+    tin đang active. Thêm map + chỉ stamp publishedAt lần đầu.
+    Verify: closed→active → 400; resave active không đổi publishedAt.        ~2h
+[x] remove() xoá cha khi còn con → P2003 thô lọt ra 500 (Department, User,
+    Skill, Recruiter). Chặn trước với thông báo tiếng Việt.
+    Verify: xoá department còn recruiter / user còn đơn ứng tuyển / skill còn
+    gắn tin → đều 400 tiếng Việt, không phải 500 thô.                        ~2h
+[x] SkillsService.create() dup-check sai (findUnique theo name+category nhưng
+    chỉ `name` là unique) → trùng tên khác category lọt qua rồi ném P2002.
+    Verify: tạo skill trùng tên khác category → 400 "Kỹ năng đã tồn tại".     ~30m
+[x] RecruitersService.update() không validate FK (create() thì có).           ~1h
+[x] Đổi createdBy của tin tuyển dụng sang recruiter khác phòng ban mà
+    departmentId không đổi → dữ liệu mâu thuẫn vĩnh viễn. Đồng bộ lại.        ~1h
+```
+
+### Nhóm 4 — Lưới an toàn vận hành 🟡 (verified 2026-07-14, 1 lỗi thật phát hiện)
+
+Chi tiết bằng chứng + 1 lỗi chưa sửa: `docs/audit/2026-07-14-phase-0.5-verification.md`.
+
+```
+[x] GET /health — ping thật Postgres + Redis, trả 503 nếu hỏng.
+    PHÁT HIỆN: khi Redis bị đóng băng (không phải tắt hẳn — mô phỏng bằng
+    `docker pause`), health check TREO LUÔN thay vì trả 503, vì redis.ping()
+    không có timeout. Chưa sửa (đúng quy tắc verify — chỉ báo cáo). Đường
+    "mọi thứ bình thường" (200) đã verify PASS.                               ~3h
+[~] Graceful shutdown: app.enableShutdownHooks() → BullMQ worker drain +
+    Prisma disconnect thay vì bị giết ngang. Code đã có (PrismaService vốn đã
+    định nghĩa onModuleDestroy, giờ enableShutdownHooks() mới khiến nó thực sự
+    được gọi) nhưng chưa quan sát được log xác nhận lúc restart. Kịch bản tự
+    chạy: §4.2 trong file verify.                                            ~1h
+[x] scripts/backup-db.sh — pg_dump → gzip → ./backups, prune theo tuổi.      ~2h
+```
+
+> `[~]` = code đã viết + unit test pass, **nhưng chưa chứng minh bằng verify chạy thật**.
+> Chỉ đổi thành `[x]` sau khi `verify-runner` xác nhận hành vi trên app thật — đây
+> chính xác là cái bẫy đã làm Phase 0 tick nhầm. Đừng lặp lại nó ở đây.
+
+### Cố ý KHÔNG làm (là câu hỏi thiết kế, không phải bug)
+
+- **Auto-reject theo `minimumScoreThreshold`** — research cho thấy để nguyên mới là ĐÚNG (GDPR Art. 22 cấm quyết định tuyển dụng hoàn toàn tự động). Ghi lại thành [ADR 0002](../architecture-decisions/0002-no-auto-reject-on-ai-score.md) để lần sau không ai "sửa" nó thành tự động.
+- `OwnershipGuard` per-recruiter vs per-department — cần chốt mô hình tổ chức trước.
+- Nhiều `InterviewSchedule` cho một `Application` — có thể là cố ý (phỏng vấn nhiều vòng).
 
 ---
 
