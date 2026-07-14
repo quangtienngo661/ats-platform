@@ -14,16 +14,19 @@ import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
   imports: [
     CandidatesModule,
-    BullModule.registerQueue({
-      name: 'cv-processing',
-      defaultJobOptions: { removeOnComplete: true },
-    }),
+    // No `defaultJobOptions` here on purpose — it would replace, not extend, the
+    // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
+    BullModule.registerQueue({ name: 'cv-processing' }),
     AiUsageLogsModule,
-    NotificationsModule
+    NotificationsModule,
   ],
   controllers: [CVsController],
   providers: [
-    CvParsingProcessor, CVsService, PdfService, GeminiService, CvParsedDataService
+    CvParsingProcessor,
+    CVsService,
+    PdfService,
+    GeminiService,
+    CvParsedDataService,
   ],
   exports: [CVsService],
 })
