@@ -17,11 +17,13 @@ Two shared libraries consumed by both apps: `libs/backend/database` (Prisma sche
 ## 3. Directory Structure
 
 **`libs/backend/database`**
+
 - `prisma/schema.prisma`, `prisma/migrations/`, `prisma/seed_*.sql` — the only copies in the repo. There is no `apps/api/prisma`.
 - `src/generated/prisma/` — the generated client (`generator client { output = "../src/generated/prisma" }`). **Not committed**: the repo-root `.gitignore`'s bare `generated` pattern matches it (verify with `git check-ignore`, not by reading `libs/backend/database/.gitignore` alone — that file's own `/generated/prisma` entry doesn't actually match, since the real output is under `src/`). A fresh checkout has no generated client until `prisma generate` runs (§6) — `src/index.ts` won't resolve otherwise.
 - `src/index.ts` — re-exports `./lib/database` and `./generated/prisma/client`; this is what `@ats-platform/database` resolves to.
 
 **`libs/shared/types`**
+
 - `src/lib/interfaces/<domain>/*.interface.ts` — plain DTO/request/response interfaces, one folder per domain, all re-exported from `src/index.ts`.
 - `src/lib/enums.ts` — hand-duplicated string-literal enums mirroring the Prisma schema enums (`export const Foo = {...} as const; export type Foo = typeof Foo[keyof typeof Foo]`, not TS `enum`). This is the canonical source for enum values across the whole repo (§4).
 - `src/lib/prisma-enums.ts` — present but deliberately emptied out (§5).
@@ -75,9 +77,9 @@ Per `docs/migration-roadmap.md` Phase 2 (RAG, Sep 2026): `pgvector` will be enab
 
 ## 9. Testing
 
-Neither library has test files today. If you add tests here, mirror `apps/api`'s pattern (`*.spec.ts` next to source, run via `@nx/jest`) rather than inventing a different runner — but note neither `project.json` currently defines a `test` target, so that would need wiring up first (see `apps/web/CLAUDE.md` §9 for the same gap on that project).
+Neither library has test files today. If you add tests here, mirror `apps/api`'s pattern (`*.spec.ts` next to source, run via `@nx/jest`) rather than inventing a different runner — but note neither `project.json` currently defines a `test` target, so that would need wiring up first (see `.claude/rules/web/testing.md` for the same gap on that project).
 
 ## 10. Other Notes
 
 - Both libraries have empty/minimal `project.json` targets (`types` has none at all; `database` only has the four `prisma-*` run-commands in §6) — anything beyond that comes from Nx's plugin inference (`@nx/eslint/plugin`, `@nx/jest/plugin`, `@nx/js/typescript` in `nx.json`), not an explicit target definition.
-- `apps/api/CLAUDE.md` is the primary consumer of `@ats-platform/database`; `apps/web/CLAUDE.md` should only ever consume `@ats-platform/types` (§4).
+- `apps/api` is the primary consumer of `@ats-platform/database` (`.claude/rules/apis/*.md`); `apps/web` should only ever consume `@ats-platform/types` (`.claude/rules/web/*.md`) — §4.
