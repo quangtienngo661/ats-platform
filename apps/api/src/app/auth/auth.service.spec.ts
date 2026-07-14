@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '@ats-platform/database';
+import { UserRole, UserStatus } from '@ats-platform/database';
 import { AuthService } from './auth.service';
 import {
   createJwtMock,
@@ -29,7 +29,12 @@ describe('AuthService', () => {
     jwt = createJwtMock();
     redis = createRedisMock();
     queue = createQueueMock();
-    service = new AuthService(prisma as any, jwt as any, redis as any, queue as any);
+    service = new AuthService(
+      prisma as any,
+      jwt as any,
+      redis as any,
+      queue as any,
+    );
     (bcrypt.hashSync as jest.Mock).mockReturnValue('hashed');
     (bcrypt.compareSync as jest.Mock).mockReturnValue(true);
   });
@@ -46,11 +51,16 @@ describe('AuthService', () => {
       emailVerified: true,
       role: UserRole.candidate,
       fullName: 'Alice',
+      status: UserStatus.active,
     });
-    jwt.signAsync.mockResolvedValueOnce('access').mockResolvedValueOnce('refresh');
+    jwt.signAsync
+      .mockResolvedValueOnce('access')
+      .mockResolvedValueOnce('refresh');
     prisma.refreshToken.create.mockResolvedValue({ id: 'rt-1' });
 
-    await expect(service.login({ email: 'a@test.com', password: 'secret' })).resolves.toEqual({
+    await expect(
+      service.login({ email: 'a@test.com', password: 'secret' }),
+    ).resolves.toEqual({
       accessToken: 'access',
       refreshToken: 'refresh',
       refreshTokenId: 'rt-1',
@@ -58,16 +68,74 @@ describe('AuthService', () => {
 
     expect(prisma.refreshToken.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ userId: 'user-1', tokenHash: 'hashed', revoked: false }),
+        data: expect.objectContaining({
+          userId: 'user-1',
+          tokenHash: 'hashed',
+          revoked: false,
+        }),
       }),
     );
   });
 
-  it('rejects bad credentials and unverified emails', async () => {
-    await expect(service.login({ email: '', password: '' })).rejects.toThrow('email');
+  it('rejects login for a deactivated account', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      userId: 'user-1',
+      email: 'a@test.com',
+      passwordHash: 'hash',
+      emailVerified: true,
+      role: UserRole.candidate,
+      fullName: 'Alice',
+      status: UserStatus.inactive,
+    });
 
-    prisma.user.findUnique.mockResolvedValue({ passwordHash: 'hash', emailVerified: false, email: 'a@test.com' });
-    await expect(service.login({ email: 'a@test.com', password: 'secret' })).rejects.toThrow('EMAIL_NOT_VERIFIED');
+    await expect(
+      service.login({ email: 'a@test.com', password: 'secret' }),
+    ).rejects.toThrow('vô hiệu hóa');
+    expect(prisma.refreshToken.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a refresh token whose account has been deactivated', async () => {
+    jwt.verifyAsync.mockResolvedValue({
+      userId: 'user-1',
+      role: 'candidate',
+      fullName: 'Alice',
+    });
+    prisma.refreshToken.findUnique.mockResolvedValue({
+      id: 'rt-1',
+      userId: 'user-1',
+      tokenHash: 'hash',
+      revoked: false,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    prisma.user.findUnique.mockResolvedValue({
+      userId: 'user-1',
+      role: UserRole.candidate,
+      fullName: 'Alice',
+      status: UserStatus.inactive,
+    });
+
+    await expect(
+      service.refreshToken(
+        mockRequest({}, { refreshToken: 'rt-1.old-refresh' }),
+        mockResponse(),
+      ),
+    ).rejects.toThrow('vô hiệu hóa');
+    expect(prisma.refreshToken.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects bad credentials and unverified emails', async () => {
+    await expect(service.login({ email: '', password: '' })).rejects.toThrow(
+      'email',
+    );
+
+    prisma.user.findUnique.mockResolvedValue({
+      passwordHash: 'hash',
+      emailVerified: false,
+      email: 'a@test.com',
+    });
+    await expect(
+      service.login({ email: 'a@test.com', password: 'secret' }),
+    ).rejects.toThrow('EMAIL_NOT_VERIFIED');
   });
 
   it('registers a new candidate user and queues verification email', async () => {
@@ -77,24 +145,41 @@ describe('AuthService', () => {
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
     await expect(
-      service.register({ email: 'a@test.com', password: 'secret', fullName: 'Alice' }),
+      service.register({
+        email: 'a@test.com',
+        password: 'secret',
+        fullName: 'Alice',
+      }),
     ).resolves.toEqual({ userId: 'user-1', email: 'a@test.com' });
 
-    expect(tx.candidate.create).toHaveBeenCalledWith({ data: { userId: 'user-1' } });
+    expect(tx.candidate.create).toHaveBeenCalledWith({
+      data: { userId: 'user-1' },
+    });
     expect(queue.add).toHaveBeenCalledWith(
       'send-register-verification-email',
-      expect.objectContaining({ email: 'a@test.com', link: expect.stringContaining('/auth/verify-email') }),
+      expect.objectContaining({
+        email: 'a@test.com',
+        link: expect.stringContaining('/auth/verify-email'),
+      }),
       expect.any(Object),
     );
   });
 
   it('verifies email tokens and cleans Redis keys', async () => {
     redis.get.mockResolvedValue('user-1');
-    prisma.user.findUnique.mockResolvedValue({ userId: 'user-1', emailVerified: false });
-    prisma.user.update.mockResolvedValue({ userId: 'user-1', emailVerified: true });
+    prisma.user.findUnique.mockResolvedValue({
+      userId: 'user-1',
+      emailVerified: false,
+    });
+    prisma.user.update.mockResolvedValue({
+      userId: 'user-1',
+      emailVerified: true,
+    });
 
     await expect(service.verifyEmail('token', 'verify')).resolves.toEqual(
-      expect.objectContaining({ redirectUrl: expect.stringContaining('verification-success') }),
+      expect.objectContaining({
+        redirectUrl: expect.stringContaining('verification-success'),
+      }),
     );
 
     expect(prisma.user.update).toHaveBeenCalledWith({
@@ -105,7 +190,11 @@ describe('AuthService', () => {
   });
 
   it('rotates a valid refresh token and sets the new cookie', async () => {
-    jwt.verifyAsync.mockResolvedValue({ userId: 'user-1', role: 'candidate', fullName: 'Alice' });
+    jwt.verifyAsync.mockResolvedValue({
+      userId: 'user-1',
+      role: 'candidate',
+      fullName: 'Alice',
+    });
     prisma.refreshToken.findUnique.mockResolvedValue({
       id: 'rt-1',
       userId: 'user-1',
@@ -113,23 +202,42 @@ describe('AuthService', () => {
       revoked: false,
       expiresAt: new Date(Date.now() + 60_000),
     });
-    jwt.signAsync.mockResolvedValueOnce('new-access').mockResolvedValueOnce('new-refresh');
+    prisma.user.findUnique.mockResolvedValue({
+      userId: 'user-1',
+      role: UserRole.candidate,
+      fullName: 'Alice',
+      status: UserStatus.active,
+    });
+    jwt.signAsync
+      .mockResolvedValueOnce('new-access')
+      .mockResolvedValueOnce('new-refresh');
     prisma.refreshToken.create.mockResolvedValue({ id: 'rt-2' });
     const res = mockResponse();
 
     await expect(
-      service.refreshToken(mockRequest({}, { refreshToken: 'rt-1.old-refresh' }), res),
+      service.refreshToken(
+        mockRequest({}, { refreshToken: 'rt-1.old-refresh' }),
+        res,
+      ),
     ).resolves.toBe('new-access');
 
     expect(prisma.refreshToken.update).toHaveBeenCalledWith({
       where: { id: 'rt-1' },
       data: { revoked: true },
     });
-    expect(res.cookie).toHaveBeenCalledWith('refreshToken', 'rt-2.new-refresh', expect.any(Object));
+    expect(res.cookie).toHaveBeenCalledWith(
+      'refreshToken',
+      'rt-2.new-refresh',
+      expect.any(Object),
+    );
   });
 
   it('logs out by revoking a matching token and clearing the cookie', async () => {
-    prisma.refreshToken.findUnique.mockResolvedValue({ id: 'rt-1', tokenHash: 'hash', revoked: false });
+    prisma.refreshToken.findUnique.mockResolvedValue({
+      id: 'rt-1',
+      tokenHash: 'hash',
+      revoked: false,
+    });
     const res = mockResponse();
 
     await service.logout(mockRequest({}, { refreshToken: 'rt-1.token' }), res);
@@ -138,7 +246,10 @@ describe('AuthService', () => {
       where: { id: 'rt-1', revoked: false },
       data: { revoked: true },
     });
-    expect(res.clearCookie).toHaveBeenCalledWith('refreshToken', expect.any(Object));
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      'refreshToken',
+      expect.any(Object),
+    );
   });
 
   it('resets password and revokes all refresh tokens for the user', async () => {
