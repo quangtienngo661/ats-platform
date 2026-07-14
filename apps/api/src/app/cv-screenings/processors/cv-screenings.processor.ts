@@ -4,7 +4,11 @@ import { CvScreeningsService } from '../cv-screenings.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
 import { Logger, NotFoundException } from '@nestjs/common';
-import { NotificationType, RelatedEntityType, ScreeningStatus } from '@ats-platform/database';
+import {
+  NotificationType,
+  RelatedEntityType,
+  ScreeningStatus,
+} from '@ats-platform/database';
 import { SocketIoService } from '../../../common/socket-io/socket-io.service';
 import { applicationIncludeOptions } from '../../../common/utils/include-options.util';
 import { NotificationsService } from '../../notifications/notifications.service';
@@ -18,6 +22,8 @@ export interface ProcessCvScreeningJobData {
 
 @Processor('cv-screening', { concurrency: 5 })
 export class CvScreeningProcessor extends WorkerHost {
+  private readonly logger = new Logger(CvScreeningProcessor.name);
+
   constructor(
     private readonly cvScreeningsService: CvScreeningsService,
     private readonly prisma: PrismaService,
@@ -27,35 +33,50 @@ export class CvScreeningProcessor extends WorkerHost {
   ) {
     super();
   }
-  async process(job: Job<ProcessCvScreeningJobData, void, string>): Promise<void> {
+  async process(
+    job: Job<ProcessCvScreeningJobData, void, string>,
+  ): Promise<void> {
     if (job.name === 'process-cv-screening') {
       const { screeningId, cvId, applicationId, configId } = job.data;
       try {
-        const {
-          cvParsedData,
-          parsedRequirements,
-          aiConfig,
-          application,
-        } = await this.fetchScreeningContext(applicationId, cvId, configId);
+        const { cvParsedData, parsedRequirements, aiConfig, application } =
+          await this.fetchScreeningContext(applicationId, cvId, configId);
         const jobRoom = `job_${application.jobId}`;
 
         const screening = await this.prisma.cVScreening.update({
           where: { screeningId },
           data: {
             status: 'processing',
-          }
+          },
         });
 
-        if (!screening) throw new NotFoundException(`Không tìm thấy lượt sàng lọc ${screeningId}`);
-        if (!cvParsedData) throw new NotFoundException(`Không tìm thấy dữ liệu CV đã phân tích ${cvId}`);
+        if (!screening)
+          throw new NotFoundException(
+            `Không tìm thấy lượt sàng lọc ${screeningId}`,
+          );
+        if (!cvParsedData)
+          throw new NotFoundException(
+            `Không tìm thấy dữ liệu CV đã phân tích ${cvId}`,
+          );
 
         const rawJson = this.getRawJson(cvParsedData, parsedRequirements);
-        const geminiResult = await this.geminiService.screeningCV(screeningId, rawJson);
+        const geminiResult = await this.geminiService.screeningCV(
+          screeningId,
+          rawJson,
+        );
 
-        const updatedApplication = await this.handleScreeningResult(screeningId, geminiResult, aiConfig);
+        const updatedApplication = await this.handleScreeningResult(
+          screeningId,
+          geminiResult,
+          aiConfig,
+        );
 
         // 4. Emit Job kết quả
-        this.socketIoService.handleEmit("cv-screening:completed", updatedApplication, jobRoom);
+        this.socketIoService.handleEmit(
+          'cv-screening:completed',
+          updatedApplication,
+          jobRoom,
+        );
         await this.createNotificationSafe(
           application.jobPosting.recruiter.userId,
           'Sàng lọc AI hoàn tất',
@@ -63,12 +84,34 @@ export class CvScreeningProcessor extends WorkerHost {
           applicationId,
         );
       } catch (error) {
+        const maxAttempts = job.opts.attempts ?? 1;
+        const isFinalAttempt = job.attemptsMade + 1 >= maxAttempts;
+
+        this.logger.error(
+          `CV screening ${screeningId} failed (attempt ${job.attemptsMade + 1}/${maxAttempts}): ${error.message}`,
+          error.stack,
+        );
+
+        if (!isFinalAttempt) {
+          // Còn lượt retry — rethrow để BullMQ tự retry. Chưa ghi `failed` vào DB
+          // và chưa báo hỏng cho recruiter, vì lần thử sau có thể thành công.
+          throw error;
+        }
+
         await this.emitScreeningCompletedFailure(applicationId);
         await this.handleScreeningFailed(screeningId, error);
+
+        // Rethrow ngay cả ở lần cuối: nếu nuốt lỗi, BullMQ ghi nhận job là
+        // `completed` dù nó đã thất bại, và hàng đợi mất dấu vết mọi thất bại.
+        throw error;
       }
     }
   }
-  private async fetchScreeningContext(applicationId: string, cvId: string, configId: string): Promise<any> {
+  private async fetchScreeningContext(
+    applicationId: string,
+    cvId: string,
+    configId: string,
+  ): Promise<any> {
     const [cvParsedData, application, aiConfig] = await Promise.all([
       this.prisma.cVParsedData.findUnique({
         where: { cvId },
@@ -82,11 +125,11 @@ export class CvScreeningProcessor extends WorkerHost {
                 select: { userId: true },
               },
               jobPostingSkills: {
-                include: { skill: true }
-              }
-            }
-          }
-        }
+                include: { skill: true },
+              },
+            },
+          },
+        },
       }),
       this.prisma.aiConfig.findUnique({
         where: { configId },
@@ -94,7 +137,9 @@ export class CvScreeningProcessor extends WorkerHost {
     ]);
 
     if (!application) {
-      throw new NotFoundException(`Không tìm thấy đơn ứng tuyển ${applicationId}`);
+      throw new NotFoundException(
+        `Không tìm thấy đơn ứng tuyển ${applicationId}`,
+      );
     }
 
     return {
@@ -117,9 +162,17 @@ ${rawCvJson}
 ${rawJobJson}
 </jd_data>`;
   }
-  private async handleScreeningResult(screeningId: string, geminiResult, config: any): Promise<any> {
-    if (!config) config = await this.prisma.aiConfig.findFirst({ where: { isDefault: true } });
-    if (!config) throw new NotFoundException('Không tìm thấy cấu hình AI mặc định');
+  private async handleScreeningResult(
+    screeningId: string,
+    geminiResult,
+    config: any,
+  ): Promise<any> {
+    if (!config)
+      config = await this.prisma.aiConfig.findFirst({
+        where: { isDefault: true },
+      });
+    if (!config)
+      throw new NotFoundException('Không tìm thấy cấu hình AI mặc định');
     // Lưu ý: geminiResult trả về thường là string JSON, bạn cần parse nó trước
     const {
       skills_score,
@@ -128,7 +181,7 @@ ${rawJobJson}
       ai_reasoning,
       matched_skills,
       missing_skills,
-      matched_nice_to_haves
+      matched_nice_to_haves,
     } = geminiResult;
 
     // 1. Dùng Service để tính điểm tổng hợp
@@ -136,11 +189,14 @@ ${rawJobJson}
       skills_score,
       experience_score,
       education_score,
-      config
+      config,
     );
     // 2. Dùng Service để quyết định Recommendation
     const threshold = Number(config.minimumScoreThreshold);
-    const recommendation = this.cvScreeningsService.determineRecommendation(overallScore, threshold);
+    const recommendation = this.cvScreeningsService.determineRecommendation(
+      overallScore,
+      threshold,
+    );
     // 3. Update DB (Có thể viết thêm 1 hàm 'updateScreeningResult' ở Service hoặc update thẳng tại đây bằng Prisma)
     const screeningResult = await this.prisma.cVScreening.update({
       where: { screeningId },
@@ -152,26 +208,32 @@ ${rawJobJson}
         overallScore: overallScore,
         aiRecommendation: recommendation,
         aiReasoning: ai_reasoning,
-        matchedSkills: { hardSkills: matched_skills, niceToHaveSkills: matched_nice_to_haves },
+        matchedSkills: {
+          hardSkills: matched_skills,
+          niceToHaveSkills: matched_nice_to_haves,
+        },
         missingSkills: missing_skills,
         screenedAt: new Date(),
-      }
+      },
     });
 
     const updatedApplication = await this.prisma.application.findUnique({
       where: { applicationId: screeningResult.applicationId },
-      include: applicationIncludeOptions
+      include: applicationIncludeOptions,
     });
 
     if (!updatedApplication) {
-      throw new NotFoundException(`Không tìm thấy đơn ứng tuyển ${screeningResult.applicationId}`);
+      throw new NotFoundException(
+        `Không tìm thấy đơn ứng tuyển ${screeningResult.applicationId}`,
+      );
     }
 
-    return updatedApplication
-
-
+    return updatedApplication;
   }
-  private async handleScreeningFailed(screeningId: string, error: any): Promise<any> {
+  private async handleScreeningFailed(
+    screeningId: string,
+    error: any,
+  ): Promise<any> {
     await this.prisma.cVScreening.update({
       where: { screeningId },
       data: {
@@ -179,7 +241,7 @@ ${rawJobJson}
         aiReasoning: null,
         screenedAt: new Date(),
         errorLog: error.message,
-      }
+      },
     });
   }
 
@@ -190,7 +252,11 @@ ${rawJobJson}
     });
 
     if (application?.jobId) {
-      this.socketIoService.handleEmit("cv-screening:completed", null, `job_${application.jobId}`);
+      this.socketIoService.handleEmit(
+        'cv-screening:completed',
+        null,
+        `job_${application.jobId}`,
+      );
       return;
     }
 
@@ -200,7 +266,12 @@ ${rawJobJson}
     );
   }
 
-  private async createNotificationSafe(userId: string, title: string, message: string, applicationId: string) {
+  private async createNotificationSafe(
+    userId: string,
+    title: string,
+    message: string,
+    applicationId: string,
+  ) {
     try {
       await this.notificationsService.create({
         userId,
