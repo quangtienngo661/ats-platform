@@ -13,24 +13,82 @@ export const createPrismaMock = () => ({
     }
     return input(createPrismaTransactionMock());
   }),
-  aiConfig: model(['create', 'findMany', 'findUnique', 'findFirst', 'update', 'updateMany', 'delete']),
+  aiConfig: model([
+    'create',
+    'findMany',
+    'findUnique',
+    'findFirst',
+    'update',
+    'updateMany',
+    'delete',
+  ]),
   aiUsageLog: model(['create', 'findMany', 'count']),
   application: model(['create', 'findMany', 'findUnique', 'count', 'update']),
   applicationHistory: model(['create', 'findMany']),
-  candidate: model(['create', 'findFirst', 'findMany', 'findUnique', 'count', 'update']),
+  candidate: model([
+    'create',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'count',
+    'update',
+  ]),
   cV: model(['create', 'findMany', 'findUnique', 'delete']),
-  cVParsedData: model(['create', 'update']),
-  cVScreening: model(['count', 'findMany', 'findUnique', 'upsert']),
+  cVParsedData: model(['create', 'findUnique', 'update']),
+  cVScreening: model(['count', 'findMany', 'findUnique', 'update', 'upsert']),
   department: model(['create', 'findMany', 'findUnique', 'update', 'delete']),
-  interviewQnA: model(['count', 'createMany', 'findFirst', 'findMany', 'findUnique', 'update']),
+  interviewQnA: model([
+    'count',
+    'createMany',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
   interviewResult: model(['findUnique', 'upsert']),
-  interviewSchedule: model(['create', 'count', 'delete', 'findFirst', 'findMany', 'findUnique', 'update']),
-  interviewSession: model(['create', 'findFirst', 'findMany', 'findUnique', 'update']),
-  interviewTopic: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
+  interviewSchedule: model([
+    'create',
+    'count',
+    'delete',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
+  interviewSession: model([
+    'create',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'update',
+    'updateMany',
+  ]),
+  interviewTopic: model([
+    'create',
+    'delete',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
   jobCategory: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
-  jobPosting: model(['create', 'count', 'delete', 'findMany', 'findUnique', 'update']),
+  jobPosting: model([
+    'create',
+    'count',
+    'delete',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
   jobPostingSkill: model(['createMany', 'deleteMany']),
-  notification: model(['count', 'create', 'delete', 'findMany', 'findUnique', 'update', 'updateMany']),
+  notification: model([
+    'count',
+    'create',
+    'delete',
+    'findMany',
+    'findUnique',
+    'update',
+    'updateMany',
+  ]),
   recruiter: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
   refreshToken: model(['create', 'findUnique', 'update', 'updateMany']),
   skill: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
@@ -45,11 +103,14 @@ export const createPrismaTransactionMock = () => {
 
 export const createQueueMock = () => ({
   add: jest.fn(),
+  remove: jest.fn(),
   setGlobalRateLimit: jest.fn(),
+  upsertJobScheduler: jest.fn(),
 });
 
 export const createSocketMock = () => ({
   handleEmit: jest.fn(),
+  hasClientsInRoom: jest.fn().mockResolvedValue(false),
 });
 
 export const createJwtMock = () => ({
@@ -58,16 +119,19 @@ export const createJwtMock = () => ({
 });
 
 export const createRedisMock = () => ({
-  get: jest.fn(),
-  set: jest.fn(),
-  del: jest.fn(),
+  get: jest.fn().mockResolvedValue(null),
+  set: jest.fn().mockResolvedValue('OK'),
+  del: jest.fn().mockResolvedValue(1),
 });
 
-export const mockRequest = (user: Record<string, any> = {}, cookies: Record<string, any> = {}) =>
+export const mockRequest = (
+  user: Record<string, any> = {},
+  cookies: Record<string, any> = {},
+) =>
   ({
     user,
     cookies,
-  } as any);
+  }) as any;
 
 export const mockResponse = () =>
   ({
@@ -75,4 +139,4 @@ export const mockResponse = () =>
     clearCookie: jest.fn(),
     redirect: jest.fn(),
     download: jest.fn(),
-  } as any);
+  }) as any;
