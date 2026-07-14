@@ -10,6 +10,8 @@ import { MailModule } from '../../common/mail/mail.module';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ThrottlerModule } from '@nestjs/throttler';
+import Redis from 'ioredis';
+import { RedisThrottlerStorage } from '../../common/redis/redis-throttler.storage';
 
 dotenv.config();
 
@@ -22,20 +24,26 @@ dotenv.config();
     //   secret: process.env.JWT_SECRET,
     //   signOptions: { expiresIn: '1h' },
     // }),
-    BullModule.registerQueue({
-      name: 'send-verification-email',
-      defaultJobOptions: { removeOnComplete: true },
+    // No `defaultJobOptions` here on purpose — it would replace, not extend, the
+    // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
+    BullModule.registerQueue({ name: 'send-verification-email' }),
+    // Counters live in Redis, not in process memory: the in-memory default resets
+    // the rate limit on every restart and isn't shared across instances.
+    ThrottlerModule.forRootAsync({
+      inject: ['REDIS_CLIENT'],
+      useFactory: (redis: Redis) => ({
+        throttlers: [{ ttl: 60000, limit: 5 }],
+        storage: new RedisThrottlerStorage(redis),
+      }),
     }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 5 }]),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-  ],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule implements OnModuleInit {
-  constructor(@InjectQueue('send-verification-email') private readonly queue: Queue) { }
+  constructor(
+    @InjectQueue('send-verification-email') private readonly queue: Queue,
+  ) {}
 
   async onModuleInit() {
     await this.queue.setGlobalRateLimit(30, 60000);
