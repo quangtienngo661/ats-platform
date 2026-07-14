@@ -63,6 +63,13 @@ async function bootstrap() {
   });
   app.getHttpAdapter().getInstance().set('trust proxy', true);
   app.use(requestIdMiddleware);
+
+  // Without this, SIGTERM (docker stop, a redeploy) kills the process outright:
+  // in-flight BullMQ jobs are cut off mid-Gemini-call and Prisma/Redis sockets are
+  // dropped. Nest's shutdown hooks let @nestjs/bullmq close its workers and Prisma
+  // disconnect cleanly first.
+  app.enableShutdownHooks();
+
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   app.useGlobalPipes(
@@ -112,8 +119,12 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // The docs expose the entire API surface unauthenticated — dev/staging only.
+  if (process.env.NODE_ENV !== 'production') {
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
+
   await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
