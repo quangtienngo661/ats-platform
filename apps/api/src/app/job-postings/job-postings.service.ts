@@ -5,19 +5,35 @@ import {
 } from '@nestjs/common';
 import { JobStatus, Prisma } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreateJobPostingDto, UpdateJobPostingDto, FindJobPostingsQueryDto } from './dto/job-posting.dto';
+import {
+  CreateJobPostingDto,
+  UpdateJobPostingDto,
+  FindJobPostingsQueryDto,
+} from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { randomUUID } from 'crypto';
+
+/**
+ * A posting is drafted, published, then closed. Closing is final: re-opening a
+ * posting that already collected applications would silently reuse its pipeline,
+ * and un-publishing a live posting (`active` → `draft`) hides a job candidates may
+ * already have applied to. Both were previously accepted without complaint.
+ */
+const JOB_STATUS_TRANSITIONS: Partial<Record<JobStatus, JobStatus[]>> = {
+  [JobStatus.draft]: [JobStatus.active, JobStatus.closed],
+  [JobStatus.active]: [JobStatus.closed],
+  [JobStatus.closed]: [],
+};
 
 @Injectable()
 export class JobPostingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jobPostingSkillsService: JobPostingSkillsService,
-    private readonly geminiService: GeminiService
-  ) { }
+    private readonly geminiService: GeminiService,
+  ) {}
 
   async parseJdPreview(description: string) {
     const normalizedDescription = description?.trim();
@@ -56,9 +72,7 @@ export class JobPostingsService {
     });
 
     if (!recruiter) {
-      throw new NotFoundException(
-        `Không tìm thấy nhà tuyển dụng`,
-      );
+      throw new NotFoundException(`Không tìm thấy nhà tuyển dụng`);
     }
 
     if (!recruiter.departmentId) {
@@ -92,7 +106,6 @@ export class JobPostingsService {
       createJobPostingDto.parsedRequirements,
     );
 
-
     return await this.prisma.$transaction(async (tx) => {
       const newJobPosting = await tx.jobPosting.create({
         data: {
@@ -103,16 +116,17 @@ export class JobPostingsService {
           description: createJobPostingDto.description,
           parsedRequirements,
           status: createJobPostingDto.status,
-          publishedAt: createJobPostingDto.status === JobStatus.active
-            ? new Date()
-            : undefined,
+          publishedAt:
+            createJobPostingDto.status === JobStatus.active
+              ? new Date()
+              : undefined,
           department: {
             connect: { departmentId: recruiter.departmentId },
           },
           category: createJobPostingDto.categoryId
             ? {
-              connect: { categoryId: createJobPostingDto.categoryId },
-            }
+                connect: { categoryId: createJobPostingDto.categoryId },
+              }
             : undefined,
           recruiter: {
             connect: { recruiterId: recruiter.recruiterId },
@@ -121,28 +135,51 @@ export class JobPostingsService {
       });
 
       if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
-        await this.jobPostingSkillsService.create(newJobPosting.jobId, createJobPostingDto.skills, tx);
+        await this.jobPostingSkillsService.create(
+          newJobPosting.jobId,
+          createJobPostingDto.skills,
+          tx,
+        );
       }
 
       return await tx.jobPosting.findUnique({
         where: { jobId: newJobPosting.jobId },
         include: jobPostingIncludeOptions,
         omit: {
-          createdBy: true, departmentId: true, categoryId: true
-        }
+          createdBy: true,
+          departmentId: true,
+          categoryId: true,
+        },
       });
-    })
+    });
   }
 
-  async findAll(query: FindJobPostingsQueryDto = {}) {
+  async findAll(
+    query: FindJobPostingsQueryDto = {},
+    canSeeUnpublished = false,
+  ) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
     const where: Prisma.JobPostingWhereInput = {
-      ...(query.status ? { status: query.status } : {}),
+      // Non-staff callers (anonymous visitors AND logged-in candidates) only ever
+      // see published postings — a client-supplied `status` filter must not be
+      // able to surface drafts or closed postings.
+      ...(canSeeUnpublished
+        ? query.status
+          ? { status: query.status }
+          : {}
+        : { status: JobStatus.active }),
       ...(query.departmentId ? { departmentId: query.departmentId } : {}),
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
-      ...(query.search ? { title: { contains: query.search, mode: 'insensitive' as Prisma.QueryMode } } : {}),
+      ...(query.search
+        ? {
+            title: {
+              contains: query.search,
+              mode: 'insensitive' as Prisma.QueryMode,
+            },
+          }
+        : {}),
     };
 
     const [items, total] = await this.prisma.$transaction([
@@ -163,16 +200,24 @@ export class JobPostingsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, canSeeUnpublished = false) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },
       include: jobPostingIncludeOptions,
       omit: {
-        createdBy: true, departmentId: true, categoryId: true
-      }
+        createdBy: true,
+        departmentId: true,
+        categoryId: true,
+      },
     });
 
     if (!jobPosting) {
+      throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
+    }
+
+    // Same 404 for "missing" and "exists but unpublished" — a non-staff caller
+    // must not be able to tell a draft posting apart from one that doesn't exist.
+    if (!canSeeUnpublished && jobPosting.status !== JobStatus.active) {
       throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
@@ -186,6 +231,9 @@ export class JobPostingsService {
         jobId: true,
         salaryMin: true,
         salaryMax: true,
+        status: true,
+        publishedAt: true,
+        departmentId: true,
       },
     });
 
@@ -195,10 +243,19 @@ export class JobPostingsService {
 
     await this.ensureRelationsExist(updateJobPostingDto);
     this.validateSalaryRange(existingJobPosting, updateJobPostingDto);
+    this.validateStatusTransition(
+      existingJobPosting.status,
+      updateJobPostingDto.status,
+    );
+    const departmentId = await this.resolveOwnerDepartment(
+      existingJobPosting.departmentId,
+      updateJobPostingDto.createdBy,
+    );
 
-    const parsedRequirements = updateJobPostingDto.parsedRequirements !== undefined
-      ? this.parseParsedRequirements(updateJobPostingDto.parsedRequirements)
-      : undefined;
+    const parsedRequirements =
+      updateJobPostingDto.parsedRequirements !== undefined
+        ? this.parseParsedRequirements(updateJobPostingDto.parsedRequirements)
+        : undefined;
 
     return await this.prisma.$transaction(async (tx) => {
       const updatedJobPosting = await tx.jobPosting.update({
@@ -211,36 +268,48 @@ export class JobPostingsService {
           description: updateJobPostingDto.description,
           parsedRequirements,
           status: updateJobPostingDto.status,
-          publishedAt: updateJobPostingDto.status === JobStatus.active
-            ? new Date()
-            : undefined,
+          // Stamp the publish date once, on the first transition to `active`.
+          // Re-saving an already-published posting used to reset it to now(),
+          // silently destroying the real publication date.
+          publishedAt:
+            updateJobPostingDto.status === JobStatus.active &&
+            !existingJobPosting.publishedAt
+              ? new Date()
+              : undefined,
+          department: departmentId ? { connect: { departmentId } } : undefined,
           category: updateJobPostingDto.categoryId
             ? {
-              connect: { categoryId: updateJobPostingDto.categoryId },
-            }
+                connect: { categoryId: updateJobPostingDto.categoryId },
+              }
             : undefined,
           recruiter: updateJobPostingDto.createdBy
             ? {
-              connect: { recruiterId: updateJobPostingDto.createdBy },
-            }
+                connect: { recruiterId: updateJobPostingDto.createdBy },
+              }
             : undefined,
-        }
+        },
       });
 
       if (updateJobPostingDto.skills !== undefined) {
         await this.jobPostingSkillsService.deleteByJobId(id, tx);
         if (updateJobPostingDto.skills.length > 0) {
-          await this.jobPostingSkillsService.create(id, updateJobPostingDto.skills, tx);
+          await this.jobPostingSkillsService.create(
+            id,
+            updateJobPostingDto.skills,
+            tx,
+          );
         }
       }
       return await tx.jobPosting.findUnique({
         where: { jobId: updatedJobPosting.jobId },
         include: jobPostingIncludeOptions,
         omit: {
-          createdBy: true, departmentId: true, categoryId: true
-        }
+          createdBy: true,
+          departmentId: true,
+          categoryId: true,
+        },
       });
-    })
+    });
   }
 
   async remove(id: string) {
@@ -257,8 +326,10 @@ export class JobPostingsService {
       where: { jobId: id },
       include: jobPostingIncludeOptions,
       omit: {
-        createdBy: true, departmentId: true, categoryId: true
-      }
+        createdBy: true,
+        departmentId: true,
+        categoryId: true,
+      },
     });
   }
 
@@ -276,17 +347,53 @@ export class JobPostingsService {
       }
     }
 
-    if (updateJobPostingDto.createdBy) {
-      const recruiter = await this.prisma.recruiter.findUnique({
-        where: { recruiterId: updateJobPostingDto.createdBy },
-        select: { recruiterId: true },
-      });
+    // The recruiter is deliberately NOT checked here — `resolveOwnerDepartment()`
+    // has to load it anyway to realign `departmentId`, and it throws the same
+    // NotFoundException. Checking it twice would be two round-trips and two places
+    // that must agree on what "recruiter not found" means.
+  }
 
-      if (!recruiter) {
-        throw new NotFoundException(
-          `Không tìm thấy nhà tuyển dụng với ID ${updateJobPostingDto.createdBy}`,
-        );
-      }
+  /**
+   * A posting's department must always match its owning recruiter's department.
+   * Reassigning `createdBy` used to leave `departmentId` pointing at the old
+   * department forever, so the posting was "owned" by someone outside the
+   * department it claimed to belong to — and department-scoped access checks
+   * (applications, candidates) then disagreed with reality.
+   */
+  private async resolveOwnerDepartment(
+    currentDepartmentId: string,
+    nextRecruiterId?: string,
+  ): Promise<string | undefined> {
+    if (!nextRecruiterId) return undefined;
+
+    const recruiter = await this.prisma.recruiter.findUnique({
+      where: { recruiterId: nextRecruiterId },
+      select: { departmentId: true },
+    });
+
+    if (!recruiter) {
+      throw new NotFoundException(
+        `Không tìm thấy nhà tuyển dụng với ID ${nextRecruiterId}`,
+      );
+    }
+
+    return recruiter.departmentId === currentDepartmentId
+      ? undefined
+      : recruiter.departmentId;
+  }
+
+  private validateStatusTransition(
+    currentStatus: JobStatus,
+    nextStatus?: JobStatus,
+  ) {
+    if (!nextStatus || nextStatus === currentStatus) return;
+
+    const allowedNext = JOB_STATUS_TRANSITIONS[currentStatus] ?? [];
+    if (!allowedNext.includes(nextStatus)) {
+      throw new BadRequestException(
+        `Không thể chuyển trạng thái tin tuyển dụng từ '${currentStatus}' sang '${nextStatus}'. ` +
+          `Các trạng thái hợp lệ: [${allowedNext.join(', ') || 'không có - đây là trạng thái cuối'}]`,
+      );
     }
   }
 
