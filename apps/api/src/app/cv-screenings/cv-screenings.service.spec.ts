@@ -1,6 +1,13 @@
-import { AiRecommendation, ScreeningStatus, UserRole } from '@ats-platform/database';
+import {
+  AiRecommendation,
+  ScreeningStatus,
+  UserRole,
+} from '@ats-platform/database';
 import { CvScreeningsService } from './cv-screenings.service';
-import { createPrismaMock, createQueueMock } from '../../test-utils/unit-test-helpers';
+import {
+  createPrismaMock,
+  createQueueMock,
+} from '../../test-utils/unit-test-helpers';
 
 describe('CvScreeningsService', () => {
   let service: CvScreeningsService;
@@ -24,8 +31,14 @@ describe('CvScreeningsService', () => {
     expect(prisma.cVScreening.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { applicationId: 'app-1' },
-        create: expect.objectContaining({ status: ScreeningStatus.pending, configId: 'cfg-1' }),
-        update: expect.objectContaining({ status: ScreeningStatus.processing, retryCount: { increment: 1 } }),
+        create: expect.objectContaining({
+          status: ScreeningStatus.pending,
+          configId: 'cfg-1',
+        }),
+        update: expect.objectContaining({
+          status: ScreeningStatus.processing,
+          retryCount: { increment: 1 },
+        }),
       }),
     );
     expect(queue.add).toHaveBeenCalledWith('process-cv-screening', {
@@ -39,15 +52,21 @@ describe('CvScreeningsService', () => {
   it('throws when application, CV, or config is missing', async () => {
     prisma.application.findUnique.mockResolvedValue(null);
     prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
-    await expect(service.createScreeningRecord('missing', 'cv-1')).rejects.toThrow('ng');
+    await expect(
+      service.createScreeningRecord('missing', 'cv-1'),
+    ).rejects.toThrow('ng');
 
     prisma.application.findUnique.mockResolvedValue({ applicationId: 'app-1' });
     prisma.cV.findUnique.mockResolvedValue(null);
-    await expect(service.createScreeningRecord('app-1', 'missing')).rejects.toThrow('CV');
+    await expect(
+      service.createScreeningRecord('app-1', 'missing'),
+    ).rejects.toThrow('CV');
 
     prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
     prisma.aiConfig.findUnique.mockResolvedValue(null);
-    await expect(service.createScreeningRecord('app-1', 'cv-1', 'missing')).rejects.toThrow('AI');
+    await expect(
+      service.createScreeningRecord('app-1', 'cv-1', 'missing'),
+    ).rejects.toThrow('AI');
   });
 
   it('returns a redacted candidate screening result only for the owner', async () => {
@@ -61,7 +80,9 @@ describe('CvScreeningsService', () => {
     });
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
 
-    await expect(service.getScreeningResultForCandidate('app-1', 'user-1')).resolves.toEqual(
+    await expect(
+      service.getScreeningResultForCandidate('app-1', 'user-1'),
+    ).resolves.toEqual(
       expect.objectContaining({
         screeningId: 'screen-1',
         matchedSkills: ['nestjs'],
@@ -69,23 +90,43 @@ describe('CvScreeningsService', () => {
     );
 
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'other' });
-    await expect(service.getScreeningResultForCandidate('app-1', 'user-1')).rejects.toThrow('ng');
+    await expect(
+      service.getScreeningResultForCandidate('app-1', 'user-1'),
+    ).rejects.toThrow('ng');
   });
 
   it('aggregates screening stats', async () => {
-    prisma.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1', title: 'Backend', departmentId: 'dep-1' });
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      title: 'Backend',
+      departmentId: 'dep-1',
+    });
     prisma.cVScreening.findMany.mockResolvedValue([
-      { status: ScreeningStatus.completed, overallScore: 80, aiRecommendation: AiRecommendation.hire },
-      { status: ScreeningStatus.failed, overallScore: null, aiRecommendation: null },
-      { status: ScreeningStatus.completed, overallScore: 60, aiRecommendation: AiRecommendation.interview },
+      {
+        status: ScreeningStatus.completed,
+        overallScore: 80,
+        aiRecommendation: AiRecommendation.interview,
+      },
+      {
+        status: ScreeningStatus.failed,
+        overallScore: null,
+        aiRecommendation: null,
+      },
+      {
+        status: ScreeningStatus.completed,
+        overallScore: 60,
+        aiRecommendation: AiRecommendation.interview,
+      },
     ]);
 
-    await expect(service.getScreeningStats('job-1', 'admin-1', UserRole.admin)).resolves.toEqual(
+    await expect(
+      service.getScreeningStats('job-1', 'admin-1', UserRole.admin),
+    ).resolves.toEqual(
       expect.objectContaining({
         total: 3,
         averageScore: 70,
         byStatus: expect.objectContaining({ completed: 2, failed: 1 }),
-        byRecommendation: expect.objectContaining({ hire: 1, interview: 1 }),
+        byRecommendation: expect.objectContaining({ interview: 2 }),
       }),
     );
   });
@@ -98,14 +139,20 @@ describe('CvScreeningsService', () => {
         jobPosting: { departmentId: 'dep-1' },
       },
     });
-    prisma.recruiter.findUnique.mockResolvedValueOnce({ departmentId: 'dep-1' });
+    prisma.recruiter.findUnique.mockResolvedValueOnce({
+      departmentId: 'dep-1',
+    });
 
-    await expect(service.getScreeningResult('app-1', 'rec-1', UserRole.recruiter)).resolves.toEqual(
-      expect.objectContaining({ screeningId: 'screen-1' }),
-    );
+    await expect(
+      service.getScreeningResult('app-1', 'rec-1', UserRole.recruiter),
+    ).resolves.toEqual(expect.objectContaining({ screeningId: 'screen-1' }));
 
-    prisma.recruiter.findUnique.mockResolvedValueOnce({ departmentId: 'dep-2' });
-    await expect(service.getScreeningResult('app-1', 'rec-2', UserRole.recruiter)).rejects.toThrow('quy');
+    prisma.recruiter.findUnique.mockResolvedValueOnce({
+      departmentId: 'dep-2',
+    });
+    await expect(
+      service.getScreeningResult('app-1', 'rec-2', UserRole.recruiter),
+    ).rejects.toThrow('quy');
   });
 
   it('calculates scores and normalizes fractional thresholds', () => {
@@ -117,8 +164,14 @@ describe('CvScreeningsService', () => {
       }),
     ).toBe(79);
 
-    expect(service.determineRecommendation(80, 60)).toBe(AiRecommendation.hire);
-    expect(service.determineRecommendation(60, 0.6)).toBe(AiRecommendation.interview);
-    expect(service.determineRecommendation(59.9, 0.6)).toBe(AiRecommendation.reject);
+    expect(service.determineRecommendation(80, 60)).toBe(
+      AiRecommendation.interview,
+    );
+    expect(service.determineRecommendation(60, 0.6)).toBe(
+      AiRecommendation.interview,
+    );
+    expect(service.determineRecommendation(59.9, 0.6)).toBe(
+      AiRecommendation.reject,
+    );
   });
 });
