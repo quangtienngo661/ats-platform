@@ -1,21 +1,89 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { AiRecommendation, ScreeningStatus, UserRole } from '@ats-platform/database';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  AiConfig,
+  AiRecommendation,
+  Prisma,
+  ScreeningStatus,
+  UserRole,
+} from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ProcessCvScreeningJobData } from './processors/cv-screenings.processor';
+
+const screeningResultIncludeOptions = {
+  aiConfig: {
+    select: {
+      configId: true,
+      name: true,
+      skillsWeight: true,
+      experienceWeight: true,
+      educationWeight: true,
+      minimumScoreThreshold: true,
+    },
+  },
+  application: {
+    select: {
+      applicationId: true,
+      status: true,
+      candidateId: true,
+      jobId: true,
+      jobPosting: {
+        select: { departmentId: true },
+      },
+    },
+  },
+} satisfies Prisma.CVScreeningInclude;
+
+interface ScreeningResultForCandidate {
+  screeningId: string;
+  applicationId: string;
+  status: ScreeningStatus;
+  matchedSkills: Prisma.JsonValue | null;
+  screenedAt: Date | null;
+}
+
+interface ScreeningStatsJobSummary {
+  jobId: string;
+  title: string;
+  departmentId: string;
+}
+
+interface ScreeningStats {
+  job: ScreeningStatsJobSummary;
+  total: number;
+  byStatus: Record<ScreeningStatus, number>;
+  byRecommendation: Record<AiRecommendation, number>;
+  averageScore: number | null;
+}
 
 @Injectable()
 export class CvScreeningsService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('cv-screening') private readonly screeningQueue: Queue
-  ) { }
+    @InjectQueue('cv-screening')
+    private readonly screeningQueue: Queue<
+      ProcessCvScreeningJobData,
+      void,
+      string
+    >,
+  ) {}
 
-  private async assertCanAccessJob(userId: string, role: UserRole, departmentId: string) {
+  private async assertCanAccessJob(
+    userId: string,
+    role: UserRole,
+    departmentId: string,
+  ) {
     if (role === UserRole.admin) return;
     if (role !== UserRole.recruiter) {
-      throw new ForbiddenException('Bạn không có quyền truy cập dữ liệu sàng lọc này');
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập dữ liệu sàng lọc này',
+      );
     }
 
     const recruiter = await this.prisma.recruiter.findUnique({
@@ -24,21 +92,34 @@ export class CvScreeningsService {
     });
 
     if (!recruiter || recruiter.departmentId !== departmentId) {
-      throw new ForbiddenException('Bạn không có quyền truy cập dữ liệu sàng lọc của khoa này');
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập dữ liệu sàng lọc của khoa này',
+      );
     }
   }
 
-  async createScreeningRecord(applicationId: string, cvId: string, configId?: string): Promise<any> {
+  async createScreeningRecord(
+    applicationId: string,
+    cvId: string,
+    configId?: string,
+  ): Promise<
+    Prisma.CVScreeningGetPayload<{
+      include: typeof cvScreeningIncludeOptions;
+      omit: { cvId: true; applicationId: true };
+    }>
+  > {
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
     });
 
     const cv = await this.prisma.cV.findUnique({
-      where: { cvId }
-    })
+      where: { cvId },
+    });
 
     if (!application) {
-      throw new NotFoundException(`Không tìm thấy đơn ứng tuyển '${applicationId}'`);
+      throw new NotFoundException(
+        `Không tìm thấy đơn ứng tuyển '${applicationId}'`,
+      );
     }
 
     if (!cv) {
@@ -70,7 +151,7 @@ export class CvScreeningsService {
       include: {
         ...cvScreeningIncludeOptions,
       },
-      omit: { cvId: true, applicationId: true }
+      omit: { cvId: true, applicationId: true },
     });
 
     await this.screeningQueue.add('process-cv-screening', {
@@ -82,43 +163,38 @@ export class CvScreeningsService {
 
     return screening;
   }
-  async getScreeningResult(applicationId: string, userId: string, role: UserRole): Promise<any> {
+  async getScreeningResult(
+    applicationId: string,
+    userId: string,
+    role: UserRole,
+  ): Promise<
+    Prisma.CVScreeningGetPayload<{
+      include: typeof screeningResultIncludeOptions;
+    }>
+  > {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
-      include: {
-        aiConfig: {
-          select: {
-            configId: true,
-            name: true,
-            skillsWeight: true,
-            experienceWeight: true,
-            educationWeight: true,
-            minimumScoreThreshold: true,
-          },
-        },
-        application: {
-          select: {
-            applicationId: true,
-            status: true,
-            candidateId: true,
-            jobId: true,
-            jobPosting: {
-              select: { departmentId: true },
-            },
-          },
-        },
-      },
+      include: screeningResultIncludeOptions,
     });
 
     if (!screening) {
-      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
+      throw new NotFoundException(
+        `Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`,
+      );
     }
 
-    await this.assertCanAccessJob(userId, role, screening.application.jobPosting.departmentId);
+    await this.assertCanAccessJob(
+      userId,
+      role,
+      screening.application.jobPosting.departmentId,
+    );
 
     return screening;
   }
-  async getScreeningResultForCandidate(applicationId: string, userId: string): Promise<any> {
+  async getScreeningResultForCandidate(
+    applicationId: string,
+    userId: string,
+  ): Promise<ScreeningResultForCandidate> {
     const screening = await this.prisma.cVScreening.findUnique({
       where: { applicationId },
       include: {
@@ -138,11 +214,15 @@ export class CvScreeningsService {
     }
 
     if (!screening) {
-      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
+      throw new NotFoundException(
+        `Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`,
+      );
     }
 
     if (screening.application.candidateId !== candidate.candidateId) {
-      throw new NotFoundException(`Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`);
+      throw new NotFoundException(
+        `Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`,
+      );
     }
 
     return {
@@ -153,12 +233,17 @@ export class CvScreeningsService {
       screenedAt: screening.screenedAt,
     };
   }
-  async getScreeningStats(jobId: string, userId: string, role: UserRole): Promise<any> {
+  async getScreeningStats(
+    jobId: string,
+    userId: string,
+    role: UserRole,
+  ): Promise<ScreeningStats> {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
       select: { jobId: true, title: true, departmentId: true },
     });
-    if (!job) throw new NotFoundException(`Không tìm thấy tin tuyển dụng '${jobId}'`);
+    if (!job)
+      throw new NotFoundException(`Không tìm thấy tin tuyển dụng '${jobId}'`);
 
     await this.assertCanAccessJob(userId, role, job.departmentId);
 
@@ -180,7 +265,6 @@ export class CvScreeningsService {
       [ScreeningStatus.failed]: 0,
     };
     const byRecommendation = {
-      [AiRecommendation.hire]: 0,
       [AiRecommendation.interview]: 0,
       [AiRecommendation.reject]: 0,
     };
@@ -204,28 +288,34 @@ export class CvScreeningsService {
       total,
       byStatus,
       byRecommendation,
-      averageScore: scoreCount > 0 ? Math.round((scoreSum / scoreCount) * 100) / 100 : null,
+      averageScore:
+        scoreCount > 0 ? Math.round((scoreSum / scoreCount) * 100) / 100 : null,
     };
   }
   calculateOverallScore(
     skillsScore: number,
     experienceScore: number,
     educationScore: number,
-    config: { skillsWeight: any; experienceWeight: any; educationWeight: any },
+    config: {
+      skillsWeight: number;
+      experienceWeight: number;
+      educationWeight: number;
+    },
   ): number {
     const wSkills = Number(config.skillsWeight);
     const wExp = Number(config.experienceWeight);
     const wEdu = Number(config.educationWeight);
 
-    const raw = skillsScore * wSkills + experienceScore * wExp + educationScore * wEdu;
+    const raw =
+      skillsScore * wSkills + experienceScore * wExp + educationScore * wEdu;
     return Math.round(raw * 100) / 100;
   }
-  determineRecommendation(overallScore: number, threshold: number): AiRecommendation {
+  determineRecommendation(
+    overallScore: number,
+    threshold: number,
+  ): AiRecommendation {
     const normalizedThreshold = this.normalizeMinimumScoreThreshold(threshold);
 
-    if (overallScore >= normalizedThreshold + 20) {
-      return AiRecommendation.hire;
-    }
     if (overallScore >= normalizedThreshold) {
       return AiRecommendation.interview;
     }
@@ -238,16 +328,20 @@ export class CvScreeningsService {
     if (value > 0 && value < 1) return value * 100;
     return value;
   }
-  async getActiveConfig(configId?: string): Promise<any> {
+  async getActiveConfig(configId?: string): Promise<AiConfig> {
     if (configId) {
-      const config = await this.prisma.aiConfig.findUnique({ where: { configId } });
+      const config = await this.prisma.aiConfig.findUnique({
+        where: { configId },
+      });
       if (!config) {
         throw new NotFoundException(`Không tìm thấy cấu hình AI '${configId}'`);
       }
       return config;
     }
 
-    const defaultConfig = await this.prisma.aiConfig.findFirst({ where: { isDefault: true } });
+    const defaultConfig = await this.prisma.aiConfig.findFirst({
+      where: { isDefault: true },
+    });
     if (!defaultConfig) {
       throw new NotFoundException(
         'Không tìm thấy cấu hình AI mặc định. Vui lòng thiết lập cấu hình AI trước',

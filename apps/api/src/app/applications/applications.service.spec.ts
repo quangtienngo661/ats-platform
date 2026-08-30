@@ -35,7 +35,10 @@ describe('ApplicationsService', () => {
   it('applies to an active job with a confirmed parsed CV and creates history', async () => {
     const tx = createPrismaTransactionMock();
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
-    prisma.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1', status: JobStatus.active });
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      status: JobStatus.active,
+    });
     prisma.cV.findUnique.mockResolvedValue({
       cvId: 'cv-1',
       candidateId: 'cand-1',
@@ -43,10 +46,15 @@ describe('ApplicationsService', () => {
       parsedData: { isConfirmed: true },
     });
     prisma.application.findMany.mockResolvedValue([]);
-    tx.application.create.mockResolvedValue({ applicationId: 'app-1', jobId: 'job-1' });
+    tx.application.create.mockResolvedValue({
+      applicationId: 'app-1',
+      jobId: 'job-1',
+    });
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
-    await expect(service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' })).resolves.toEqual({
+    await expect(
+      service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' }),
+    ).resolves.toEqual({
       applicationId: 'app-1',
       jobId: 'job-1',
     });
@@ -58,14 +66,20 @@ describe('ApplicationsService', () => {
     );
     expect(tx.applicationHistory.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ toStatus: ApplicationStatus.applied, changedBy: 'user-1' }),
+        data: expect.objectContaining({
+          toStatus: ApplicationStatus.applied,
+          changedBy: 'user-1',
+        }),
       }),
     );
   });
 
   it('rejects duplicate active applications and unconfirmed CVs', async () => {
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
-    prisma.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1', status: JobStatus.active });
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      status: JobStatus.active,
+    });
     prisma.cV.findUnique.mockResolvedValue({
       cvId: 'cv-1',
       candidateId: 'cand-1',
@@ -73,7 +87,9 @@ describe('ApplicationsService', () => {
       parsedData: { isConfirmed: false },
     });
 
-    await expect(service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' })).rejects.toThrow('x');
+    await expect(
+      service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' }),
+    ).rejects.toThrow('x');
 
     prisma.cV.findUnique.mockResolvedValue({
       cvId: 'cv-1',
@@ -81,9 +97,13 @@ describe('ApplicationsService', () => {
       parsingStatus: ParsingStatus.completed,
       parsedData: { isConfirmed: true },
     });
-    prisma.application.findMany.mockResolvedValue([{ status: ApplicationStatus.applied }]);
+    prisma.application.findMany.mockResolvedValue([
+      { status: ApplicationStatus.applied },
+    ]);
 
-    await expect(service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' })).rejects.toThrow('r');
+    await expect(
+      service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' }),
+    ).rejects.toThrow('r');
   });
 
   it('withdraws only the owner application in applied status', async () => {
@@ -94,7 +114,10 @@ describe('ApplicationsService', () => {
       candidateId: 'cand-1',
       status: ApplicationStatus.applied,
     });
-    tx.application.update.mockResolvedValue({ applicationId: 'app-1', jobId: 'job-1' });
+    tx.application.update.mockResolvedValue({
+      applicationId: 'app-1',
+      jobId: 'job-1',
+    });
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
     await expect(service.withdraw('app-1', 'user-1')).resolves.toEqual({
@@ -119,7 +142,9 @@ describe('ApplicationsService', () => {
 
     expect(prisma.application.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ jobPosting: { departmentId: 'dep-1' } }),
+        where: expect.objectContaining({
+          jobPosting: { departmentId: 'dep-1' },
+        }),
       }),
     );
     expect(board.applied).toHaveLength(1);
@@ -134,7 +159,10 @@ describe('ApplicationsService', () => {
         candidate: { userId: 'cand-user' },
         jobPosting: { departmentId: 'dep-1' },
       })
-      .mockResolvedValueOnce({ applicationId: 'app-1', status: ApplicationStatus.screening });
+      .mockResolvedValueOnce({
+        applicationId: 'app-1',
+        status: ApplicationStatus.screening,
+      });
     tx.application.update.mockResolvedValue({
       applicationId: 'app-1',
       status: ApplicationStatus.interview,
@@ -142,7 +170,9 @@ describe('ApplicationsService', () => {
     });
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
-    await service.updateStatus('app-1', 'admin-1', UserRole.admin, { status: ApplicationStatus.interview });
+    await service.updateStatus('app-1', 'admin-1', UserRole.admin, {
+      status: ApplicationStatus.interview,
+    });
 
     expect(notificationsService.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -157,11 +187,82 @@ describe('ApplicationsService', () => {
         candidate: { userId: 'cand-user' },
         jobPosting: { departmentId: 'dep-1' },
       })
-      .mockResolvedValueOnce({ applicationId: 'app-2', status: ApplicationStatus.applied });
+      .mockResolvedValueOnce({
+        applicationId: 'app-2',
+        status: ApplicationStatus.applied,
+      });
 
     await expect(
-      service.updateStatus('app-2', 'admin-1', UserRole.admin, { status: ApplicationStatus.offer }),
+      service.updateStatus('app-2', 'admin-1', UserRole.admin, {
+        status: ApplicationStatus.offer,
+      }),
     ).rejects.toThrow('tr');
+  });
+
+  it('refuses a revert to a status the application never held', async () => {
+    prisma.application.findUnique
+      .mockResolvedValueOnce({
+        applicationId: 'app-5',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      })
+      .mockResolvedValueOnce({
+        applicationId: 'app-5',
+        status: ApplicationStatus.applied,
+      });
+    prisma.applicationHistory.findMany.mockResolvedValue([]);
+
+    // `isReverted` used to be a skeleton key: it skipped VALID_TRANSITIONS entirely,
+    // so applied → hired in a single call was accepted.
+    await expect(
+      service.updateStatus('app-5', 'admin-1', UserRole.admin, {
+        status: ApplicationStatus.hired,
+        isReverted: true,
+      } as any),
+    ).rejects.toThrow('chưa từng ở trạng thái này');
+  });
+
+  it('allows a genuine revert and still notifies the candidate', async () => {
+    const tx = createPrismaTransactionMock();
+    prisma.application.findUnique
+      .mockResolvedValueOnce({
+        applicationId: 'app-6',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      })
+      .mockResolvedValueOnce({
+        applicationId: 'app-6',
+        status: ApplicationStatus.interview,
+      });
+    // The application went applied → screening → interview, so `screening` is a
+    // status it genuinely held and may be reverted to.
+    prisma.applicationHistory.findMany.mockResolvedValue([
+      { fromStatus: ApplicationStatus.applied },
+      { fromStatus: ApplicationStatus.screening },
+    ]);
+    tx.application.update.mockResolvedValue({
+      applicationId: 'app-6',
+      status: ApplicationStatus.rejected,
+      candidate: { user: { userId: 'cand-user' } },
+    });
+    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+    await service.updateStatus('app-6', 'admin-1', UserRole.admin, {
+      status: ApplicationStatus.screening,
+      isReverted: true,
+    } as any);
+
+    expect(tx.applicationHistory.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          fromStatus: ApplicationStatus.interview,
+          toStatus: ApplicationStatus.screening,
+        }),
+      }),
+    );
+    // The old revert branch returned from inside the transaction and never reached
+    // notifyCandidateStatusChangeSafe — the candidate got no signal at all.
+    expect(notificationsService.create).toHaveBeenCalled();
   });
 
   it('triggers screening only for eligible states and configs', async () => {
@@ -178,13 +279,19 @@ describe('ApplicationsService', () => {
         screening: null,
       });
     prisma.aiConfig.findUnique.mockResolvedValue({ configId: 'cfg-1' });
-    cvScreeningsService.createScreeningRecord.mockResolvedValue({ screeningId: 'screen-1' });
+    cvScreeningsService.createScreeningRecord.mockResolvedValue({
+      screeningId: 'screen-1',
+    });
 
     await expect(
       service.triggerScreening('app-1', 'admin-1', UserRole.admin, 'cfg-1'),
     ).resolves.toEqual({ screeningId: 'screen-1' });
 
-    expect(cvScreeningsService.createScreeningRecord).toHaveBeenCalledWith('app-1', 'cv-1', 'cfg-1');
+    expect(cvScreeningsService.createScreeningRecord).toHaveBeenCalledWith(
+      'app-1',
+      'cv-1',
+      'cfg-1',
+    );
 
     prisma.application.findUnique
       .mockResolvedValueOnce({
@@ -196,9 +303,65 @@ describe('ApplicationsService', () => {
         applicationId: 'app-2',
         status: ApplicationStatus.screening,
         cvId: 'cv-1',
-        screening: { screeningId: 'screen-1', status: ScreeningStatus.processing },
+        screening: {
+          screeningId: 'screen-1',
+          status: ScreeningStatus.processing,
+        },
       });
 
-    await expect(service.triggerScreening('app-2', 'admin-1', UserRole.admin)).rejects.toThrow('x');
+    await expect(
+      service.triggerScreening('app-2', 'admin-1', UserRole.admin),
+    ).rejects.toThrow('x');
+  });
+
+  it('caps manual re-triggers of a failed screening at the retry limit', async () => {
+    prisma.application.findUnique
+      .mockResolvedValueOnce({
+        applicationId: 'app-3',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      })
+      .mockResolvedValueOnce({
+        applicationId: 'app-3',
+        status: ApplicationStatus.screening,
+        cvId: 'cv-1',
+        screening: {
+          screeningId: 'screen-3',
+          status: ScreeningStatus.failed,
+          retryCount: 3,
+        },
+      });
+
+    await expect(
+      service.triggerScreening('app-3', 'admin-1', UserRole.admin),
+    ).rejects.toThrow('thất bại');
+    expect(cvScreeningsService.createScreeningRecord).not.toHaveBeenCalled();
+  });
+
+  it('still allows re-triggering a failed screening below the retry limit', async () => {
+    prisma.application.findUnique
+      .mockResolvedValueOnce({
+        applicationId: 'app-4',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      })
+      .mockResolvedValueOnce({
+        applicationId: 'app-4',
+        status: ApplicationStatus.screening,
+        cvId: 'cv-1',
+        screening: {
+          screeningId: 'screen-4',
+          status: ScreeningStatus.failed,
+          retryCount: 1,
+        },
+      });
+    prisma.aiConfig.findFirst.mockResolvedValue({ configId: 'cfg-default' });
+    cvScreeningsService.createScreeningRecord.mockResolvedValue({
+      screeningId: 'screen-4',
+    });
+
+    await expect(
+      service.triggerScreening('app-4', 'admin-1', UserRole.admin),
+    ).resolves.toEqual({ screeningId: 'screen-4' });
   });
 });

@@ -46,7 +46,7 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
 
     const socket = useSocketStore();
 
-    const activeSession = history.find(s => s.status === 'in_progress');
+    const activeSession = history.find(s => s.status === 'in_progress' || s.status === 'generating');
     const canStart = selectedTopic && selectedDifficulty && !isStarting && !isAbandoning;
 
     const createNewSession = async () => {

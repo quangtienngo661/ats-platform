@@ -136,7 +136,7 @@ graph TD
 ## ✨ Core Features
 
 - 🤖 **Automated CV Parsing Engine**: Processes PDF resumes and transforms unstructured data into standardized JSON containing skills, detailed experience, education, and projects.
-- 📈 **Intelligent CV Screening Pipeline**: Matches candidate profiles against job requirements. Recruiters can customize scoring weights (e.g., boosting Experience weight for senior positions). The AI computes a weighted overall score and classifies candidates with clear recommendations (`Hire`, `Interview`, `Reject`).
+- 📈 **Intelligent CV Screening Pipeline**: Matches candidate profiles against job requirements. Recruiters can customize scoring weights (e.g., boosting Experience weight for senior positions). The AI computes a weighted overall score and classifies candidates with a recommendation (`Interview` or `Reject`) — screening only ever gates entry into the interview round, it never recommends hiring directly; the actual hire decision always happens later, manually, through the normal Kanban pipeline.
 - 💬 **Real-time AI Mock Interview Chatbot**: Candidates participate in a live interview with an AI agent through a chat interface. The AI dynamically generates questions, asks follow-ups based on actual answers, and scores each response independently upon completion.
 - 📋 **Visual Kanban Board**: Supports drag-and-drop to transition application stages (Kanban Stage Transition FSM), automatically triggering in-app notifications via Socket.IO to candidates when their application status changes.
 - 🔔 **Real-time Notification System**: Deeply integrated Socket.IO notifications that instantly alert recruiters when new applications are submitted or when the AI finishes scoring an interview.
@@ -180,14 +180,16 @@ While the candidate is answering question `N`:
 
 To protect the system from thread-blocking failures caused by AI service rate limits (HTTP 429) and to optimize server resources, all time-consuming tasks are managed through **BullMQ** backed by **Redis**.
 
-The system establishes 4 specialized business queues with global rate limiting and exponential backoff retry configurations:
+The system establishes 6 specialized business queues, all inheriting a global default of **3 attempts with exponential backoff** from `app.module.ts` (per-queue overrides only where noted):
 
 | Queue Name | Business Function | Load & Rate Limit Config | Retry Policy |
 | :--- | :--- | :--- | :--- |
 | **`send-verification-email`** | Sends account activation emails and OTP verification codes for registration and password changes. | Global limit of **30 emails/min** to avoid SMTP spam flagging. | Up to **3 retries** (per-job override) with exponential backoff (base delay 2s). |
-| **`cv-processing`** | Extracts and parses structured data from uploaded candidate CV PDF files. | Limited to **15 jobs/min** to share the Gemini Flash model's API quota. | Default 1 attempt (global default). Completed jobs auto-cleaned from Redis memory (`removeOnComplete`). |
-| **`cv-screening`** | Automatically screens CV data fields against detailed JD requirements. | Limited to **15 jobs/min**. Computes weighted scores and updates application status. | Default 1 attempt. Exponential backoff with a **10-second** base delay (global config). |
+| **`cv-processing`** | Extracts and parses structured data from uploaded candidate CV PDF files. | Limited to **15 jobs/min** to share the Gemini Flash model's API quota. | 3 attempts (global default). Completed jobs auto-cleaned from Redis memory (`removeOnComplete`). |
+| **`cv-screening`** | Automatically screens CV data fields against detailed JD requirements. | Limited to **15 jobs/min**. Computes weighted scores and updates application status. | 3 attempts, exponential backoff (global default). |
+| **`interview-generation`** | Batch-generates all 10 mock-interview questions in a single Gemini call, off the HTTP thread. | Runs once per session start. | 3 attempts (global default); on final failure the session is marked `abandon`. |
 | **`interview-evaluation`** | Independently scores each main and follow-up interview question in the background. | Processes up to **3 concurrent jobs** (`concurrency: 3`) for fast response times. | Results are synced directly with the Socket session to update chatbot state in real time. |
+| **`interview-maintenance`** | Periodic sweep that marks stale `in_progress` mock-interview sessions as `abandon` (added Phase 0.5, 2026-07-14). | Repeats every 5 minutes (`upsertJobScheduler`). | N/A — maintenance sweep, not a retryable business job. |
 
 ---
 

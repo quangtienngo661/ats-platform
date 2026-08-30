@@ -33,6 +33,7 @@ export function SessionCard({ session }: SessionCardProps) {
 
     const isAbandoned = session.status === 'abandon';
     const isPending = session.status === 'pending_result';
+    const isGenerating = session.status === 'generating';
     const CardWrapper = isAbandoned ? 'div' : Link;
     const href = isAbandoned
         ? undefined
@@ -52,6 +53,10 @@ export function SessionCard({ session }: SessionCardProps) {
                 {session.status === 'in_progress' ? (
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#EBF3FD]">
                         <Clock className="w-5 h-5 text-[#0071E3]" />
+                    </div>
+                ) : isGenerating ? (
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#EBF3FD]">
+                        <LoaderCircle className="w-5 h-5 text-[#0071E3] animate-spin" />
                     </div>
                 ) : isPending ? (
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#EBF3FD]">
@@ -101,6 +106,11 @@ export function SessionCard({ session }: SessionCardProps) {
                     {session.status === 'in_progress' && (
                         <span className="text-[10px]" style={{ color: '#0071E3', fontWeight: 500 }}>
                             Đang diễn ra...
+                        </span>
+                    )}
+                    {isGenerating && (
+                        <span className="text-[10px]" style={{ color: '#0071E3', fontWeight: 500 }}>
+                            Đang tạo câu hỏi...
                         </span>
                     )}
                     {isPending && (

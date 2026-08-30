@@ -77,7 +77,6 @@ enum ScreeningStatus {
 }
 
 enum AiRecommendation {
-  hire
   interview
   reject
 
@@ -101,6 +100,7 @@ enum AiLogStatus {
 }
 
 enum InterviewStatus {
+  generating
   in_progress
   completed
   abandon
@@ -290,6 +290,7 @@ model JobPosting {
   description        String?
   parsedRequirements Json?        @map("parsed_requirements")
   status             JobStatus    @default(draft)
+  createdAt          DateTime     @default(now()) @map("created_at")
   publishedAt        DateTime?    @map("published_at")
 
   department       Department        @relation(fields: [departmentId], references: [departmentId])

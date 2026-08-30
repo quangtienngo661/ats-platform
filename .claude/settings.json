@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Program Files\\Git\\bin\\bash.exe",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/confirm-destructive-ops.sh"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

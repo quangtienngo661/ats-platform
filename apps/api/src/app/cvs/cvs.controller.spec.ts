@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import { existsSync } from 'fs';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CVsController } from './cvs.controller';
-import { createPrismaMock, mockRequest, mockResponse } from '../../test-utils/unit-test-helpers';
+import { mockRequest, mockResponse } from '../../test-utils/unit-test-helpers';
 
 jest.mock('fs/promises', () => ({
   unlink: jest.fn(),
@@ -14,7 +14,6 @@ jest.mock('fs', () => ({
 
 describe('CVsController', () => {
   let service: any;
-  let prisma: ReturnType<typeof createPrismaMock>;
   let controller: CVsController;
 
   beforeEach(() => {
@@ -26,15 +25,15 @@ describe('CVsController', () => {
       downloadCV: jest.fn(),
       confirmCV: jest.fn(),
       deleteCV: jest.fn(),
+      resolveCandidateIdByUserId: jest.fn(),
     };
-    prisma = createPrismaMock();
-    controller = new CVsController(service, prisma as any);
+    controller = new CVsController(service);
     (fs.unlink as jest.Mock).mockResolvedValue(undefined);
     (existsSync as jest.Mock).mockReturnValue(true);
   });
 
   it('resolves candidate id for self-service CV endpoints', async () => {
-    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    service.resolveCandidateIdByUserId.mockResolvedValue('cand-1');
     const req = mockRequest({ userId: 'user-1' });
 
     await controller.getMyCVs(req);
@@ -47,7 +46,7 @@ describe('CVsController', () => {
   });
 
   it('uploads with resolved candidate id and cleans up on failure', async () => {
-    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    service.resolveCandidateIdByUserId.mockResolvedValue('cand-1');
     service.uploadCV.mockRejectedValue(new Error('parse failed'));
 
     await expect(
@@ -62,7 +61,7 @@ describe('CVsController', () => {
   });
 
   it('throws when current user has no candidate profile', async () => {
-    prisma.candidate.findUnique.mockResolvedValue(null);
+    service.resolveCandidateIdByUserId.mockRejectedValue(new NotFoundException('Không tìm thấy hồ sơ ứng viên'));
 
     await expect(controller.getMyCVs(mockRequest({ userId: 'user-1' }))).rejects.toBeInstanceOf(NotFoundException);
   });
