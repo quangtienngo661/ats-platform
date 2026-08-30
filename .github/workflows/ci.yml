@@ -72,6 +72,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
  
+    # next build requires NODE_ENV=production; the job-level NODE_ENV=test
+    # (needed by jest) otherwise makes React crash while prerendering the
+    # synthetic error pages (/_not-found, /_global-error).
     - name: Build affected projects
       run: npx nx affected -t build
+      env:
+        NODE_ENV: production
       
