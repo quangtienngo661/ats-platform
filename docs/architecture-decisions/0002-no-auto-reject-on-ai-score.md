@@ -10,7 +10,7 @@ Accepted
 
 ## Bối cảnh (Context)
 
-`AiConfig.minimumScoreThreshold` và `CVScreening.aiRecommendation` (`hire` / `interview` / `reject`) tồn tại trong schema từ đầu, nhưng **không có code nào đọc chúng để thay đổi `Application.status`**. Audit ngày 2026-07-12 (`docs/audit/2026-07-12-cv-ai-pipeline.md`, mục "Business logic gaps" #3) ghi nhận điều này như một lỗ hổng: điểm được tính, nhãn được gán, rồi không ai làm gì với nó. `determineRecommendation()` chỉ sinh ra một chuỗi để recruiter tự nhìn.
+`AiConfig.minimumScoreThreshold` và `CVScreening.aiRecommendation` (khi ADR này được viết: `hire` / `interview` / `reject`; từ 2026-07-16 chỉ còn `interview` / `reject` — xem `docs/architecture/database.md` §4.7, quyết định *này* không đổi vì lý do refactor đó không liên quan tới auto-reject) tồn tại trong schema từ đầu, nhưng **không có code nào đọc chúng để thay đổi `Application.status`**. Audit ngày 2026-07-12 (`docs/audit/2026-07-12-cv-ai-pipeline.md`, mục "Business logic gaps" #3) ghi nhận điều này như một lỗ hổng: điểm được tính, nhãn được gán, rồi không ai làm gì với nó. `determineRecommendation()` chỉ sinh ra một chuỗi để recruiter tự nhìn.
 
 Câu hỏi đặt ra khi lập kế hoạch Phase 0.5: có nên "hoàn thiện" luồng này bằng cách tự động chuyển `Application.status` sang `rejected` khi `overallScore < minimumScoreThreshold` không?
 

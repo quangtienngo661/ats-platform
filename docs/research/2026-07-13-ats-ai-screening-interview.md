@@ -1,5 +1,20 @@
 # Research Brief: AI-Assisted Screening & Interviewing in Production ATS Platforms — vs. ats-platform (student capstone)
 
+> ## TÓM TẮT (đọc cái này trước — bản chi tiết + nguồn ở bên dưới)
+>
+> **Câu hỏi:** Các ATS thật (Greenhouse, Ashby, HireVue…) làm AI chấm/lọc CV và phỏng vấn thế nào, luật (NYC LL144, EU AI Act, GDPR) ràng buộc gì — so với schema repo này?
+>
+> **Làm mấy cái rẻ mà hội đồng chắc chắn sẽ hỏi:**
+> 1. **Ngừng "nuốt lỗi" trong processor chấm CV**, để cơ chế thử-lại của BullMQ chạy thật. Đây là lỗi nặng nhất trong chính audit của bạn (`retryCount` ghi vào DB mà không đọc, lỗi bị nuốt nên không bao giờ retry). Sửa vài dòng.
+> 2. **Ngưỡng điểm tối thiểu** (`minimumScoreThreshold` có mà không dùng): **đừng auto-reject**. Câu trả lời an toàn pháp lý là "AI xếp hạng, con người bấm nút loại — auto-reject là cố ý không làm" (đúng lo ngại của ngành: GDPR Art.22, vụ Mobley v. Workday). Chỉ cần đưa điểm/gợi ý AI lên UI cho recruiter sắp xếp là đủ.
+> 3. **Thêm bản ghi con-người-đã-duyệt vào `CVScreening`** (`reviewedBy`, `reviewedAt`, `humanDecision`). Một migration. Đây là thứ tách "có điểm AI" khỏi "có hệ thống human-in-the-loop bảo vệ được".
+> 4. **Timeout/reaper cho `InterviewSession`**, dùng status `abandon` (đang là code chết). — *Cập nhật 2026-07-16: mục này đã xong ở commit `5ad5b40` (quét session `in_progress` treo bằng timer).*
+> 5. **Ghi model/prompt version ngay trên dòng điểm** (`CVScreening`), để sau đổi trọng số `AiConfig` không diễn giải lại điểm cũ.
+>
+> **Nếu còn thời gian:** (6) một entity scorecard tối thiểu cho phỏng vấn — đây là gap cấu trúc lớn nhất tìm thấy; (7) FK `matchedSkills`/`missingSkills` về bảng `Skill` thật thay vì Json free-text.
+>
+> **Bỏ được — nêu rõ là cố ý, đừng xin lỗi:** taxonomy embedding đầy đủ (việc NLP lớn, để Phase 2 RAG); tích hợp calendar thật; audit bias LL144/EU AI Act (cần dữ liệu ứng viên thật + kiểm toán bên thứ ba, ngoài phạm vi đồ án). Với các mục này, ghi "đã nhận diện, cố ý ngoài phạm vi, và đây là lý do".
+
 **Date:** 2026-07-13
 **Scope:** How Greenhouse, Ashby, SmartRecruiters, HireVue, Karat, Metaview, Micro1, Paradox/Olivia, LinkedIn Recruiter, Workday/HiredScore, and the resume-parsing vendor space (Affinda, Sovren/Textkernel, HireAbility, Daxtra) structure AI screening/matching, interview data models, scheduling, and the compliance guardrails (NYC LL144, EU AI Act, GDPR Art. 22, EEOC) that constrain them — compared against this repo's actual schema.
 

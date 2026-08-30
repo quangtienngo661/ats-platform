@@ -69,9 +69,10 @@
 
 ### Critical
 
-**C1. ~~BullMQ `attempts: 1` — retry never fires~~** ✅ Fixed 2026-07
+**C1. ~~BullMQ `attempts: 1` — retry never fires~~** ✅ Fixed 2026-07-14 (this file's original "Fixed 2026-07" note was wrong — see below)
 
 - ~~`backoff: { type: 'exponential', delay: 10000 }` is configured but useless with a single attempt~~ — raised to `attempts: 3` globally in `app.module.ts`; processor catch blocks now rethrow on non-final attempts so BullMQ actually retries.
+- **Correction (2026-07-16):** this item was marked "Fixed" here before it actually worked at runtime. `registerQueue()`'s `defaultJobOptions` in 3 modules silently overwrote the global `attempts: 3`, so `cv-processing`/`cv-screening` ran with 1 attempt and no retry until the real fix landed 2026-07-14 (Phase 0.5). See `docs/migration-roadmap.md` Phase 0's own retrospective and `.claude/rules/apis/anti-patterns.md`'s "registerQueue trap" section — that Status Tracker table is the authoritative current status, not this line.
 
 **C2. ~~No API-layer rate limiting~~** ✅ Fixed 2026-07
 

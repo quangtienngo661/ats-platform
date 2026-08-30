@@ -1,6 +1,6 @@
 # Hạ tầng (Infrastructure)
 
-> Snapshot: 2026-07-11. Nguồn: `docker-compose.yml`, `docker-compose-dev.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `nginx/`, và quan sát trực tiếp instance chạy local trong phiên làm việc này.
+> Snapshot: 2026-07-16. Nguồn: `docker-compose.yml`, `docker-compose-dev.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `nginx/`, `apps/api/src/app/health/`, và quan sát trực tiếp instance chạy local trong phiên làm việc này. (§1-§7 re-verify 2026-07-16: không có commit nào chạm `docker-compose*.yml`/`Dockerfile`/`nginx/` kể từ 2026-07-11 — nội dung các mục đó giữ nguyên, chỉ thêm §8 health check endpoint là mới.)
 
 ## 1. Hai topology riêng biệt
 
@@ -57,10 +57,19 @@ Container `api` cần: `DATABASE_URL`, `REDIS_HOST`, `REDIS_PORT`, `SERVER_PORT`
 
 **Lưu ý đã biết**: `GOOGLE_API_KEY` trong `.env` môi trường dev từng hết credit thật (`RESOURCE_EXHAUSTED`) trong lúc test — không phải lỗi cấu hình, cần theo dõi billing nếu deploy lại.
 
-## 8. Liên quan tới kế hoạch migrate
+## 8. Health check endpoint (thêm 2026-07-14, Phase 0.5)
+
+`GET /health` (`apps/api/src/app/health/health.controller.ts`, `health.service.ts`) ping thật PostgreSQL (`prisma.$queryRaw` `SELECT 1`) và Redis (`redis.ping()`) song song, trả `{ status, uptimeSeconds, dependencies: { database, redis } }`. Trả **200** nếu cả hai `up`, **503** nếu bất kỳ cái nào `down` — đúng kiểu health check đọc được qua status code, không cần orchestrator parse body.
+
+**Chưa gắn vào Docker healthcheck của container `api`**: `docker-compose.yml`/`docker-compose-dev.yml` chỉ có `healthcheck:` cho `postgres`/`redis` (§2) — service `api` chưa có mục `healthcheck:` trỏ vào endpoint này, nên `depends_on: condition: service_healthy` hiện không áp dụng cho chính `api`. Endpoint tồn tại và verify PASS thủ công, nhưng chưa được dùng để tự động gate traffic ở tầng orchestrator.
+
+**Lỗi thật, chưa sửa** (`docs/audit/2026-07-14-phase-0.5-verification.md`, mục Nhóm 4): khi Redis bị đóng băng (mô phỏng bằng `docker pause`, khác với tắt hẳn — kết nối vẫn "còn" nhưng không phản hồi) thay vì trả 503, health check **treo luôn, không bao giờ trả về** — vì `redis.ping()` trong `checkRedis()` không có timeout. Đường "mọi thứ bình thường" (200, cả hai `up`) đã verify PASS trên instance thật. Khuyến nghị đã ghi trong audit: bọc `Promise.race` với timeout ~2-3s quanh `redis.ping()`, chưa làm ở đợt Phase 0.5 này (đúng quy tắc verify: chỉ báo cáo, không tự vá).
+
+## 9. Liên quan tới kế hoạch migrate
 
 - Phase 4 (Microservices): mỗi service tách ra sẽ cần Dockerfile + entry riêng trong `docker-compose.yml` — hiện tại `api` là 1 container duy nhất chạy toàn bộ 15 module, cấu trúc compose file sẽ phải mở rộng đáng kể (9 service thay vì 1).
 - Phase 4 Step 1 (NATS): cần thêm 1 service NATS vào `docker-compose.yml`, cùng network `gateway_net`.
 - Phase 3 (LiveKit): tương tự, thêm 1 service LiveKit + `livekit.yaml` config.
 - §3 (storage cục bộ) là rào cản cụ thể cần giải quyết trước khi tách `cv-service` thật sự chạy độc lập nhiều instance.
-- Phase 5 (Production Hardening): CI/CD tự động, Redis AOF, backup Postgres — tất cả đang là khoảng trống thật ở hạ tầng hiện tại, không chỉ là "chưa làm" trên giấy.
+- §8 (health check): mẫu hình `GET /health` hiện tại (ping thật dependency, trả 503 khi hỏng) là điểm khởi đầu tốt cho health check per-service ở Phase 4 — nhưng phần timeout còn thiếu (§8) nên sửa trước khi nhân bản ra 9 service.
+- Phase 5 (Production Hardening): CI/CD tự động, Redis AOF — vẫn là khoảng trống thật, chưa làm gì. Backup Postgres **không còn hoàn toàn trống**: `scripts/backup-db.sh` (pg_dump → gzip → `./backups`, prune theo tuổi, thêm 2026-07-14 Phase 0.5) đã chạy được thủ công/qua cron local — phần còn thiếu là tự động hoá + upload S3/R2 + test restore định kỳ (`docs/migration-roadmap.md` Phase 5).

@@ -18,9 +18,13 @@ Không cần viết ADR cho những thay đổi nhỏ, hiển nhiên, hoặc ch�
 
 ## Danh sách ADR
 
-| #                                       | Tên                                                           | Trạng thái | Ngày       |
-| --------------------------------------- | ------------------------------------------------------------- | ---------- | ---------- |
-| [0001](0001-docker-base-image-glibc.md) | Đổi base image apps/api/Dockerfile từ Alpine sang Debian slim | Accepted   | 2026-07-11 |
+| #                                                                     | Tên                                                                    | Trạng thái | Ngày       |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------- | ---------- |
+| [0001](0001-docker-base-image-glibc.md)                                | Đổi base image apps/api/Dockerfile từ Alpine sang Debian slim            | Accepted   | 2026-07-11 |
+| [0002](0002-no-auto-reject-on-ai-score.md)                              | Không tự động loại ứng viên dựa trên điểm AI                            | Accepted   | 2026-07-14 |
+| [0003](0003-microservices-transport-and-migration-strategy.md)         | Chiến lược transport và migration cho microservices (Phase 4)           | Accepted   | 2026-07-16 |
+| [0004](0004-service-ownership-shared-reference-tables.md)              | Service sở hữu cho bảng dữ liệu dùng chung (Department/Skill/JobCategory/AiConfig) | Accepted   | 2026-07-16 |
+| [0005](0005-voice-ai-livekit-agents-gemini-live.md)                     | Voice AI cho mock interview: LiveKit Agents + Gemini Live               | Accepted   | 2026-07-15 |
 
 ## Template
 

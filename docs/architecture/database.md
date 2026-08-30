@@ -1,12 +1,12 @@
 # Kiến trúc Database
 
-> Snapshot: 2026-07-11. Nguồn: `libs/backend/database/prisma/schema.prisma` (566 dòng, 24 model, đọc trực tiếp toàn bộ) + migration SQL thực tế đã áp dụng (`libs/backend/database/prisma/migrations/`). File này tự chứa đủ ngữ cảnh để đọc độc lập ở session mới, không cần đọc lại schema.prisma từ đầu trừ khi cần verify số liệu mới hơn ngày snapshot.
+> Snapshot: 2026-07-16. Nguồn: `libs/backend/database/prisma/schema.prisma` (565 dòng, 22 model, đọc trực tiếp toàn bộ) + migration SQL thực tế đã áp dụng (`libs/backend/database/prisma/migrations/`). File này tự chứa đủ ngữ cảnh để đọc độc lập ở session mới, không cần đọc lại schema.prisma từ đầu trừ khi cần verify số liệu mới hơn ngày snapshot. (Snapshot trước ghi nhầm "24 model/566 dòng" — đếm lại trực tiếp ra 22 model/565 dòng, khớp breakdown §2; sửa lại ở đây, không phải model bị xoá.)
 
 ## 1. Tổng quan
 
 PostgreSQL 15 + Prisma ORM (`^7.8`, generator `prisma-client`, adapter `@prisma/adapter-pg`). Schema/migration chỉ nằm ở `libs/backend/database/prisma/` — không có bản sao nào khác trong repo (`apps/api` không có `prisma/` riêng).
 
-## 2. 24 model, theo domain
+## 2. 22 model, theo domain
 
 ```
 Auth/User    → User (bảng gốc, class-table inheritance), RefreshToken
@@ -74,6 +74,12 @@ Enum tồn tại trong schema nhưng model `CandidateSkill` chưa từng đượ
 ### 4.6 Prisma không có kiểu `vector` gốc
 
 Khi bật `pgvector` (Phase 2), Prisma schema phải dùng `Unsupported("vector(N)")` cho cột embedding, và phần truy vấn cosine similarity phải viết raw SQL (`$queryRaw`), không dùng được query builder thông thường của Prisma cho phần này.
+
+### 4.7 `AiRecommendation` không còn giá trị `hire` (2026-07-16)
+
+Migration `20260716120000_remove_hire_from_ai_recommendation` xoá `hire` khỏi enum `AiRecommendation` (`schema.prisma:79-84`, còn lại `interview`/`reject`). `CvScreeningsService.determineRecommendation()` (`apps/api/src/app/cv-screenings/cv-screenings.service.ts:313-323`) giờ chỉ so `overallScore` với `minimumScoreThreshold` để trả `interview` hoặc `reject` — không còn nhánh khuyến nghị tuyển thẳng. Quyết định tuyển (`hired`) chỉ xảy ra sau, thủ công, qua luồng Kanban `ApplicationStatus` bình thường (`applied → screening → interview → offer → hired`), không đi qua `aiRecommendation`. Nhất quán với nguyên tắc "AI đề xuất, người quyết" đã ghi ở [ADR 0002](../architecture-decisions/0002-no-auto-reject-on-ai-score.md) — `minimumScoreThreshold`/`aiRecommendation` không phải trường chết, chỉ cố ý không bao giờ tự động hoá quyết định cuối, xem `.claude/rules/apis/anti-patterns.md`.
+
+**Lưu ý trạng thái git:** tính tới snapshot này, thay đổi schema + migration trên vẫn nằm ở working tree, **chưa commit**.
 
 ## 5. Câu hỏi/quyết định còn mở (chưa chốt, cần quyết định trước khi code)
 

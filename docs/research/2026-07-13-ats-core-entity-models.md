@@ -1,5 +1,20 @@
 # Research Brief: Core Entity Models of Established ATS Platforms vs. ats-platform (Student Capstone)
 
+> ## TÓM TẮT (đọc cái này trước — bản chi tiết + nguồn ở bên dưới)
+>
+> **Câu hỏi:** Các ATS lớn mô hình hóa entity lõi (Job / Candidate / Application / Stage / Offer / Scorecard) thế nào, so với schema repo này?
+>
+> **3 chỗ lệch nhất so với mọi vendor — đều Tier 1, nên sửa trước:**
+> 1. **Rejection reason** đang là free-text `String?` → làm bảng tra cứu nhỏ `RejectionReason { id, name, category }`. Migration tí xíu, sửa đúng field thiết kế yếu nhất đang có.
+> 2. **Offer** đang chỉ là một giá trị trong enum status → tách thành entity riêng (`Offer { applicationId, status, salary, startDate, ... }`). Đây là gap "đồ chơi vs. thật" dễ bị examiner soi nhất, vì "offer" hiện không có cấu trúc gì phía sau.
+> 3. **Source** (nguồn ứng viên) chưa có ở đâu cả → thêm cột `source: String?` (hoặc enum `job_board|referral|direct|other`). Một cột, phục vụ được biểu đồ phễu tuyển nếu có dashboard.
+>
+> **Tier 2 (chỉ làm nếu có sprint riêng cho pipeline):** stage pipeline cấu hình được theo từng job, thay cho enum `ApplicationStatus` cứng 7 giá trị — gap quan trọng nhất về khái niệm nhưng là đổi kiến trúc lớn; scorecard phỏng vấn có cấu trúc gắn vào `InterviewSchedule`.
+>
+> **Điểm schema ĐÃ đúng (đừng đọc thành "sai hết"):** `Candidate` 1—N `Application`, và con trỏ current-stage + bảng lịch sử `ApplicationHistory` — đều khớp chuẩn ngành. Sửa rẻ nhất còn lại: đổi `Recruiter.departmentId` thành nullable đúng theo `// TODO` đã ghi sẵn trong schema.
+>
+> **Bỏ được (ngoài phạm vi single-tenant, nêu lý do):** tách JobPosting khỏi requisition (chỉ cần cho đa job-board), dedup/merge candidate, talent pool/prospect, notes/activity feed, email log, bảng EEO/demographic (chỉ bắt buộc với luật liên bang Mỹ).
+
 **Date:** 2026-07-13 (also noted 2026-07-12 in surrounding context — treat as same research session)
 **What was researched:** How Greenhouse, Lever, Ashby, SmartRecruiters, Workday Recruiting, Teamtailor, and Merge.dev's unified ATS API model the core recruiting entity graph (Candidate/Application/Job/Stage/Offer/Scorecard/etc.), compared against `libs/backend/database/prisma/schema.prisma` in this repo.
 **Method:**

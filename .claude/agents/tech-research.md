@@ -57,7 +57,14 @@ put in your reply is a brief that gets thrown away.
 3. **If no output path was given**, return the full brief inline and open your
    reply with `NO OUTPUT PATH GIVEN — full brief inline, please persist it.`
 
-The brief itself — dense and skimmable:
+The brief itself — dense and skimmable. **Hard cap: ~800 words, fits on two
+screens.** A research brief is not a textbook: the caller wants a decision, not
+everything you read. Every sentence must change what the caller does next — if a
+paragraph would not alter the recommendation, cut it. No history-of-the-field
+preamble, no explaining a technology the caller already uses, no restating the
+question. If you genuinely found more than fits, end with a one-line menu
+(`Deeper on X / Y available — ask`) and let the caller pull it, rather than
+dumping it all. A 40 KB brief is a failure even if every line is correct.
 
 - **TL;DR** — 3-6 bullets answering the core question directly.
 - **Findings** — organized by sub-topic; each non-obvious claim carries a source

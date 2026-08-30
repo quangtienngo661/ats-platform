@@ -1,6 +1,6 @@
 # Kiến trúc hệ thống (System Architecture)
 
-> Snapshot: 2026-07-11. Dựa trên `README.md` (§System Architecture, §AI Mock Interview Flow, §Queues) đối chiếu trực tiếp với code — chỗ nào README lệch so với code thực tế đã ghi rõ bên dưới.
+> Snapshot: 2026-07-16. Dựa trên `README.md` (§System Architecture, §AI Mock Interview Flow, §Queues) đối chiếu trực tiếp với code — chỗ nào README lệch so với code thực tế đã ghi rõ bên dưới.
 
 ## 1. Mô hình tổng thể
 
@@ -17,12 +17,12 @@ NestJS API — 15 module theo domain — Prisma ORM ──► PostgreSQL 15
    │
    │ dispatch job (BullMQ)
    ▼
-Redis (broker) ──► 5 Worker ──► Google Gemini API ──► ghi kết quả vào DB ──► emit qua Socket.IO
+Redis (broker) ──► 6 Worker (4 gọi Gemini, 1 gửi email, 1 quét bảo trì) ──► ghi kết quả vào DB ──► emit qua Socket.IO
 ```
 
-## 2. 15 module domain (`apps/api/src/app/*`)
+## 2. 15 module domain + 1 module hạ tầng (`apps/api/src/app/*`)
 
-`auth`, `users`, `candidates`, `recruiters`, `departments`, `job-categories`, `skills`, `job-postings`, `applications`, `cvs`, `cv-screenings`, `ai-config`, `ai-usage-logs`, `interviews`, `notifications`.
+`auth`, `users`, `candidates`, `recruiters`, `departments`, `job-categories`, `skills`, `job-postings`, `applications`, `cvs`, `cv-screenings`, `ai-config`, `ai-usage-logs`, `interviews`, `notifications`. Cộng thêm `health` (thêm 2026-07-14, Phase 0.5) — không phải domain nghiệp vụ, chỉ `HealthController`/`HealthService` phục vụ `GET /health` (xem `infrastructure.md` §8).
 
 Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `dto(s)/*.dto.ts` (+ `*.spec.ts` cùng cặp). `interviews/` có thêm `session/` sub-feature (gateway + processor + service cho vòng lặp Q&A trực tiếp) — đầy đủ nhất, dùng làm mẫu hình module khi viết module mới.
 
@@ -34,7 +34,7 @@ Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `d
 - **Bất đồng bộ (BullMQ)**: service dispatch job → processor xử lý nền → ghi kết quả DB → emit Socket.IO. Dùng cho mọi việc gọi Gemini (CV parse, CV screening, sinh câu hỏi phỏng vấn, chấm điểm) để không block HTTP thread.
 - **Real-time (Socket.IO)**: JWT xác thực lúc handshake, room scoped theo `job_{id}` (kanban) hoặc `interview_{sessionId}` (mock interview).
 
-## 4. BullMQ — 5 queue thực tế (README chỉ liệt kê 4, thiếu 1 — xem §6)
+## 4. BullMQ — 6 queue thực tế
 
 | Queue                     | Xử lý                                               | Concurrency/Rate limit |
 | ------------------------- | --------------------------------------------------- | ---------------------- |
@@ -43,8 +43,9 @@ Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `d
 | `cv-screening`            | Chấm điểm CV theo JD (Gemini)                       | 15/phút                |
 | `interview-evaluation`    | Chấm từng câu hỏi/trả lời phỏng vấn                 | concurrency 3          |
 | `interview-generation`    | Sinh 10 câu hỏi phỏng vấn (batch, 1 lần gọi Gemini) | concurrency 3          |
+| `interview-maintenance`   | Quét định kỳ, đánh dấu `abandon` cho phiên `in_progress` bị treo (thêm 2026-07-14, Phase 0.5) | repeat 5 phút/lần (`upsertJobScheduler`, `interviews.module.ts`) |
 
-Global default retry: `attempts: 3` + exponential backoff (`app.module.ts`) — mọi `.add()` không override sẽ theo default này.
+Global default retry: `attempts: 3` + exponential backoff (`app.module.ts:39`) — mọi `.add()` không override sẽ theo default này. **Cập nhật 2026-07-14 (Phase 0.5):** trước đó điều này chỉ đúng trên giấy — 3 module (`cv-processing`, `cv-screening`, `send-verification-email`) gọi `registerQueue()` kèm `defaultJobOptions` riêng, bị `@nestjs/bullmq` gộp NÔNG nên ĐÈ CHẾT default toàn cục; `cv-processing`/`cv-screening` (2 pipeline AI, dễ lỗi nhất) thực chạy chỉ 1 lần, không retry. Đã gỡ hết `defaultJobOptions` khỏi mọi `registerQueue()`, verify bằng log thật (3 lần thử, backoff ~10s/~20s trên `cv-processing`). Chi tiết: `.claude/rules/apis/anti-patterns.md` mục "The registerQueue trap".
 
 ## 5. Tính năng lõi — AI Mock Interview (3 pha)
 
@@ -58,10 +59,10 @@ Thiết kế theo nguyên tắc "zero-distraction" (không hiện điểm từng
 
 JWT access token (ngắn hạn) + refresh token xoay vòng, refresh token lưu dạng hash trong DB (`RefreshToken.tokenHash`) → thu hồi được từng token riêng lẻ. `RolesGuard` (`@Roles()`) chặn theo role, `OwnershipGuard` (`@Resources()`) chặn IDOR (vd. recruiter khác phòng ban không xem được ứng viên).
 
-## 7. Chỗ README.md hiện đang lệch so với code (đã verify trực tiếp, chưa sửa README)
+## 7. README.md từng lệch so với code — đã vá 2026-07-16
 
-- README liệt kê 4 queue, thiếu `interview-generation` (thêm sau khi README được viết, lúc fix Phase 0 async `startSession()`).
-- README ghi retry policy của `cv-processing`/`cv-screening` là _"Default 1 attempt (global default)"_ — đây là mô tả **trước Phase 0**; global default hiện tại đã là `attempts: 3` (`app.module.ts:39`).
+- README trước đây liệt kê 4 queue, thiếu `interview-generation` (thêm lúc fix Phase 0 async `startSession()`) và `interview-maintenance` (thêm 2026-07-14, Phase 0.5, quét phiên phỏng vấn treo). Đã cập nhật đủ 6 queue.
+- README trước đây ghi retry policy của `cv-processing`/`cv-screening` là _"Default 1 attempt (global default)"_ — mô tả này **đúng lâu hơn dự kiến**: `app.module.ts` đã ghi `attempts: 3` từ Phase 0, nhưng lỗi `registerQueue()` (xem §4) khiến 2 queue này thực chạy 1 lần duy nhất cho tới khi Phase 0.5 sửa ngày 2026-07-14. Đã cập nhật README để phản ánh đúng: global default `attempts: 3` áp dụng cho toàn bộ 6 queue.
 
 ## 8. Liên quan tới kế hoạch migrate
 
