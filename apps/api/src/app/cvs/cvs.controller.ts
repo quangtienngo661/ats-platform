@@ -22,7 +22,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { PrismaService } from '../../common/prisma/prisma.service';
 import { CVsService } from './cvs.service';
 import { CVUploadInterceptor } from '../../common/interceptors/cv-upload.interceptor';
 import * as fs from 'fs/promises';
@@ -38,7 +37,6 @@ import { createReadStream, existsSync } from 'fs';
 export class CVsController {
   constructor(
     private readonly cvsService: CVsService,
-    private readonly prisma: PrismaService,
   ) { }
 
   @Post('upload')
@@ -54,7 +52,7 @@ export class CVsController {
     @Body() body: UploadCvDto,
   ) {
     try {
-      const candidateId = await this.resolveCandidateId(req.user.userId);
+      const candidateId = await this.cvsService.resolveCandidateIdByUserId(req.user.userId);
       return await this.cvsService.uploadCV(candidateId, file, body.fileName);
     } catch (error) {
       await fs.unlink(file.path);
@@ -67,7 +65,7 @@ export class CVsController {
   @ApiOperation({ summary: 'Xem danh sách CV của tôi', description: 'Ứng viên xem tất cả CV đã tải lên.' })
   @ApiResponse({ status: 200, description: 'Thành công' })
   async getMyCVs(@Req() req: Request & { user: { userId: string } }) {
-    const candidateId = await this.resolveCandidateId(req.user.userId);
+    const candidateId = await this.cvsService.resolveCandidateIdByUserId(req.user.userId);
     return this.cvsService.getMyCVs(candidateId);
   }
 
@@ -128,7 +126,7 @@ export class CVsController {
     @Query('syncToProfile', ParseBoolPipe) syncToProfile: boolean,
     @Query('markAsConfirmed', ParseBoolPipe) markAsConfirmed: boolean,
   ) {
-    const candidateId = await this.resolveCandidateId(req.user.userId);
+    const candidateId = await this.cvsService.resolveCandidateIdByUserId(req.user.userId);
     return this.cvsService.confirmCV(cvId, candidateId, syncToProfile, markAsConfirmed);
   }
 
@@ -141,20 +139,7 @@ export class CVsController {
     @Req() req: Request & { user: { userId: string } },
     @Param('cvId') cvId: string,
   ) {
-    const candidateId = await this.resolveCandidateId(req.user.userId);
+    const candidateId = await this.cvsService.resolveCandidateIdByUserId(req.user.userId);
     return this.cvsService.deleteCV(cvId, candidateId);
-  }
-
-  private async resolveCandidateId(userId: string) {
-    const candidate = await this.prisma.candidate.findUnique({
-      where: { userId },
-      select: { candidateId: true },
-    });
-
-    if (!candidate) {
-      throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
-    }
-
-    return candidate.candidateId;
   }
 }

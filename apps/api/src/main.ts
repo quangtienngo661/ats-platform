@@ -5,14 +5,19 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationError } from 'class-validator';
 import { AppModule } from './app/app.module';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/logging/winston.config';
+import { requestIdMiddleware } from './common/logging/request-id.middleware';
 
 const VALIDATION_MESSAGES: Record<string, string> = {
   whitelistValidation: 'không được phép gửi lên',
   isEmail: 'phải là email hợp lệ',
-  isStrongPassword: 'phải có ít nhất 8 ký tự, gồm chữ thường, chữ hoa, số và ký tự đặc biệt',
+  isStrongPassword:
+    'phải có ít nhất 8 ký tự, gồm chữ thường, chữ hoa, số và ký tự đặc biệt',
   isString: 'phải là chuỗi',
   isNotEmpty: 'không được để trống',
   minLength: 'không đủ độ dài tối thiểu',
@@ -29,14 +34,20 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   isDateString: 'phải là ngày giờ hợp lệ',
 };
 
-function collectValidationMessages(errors: ValidationError[], parentPath = ''): string[] {
+function collectValidationMessages(
+  errors: ValidationError[],
+  parentPath = '',
+): string[] {
   return errors.flatMap((error) => {
-    const path = parentPath ? `${parentPath}.${error.property}` : error.property;
+    const path = parentPath
+      ? `${parentPath}.${error.property}`
+      : error.property;
     const constraints = error.constraints
       ? Object.keys(error.constraints).map((constraintName) => {
-        const translated = VALIDATION_MESSAGES[constraintName] ?? 'không hợp lệ';
-        return `${path} ${translated}`;
-      })
+          const translated =
+            VALIDATION_MESSAGES[constraintName] ?? 'không hợp lệ';
+          return `${path} ${translated}`;
+        })
       : [];
 
     return [
@@ -47,28 +58,53 @@ function collectValidationMessages(errors: ValidationError[], parentPath = ''): 
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig),
+  });
   app.getHttpAdapter().getInstance().set('trust proxy', true);
+  app.use(requestIdMiddleware);
+
+  // Without this, SIGTERM (docker stop, a redeploy) kills the process outright:
+  // in-flight BullMQ jobs are cut off mid-Gemini-call and Prisma/Redis sockets are
+  // dropped. Nest's shutdown hooks let @nestjs/bullmq close its workers and Prisma
+  // disconnect cleanly first.
+  app.enableShutdownHooks();
+
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    exceptionFactory: (errors) => {
-      const messages = collectValidationMessages(errors);
-      return new BadRequestException(
-        messages.length
-          ? `Dữ liệu không hợp lệ: ${messages.join('; ')}`
-          : 'Dữ liệu gửi lên không hợp lệ',
-      );
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const messages = collectValidationMessages(errors);
+        return new BadRequestException(
+          messages.length
+            ? `Dữ liệu không hợp lệ: ${messages.join('; ')}`
+            : 'Dữ liệu gửi lên không hợp lệ',
+        );
+      },
+    }),
+  );
   app.use(cookieParser());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          'script-src': ["'self'", "'unsafe-inline'"],
+          'style-src': ["'self'", "'unsafe-inline'", 'https:'],
+          'img-src': ["'self'", 'data:', 'https:'],
+        },
+      },
+    }),
+  );
 
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.CLIENT_URL
-      : 'http://localhost:3000',
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? process.env.CLIENT_URL
+        : 'http://localhost:3000',
     credentials: true,
   });
   const port = process.env.SERVER_PORT || 5000;
@@ -81,11 +117,14 @@ async function bootstrap() {
     .build();
 
   app.useGlobalInterceptors(new TransformInterceptor());
-  app.useGlobalFilters(new GlobalExceptionFilter())
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
+  // The docs expose the entire API surface unauthenticated — dev/staging only.
+  if (process.env.NODE_ENV !== 'production') {
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
   await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,

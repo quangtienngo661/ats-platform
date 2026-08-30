@@ -15,11 +15,19 @@ describe('DepartmentsService', () => {
     prisma.department.create.mockResolvedValue(department);
 
     await expect(
-      service.create({ name: 'Engineering', description: 'Build team', color: '#123456' }),
+      service.create({
+        name: 'Engineering',
+        description: 'Build team',
+        color: '#123456',
+      }),
     ).resolves.toBe(department);
 
     expect(prisma.department.create).toHaveBeenCalledWith({
-      data: { name: 'Engineering', description: 'Build team', color: '#123456' },
+      data: {
+        name: 'Engineering',
+        description: 'Build team',
+        color: '#123456',
+      },
     });
   });
 
@@ -31,7 +39,10 @@ describe('DepartmentsService', () => {
 
   it('updates only after the department exists', async () => {
     prisma.department.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
-    prisma.department.update.mockResolvedValue({ departmentId: 'dep-1', name: 'HR' });
+    prisma.department.update.mockResolvedValue({
+      departmentId: 'dep-1',
+      name: 'HR',
+    });
 
     await service.update('dep-1', { name: 'HR' });
 
@@ -43,12 +54,37 @@ describe('DepartmentsService', () => {
     );
   });
 
-  it('deletes only after the department exists', async () => {
-    const department = { departmentId: 'dep-1' };
+  it('deletes an empty department', async () => {
+    const department = {
+      departmentId: 'dep-1',
+      _count: { recruiters: 0, jobPostings: 0 },
+    };
     prisma.department.findUnique.mockResolvedValue(department);
     prisma.department.delete.mockResolvedValue(department);
 
     await expect(service.remove('dep-1')).resolves.toBe(department);
-    expect(prisma.department.delete).toHaveBeenCalledWith({ where: { departmentId: 'dep-1' } });
+    expect(prisma.department.delete).toHaveBeenCalledWith({
+      where: { departmentId: 'dep-1' },
+    });
+  });
+
+  it('refuses to delete a department that still has recruiters', async () => {
+    prisma.department.findUnique.mockResolvedValue({
+      departmentId: 'dep-1',
+      _count: { recruiters: 2, jobPostings: 0 },
+    });
+
+    await expect(service.remove('dep-1')).rejects.toThrow('nhà tuyển dụng');
+    expect(prisma.department.delete).not.toHaveBeenCalled();
+  });
+
+  it('refuses to delete a department that still has job postings', async () => {
+    prisma.department.findUnique.mockResolvedValue({
+      departmentId: 'dep-1',
+      _count: { recruiters: 0, jobPostings: 1 },
+    });
+
+    await expect(service.remove('dep-1')).rejects.toThrow('tin tuyển dụng');
+    expect(prisma.department.delete).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 # ==========================================
 # STAGE 1: Build NestJS API & Prisma Client
 # ==========================================
-FROM node:24-alpine AS builder
+FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -15,13 +15,14 @@ COPY . .
 
 ARG DATABASE_URL
 
+RUN apt-get update -y && apt-get install -y openssl
 RUN npx nx run database:prisma-generate
 RUN npx nx build api --prod
 
 # ==========================================
 # STAGE 2: Production Runner
 # ==========================================
-FROM node:24-alpine AS runner
+FROM node:24-bookworm-slim AS runner
 
 WORKDIR /app
 
@@ -35,6 +36,8 @@ RUN npm ci --only=production
 
 # 🔥 SỬA ĐỔI QUAN TRỌNG: Cài đặt prisma cục bộ thay vì global 
 # Việc này giúp file prisma.config.ts có thể resolve được import { defineConfig } from "prisma/config"
+RUN apt-get update -y && apt-get install -y openssl
+
 RUN npm install prisma@7.8.0 --save-prod
 RUN npm install @prisma/client
 

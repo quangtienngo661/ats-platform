@@ -1,4 +1,10 @@
-import { ApplicationStatus, InterviewStatus, InterviewType, UserRole } from '@ats-platform/database';
+import {
+  ApplicationStatus,
+  InterviewStatus,
+  InterviewType,
+  ScheduleStatus,
+  UserRole,
+} from '@ats-platform/database';
 import { InterviewsService } from './interviews.service';
 import { createPrismaMock } from '../../test-utils/unit-test-helpers';
 
@@ -52,7 +58,9 @@ describe('InterviewsService', () => {
     });
 
     await expect(
-      service.createSchedule('admin-1', UserRole.admin, { applicationId: 'app-1' } as any),
+      service.createSchedule('admin-1', UserRole.admin, {
+        applicationId: 'app-1',
+      } as any),
     ).rejects.toThrow('tr');
   });
 
@@ -67,7 +75,9 @@ describe('InterviewsService', () => {
       departmentId: 'dep-1',
       user: { userId: 'interviewer-1', role: UserRole.recruiter },
     });
-    prisma.interviewSchedule.findFirst.mockResolvedValue({ interviewId: 'existing' });
+    prisma.interviewSchedule.findFirst.mockResolvedValue({
+      interviewId: 'existing',
+    });
 
     await expect(
       service.createSchedule('admin-1', UserRole.admin, {
@@ -82,7 +92,9 @@ describe('InterviewsService', () => {
 
   it('filters my schedules for candidates with date range pagination', async () => {
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
-    prisma.interviewSchedule.findMany.mockResolvedValue([{ interviewId: 'int-1' }]);
+    prisma.interviewSchedule.findMany.mockResolvedValue([
+      { interviewId: 'int-1' },
+    ]);
     prisma.interviewSchedule.count.mockResolvedValue(1);
 
     await expect(
@@ -93,8 +105,8 @@ describe('InterviewsService', () => {
         toDate: '2026-06-02',
       } as any),
     ).resolves.toEqual({
-      data: [{ interviewId: 'int-1' }],
-      meta: { total: 1, page: 2, limit: 5, totalPages: 1 },
+      items: [{ interviewId: 'int-1' }],
+      pagination: { total: 1, page: 2, limit: 5, totalPages: 1 },
     });
 
     expect(prisma.interviewSchedule.findMany).toHaveBeenCalledWith(
@@ -119,11 +131,17 @@ describe('InterviewsService', () => {
     await service.createTopic({ name: 'Backend', categoryId: 'cat-1' });
     expect(prisma.interviewTopic.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { name: 'Backend', category: { connect: { categoryId: 'cat-1' } } },
+        data: {
+          name: 'Backend',
+          category: { connect: { categoryId: 'cat-1' } },
+        },
       }),
     );
 
-    prisma.interviewTopic.findUnique.mockResolvedValue({ topicId: 'topic-1', _count: { sessions: 1 } });
+    prisma.interviewTopic.findUnique.mockResolvedValue({
+      topicId: 'topic-1',
+      _count: { sessions: 1 },
+    });
     await expect(service.removeTopic('topic-1')).rejects.toThrow('x');
   });
 
@@ -134,7 +152,9 @@ describe('InterviewsService', () => {
       session: { candidateId: 'other' },
     });
 
-    await expect(service.getSessionResult('session-1', 'user-1')).rejects.toThrow('qu');
+    await expect(
+      service.getSessionResult('session-1', 'user-1'),
+    ).rejects.toThrow('qu');
   });
 
   it('returns my session summaries for a candidate', async () => {
@@ -146,5 +166,62 @@ describe('InterviewsService', () => {
     await expect(service.getMySessions('user-1')).resolves.toEqual([
       { sessionId: 'session-1', status: InterviewStatus.completed },
     ]);
+  });
+
+  describe('updateSchedule — status transitions', () => {
+    const scheduleAt = (status: ScheduleStatus) => ({
+      interviewId: 'int-1',
+      scheduledBy: 'user-1',
+      interviewerId: 'user-2',
+      scheduledDate: new Date('2026-08-01'),
+      scheduledTime: new Date('2026-08-01T09:00:00Z'),
+      status,
+      application: { jobPosting: { departmentId: 'dep-1' } },
+    });
+
+    it('refuses to reopen a completed interview', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        scheduleAt(ScheduleStatus.completed),
+      );
+
+      await expect(
+        service.updateSchedule('int-1', 'user-1', UserRole.admin, {
+          status: ScheduleStatus.scheduled,
+        } as any),
+      ).rejects.toThrow('Không thể chuyển trạng thái lịch phỏng vấn');
+      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+    });
+
+    it('refuses to complete a cancelled interview', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        scheduleAt(ScheduleStatus.cancelled),
+      );
+
+      await expect(
+        service.updateSchedule('int-1', 'user-1', UserRole.admin, {
+          status: ScheduleStatus.completed,
+        } as any),
+      ).rejects.toThrow('Không thể chuyển trạng thái lịch phỏng vấn');
+    });
+
+    it('allows scheduled → completed', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        scheduleAt(ScheduleStatus.scheduled),
+      );
+      prisma.interviewSchedule.update.mockResolvedValue({
+        interviewId: 'int-1',
+        status: ScheduleStatus.completed,
+      });
+
+      await service.updateSchedule('int-1', 'user-1', UserRole.admin, {
+        status: ScheduleStatus.completed,
+      } as any);
+
+      expect(prisma.interviewSchedule.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ status: ScheduleStatus.completed }),
+        }),
+      );
+    });
   });
 });

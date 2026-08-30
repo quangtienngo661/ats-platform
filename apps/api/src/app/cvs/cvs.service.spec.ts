@@ -22,7 +22,7 @@ describe('CVsService', () => {
     pdfService = { parsePdf: jest.fn() };
     queue = createQueueMock();
     service = new CVsService(prisma as any, candidatesService as any, pdfService as any, queue as any);
-    (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('pdf'));
+    (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('%PDF-1.4\n%fake pdf content'));
     (fs.unlink as jest.Mock).mockResolvedValue(undefined);
   });
 
@@ -44,6 +44,18 @@ describe('CVsService', () => {
       }),
     );
     expect(queue.add).toHaveBeenCalledWith('parse-cv', { cvId: 'cv-1' });
+  });
+
+  it('rejects an upload whose content is not a real PDF', async () => {
+    (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('not a pdf, just plain text'));
+
+    await expect(
+      service.uploadCV('cand-1', { path: `${process.cwd()}\\uploads\\fake.pdf` } as any, 'fake.pdf'),
+    ).rejects.toThrow('PDF');
+
+    expect(pdfService.parsePdf).not.toHaveBeenCalled();
+    expect(prisma.cV.create).not.toHaveBeenCalled();
+    expect(queue.add).not.toHaveBeenCalled();
   });
 
   it('returns parsed data or throws when it is missing', async () => {

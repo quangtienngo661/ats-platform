@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ParsingStatus, Prisma } from '@ats-platform/database';
 import * as path from 'node:path';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -8,9 +8,14 @@ import * as fs from 'fs/promises';
 import { candidateIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ParseCvJobData } from './processors/cv-parsing.processor';
+
+const PDF_MAGIC_BYTES = Buffer.from('%PDF-', 'ascii');
 
 @Injectable()
 export class CVsService {
+  private readonly logger = new Logger(CVsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly candidatesService: CandidatesService,
@@ -18,8 +23,27 @@ export class CVsService {
     @InjectQueue('cv-processing') private readonly cvProcessingQueue: Queue,
   ) { }
 
+  async resolveCandidateIdByUserId(userId: string): Promise<string> {
+    const candidate = await this.prisma.candidate.findUnique({
+      where: { userId },
+      select: { candidateId: true },
+    });
+
+    if (!candidate) {
+      throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    }
+
+    return candidate.candidateId;
+  }
+
   async uploadCV(candidateId: string, file: Express.Multer.File, fileName: string) {
     const fileBuffer = await fs.readFile(file.path);
+
+    if (!fileBuffer.subarray(0, 5).equals(PDF_MAGIC_BYTES)) {
+      this.logger.warn(`Rejected upload for candidate ${candidateId}: invalid PDF signature at ${file.path}`);
+      throw new BadRequestException('File không đúng định dạng PDF');
+    }
+
     const rawTextFromCV = await this.pdfService.parsePdf(fileBuffer);
 
     const relativePath = file.path
@@ -48,7 +72,7 @@ export class CVsService {
 
     await this.cvProcessingQueue.add('parse-cv', {
       cvId: cvRecord.cvId,
-    });
+    } satisfies ParseCvJobData);
 
     return cvRecord;
   }
@@ -203,10 +227,7 @@ export class CVsService {
 
     const absolutePath = path.join(process.cwd(), cv.filePath);
 
-    console.log(absolutePath);
-
-    console.log(cv.filePath);
-
+    this.logger.debug(`Resolved download path for CV ${cv.cvId}: ${absolutePath} (stored: ${cv.filePath})`);
 
     const fileName = path.basename(cv.filePath);
 

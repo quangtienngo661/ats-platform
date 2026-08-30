@@ -1,0 +1,61 @@
+---
+paths:
+  - "apps/api/**"
+---
+
+# API — Current Anti-patterns — Do Not Follow
+
+Full detail/scoring in `docs/current-state.md` (source audit, June 2026) and `docs/migration-roadmap.md` (Phase 0 fix list); items below cross-checked against the code directly in Jul 2026 — re-verify file:line if this file is more than a few months old.
+
+## Status Tracker
+
+Live source of truth for what's fixed — flip a row here when an item's status changes. The narrative sections below (prose descriptions, fix detail, "don't repeat" warnings) are historical/explanatory and don't need to be rewritten or moved between sections just to keep status current — this table is what's authoritative if the two ever disagree.
+
+| Item | Status | Last verified |
+|---|---|---|
+| BullMQ retry: `attempts: 3` actually reaching every queue | 🟡 Fixed in code, **verify pending** — see "The registerQueue trap" below | 2026-07-14 |
+| `cv-screenings.processor` swallows errors → BullMQ records failed jobs as `completed` | 🟡 Fixed in code, verify pending | 2026-07-14 |
+| Privilege escalation via `PATCH /candidates/me` `userInfo` | ✅ Fixed + verified end-to-end (400 + DB row unchanged) | 2026-07-14 |
+| `UserStatus.inactive` never enforced (login/refresh/JWT/socket) | ✅ Fixed + verified (pre-issued token → 401) | 2026-07-14 |
+| `GET /job-postings` leaks `draft`/`closed` to anonymous **and to candidates** | ✅ Fixed + verified | 2026-07-14 |
+| Swagger UI exposed in production | ✅ Fixed + verified | 2026-07-14 |
+| Throttler counters in process memory (reset on restart, not multi-instance) | 🟡 Fixed in code (Redis storage), verify pending | 2026-07-14 |
+| `isReverted: true` bypasses the ApplicationStatus state machine + skips notification | 🟡 Fixed in code, verify pending | 2026-07-14 |
+| Interview sessions stuck `in_progress` forever (`abandon` unreachable) | 🟡 Fixed in code (periodic sweep), verify pending | 2026-07-14 |
+| `nx test api` silently skipped every spec under `src/common/**` | 🟡 Fixed (testMatch widened), verify pending | 2026-07-14 |
+| No API-layer rate limiting | ✅ Fixed | 2026-07 |
+| No structured logging (5xx) | ✅ Fixed — but HTTP-only; BullMQ/Socket.IO are NOT covered | 2026-07-14 |
+| File upload has no magic-byte validation | ✅ Fixed | 2026-07 |
+| `startSession()` calls Gemini synchronously | ✅ Fixed | 2026-07 |
+| Controller/gateway direct `PrismaService` access (`cvs.controller.ts`, `interview.gateway.ts`) | ✅ Fixed | 2026-07-06 |
+| `interview.gateway.ts`'s own `@WebSocketServer()` | ✅ Fixed (removed as dead code) | 2026-07-06 |
+| BullMQ processor `Job<any>` / bare `Job` typing (all 5 processor files) | ✅ Fixed (5/5 typed) | 2026-07-06 |
+| `cv-screenings.service.ts` heavy `any` typing | ✅ Fixed (0 remaining) | 2026-07-06 |
+| `dto/` vs `dtos/` folder split | ⬜ Open — by design, fix opportunistically per module, not in one pass | 2026-07-06 |
+
+**Legend:** ✅ = fixed AND proven at runtime. 🟡 = code written + unit tests pass, but not yet exercised end-to-end. **Never promote 🟡 → ✅ on the strength of unit tests alone** — that is exactly how the BullMQ retry row stayed wrong (and green) for two months.
+
+## The registerQueue trap — read this before touching any BullMQ module
+
+`BullModule.forRoot()` in `app.module.ts` holds the global `defaultJobOptions` (`attempts: 3`, exponential backoff, `removeOnComplete`). **`@nestjs/bullmq` merges shallowly**: `bull.providers.ts` does `{ ...sharedConfig, ...queueOption }` (verified against both the installed `node_modules` build and the upstream TypeScript source at tag `@nestjs/bullmq@11.0.4`).
+
+So passing `defaultJobOptions` to `registerQueue()` **replaces the global object wholesale** instead of merging into it. Three modules did exactly that — `registerQueue({ name: 'cv-processing', defaultJobOptions: { removeOnComplete: true } })` — which silently deleted `attempts` and `backoff` for those queues. `cv-processing` and `cv-screening` (the two AI pipelines — i.e. the jobs most likely to fail) ran with **1 attempt and no retry** for the whole time this tracker claimed retry was "Fixed". `cv-parsing.processor.ts` correctly rethrew for a retry that could never happen.
+
+**Rule: never pass `defaultJobOptions` to `registerQueue()`.** Every default belongs in `forRoot`. A per-*job* override at `queue.add(name, data, opts)` is fine and DOES merge correctly (`auth.service.ts` uses one deliberately, for a shorter email-retry backoff).
+
+## `minimumScoreThreshold` / `aiRecommendation` are NOT dead fields
+
+They are computed, stored, and shown to recruiters, but deliberately **never** drive an automatic `Application.status` change. That is a decision, not an unfinished feature: GDPR Art. 22 forbids fully-automated hiring decisions. See [ADR 0002](../../../docs/architecture-decisions/0002-no-auto-reject-on-ai-score.md). Do not "complete" this into an auto-reject.
+
+**Fixed (Jul 2026):**
+- ~~BullMQ `attempts: 1` globally~~ — raised to `attempts: 3` in `app.module.ts`. `interview.processor.ts`'s catch block now checks `job.attemptsMade + 1 >= job.opts.attempts` and rethrows on any non-final attempt (so BullMQ actually retries) and rethrows again after writing `[ERROR]` feedback + finalizing on the final attempt (so the job is correctly recorded as `failed`, not `completed`). Covered by `interview.processor.spec.ts` (previously zero coverage).
+- ~~No API-layer rate limiting~~ — `ThrottlerModule` wired into `auth.module.ts`, `@UseGuards(ThrottlerGuard)` applied to `login`/`register`/`forgotPassword` only (5 req/60s default, `register` overridden to 3/60s via `@Throttle`). Verified manually against a real running instance (429 on the 6th/6th/4th call respectively) — no automated guard test exists, see `testing.md` if adding one later.
+- ~~No structured logging~~ — `GlobalExceptionFilter` now logs `.error()` with stack trace for any 5xx (skips 4xx — expected/high-volume/already messaged to the client). `console.log`/`console.error` in `cvs.service.ts` (`downloadCV`) and `redis/redis.module.ts` replaced with `Logger` (`.debug()`/`.error()`). Covered by `global-exception.filter.spec.ts` (excluded from `nx test api` by `testMatch`, run directly via `jest` — see `testing.md`) and verified manually against a running instance.
+- ~~File upload has no magic-byte validation~~ — `cvs.service.ts`'s `uploadCV()` checks the first 5 bytes for the `%PDF-` signature (manual check, no new dependency — only PDF is ever accepted here) before parsing; rejects with `BadRequestException` otherwise. Existing controller-level `fs.unlink` cleanup on error already handles the orphaned-file case. Verified manually (real PDF → 201, renamed non-PDF → 400, no orphaned file).
+- ~~`startSession()` calls Gemini synchronously inside the HTTP request~~ — now creates the `InterviewSession` row with a new `InterviewStatus.generating` status (Prisma migration `add_interview_status_generating`, mirrored in `libs/shared/types`) and enqueues a `generate_questions` job on a new `interview-generation` queue/processor (`interview-generation.processor.ts`, mirrors `interview.processor.ts`'s retry-correctness shape). HTTP response now returns in ~70ms instead of blocking up to 120s. On completion the processor emits `interview:session_ready` (new `InterviewGateway` branch checks `status === generating` on join and tells the client to wait); on final-attempt failure it flips to `abandon` and emits `interview:session_failed`. Verified manually against a real running instance — response timing and the `generating`→(0 QnA rows) DB state confirmed directly; the failure path was incidentally verified for real (the actual `GOOGLE_API_KEY` had depleted its prepaid credits — a real 429 from Gemini, unrelated to this fix — which correctly drove 3 retries then the `abandon` transition), but the success path's `in_progress` + 10-QnA-rows + `interview:session_ready` transition could **not** be exercised live because of that same credit exhaustion — it's covered by `interview-generation.processor.spec.ts`'s mocked success-path test instead. **Flag to a human: the real Gemini API key in `.env` is out of prepaid credits (`RESOURCE_EXHAUSTED`) — every real Gemini call (CV screening, mock interviews) will currently fail in this environment until billing is topped up.**
+
+**Don't repeat, but leave existing instances alone until you're already touching that file:** *(status of each item below is tracked in the Status Tracker above — some of these were fixed after this section was last rewritten; the table, not this prose, is authoritative)*
+- Controllers/gateways reaching into `PrismaService` directly, bypassing their service layer — `cvs.controller.ts` (`resolveCandidateId`) and `interview.gateway.ts` (`verifySessionOwnership`). Don't add more direct Prisma access at the controller/gateway layer in new code.
+- `interview.gateway.ts` holding its own `@WebSocketServer()` instead of delegating to `SocketIoService` — don't copy this into a new gateway; the existing one is tracked technical debt, not a pattern to reuse.
+- Heavy `any` typing — all 4 BullMQ processors use `Job<any, any, string>`, and `cv-screenings.service.ts` has ~16 `any` usages (as of Jul 2026) including `Promise<any>` return types on public methods scoring real candidates. Don't add another untyped processor/service signature; new code needs a real interface.
+- `dto/` vs `dtos/` folder split (see `directory-structure.md`) — don't create a new `dtos/` folder.

@@ -1,13 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRole, UserStatus } from '@ats-platform/database';
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto } from './dtos/user.dto';
+import {
+  ChangePasswordDto,
+  CreateUserDto,
+  UpdateUserDto,
+} from './dtos/user.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(data: CreateUserDto) {
     const passwordHash = bcrypt.hashSync(data.password, 10);
@@ -28,13 +36,12 @@ export class UsersService {
           fullName: data.fullName,
           status: data.status ?? UserStatus.active,
           role: data.role,
-          emailVerified: true
+          emailVerified: true,
         },
         omit: { passwordHash: true },
       });
       return user;
     });
-
 
     return newUser;
   }
@@ -44,8 +51,8 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
       omit: { passwordHash: true },
       include: {
-        recruiter: true
-      }
+        recruiter: true,
+      },
     });
   }
 
@@ -78,7 +85,10 @@ export class UsersService {
       throw new NotFoundException('Không tìm thấy người dùng');
     }
 
-    const isCurrentPasswordValid = bcrypt.compareSync(dto.currentPassword, user.passwordHash);
+    const isCurrentPasswordValid = bcrypt.compareSync(
+      dto.currentPassword,
+      user.passwordHash,
+    );
     if (!isCurrentPasswordValid) {
       throw new BadRequestException('Mật khẩu hiện tại không đúng');
     }
@@ -154,6 +164,67 @@ export class UsersService {
   }
 
   async remove(userId: string) {
+    // Only RefreshToken, Notification, Candidate and Recruiter cascade from User.
+    // EVERY other relation pointing at User (or at the cascaded Candidate/Recruiter)
+    // is Restrict, so the cascade dies mid-transaction with a raw P2003 — only P2025
+    // was ever caught, so it surfaced as an unhandled 500. Check all of them:
+    //   Application.candidate, InterviewSession.candidate   (via Candidate)
+    //   JobPosting.recruiter                                (via Recruiter)
+    //   ApplicationHistory.changedBy                        (directly on User)
+    //   InterviewSchedule.scheduledBy / .interviewerId      (directly on User)
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+      select: {
+        _count: {
+          select: {
+            applicationHistory: true,
+            scheduledBy: true,
+            interviewSchedules: true,
+          },
+        },
+        candidate: {
+          select: {
+            _count: { select: { applications: true, interviewSessions: true } },
+          },
+        },
+        recruiter: { select: { _count: { select: { jobPostings: true } } } },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    if (user.candidate?._count.applications) {
+      throw new BadRequestException(
+        'Không thể xóa ứng viên đã có đơn ứng tuyển',
+      );
+    }
+
+    if (user.candidate?._count.interviewSessions) {
+      throw new BadRequestException(
+        'Không thể xóa ứng viên đã có phiên phỏng vấn',
+      );
+    }
+
+    if (user.recruiter?._count.jobPostings) {
+      throw new BadRequestException(
+        'Không thể xóa nhà tuyển dụng đã tạo tin tuyển dụng',
+      );
+    }
+
+    if (user._count.applicationHistory) {
+      throw new BadRequestException(
+        'Không thể xóa người dùng đã từng thay đổi trạng thái đơn ứng tuyển',
+      );
+    }
+
+    if (user._count.scheduledBy || user._count.interviewSchedules) {
+      throw new BadRequestException(
+        'Không thể xóa người dùng đang gắn với lịch phỏng vấn',
+      );
+    }
+
     try {
       return await this.prisma.user.delete({
         where: { userId },

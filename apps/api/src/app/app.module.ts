@@ -26,21 +26,39 @@ import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 import { SocketIoModule } from '../common/socket-io/socket-io.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { HealthModule } from './health/health.module';
+import { validate } from '../common/configs/env.validation';
+import { ClsModule } from 'nestjs-cls';
+import { Request } from 'express';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+        generateId: true,
+        idGenerator: (req: Request) => req.headers['x-request-id'] as string,
+      },
+    }),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT) || 6379,
       },
+      // Every queue inherits these. IMPORTANT: `registerQueue()` merges shallowly
+      // (`{ ...sharedConfig, ...queueConfig }` in @nestjs/bullmq), so passing
+      // `defaultJobOptions` there REPLACES this object wholesale rather than
+      // merging into it — which silently drops `attempts`/`backoff` for that queue.
+      // Keep every default here; do not add `defaultJobOptions` to a registerQueue call.
       defaultJobOptions: {
-        attempts: 1,
+        attempts: 3,
         backoff: {
           type: 'exponential',
           delay: 10000,
         },
+        removeOnComplete: true,
       },
     }),
     AuthModule,
@@ -68,6 +86,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     SocketIoModule,
     InterviewsModule,
     NotificationsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AdminSeedService],

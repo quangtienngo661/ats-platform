@@ -6,6 +6,10 @@ import { GeminiService } from '../../../common/external-apis/gemini/gemini.servi
 import { InterviewStatus } from '@ats-platform/database';
 import { InterviewSessionService } from './interview-session.service';
 
+export interface EvaluateQnaJobData {
+    qnaId: string;
+}
+
 @Processor('interview-evaluation', { concurrency: 3 })
 export class InterviewProcessor extends WorkerHost {
     private readonly logger = new Logger(InterviewProcessor.name);
@@ -21,7 +25,7 @@ export class InterviewProcessor extends WorkerHost {
     // ═══════════════════════════════════════════════════════════════
     // process — Entry point của BullMQ Worker
     // ═══════════════════════════════════════════════════════════════
-    async process(job: Job<any, any, string>): Promise<any> {
+    async process(job: Job<EvaluateQnaJobData, void, string>): Promise<void> {
         if (job.name === 'evaluate_qna') {
             const { qnaId } = job.data;
             this.logger.log(`Evaluating QnA: ${qnaId}`);
@@ -69,10 +73,18 @@ export class InterviewProcessor extends WorkerHost {
 
                 this.logger.log(`QnA ${qnaId} evaluated — Score: ${aiResult.score}/100`);
             } catch (error) {
+                const maxAttempts = job.opts.attempts ?? 1;
+                const isFinalAttempt = job.attemptsMade + 1 >= maxAttempts;
+
                 this.logger.error(
-                    `Failed to evaluate QnA ${qnaId}: ${error.message}`,
+                    `Failed to evaluate QnA ${qnaId} (attempt ${job.attemptsMade + 1}/${maxAttempts}): ${error.message}`,
                     error.stack,
                 );
+
+                if (!isFinalAttempt) {
+                    // Còn lượt retry — để BullMQ tự retry, chưa ghi [ERROR] và chưa finalize
+                    throw error;
+                }
 
                 // Ghi lỗi vào feedback để endSession biết câu này bị lỗi chấm
                 await this.prisma.interviewQnA.update({
@@ -90,6 +102,9 @@ export class InterviewProcessor extends WorkerHost {
                 if (qna) {
                     await this.finalizePendingSessionIfReady(qna.sessionId);
                 }
+
+                // Hết lượt retry — ném lại lỗi để BullMQ ghi nhận job "failed", không phải "completed"
+                throw error;
             }
         }
     }

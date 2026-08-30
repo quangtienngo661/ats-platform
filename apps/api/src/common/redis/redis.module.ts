@@ -1,7 +1,9 @@
 // src/redis/redis.module.ts
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+
+const logger = new Logger('RedisModule');
 
 @Global()
 @Module({
@@ -13,7 +15,7 @@ import Redis from 'ioredis';
           host: configService.get<string>('REDIS_HOST', 'localhost'),
           port: configService.get<number>('REDIS_PORT', 6379),
           // password: configService.get<string>('REDIS_PASSWORD'),
-          
+
           // Retry strategy (tùy chọn nhưng khuyên dùng)
           retryStrategy: (times) => {
             return Math.min(times * 50, 2000);
@@ -21,7 +23,7 @@ import Redis from 'ioredis';
         });
 
         redisClient.on('error', (err) => {
-          console.error('Redis Client Error', err);
+          logger.error('Redis Client Error', err instanceof Error ? err.stack : String(err));
         });
 
         return redisClient;
