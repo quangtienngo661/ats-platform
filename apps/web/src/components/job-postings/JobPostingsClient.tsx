@@ -14,7 +14,7 @@ import { ISkillDto } from '@/types/interfaces/skill.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
 import { deleteJobPostingAction } from '@/servers/job-postings/job-postings.action';
-import { Role } from '../../../../../libs/shared/types/src/lib/enums';
+import { Role } from '@ats-platform/types';
 
 interface JobPostingsClientProps {
     jobs: IJobPostingDto[];
