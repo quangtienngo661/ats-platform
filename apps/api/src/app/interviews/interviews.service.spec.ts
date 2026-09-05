@@ -34,8 +34,8 @@ describe('InterviewsService', () => {
       applicationId: 'app-1',
       interviewerId: 'interviewer-1',
       interviewType: InterviewType.online,
-      scheduledDate: '2026-06-01',
-      scheduledTime: '2026-06-01T09:00:00.000Z',
+      startAt: '2026-06-01T09:00:00.000Z',
+      durationMinutes: 60,
       onlineMeetingLink: 'https://meet.test',
     } as any);
 
@@ -84,8 +84,8 @@ describe('InterviewsService', () => {
         applicationId: 'app-1',
         interviewerId: 'interviewer-1',
         interviewType: InterviewType.online,
-        scheduledDate: '2026-06-01',
-        scheduledTime: '2026-06-01T09:00:00.000Z',
+        startAt: '2026-06-01T09:00:00.000Z',
+        durationMinutes: 60,
       } as any),
     ).rejects.toThrow('thời điểm');
   });
@@ -113,7 +113,7 @@ describe('InterviewsService', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           application: { candidateId: 'cand-1' },
-          scheduledDate: expect.objectContaining({
+          startAt: expect.objectContaining({
             gte: expect.any(Date),
             lte: expect.any(Date),
           }),
@@ -173,8 +173,8 @@ describe('InterviewsService', () => {
       interviewId: 'int-1',
       scheduledBy: 'user-1',
       interviewerId: 'user-2',
-      scheduledDate: new Date('2026-08-01'),
-      scheduledTime: new Date('2026-08-01T09:00:00Z'),
+      startAt: new Date('2026-08-01T09:00:00Z'),
+      durationMinutes: 60,
       status,
       application: { jobPosting: { departmentId: 'dep-1' } },
     });

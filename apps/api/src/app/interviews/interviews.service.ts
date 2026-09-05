@@ -155,15 +155,13 @@ export class InterviewsService {
 
   private async assertNoScheduleConflict(
     interviewerId: string,
-    scheduledDate: Date,
-    scheduledTime: Date,
+    startAt: Date,
     excludedInterviewId?: string,
   ) {
     const conflict = await this.prisma.interviewSchedule.findFirst({
       where: {
         interviewerId,
-        scheduledDate,
-        scheduledTime,
+        startAt,
         status: ScheduleStatus.scheduled,
         ...(excludedInterviewId
           ? { NOT: { interviewId: excludedInterviewId } }
@@ -232,8 +230,8 @@ export class InterviewsService {
         interviewId: true,
         scheduledBy: true,
         interviewerId: true,
-        scheduledDate: true,
-        scheduledTime: true,
+        startAt: true,
+        durationMinutes: true,
         status: true,
         application: {
           select: { jobPosting: { select: { departmentId: true } } },
@@ -264,13 +262,8 @@ export class InterviewsService {
       dto.interviewerId,
       application.jobPosting.departmentId,
     );
-    const scheduledDate = new Date(dto.scheduledDate);
-    const scheduledTime = new Date(dto.scheduledTime);
-    await this.assertNoScheduleConflict(
-      dto.interviewerId,
-      scheduledDate,
-      scheduledTime,
-    );
+    const startAt = new Date(dto.startAt);
+    await this.assertNoScheduleConflict(dto.interviewerId, startAt);
 
     return this.prisma.interviewSchedule.create({
       data: {
@@ -278,8 +271,8 @@ export class InterviewsService {
         scheduledBy: userId,
         interviewerId: dto.interviewerId,
         interviewType: dto.interviewType,
-        scheduledDate,
-        scheduledTime,
+        startAt,
+        durationMinutes: dto.durationMinutes,
         onlineMeetingLink: dto.onlineMeetingLink,
       },
       include: scheduleIncludeOptions,
@@ -319,17 +312,16 @@ export class InterviewsService {
     }
 
     if (query.fromDate || query.toDate) {
-      where.scheduledDate = {};
-      if (query.fromDate) where.scheduledDate.gte = new Date(query.fromDate);
-      if (query.toDate)
-        where.scheduledDate.lte = this.getEndOfDay(query.toDate);
+      where.startAt = {};
+      if (query.fromDate) where.startAt.gte = new Date(query.fromDate);
+      if (query.toDate) where.startAt.lte = this.getEndOfDay(query.toDate);
     }
 
     const [schedules, total] = await Promise.all([
       this.prisma.interviewSchedule.findMany({
         where,
         include: scheduleIncludeOptions,
-        orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
+        orderBy: { startAt: 'asc' },
         skip,
         take: limit,
       }),
@@ -382,10 +374,9 @@ export class InterviewsService {
       updateData.interviewerId = dto.interviewerId;
     }
     if (dto.interviewType) updateData.interviewType = dto.interviewType;
-    if (dto.scheduledDate)
-      updateData.scheduledDate = new Date(dto.scheduledDate);
-    if (dto.scheduledTime)
-      updateData.scheduledTime = new Date(dto.scheduledTime);
+    if (dto.startAt) updateData.startAt = new Date(dto.startAt);
+    if (dto.durationMinutes !== undefined)
+      updateData.durationMinutes = dto.durationMinutes;
     if (dto.onlineMeetingLink !== undefined)
       updateData.onlineMeetingLink = dto.onlineMeetingLink;
 
@@ -402,19 +393,11 @@ export class InterviewsService {
 
     const nextInterviewerId =
       updateData.interviewerId ?? schedule.interviewerId;
-    const nextScheduledDate =
-      updateData.scheduledDate ?? schedule.scheduledDate;
-    const nextScheduledTime =
-      updateData.scheduledTime ?? schedule.scheduledTime;
-    if (
-      dto.interviewerId !== undefined ||
-      dto.scheduledDate !== undefined ||
-      dto.scheduledTime !== undefined
-    ) {
+    const nextStartAt = updateData.startAt ?? schedule.startAt;
+    if (dto.interviewerId !== undefined || dto.startAt !== undefined) {
       await this.assertNoScheduleConflict(
         nextInterviewerId,
-        nextScheduledDate,
-        nextScheduledTime,
+        nextStartAt,
         interviewId,
       );
     }

@@ -1,5 +1,5 @@
 import { InterviewType } from '@ats-platform/database';
-import { IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class CreateInterviewScheduleDto {
     @IsUUID()
@@ -12,10 +12,12 @@ export class CreateInterviewScheduleDto {
     interviewType: InterviewType;
 
     @IsDateString()
-    scheduledDate: string;
+    startAt: string;
 
-    @IsDateString()
-    scheduledTime: string;
+    @IsInt()
+    @Min(15)
+    @Max(480)
+    durationMinutes: number;
 
     @IsString()
     @IsOptional()
