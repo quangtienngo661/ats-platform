@@ -14,6 +14,8 @@ describe('InterviewsService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
+    // Default: interviewer has no existing schedules, so the overlap check clears.
+    prisma.interviewSchedule.findMany.mockResolvedValue([]);
     service = new InterviewsService(prisma as any);
   });
 
@@ -75,9 +77,9 @@ describe('InterviewsService', () => {
       departmentId: 'dep-1',
       user: { userId: 'interviewer-1', role: UserRole.recruiter },
     });
-    prisma.interviewSchedule.findFirst.mockResolvedValue({
-      interviewId: 'existing',
-    });
+    prisma.interviewSchedule.findMany.mockResolvedValue([
+      { startAt: new Date('2026-06-01T09:00:00.000Z'), durationMinutes: 60 },
+    ]);
 
     await expect(
       service.createSchedule('admin-1', UserRole.admin, {
@@ -87,7 +89,7 @@ describe('InterviewsService', () => {
         startAt: '2026-06-01T09:00:00.000Z',
         durationMinutes: 60,
       } as any),
-    ).rejects.toThrow('thời điểm');
+    ).rejects.toThrow('trùng');
   });
 
   it('rejects an overlapping schedule even when start times differ (C-02)', async () => {

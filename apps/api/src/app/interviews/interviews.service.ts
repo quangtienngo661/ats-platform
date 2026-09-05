@@ -156,23 +156,37 @@ export class InterviewsService {
   private async assertNoScheduleConflict(
     interviewerId: string,
     startAt: Date,
+    durationMinutes: number,
     excludedInterviewId?: string,
   ) {
-    const conflict = await this.prisma.interviewSchedule.findFirst({
+    const newEnd = new Date(startAt.getTime() + durationMinutes * 60_000);
+
+    // Two intervals overlap iff each starts before the other ends. Prisma's
+    // `where` expresses `existingStart < newEnd` directly; the symmetric
+    // `existingEnd > newStart` depends on each row's own duration, so it is
+    // checked in memory over the interviewer's (few) scheduled slots.
+    const candidates = await this.prisma.interviewSchedule.findMany({
       where: {
         interviewerId,
-        startAt,
         status: ScheduleStatus.scheduled,
+        startAt: { lt: newEnd },
         ...(excludedInterviewId
           ? { NOT: { interviewId: excludedInterviewId } }
           : {}),
       },
-      select: { interviewId: true },
+      select: { startAt: true, durationMinutes: true },
     });
 
-    if (conflict) {
+    const hasOverlap = candidates.some((existing) => {
+      const existingEnd = new Date(
+        existing.startAt.getTime() + existing.durationMinutes * 60_000,
+      );
+      return existingEnd > startAt;
+    });
+
+    if (hasOverlap) {
       throw new BadRequestException(
-        'Người phỏng vấn đã có lịch ở thời điểm này',
+        'Người phỏng vấn đã có lịch trùng khung giờ này',
       );
     }
   }
@@ -263,7 +277,11 @@ export class InterviewsService {
       application.jobPosting.departmentId,
     );
     const startAt = new Date(dto.startAt);
-    await this.assertNoScheduleConflict(dto.interviewerId, startAt);
+    await this.assertNoScheduleConflict(
+      dto.interviewerId,
+      startAt,
+      dto.durationMinutes,
+    );
 
     return this.prisma.interviewSchedule.create({
       data: {
@@ -394,10 +412,17 @@ export class InterviewsService {
     const nextInterviewerId =
       updateData.interviewerId ?? schedule.interviewerId;
     const nextStartAt = updateData.startAt ?? schedule.startAt;
-    if (dto.interviewerId !== undefined || dto.startAt !== undefined) {
+    const nextDurationMinutes =
+      updateData.durationMinutes ?? schedule.durationMinutes;
+    if (
+      dto.interviewerId !== undefined ||
+      dto.startAt !== undefined ||
+      dto.durationMinutes !== undefined
+    ) {
       await this.assertNoScheduleConflict(
         nextInterviewerId,
         nextStartAt,
+        nextDurationMinutes,
         interviewId,
       );
     }
