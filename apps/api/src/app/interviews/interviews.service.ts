@@ -155,26 +155,38 @@ export class InterviewsService {
 
   private async assertNoScheduleConflict(
     interviewerId: string,
-    scheduledDate: Date,
-    scheduledTime: Date,
+    startAt: Date,
+    durationMinutes: number,
     excludedInterviewId?: string,
   ) {
-    const conflict = await this.prisma.interviewSchedule.findFirst({
+    const newEnd = new Date(startAt.getTime() + durationMinutes * 60_000);
+
+    // Two intervals overlap iff each starts before the other ends. Prisma's
+    // `where` expresses `existingStart < newEnd` directly; the symmetric
+    // `existingEnd > newStart` depends on each row's own duration, so it is
+    // checked in memory over the interviewer's (few) scheduled slots.
+    const candidates = await this.prisma.interviewSchedule.findMany({
       where: {
         interviewerId,
-        scheduledDate,
-        scheduledTime,
         status: ScheduleStatus.scheduled,
+        startAt: { lt: newEnd },
         ...(excludedInterviewId
           ? { NOT: { interviewId: excludedInterviewId } }
           : {}),
       },
-      select: { interviewId: true },
+      select: { startAt: true, durationMinutes: true },
     });
 
-    if (conflict) {
+    const hasOverlap = candidates.some((existing) => {
+      const existingEnd = new Date(
+        existing.startAt.getTime() + existing.durationMinutes * 60_000,
+      );
+      return existingEnd > startAt;
+    });
+
+    if (hasOverlap) {
       throw new BadRequestException(
-        'Người phỏng vấn đã có lịch ở thời điểm này',
+        'Người phỏng vấn đã có lịch trùng khung giờ này',
       );
     }
   }
@@ -232,8 +244,8 @@ export class InterviewsService {
         interviewId: true,
         scheduledBy: true,
         interviewerId: true,
-        scheduledDate: true,
-        scheduledTime: true,
+        startAt: true,
+        durationMinutes: true,
         status: true,
         application: {
           select: { jobPosting: { select: { departmentId: true } } },
@@ -264,12 +276,11 @@ export class InterviewsService {
       dto.interviewerId,
       application.jobPosting.departmentId,
     );
-    const scheduledDate = new Date(dto.scheduledDate);
-    const scheduledTime = new Date(dto.scheduledTime);
+    const startAt = new Date(dto.startAt);
     await this.assertNoScheduleConflict(
       dto.interviewerId,
-      scheduledDate,
-      scheduledTime,
+      startAt,
+      dto.durationMinutes,
     );
 
     return this.prisma.interviewSchedule.create({
@@ -278,8 +289,8 @@ export class InterviewsService {
         scheduledBy: userId,
         interviewerId: dto.interviewerId,
         interviewType: dto.interviewType,
-        scheduledDate,
-        scheduledTime,
+        startAt,
+        durationMinutes: dto.durationMinutes,
         onlineMeetingLink: dto.onlineMeetingLink,
       },
       include: scheduleIncludeOptions,
@@ -319,17 +330,16 @@ export class InterviewsService {
     }
 
     if (query.fromDate || query.toDate) {
-      where.scheduledDate = {};
-      if (query.fromDate) where.scheduledDate.gte = new Date(query.fromDate);
-      if (query.toDate)
-        where.scheduledDate.lte = this.getEndOfDay(query.toDate);
+      where.startAt = {};
+      if (query.fromDate) where.startAt.gte = new Date(query.fromDate);
+      if (query.toDate) where.startAt.lte = this.getEndOfDay(query.toDate);
     }
 
     const [schedules, total] = await Promise.all([
       this.prisma.interviewSchedule.findMany({
         where,
         include: scheduleIncludeOptions,
-        orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
+        orderBy: { startAt: 'asc' },
         skip,
         take: limit,
       }),
@@ -382,10 +392,9 @@ export class InterviewsService {
       updateData.interviewerId = dto.interviewerId;
     }
     if (dto.interviewType) updateData.interviewType = dto.interviewType;
-    if (dto.scheduledDate)
-      updateData.scheduledDate = new Date(dto.scheduledDate);
-    if (dto.scheduledTime)
-      updateData.scheduledTime = new Date(dto.scheduledTime);
+    if (dto.startAt) updateData.startAt = new Date(dto.startAt);
+    if (dto.durationMinutes !== undefined)
+      updateData.durationMinutes = dto.durationMinutes;
     if (dto.onlineMeetingLink !== undefined)
       updateData.onlineMeetingLink = dto.onlineMeetingLink;
 
@@ -402,19 +411,18 @@ export class InterviewsService {
 
     const nextInterviewerId =
       updateData.interviewerId ?? schedule.interviewerId;
-    const nextScheduledDate =
-      updateData.scheduledDate ?? schedule.scheduledDate;
-    const nextScheduledTime =
-      updateData.scheduledTime ?? schedule.scheduledTime;
+    const nextStartAt = updateData.startAt ?? schedule.startAt;
+    const nextDurationMinutes =
+      updateData.durationMinutes ?? schedule.durationMinutes;
     if (
       dto.interviewerId !== undefined ||
-      dto.scheduledDate !== undefined ||
-      dto.scheduledTime !== undefined
+      dto.startAt !== undefined ||
+      dto.durationMinutes !== undefined
     ) {
       await this.assertNoScheduleConflict(
         nextInterviewerId,
-        nextScheduledDate,
-        nextScheduledTime,
+        nextStartAt,
+        nextDurationMinutes,
         interviewId,
       );
     }

@@ -481,7 +481,6 @@ model InterviewSession {
   topic     InterviewTopic      @relation(fields: [topicId], references: [topicId])
   qnas      InterviewQnA[]
   result    InterviewResult?
-  schedules InterviewSchedule[]
 
   @@map("interview_sessions")
 }
@@ -526,17 +525,15 @@ model InterviewResult {
 model InterviewSchedule {
   interviewId       String         @id @default(uuid()) @map("interview_id")
   applicationId     String         @map("application_id")
-  sessionId         String?        @map("session_id")
   scheduledBy       String         @map("scheduled_by")
   interviewerId     String         @map("interviewer_id")
   interviewType     InterviewType  @map("interview_type")
-  scheduledDate     DateTime       @map("scheduled_date")
-  scheduledTime     DateTime       @map("scheduled_time")
+  startAt           DateTime       @map("start_at")
+  durationMinutes   Int            @default(60) @map("duration_minutes")
   onlineMeetingLink String?        @map("online_meeting_link")
   status            ScheduleStatus @default(scheduled)
 
   application Application       @relation(fields: [applicationId], references: [applicationId])
-  session     InterviewSession? @relation(fields: [sessionId], references: [sessionId])
   scheduler   User              @relation("ScheduledBy", fields: [scheduledBy], references: [userId])
   interviewer User              @relation("Interviewer", fields: [interviewerId], references: [userId])
 

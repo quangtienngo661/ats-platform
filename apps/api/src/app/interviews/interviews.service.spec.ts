@@ -14,6 +14,8 @@ describe('InterviewsService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
+    // Default: interviewer has no existing schedules, so the overlap check clears.
+    prisma.interviewSchedule.findMany.mockResolvedValue([]);
     service = new InterviewsService(prisma as any);
   });
 
@@ -34,8 +36,8 @@ describe('InterviewsService', () => {
       applicationId: 'app-1',
       interviewerId: 'interviewer-1',
       interviewType: InterviewType.online,
-      scheduledDate: '2026-06-01',
-      scheduledTime: '2026-06-01T09:00:00.000Z',
+      startAt: '2026-06-01T09:00:00.000Z',
+      durationMinutes: 60,
       onlineMeetingLink: 'https://meet.test',
     } as any);
 
@@ -75,19 +77,47 @@ describe('InterviewsService', () => {
       departmentId: 'dep-1',
       user: { userId: 'interviewer-1', role: UserRole.recruiter },
     });
-    prisma.interviewSchedule.findFirst.mockResolvedValue({
-      interviewId: 'existing',
-    });
+    prisma.interviewSchedule.findMany.mockResolvedValue([
+      { startAt: new Date('2026-06-01T09:00:00.000Z'), durationMinutes: 60 },
+    ]);
 
     await expect(
       service.createSchedule('admin-1', UserRole.admin, {
         applicationId: 'app-1',
         interviewerId: 'interviewer-1',
         interviewType: InterviewType.online,
-        scheduledDate: '2026-06-01',
-        scheduledTime: '2026-06-01T09:00:00.000Z',
+        startAt: '2026-06-01T09:00:00.000Z',
+        durationMinutes: 60,
       } as any),
-    ).rejects.toThrow('thời điểm');
+    ).rejects.toThrow('trùng');
+  });
+
+  it('rejects an overlapping schedule even when start times differ (C-02)', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      status: ApplicationStatus.interview,
+      jobPosting: { departmentId: 'dep-1' },
+    });
+    prisma.recruiter.findUnique.mockResolvedValue({
+      recruiterId: 'rec-1',
+      departmentId: 'dep-1',
+      user: { userId: 'interviewer-1', role: UserRole.recruiter },
+    });
+    // Interviewer already booked 09:00–10:00; the new slot is 09:30–10:30 — they overlap,
+    // even though the start times differ (the exact-time check let this through).
+    prisma.interviewSchedule.findMany.mockResolvedValue([
+      { startAt: new Date('2026-06-01T09:00:00.000Z'), durationMinutes: 60 },
+    ]);
+
+    await expect(
+      service.createSchedule('admin-1', UserRole.admin, {
+        applicationId: 'app-1',
+        interviewerId: 'interviewer-1',
+        interviewType: InterviewType.online,
+        startAt: '2026-06-01T09:30:00.000Z',
+        durationMinutes: 60,
+      } as any),
+    ).rejects.toThrow('trùng');
   });
 
   it('filters my schedules for candidates with date range pagination', async () => {
@@ -113,7 +143,7 @@ describe('InterviewsService', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           application: { candidateId: 'cand-1' },
-          scheduledDate: expect.objectContaining({
+          startAt: expect.objectContaining({
             gte: expect.any(Date),
             lte: expect.any(Date),
           }),
@@ -173,8 +203,8 @@ describe('InterviewsService', () => {
       interviewId: 'int-1',
       scheduledBy: 'user-1',
       interviewerId: 'user-2',
-      scheduledDate: new Date('2026-08-01'),
-      scheduledTime: new Date('2026-08-01T09:00:00Z'),
+      startAt: new Date('2026-08-01T09:00:00Z'),
+      durationMinutes: 60,
       status,
       application: { jobPosting: { departmentId: 'dep-1' } },
     });

@@ -37,8 +37,8 @@ type SchedulePayload = {
     applicationId: string;
     interviewerId: string;
     interviewType: InterviewType;
-    scheduledDate: string;
-    scheduledTime: string;
+    startAt: string;
+    durationMinutes: number;
 };
 
 type NormalizedSchedulePayload =
@@ -59,12 +59,6 @@ function getString(formData: FormData, key: string) {
     return (formData.get(key) as string | null)?.trim() ?? '';
 }
 
-function toLocalDateIso(date: string) {
-    const parsed = new Date(`${date}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) return null;
-    return parsed.toISOString();
-}
-
 function toLocalDateTimeIso(date: string, time: string) {
     const source = time.includes('T') ? time : `${date}T${time}:00`;
     const parsed = new Date(source);
@@ -77,17 +71,21 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
     const interviewerId = getString(formData, 'interviewerId');
     const scheduledDate = getString(formData, 'scheduledDate');
     const scheduledTime = getString(formData, 'scheduledTime');
+    const durationRaw = getString(formData, 'durationMinutes');
 
     if (!applicationId) return { ok: false, error: 'Vui lòng chọn ứng viên cần phỏng vấn' };
     if (!interviewerId) return { ok: false, error: 'Vui lòng chọn người phỏng vấn' };
     if (!scheduledDate) return { ok: false, error: 'Vui lòng chọn ngày phỏng vấn' };
     if (!scheduledTime) return { ok: false, error: 'Vui lòng chọn giờ phỏng vấn' };
 
-    const scheduledDateIso = toLocalDateIso(scheduledDate);
-    const scheduledTimeIso = toLocalDateTimeIso(scheduledDate, scheduledTime);
-
-    if (!scheduledDateIso || !scheduledTimeIso) {
+    const startAtIso = toLocalDateTimeIso(scheduledDate, scheduledTime);
+    if (!startAtIso) {
         return { ok: false, error: 'Ngày hoặc giờ phỏng vấn không hợp lệ' };
+    }
+
+    const durationMinutes = durationRaw ? Number(durationRaw) : 60;
+    if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 480) {
+        return { ok: false, error: 'Thời lượng phỏng vấn phải từ 15 đến 480 phút' };
     }
 
     return {
@@ -96,8 +94,8 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
             applicationId,
             interviewerId,
             interviewType: InterviewType.onsite,
-            scheduledDate: scheduledDateIso,
-            scheduledTime: scheduledTimeIso,
+            startAt: startAtIso,
+            durationMinutes,
         },
     };
 }

@@ -48,7 +48,7 @@ function parseDateKey(value: string) {
 }
 
 function getScheduleDateKey(schedule: IInterviewSchedule) {
-    return toDateKey(new Date(schedule.scheduledDate));
+    return toDateKey(new Date(schedule.startAt));
 }
 
 const weekdayLabels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6'];
@@ -85,7 +85,7 @@ export default function InterviewScheduleClient({
         return schedules.reduce<Record<string, IInterviewSchedule[]>>((acc, schedule) => {
             const key = getScheduleDateKey(schedule);
             acc[key] = [...(acc[key] ?? []), schedule].sort((a, b) => (
-                new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime()
+                new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
             ));
             return acc;
         }, {});
