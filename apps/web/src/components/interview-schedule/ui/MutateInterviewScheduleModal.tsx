@@ -33,6 +33,13 @@ function formatInputTime(value?: string) {
     return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
+function formatInputDate(value?: string) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function candidateLabel(application: IApplicationDto) {
     const candidateName = application.candidate?.user?.fullName ?? 'Ứng viên';
     const jobTitle = application.jobPosting?.title ?? 'Tin tuyển dụng';
@@ -176,7 +183,7 @@ export function MutateInterviewScheduleModal({
                                     <input
                                         type="date"
                                         name="scheduledDate"
-                                        defaultValue={defaultDate}
+                                        defaultValue={schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate}
                                         min={minDate}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
@@ -189,11 +196,27 @@ export function MutateInterviewScheduleModal({
                                     <input
                                         type="time"
                                         name="scheduledTime"
-                                        defaultValue={formatInputTime(schedule?.scheduledTime)}
+                                        defaultValue={formatInputTime(schedule?.startAt)}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                    Thời lượng (phút)
+                                </label>
+                                <input
+                                    type="number"
+                                    name="durationMinutes"
+                                    defaultValue={schedule?.durationMinutes ?? 60}
+                                    min={15}
+                                    max={480}
+                                    step={15}
+                                    required
+                                    className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                />
                             </div>
 
                             <div className="rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] px-4 py-3">

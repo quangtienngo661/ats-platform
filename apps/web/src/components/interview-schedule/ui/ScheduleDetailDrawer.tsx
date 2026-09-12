@@ -38,8 +38,9 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
     const departmentName = schedule.application?.jobPosting?.department?.name ?? 'Chưa có khoa';
 
     const items = [
-        { icon: CalendarDays, label: 'Ngày phỏng vấn', value: formatDate(schedule.scheduledDate) },
-        { icon: Clock, label: 'Giờ phỏng vấn', value: formatTime(schedule.scheduledTime) },
+        { icon: CalendarDays, label: 'Ngày phỏng vấn', value: formatDate(schedule.startAt) },
+        { icon: Clock, label: 'Giờ phỏng vấn', value: formatTime(schedule.startAt) },
+        { icon: Clock, label: 'Thời lượng', value: `${schedule.durationMinutes} phút` },
         { icon: UserRound, label: 'Người phỏng vấn', value: schedule.interviewer?.fullName ?? 'Chưa có' },
         { icon: Briefcase, label: 'Vị trí', value: jobTitle },
         { icon: Building2, label: 'Khoa', value: departmentName },

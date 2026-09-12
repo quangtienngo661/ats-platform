@@ -1,5 +1,5 @@
 import { InterviewType, ScheduleStatus } from '@ats-platform/database';
-import { IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class UpdateInterviewScheduleDto {
     @IsUUID()
@@ -12,11 +12,13 @@ export class UpdateInterviewScheduleDto {
 
     @IsDateString()
     @IsOptional()
-    scheduledDate?: string;
+    startAt?: string;
 
-    @IsDateString()
+    @IsInt()
+    @Min(15)
+    @Max(480)
     @IsOptional()
-    scheduledTime?: string;
+    durationMinutes?: number;
 
     @IsString()
     @IsOptional()

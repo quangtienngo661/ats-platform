@@ -32,7 +32,7 @@ export function ScheduleCard({ schedule, onSelect }: ScheduleCardProps) {
             <div className="mt-3 flex items-center gap-3 text-[11px] text-[#6E6E73]">
                 <span className="inline-flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {formatTime(schedule.scheduledTime)}
+                    {formatTime(schedule.startAt)} · {schedule.durationMinutes} phút
                 </span>
                 <span className="inline-flex min-w-0 items-center gap-1">
                     <UserRound className="h-3.5 w-3.5" />

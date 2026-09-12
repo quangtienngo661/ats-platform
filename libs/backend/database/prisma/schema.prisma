@@ -528,8 +528,8 @@ model InterviewSchedule {
   scheduledBy       String         @map("scheduled_by")
   interviewerId     String         @map("interviewer_id")
   interviewType     InterviewType  @map("interview_type")
-  scheduledDate     DateTime       @map("scheduled_date")
-  scheduledTime     DateTime       @map("scheduled_time")
+  startAt           DateTime       @map("start_at")
+  durationMinutes   Int            @default(60) @map("duration_minutes")
   onlineMeetingLink String?        @map("online_meeting_link")
   status            ScheduleStatus @default(scheduled)
 

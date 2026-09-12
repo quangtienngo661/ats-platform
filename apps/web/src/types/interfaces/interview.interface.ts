@@ -15,8 +15,8 @@ export interface IInterviewSchedule {
     scheduledBy: string;
     interviewerId: string;
     interviewType: InterviewType;
-    scheduledDate: string;
-    scheduledTime: string;
+    startAt: string;
+    durationMinutes: number;
     onlineMeetingLink?: string | null;
     status: ScheduleStatus;
     application: IApplicationDto;
