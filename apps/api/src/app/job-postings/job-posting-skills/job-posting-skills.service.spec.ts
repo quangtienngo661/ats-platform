@@ -13,15 +13,15 @@ describe('JobPostingSkillsService', () => {
   it('creates many job-skill rows', async () => {
     prisma.jobPostingSkill.createMany.mockResolvedValue({ count: 2 });
 
-    await service.create('job-1', [
+    await service.create('job-1', 'org-1', [
       { skillId: 'skill-1', isRequired: true },
       { skillId: 'skill-2', isRequired: false },
     ] as any);
 
     expect(prisma.jobPostingSkill.createMany).toHaveBeenCalledWith({
       data: [
-        { jobId: 'job-1', skillId: 'skill-1', isRequired: true },
-        { jobId: 'job-1', skillId: 'skill-2', isRequired: false },
+        { jobId: 'job-1', organizationId: 'org-1', skillId: 'skill-1', isRequired: true },
+        { jobId: 'job-1', organizationId: 'org-1', skillId: 'skill-2', isRequired: false },
       ],
     });
   });

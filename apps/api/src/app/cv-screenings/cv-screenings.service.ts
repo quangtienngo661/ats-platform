@@ -131,6 +131,8 @@ export class CvScreeningsService {
     const screening = await this.prisma.cVScreening.upsert({
       where: { applicationId },
       create: {
+        // The screening belongs to the organization that owns the application.
+        organizationId: application.organizationId,
         applicationId,
         cvId,
         configId: config.configId,
