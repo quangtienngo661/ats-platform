@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { Prisma } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateAiConfigDto, UpdateAiConfigDto } from './dtos/ai-config.dto';
+import { resolveSoleOrganizationId } from '../../common/utils/organization.util';
 
 @Injectable()
 export class AiConfigService {
@@ -26,6 +27,7 @@ export class AiConfigService {
 
 			return await tx.aiConfig.create({
 				data: {
+					organizationId: await resolveSoleOrganizationId(tx),
 					name: createAiConfigDto.name,
 					description: createAiConfigDto.description,
 					isDefault: createAiConfigDto.isDefault ?? false,

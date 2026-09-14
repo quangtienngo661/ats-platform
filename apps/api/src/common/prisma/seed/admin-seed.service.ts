@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { resolveSoleOrganizationId } from '../../utils/organization.util';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -77,6 +78,7 @@ export class AdminSeedService implements OnApplicationBootstrap {
 
     const defaultConfig = await this.prisma.aiConfig.create({
       data: {
+        organizationId: await resolveSoleOrganizationId(this.prisma),
         name: process.env.AI_DEFAULT_CONFIG_NAME || 'Default CV Screening Config',
         isDefault: true,
         skillsWeight: 0.5,

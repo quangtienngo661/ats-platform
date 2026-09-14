@@ -45,8 +45,14 @@ describe('JobPostingsService', () => {
       recruiterId: 'rec-1',
       departmentId: 'dep-1',
     });
-    prisma.department.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
-    tx.jobPosting.create.mockResolvedValue({ jobId: 'job-1' });
+    prisma.department.findUnique.mockResolvedValue({
+      departmentId: 'dep-1',
+      organizationId: 'org-1',
+    });
+    tx.jobPosting.create.mockResolvedValue({
+      jobId: 'job-1',
+      organizationId: 'org-1',
+    });
     tx.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',
       title: 'Backend',
@@ -72,11 +78,14 @@ describe('JobPostingsService', () => {
         data: expect.objectContaining({
           parsedRequirements: { skills: ['nestjs'] },
           publishedAt: expect.any(Date),
+          // The posting is tied to the organization owning the recruiter's department.
+          organization: { connect: { organizationId: 'org-1' } },
         }),
       }),
     );
     expect(jobPostingSkillsService.create).toHaveBeenCalledWith(
       'job-1',
+      'org-1',
       [{ skillId: 'skill-1', isRequired: true }],
       tx,
     );

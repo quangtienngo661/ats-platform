@@ -192,7 +192,7 @@ export class ApplicationsService {
 
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId: dto.jobId },
-      select: { jobId: true, status: true },
+      select: { jobId: true, status: true, organizationId: true },
     });
     if (!job) throw new NotFoundException('Không tìm thấy tin tuyển dụng');
     if (job.status !== JobStatus.active) {
@@ -234,6 +234,9 @@ export class ApplicationsService {
     return await this.prisma.$transaction(async (tx) => {
       const appliedApplication = await tx.application.create({
         data: {
+          // The application belongs to the organization that owns the job posting —
+          // never to the candidate, who is in a pool shared across organizations.
+          organizationId: job.organizationId,
           jobId: dto.jobId,
           candidateId: candidate.candidateId,
           cvId: dto.cvId,
@@ -249,6 +252,7 @@ export class ApplicationsService {
 
       await tx.applicationHistory.create({
         data: {
+          organizationId: appliedApplication.organizationId,
           applicationId: appliedApplication.applicationId,
           fromStatus: null,
           toStatus: ApplicationStatus.applied,
@@ -316,6 +320,7 @@ export class ApplicationsService {
 
       await tx.applicationHistory.create({
         data: {
+          organizationId: withdrawnApplication.organizationId,
           applicationId,
           fromStatus: ApplicationStatus.applied,
           toStatus: ApplicationStatus.cancelled,
@@ -546,6 +551,7 @@ export class ApplicationsService {
 
       await tx.applicationHistory.create({
         data: {
+          organizationId: updated.organizationId,
           applicationId,
           fromStatus: application.status,
           toStatus: dto.status,

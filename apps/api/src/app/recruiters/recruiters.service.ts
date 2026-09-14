@@ -58,9 +58,22 @@ export class RecruitersService {
       );
     }
 
+    const department = await this.prisma.department.findUnique({
+      where: { departmentId: createRecruiterDto.departmentId },
+      select: { organizationId: true },
+    });
+
+    if (!department) {
+      throw new NotFoundException(
+        `Không tìm thấy phòng ban với ID ${createRecruiterDto.departmentId}`,
+      );
+    }
+
     const recruiter = await this.prisma.recruiter.create({
       data: {
         userId: createRecruiterDto.userId,
+        // A recruiter belongs to the organization that owns their department.
+        organizationId: department.organizationId,
         departmentId: createRecruiterDto.departmentId,
         position: createRecruiterDto.position,
       },
