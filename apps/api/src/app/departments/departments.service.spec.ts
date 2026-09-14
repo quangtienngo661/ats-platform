@@ -13,7 +13,9 @@ describe('DepartmentsService', () => {
   it('creates a department with the expected data', async () => {
     const department = { departmentId: 'dep-1', name: 'Engineering' };
     prisma.department.create.mockResolvedValue(department);
-    prisma.organization.findMany.mockResolvedValue([{ organizationId: 'org-1' }]);
+    prisma.organization.findMany.mockResolvedValue([
+      { organizationId: 'org-1' },
+    ]);
 
     await expect(
       service.create({

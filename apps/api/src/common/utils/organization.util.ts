@@ -37,7 +37,7 @@ export async function resolveSoleOrganizationId(
 
   if (organizations.length > 1) {
     throw new Error(
-      'More than one organization exists, so the caller\'s organization can no longer be inferred. ' +
+      "More than one organization exists, so the caller's organization can no longer be inferred. " +
         'Resolve organizationId from the authenticated caller instead (module spec criterion 7).',
     );
   }
