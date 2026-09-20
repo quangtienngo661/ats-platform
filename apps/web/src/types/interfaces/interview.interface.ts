@@ -12,12 +12,11 @@ export interface IInterviewUserBrief {
 export interface IInterviewSchedule {
     interviewId: string;
     applicationId: string;
-    sessionId?: string | null;
     scheduledBy: string;
     interviewerId: string;
     interviewType: InterviewType;
-    scheduledDate: string;
-    scheduledTime: string;
+    startAt: string;
+    durationMinutes: number;
     onlineMeetingLink?: string | null;
     status: ScheduleStatus;
     application: IApplicationDto;

@@ -9,9 +9,12 @@ export class JobPostingSkillsService {
         private readonly prisma: PrismaService,
     ) { }
 
-    async create(jobId: string, skills: IJobPostingSkills[], tx?: Prisma.TransactionClient) {
+    // organizationId is passed in rather than looked up: every caller already holds the
+    // parent job posting, and this runs inside that job's transaction.
+    async create(jobId: string, organizationId: string, skills: IJobPostingSkills[], tx?: Prisma.TransactionClient) {
         const jobPostingSkillsData = skills.map(skill => ({
             jobId,
+            organizationId,
             skillId: skill.skillId,
             isRequired: skill.isRequired,
         }));
