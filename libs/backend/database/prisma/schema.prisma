@@ -199,16 +199,41 @@ model RefreshToken {
 // ORGANIZATION
 // ============================================================
 
+// The tenant boundary. Sits ABOVE Department — Department remains the isolation
+// boundary *within* one organization, it is not replaced.
+// Spec: docs/tasks/multi-tenant-isolation/module-spec-multi-tenant.md
+model Organization {
+  organizationId String   @id @default(uuid()) @map("organization_id")
+  name           String
+  slug           String   @unique
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  departments        Department[]
+  recruiters         Recruiter[]
+  jobPostings        JobPosting[]
+  jobPostingSkills   JobPostingSkill[]
+  applications       Application[]
+  applicationHistory ApplicationHistory[]
+  cvScreenings       CVScreening[]
+  aiConfigs          AiConfig[]
+  interviewSchedules InterviewSchedule[]
+
+  @@map("organizations")
+}
+
 model Department {
-  departmentId String   @id @default(uuid()) @map("department_id")
-  name         String
-  description  String?
-  color        String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  departmentId   String   @id @default(uuid()) @map("department_id")
+  organizationId String   @map("organization_id")
+  name           String
+  description    String?
+  color          String?
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  recruiters  Recruiter[]
-  jobPostings JobPosting[]
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  recruiters   Recruiter[]
+  jobPostings  JobPosting[]
 
+  @@index([organizationId])
   @@map("departments")
 }
 
@@ -227,8 +252,27 @@ model Candidate {
   cvs               CV[]
   applications      Application[]
   interviewSessions InterviewSession[]
+  candidateSkills   CandidateSkill[]
 
   @@map("candidates")
+}
+
+// Deliberately carries NO organizationId — candidates are one shared pool across
+// every organization (module spec, Scope). Seeded now so GĐ3's RAG work does not
+// force a later schema change; this is the model the CandidateSkillSource enum
+// above was written for and has been orphaned without since.
+model CandidateSkill {
+  candidateSkillId String               @id @default(uuid()) @map("candidate_skill_id")
+  candidateId      String               @map("candidate_id")
+  skillId          String               @map("skill_id")
+  source           CandidateSkillSource
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [candidateId], onDelete: Cascade)
+  skill     Skill     @relation(fields: [skillId], references: [skillId])
+
+  @@unique([candidateId, skillId])
+  @@map("candidate_skills")
 }
 
 // ============================================================
@@ -237,16 +281,19 @@ model Candidate {
 
 // TODO: consider making departmentId nullable
 model Recruiter {
-  recruiterId  String  @id @default(uuid()) @map("recruiter_id")
-  userId       String  @unique @map("user_id")
-  departmentId String  @map("department_id")
-  position     String?
+  recruiterId    String  @id @default(uuid()) @map("recruiter_id")
+  userId         String  @unique @map("user_id")
+  organizationId String  @map("organization_id")
+  departmentId   String  @map("department_id")
+  position       String?
 
-  user       User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  department Department @relation(fields: [departmentId], references: [departmentId])
+  user         User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  department   Department   @relation(fields: [departmentId], references: [departmentId])
 
   jobPostings JobPosting[]
 
+  @@index([organizationId])
   @@map("recruiters")
 }
 
@@ -274,12 +321,14 @@ model Skill {
   synonyms Json?
 
   jobPostingSkills JobPostingSkill[]
+  candidateSkills  CandidateSkill[]
 
   @@map("skills")
 }
 
 model JobPosting {
   jobId              String       @id @default(uuid()) @map("job_id")
+  organizationId     String       @map("organization_id")
   departmentId       String       @map("department_id")
   categoryId         String?      @map("category_id")
   createdBy          String       @map("created_by")
@@ -293,25 +342,30 @@ model JobPosting {
   createdAt          DateTime     @default(now()) @map("created_at")
   publishedAt        DateTime?    @map("published_at")
 
+  organization     Organization      @relation(fields: [organizationId], references: [organizationId])
   department       Department        @relation(fields: [departmentId], references: [departmentId])
   category         JobCategory?      @relation(fields: [categoryId], references: [categoryId])
   recruiter        Recruiter         @relation(fields: [createdBy], references: [recruiterId])
   jobPostingSkills JobPostingSkill[]
   applications     Application[]
 
+  @@index([organizationId])
   @@map("job_postings")
 }
 
 model JobPostingSkill {
-  id         String  @id @default(uuid())
-  jobId      String  @map("job_id")
-  skillId    String  @map("skill_id")
-  isRequired Boolean @default(true) @map("is_required")
+  id             String  @id @default(uuid())
+  organizationId String  @map("organization_id")
+  jobId          String  @map("job_id")
+  skillId        String  @map("skill_id")
+  isRequired     Boolean @default(true) @map("is_required")
 
-  jobPosting JobPosting @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
-  skill      Skill      @relation(fields: [skillId], references: [skillId])
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  jobPosting   JobPosting   @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+  skill        Skill        @relation(fields: [skillId], references: [skillId])
 
   @@unique([jobId, skillId])
+  @@index([organizationId])
   @@map("job_posting_skills")
 }
 
@@ -360,6 +414,7 @@ model CVParsedData {
 
 model Application {
   applicationId     String            @id @default(uuid()) @map("application_id")
+  organizationId    String            @map("organization_id")
   jobId             String            @map("job_id")
   candidateId       String            @map("candidate_id")
   cvId              String            @map("cv_id")
@@ -367,18 +422,21 @@ model Application {
   appliedAt         DateTime          @default(now()) @map("applied_at")
   currentStageSince DateTime          @default(now()) @map("current_stage_since")
 
-  jobPosting JobPosting           @relation(fields: [jobId], references: [jobId])
-  candidate  Candidate            @relation(fields: [candidateId], references: [candidateId])
-  cv         CV                   @relation(fields: [cvId], references: [cvId])
-  history    ApplicationHistory[]
-  schedules  InterviewSchedule[]
-  screening  CVScreening?
+  organization Organization         @relation(fields: [organizationId], references: [organizationId])
+  jobPosting   JobPosting           @relation(fields: [jobId], references: [jobId])
+  candidate    Candidate            @relation(fields: [candidateId], references: [candidateId])
+  cv           CV                   @relation(fields: [cvId], references: [cvId])
+  history      ApplicationHistory[]
+  schedules    InterviewSchedule[]
+  screening    CVScreening?
 
+  @@index([organizationId])
   @@map("applications")
 }
 
 model ApplicationHistory {
   id              String             @id @default(uuid())
+  organizationId  String             @map("organization_id")
   applicationId   String             @map("application_id")
   fromStatus      ApplicationStatus? @map("from_status")
   toStatus        ApplicationStatus  @map("to_status")
@@ -387,10 +445,12 @@ model ApplicationHistory {
   rejectionReason String?            @map("rejection_reason")
   changedAt       DateTime           @default(now()) @map("changed_at")
 
-  application Application @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
-  user        User        @relation(fields: [changedBy], references: [userId])
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+  user         User         @relation(fields: [changedBy], references: [userId])
 
   @@index([applicationId])
+  @@index([organizationId])
   @@map("application_history")
 }
 
@@ -400,6 +460,7 @@ model ApplicationHistory {
 
 model CVScreening {
   screeningId      String            @id @default(uuid()) @map("screening_id")
+  organizationId   String            @map("organization_id")
   applicationId    String            @unique @map("application_id")
   cvId             String            @map("cv_id")
   configId         String            @map("config_id")
@@ -416,15 +477,21 @@ model CVScreening {
   retryCount       Int               @default(0) @map("retry_count")
   screenedAt       DateTime?         @map("screened_at")
 
-  application Application @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
-  cv          CV          @relation(fields: [cvId], references: [cvId])
-  aiConfig    AiConfig    @relation(fields: [configId], references: [configId])
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+  cv           CV           @relation(fields: [cvId], references: [cvId])
+  aiConfig     AiConfig     @relation(fields: [configId], references: [configId])
 
+  @@index([organizationId])
   @@map("cv_screenings")
 }
 
+// The one org-scoped table with no parent to derive its organization from — it is
+// assigned directly at migration time. `isDefault` is now the default *within* an
+// organization; nothing enforced single-default before this change either.
 model AiConfig {
   configId              String  @id @default(uuid()) @map("config_id")
+  organizationId        String  @map("organization_id")
   name                  String
   description           String?
   isDefault             Boolean @default(false) @map("is_default")
@@ -433,8 +500,10 @@ model AiConfig {
   educationWeight       Decimal @map("education_weight")
   minimumScoreThreshold Decimal @map("minimum_score_threshold")
 
-  screenings CVScreening[]
+  organization Organization  @relation(fields: [organizationId], references: [organizationId])
+  screenings   CVScreening[]
 
+  @@index([organizationId])
   @@map("ai_configs")
 }
 
@@ -524,6 +593,7 @@ model InterviewResult {
 
 model InterviewSchedule {
   interviewId       String         @id @default(uuid()) @map("interview_id")
+  organizationId    String         @map("organization_id")
   applicationId     String         @map("application_id")
   scheduledBy       String         @map("scheduled_by")
   interviewerId     String         @map("interviewer_id")
@@ -533,10 +603,12 @@ model InterviewSchedule {
   onlineMeetingLink String?        @map("online_meeting_link")
   status            ScheduleStatus @default(scheduled)
 
-  application Application       @relation(fields: [applicationId], references: [applicationId])
-  scheduler   User              @relation("ScheduledBy", fields: [scheduledBy], references: [userId])
-  interviewer User              @relation("Interviewer", fields: [interviewerId], references: [userId])
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  application  Application  @relation(fields: [applicationId], references: [applicationId])
+  scheduler    User         @relation("ScheduledBy", fields: [scheduledBy], references: [userId])
+  interviewer  User         @relation("Interviewer", fields: [interviewerId], references: [userId])
 
+  @@index([organizationId])
   @@map("interview_schedules")
 }
 

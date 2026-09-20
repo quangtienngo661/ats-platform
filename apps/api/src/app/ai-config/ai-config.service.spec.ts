@@ -25,6 +25,7 @@ describe('AiConfigService', () => {
   it('unsets the previous default before creating a new default', async () => {
     const tx = createPrismaTransactionMock();
     tx.aiConfig.create.mockResolvedValue({ configId: 'cfg-1', isDefault: true });
+    tx.organization.findMany.mockResolvedValue([{ organizationId: 'org-1' }]);
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
     await service.create({

@@ -83,7 +83,7 @@ export class JobPostingsService {
 
     const department = await this.prisma.department.findUnique({
       where: { departmentId: recruiter.departmentId },
-      select: { departmentId: true },
+      select: { departmentId: true, organizationId: true },
     });
 
     if (!department) {
@@ -109,6 +109,10 @@ export class JobPostingsService {
     return await this.prisma.$transaction(async (tx) => {
       const newJobPosting = await tx.jobPosting.create({
         data: {
+          // The posting belongs to the organization that owns the recruiter's department.
+          organization: {
+            connect: { organizationId: department.organizationId },
+          },
           title: createJobPostingDto.title,
           locationType: createJobPostingDto.locationType,
           salaryMin: createJobPostingDto.salaryMin,
@@ -137,6 +141,7 @@ export class JobPostingsService {
       if (createJobPostingDto.skills && createJobPostingDto.skills.length > 0) {
         await this.jobPostingSkillsService.create(
           newJobPosting.jobId,
+          newJobPosting.organizationId,
           createJobPostingDto.skills,
           tx,
         );
@@ -295,6 +300,7 @@ export class JobPostingsService {
         if (updateJobPostingDto.skills.length > 0) {
           await this.jobPostingSkillsService.create(
             id,
+            updatedJobPosting.organizationId,
             updateJobPostingDto.skills,
             tx,
           );

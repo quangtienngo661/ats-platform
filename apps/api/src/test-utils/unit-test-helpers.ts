@@ -37,6 +37,7 @@ export const createPrismaMock = () => ({
   cVParsedData: model(['create', 'findUnique', 'update']),
   cVScreening: model(['count', 'findMany', 'findUnique', 'update', 'upsert']),
   department: model(['create', 'findMany', 'findUnique', 'update', 'delete']),
+  organization: model(['create', 'findMany', 'findUnique', 'update']),
   interviewQnA: model([
     'count',
     'createMany',

@@ -9,6 +9,7 @@ import {
   UpdateDepartmentDto,
 } from './dtos/departments.dto';
 import { departmentIncludeOptions } from '../../common/utils/include-options.util';
+import { resolveSoleOrganizationId } from '../../common/utils/organization.util';
 
 @Injectable()
 export class DepartmentsService {
@@ -17,6 +18,7 @@ export class DepartmentsService {
   async create(createDepartmentDto: CreateDepartmentDto) {
     const department = await this.prisma.department.create({
       data: {
+        organizationId: await resolveSoleOrganizationId(this.prisma),
         name: createDepartmentDto.name,
         description: createDepartmentDto.description,
         color: createDepartmentDto.color,

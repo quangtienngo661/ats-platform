@@ -80,6 +80,7 @@ export class InterviewsService {
       where: { applicationId },
       select: {
         applicationId: true,
+        organizationId: true,
         status: true,
         jobPosting: { select: { departmentId: true } },
       },
@@ -285,6 +286,8 @@ export class InterviewsService {
 
     return this.prisma.interviewSchedule.create({
       data: {
+        // The schedule belongs to the organization that owns the application.
+        organizationId: application.organizationId,
         applicationId: dto.applicationId,
         scheduledBy: userId,
         interviewerId: dto.interviewerId,
