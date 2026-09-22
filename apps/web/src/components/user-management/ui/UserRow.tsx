@@ -9,6 +9,7 @@ import { IUserResponseDto } from '@/types/interfaces/user.interface';
 // Role display config
 const ROLE_CONFIG: Record<UserRole, { label: string; cls: string }> = {
   [UserRole.admin]: { label: 'Quản trị viên', cls: 'bg-[#FFE5E5] text-[#FF3B30]' },
+  [UserRole.org_admin]: { label: 'Quản trị tổ chức', cls: 'bg-[#F5F0FF] text-[#6366F1]' },
   [UserRole.recruiter]: { label: 'Tuyển dụng', cls: 'bg-[#E3F2FF] text-[#0071E3]' },
   [UserRole.candidate]: { label: 'Ứng viên', cls: 'bg-[#FFF4E5] text-[#FF9500]' },
 };

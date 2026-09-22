@@ -11,12 +11,14 @@ interface DepartmentDetailModalProps {
 
 const ROLE_LABEL: Record<UserRole, string> = {
     admin: 'Quản trị viên',
+    org_admin: 'Quản trị tổ chức',
     recruiter: 'Tuyển dụng',
     candidate: 'Ứng viên',
 };
 
 const ROLE_STYLE: Record<UserRole, string> = {
     admin: 'bg-[#F5F0FF] text-[#6366F1]',
+    org_admin: 'bg-[#F5F0FF] text-[#6366F1]',
     recruiter: 'bg-[#E3F2FF] text-[#0071E3]',
     candidate: 'bg-[#FFF4E5] text-[#FF9500]',
 };

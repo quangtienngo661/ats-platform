@@ -55,6 +55,8 @@ export function PublicHeader({
                 return 'Nhà tuyển dụng';
             case 'admin':
                 return 'Quản trị viên';
+            case 'org_admin':
+                return 'Quản trị tổ chức';
             default:
                 return 'Khác';
         }
