@@ -9,6 +9,7 @@ import { RedisModule } from '../common/redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { DepartmentsModule } from './departments/departments.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 import { AdminSeedService } from '../common/prisma/seed/admin-seed.service';
 import { JobCategoriesModule } from './job-categories/job-categories.module';
 import { SkillsModule } from './skills/skills.module';
@@ -70,6 +71,7 @@ import { Request } from 'express';
       global: true,
       signOptions: { expiresIn: '1h' },
     }),
+    OrganizationsModule,
     DepartmentsModule,
     JobCategoriesModule,
     SkillsModule,

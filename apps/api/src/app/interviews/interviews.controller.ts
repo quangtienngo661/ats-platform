@@ -24,6 +24,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@ats-platform/database';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 @ApiTags('Phỏng vấn')
 @ApiBearerAuth()
@@ -41,16 +43,16 @@ export class InterviewsController {
     @Post('schedules')
     @ApiOperation({ summary: 'Tạo lịch phỏng vấn', description: 'Nhà tuyển dụng tạo lịch phỏng vấn cho ứng viên, chỉ định người phỏng vấn và thời gian.' })
     @ApiResponse({ status: 201, description: 'Tạo thành công' })
-    createSchedule(@Req() req: Request, @Body() dto: CreateInterviewScheduleDto) {
-        return this.interviewsService.createSchedule(req.user['userId'], req.user['role'], dto);
+    createSchedule(@CurrentCaller() caller: TenantCaller, @Body() dto: CreateInterviewScheduleDto) {
+        return this.interviewsService.createSchedule(caller, dto);
     }
 
     @Roles(UserRole.candidate, UserRole.recruiter, UserRole.admin)
     @Get('schedules/my')
     @ApiOperation({ summary: 'Lịch phỏng vấn của tôi', description: 'Lấy danh sách lịch phỏng vấn liên quan đến người dùng hiện tại.' })
     @ApiResponse({ status: 200, description: 'Thành công' })
-    getMySchedules(@Req() req: Request, @Query() query: GetInterviewSchedulesQueryDto) {
-        return this.interviewsService.getMySchedules(req.user['userId'], req.user['role'], query);
+    getMySchedules(@CurrentCaller() caller: TenantCaller, @Query() query: GetInterviewSchedulesQueryDto) {
+        return this.interviewsService.getMySchedules(caller, query);
     }
 
     @Roles(UserRole.candidate, UserRole.recruiter, UserRole.admin)
@@ -58,8 +60,8 @@ export class InterviewsController {
     @ApiOperation({ summary: 'Chi tiết lịch phỏng vấn' })
     @ApiResponse({ status: 200, description: 'Thành công' })
     @ApiResponse({ status: 404, description: 'Không tìm thấy lịch phỏng vấn' })
-    getScheduleById(@Param('id') id: string, @Req() req: Request) {
-        return this.interviewsService.getScheduleById(id, req.user['userId'], req.user['role']);
+    getScheduleById(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+        return this.interviewsService.getScheduleById(id, caller);
     }
 
     @Roles(UserRole.recruiter, UserRole.admin)
@@ -68,18 +70,18 @@ export class InterviewsController {
     @ApiResponse({ status: 200, description: 'Cập nhật thành công' })
     updateSchedule(
         @Param('id') id: string,
-        @Req() req: Request,
+        @CurrentCaller() caller: TenantCaller,
         @Body() dto: UpdateInterviewScheduleDto,
     ) {
-        return this.interviewsService.updateSchedule(id, req.user['userId'], req.user['role'], dto);
+        return this.interviewsService.updateSchedule(id, caller, dto);
     }
 
     @Roles(UserRole.recruiter, UserRole.admin)
     @Delete('schedules/:id')
     @ApiOperation({ summary: 'Xóa lịch phỏng vấn' })
     @ApiResponse({ status: 200, description: 'Xóa thành công' })
-    removeSchedule(@Param('id') id: string, @Req() req: Request) {
-        return this.interviewsService.removeSchedule(id, req.user['userId'], req.user['role']);
+    removeSchedule(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+        return this.interviewsService.removeSchedule(id, caller);
     }
 
     // ── Chủ đề phỏng vấn ────────────────────────────────────────

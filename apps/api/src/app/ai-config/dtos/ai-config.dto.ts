@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 import { IAiConfig } from '@ats-platform/types';
 
 export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
@@ -69,6 +69,19 @@ export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
     @Min(0)
     @Max(100)
     minimumScoreThreshold!: number;
+
+    // Only a platform admin sends this — it belongs to no organization, so it must
+    // say whose config this is. Anyone else always gets its own organization.
+    @ApiPropertyOptional({
+        example: '00000000-0000-4000-8000-000000000001',
+        description: 'Bắt buộc với quản trị viên nền tảng. Người dùng khác nếu gửi thì phải trùng tổ chức của chính mình.',
+    })
+    @IsOptional()
+    @IsUUID()
+    organizationId?: string;
 }
 
-export class UpdateAiConfigDto extends PartialType(CreateAiConfigDto) { }
+// A config never changes organization. Sending organizationId here is a 400.
+export class UpdateAiConfigDto extends PartialType(
+    OmitType(CreateAiConfigDto, ['organizationId'] as const),
+) { }

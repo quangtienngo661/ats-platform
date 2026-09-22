@@ -1,0 +1,13 @@
+constraint present: true — CHECK (((role = 'org_admin'::user_role) = (organization_id IS NOT NULL)))
+user_role values: candidate, recruiter, admin, org_admin
+existing users by role (n / bound to an organization):
+  admin: 2 / 0
+  candidate: 3 / 0
+  recruiter: 3 / 0
+PASS — org_admin WITHOUT organization: rejected (23514 users_org_admin_binding_check)
+PASS — recruiter WITH organization: rejected (23514 users_org_admin_binding_check)
+PASS — candidate WITH organization: rejected (23514 users_org_admin_binding_check)
+PASS — CONTROL org_admin WITH organization: accepted
+PASS — CONTROL recruiter WITHOUT organization: accepted
+probe rows left behind: 0
+RESULT: all checks passed

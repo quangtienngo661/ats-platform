@@ -10,12 +10,15 @@ import { DepartmentDetailModal } from './ui/DepartmentDetailModal';
 import { Department } from '@/types/interfaces/departments.interface';
 import { deleteDepartmentAction, DepartmentState, updateDepartmentAction } from '@/servers/departments/departments.action';
 import { toast } from '@/lib/toast';
+import { IOrganizationOption } from '@ats-platform/types';
 
 interface DepartmentClientProps {
     departments: Department[];
+    /** Non-empty only for a platform admin — see getOrganizationOptionsForCurrentUser. */
+    organizations: IOrganizationOption[];
 }
 
-export default function DepartmentClient({ departments }: DepartmentClientProps) {
+export default function DepartmentClient({ departments, organizations }: DepartmentClientProps) {
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingDept, setEditingDept] = useState<Department | null>(null);
     const [isEdited, setIsEdited] = useState(false);
@@ -70,6 +73,7 @@ export default function DepartmentClient({ departments }: DepartmentClientProps)
                 onClose={() => { setShowMutateModal(false); setIsEdited(false) }}
                 isEdited={isEdited}
                 editingDept={editingDept}
+                organizations={organizations}
                 onResult={handleActionComplete}
             />}
             {dept && <DepartmentDetailModal department={dept} onClose={() => setDept(null)} />}

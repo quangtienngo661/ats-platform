@@ -1,0 +1,8 @@
+info [SocketIoService] Client gfb6BxVld5m4scgJAAAJ joined room: user_bb11193b-d666-4096-9e5e-64f7136b715b
+warn [SocketIoService] Client gfb6BxVld5m4scgJAAAJ attempted to join unauthorized job room: job_3033066e-adbf-481b-a1d9-4a513ff6735b
+info [SocketIoService] Client u38JrS5J-2a72CSiAAAL joined room: user_b679c286-8cf0-42df-adda-a5482d6dbee9
+warn [SocketIoService] Client u38JrS5J-2a72CSiAAAL attempted to join unauthorized job room: job_3033066e-adbf-481b-a1d9-4a513ff6735b
+info [SocketIoService] Client L3yNQ-O6DmqdsaWFAAAN joined room: user_d136485d-e447-4491-89bf-e1c0cb0b3601
+info [SocketIoService] Client L3yNQ-O6DmqdsaWFAAAN joined room: job_3033066e-adbf-481b-a1d9-4a513ff6735b
+info [SocketIoService] Client 66wPV557VKSHaDddAAAP joined room: user_969bf097-d73b-498e-b019-f295c57f39f4
+info [SocketIoService] Client 66wPV557VKSHaDddAAAP joined room: job_3033066e-adbf-481b-a1d9-4a513ff6735b

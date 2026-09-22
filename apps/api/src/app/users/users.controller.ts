@@ -16,7 +16,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Request } from 'express';
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto, UserDto } from './dtos/user.dto';
+import { ChangePasswordDto, CreateUserDto, UpdateMeDto, UpdateUserDto, UserDto } from './dtos/user.dto';
 
 @ApiTags('Người dùng')
 @Controller('users')
@@ -40,9 +40,9 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Cập nhật thành công' })
   async updateMe(
     @Req() req: Request & { user: { userId: string } },
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateMeDto: UpdateMeDto,
   ) {
-    const user = await this.usersService.updateMe(req.user.userId, updateUserDto);
+    const user = await this.usersService.updateMe(req.user.userId, updateMeDto);
     return user;
   }
 

@@ -1,0 +1,12 @@
+> nx run api:test --testFile=users.service.spec.ts
+  ● UsersService › never lets a user change its own role or status through updateMe
+    Received: "admin"
+      107 |     const { data } = prisma.user.update.mock.calls[0][0];
+      108 |     expect(data.fullName).toBe('Mallory');
+    > 109 |     expect(data.role).toBeUndefined();
+          |                       ^
+      110 |     expect(data.status).toBeUndefined();
+      111 |   });
+      112 |
+      at Object.<anonymous> (src/app/users/users.service.spec.ts:109:23)
+Tests:       1 failed, 12 passed, 13 total

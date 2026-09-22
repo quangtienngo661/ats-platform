@@ -6,6 +6,8 @@ export const UserRole = {
   candidate: 'candidate',
   recruiter: 'recruiter',
   admin: 'admin',
+  // Mirrors schema.prisma. Administers ONE organization; `admin` is platform-wide.
+  org_admin: 'org_admin',
 } as const;
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 

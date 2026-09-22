@@ -1,3 +1,6 @@
+import { UserRole } from '@ats-platform/database';
+import type { TenantCaller } from '../common/tenancy/tenant-caller';
+
 type ModelMock = Record<string, jest.Mock>;
 
 const model = (methods: string[]): ModelMock =>
@@ -36,8 +39,21 @@ export const createPrismaMock = () => ({
   cV: model(['create', 'findMany', 'findUnique', 'delete']),
   cVParsedData: model(['create', 'findUnique', 'update']),
   cVScreening: model(['count', 'findMany', 'findUnique', 'update', 'upsert']),
-  department: model(['create', 'findMany', 'findUnique', 'update', 'delete']),
-  organization: model(['create', 'findMany', 'findUnique', 'update']),
+  department: model([
+    'create',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'update',
+    'delete',
+  ]),
+  organization: model([
+    'create',
+    'findMany',
+    'findUnique',
+    'findUniqueOrThrow',
+    'update',
+  ]),
   interviewQnA: model([
     'count',
     'createMany',
@@ -90,7 +106,14 @@ export const createPrismaMock = () => ({
     'update',
     'updateMany',
   ]),
-  recruiter: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
+  recruiter: model([
+    'create',
+    'delete',
+    'findFirst',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
   refreshToken: model(['create', 'findUnique', 'update', 'updateMany']),
   skill: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
   user: model(['create', 'delete', 'findMany', 'findUnique', 'update']),
@@ -133,6 +156,21 @@ export const mockRequest = (
     user,
     cookies,
   }) as any;
+
+/**
+ * A caller as JwtStrategy would resolve it. Staff (recruiter, org_admin) default to
+ * organization 'org-1'; a platform admin and a candidate belong to none.
+ */
+export const callerOf = (
+  role: UserRole,
+  overrides: Partial<TenantCaller> = {},
+): TenantCaller => ({
+  userId: 'user-1',
+  role,
+  organizationId:
+    role === UserRole.recruiter || role === UserRole.org_admin ? 'org-1' : null,
+  ...overrides,
+});
 
 export const mockResponse = () =>
   ({

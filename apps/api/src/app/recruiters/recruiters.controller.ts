@@ -17,6 +17,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@ats-platform/database';
 import { CreateRecruiterDto, RecruiterDto, UpdateMyRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
 import { Request } from 'express';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 @ApiTags('Nhà tuyển dụng')
 @ApiBearerAuth()
@@ -25,13 +27,16 @@ import { Request } from 'express';
 export class RecruitersController {
   constructor(private readonly recruitersService: RecruitersService) { }
 
-  @Roles(UserRole.admin)
+  @Roles(UserRole.admin, UserRole.org_admin)
   @Post()
-  @ApiOperation({ summary: 'Tạo nhà tuyển dụng', description: 'Admin gán vai trò nhà tuyển dụng cho một user và liên kết với phòng ban.' })
+  @ApiOperation({ summary: 'Tạo nhà tuyển dụng', description: 'Quản trị viên gán vai trò nhà tuyển dụng cho một user và liên kết với phòng ban. Quản trị tổ chức chỉ được dùng phòng ban thuộc tổ chức của mình.' })
   @ApiResponse({ status: 201, description: 'Tạo thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng hoặc phòng ban' })
-  async create(@Body() createRecruiterDto: CreateRecruiterDto) {
-    const recruiter = await this.recruitersService.create(createRecruiterDto);
+  async create(
+    @Body() createRecruiterDto: CreateRecruiterDto,
+    @CurrentCaller() caller: TenantCaller,
+  ) {
+    const recruiter = await this.recruitersService.create(createRecruiterDto, caller);
     return recruiter;
   }
 
@@ -58,8 +63,8 @@ export class RecruitersController {
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách nhà tuyển dụng' })
   @ApiResponse({ status: 200, description: 'Thành công' })
-  async findAll() {
-    const recruiters = await this.recruitersService.findAll();
+  async findAll(@CurrentCaller() caller: TenantCaller) {
+    const recruiters = await this.recruitersService.findAll(caller);
     return recruiters;
   }
 
@@ -68,29 +73,30 @@ export class RecruitersController {
   @ApiOperation({ summary: 'Xem chi tiết nhà tuyển dụng' })
   @ApiResponse({ status: 200, description: 'Thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy nhà tuyển dụng' })
-  async findOne(@Param('id') id: string) {
-    const recruiter = await this.recruitersService.findOne(id);
+  async findOne(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+    const recruiter = await this.recruitersService.findOne(id, caller);
     return recruiter;
   }
 
-  @Roles(UserRole.admin)
+  @Roles(UserRole.admin, UserRole.org_admin)
   @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật nhà tuyển dụng', description: 'Admin cập nhật thông tin nhà tuyển dụng.' })
+  @ApiOperation({ summary: 'Cập nhật nhà tuyển dụng', description: 'Quản trị viên cập nhật thông tin nhà tuyển dụng trong phạm vi của mình.' })
   @ApiResponse({ status: 200, description: 'Cập nhật thành công' })
   async update(
     @Param('id') id: string,
     @Body() updateRecruiterDto: UpdateRecruiterDto,
+    @CurrentCaller() caller: TenantCaller,
   ) {
-    const recruiter = await this.recruitersService.update(id, updateRecruiterDto);
+    const recruiter = await this.recruitersService.update(id, updateRecruiterDto, caller);
     return recruiter;
   }
 
-  @Roles(UserRole.admin)
+  @Roles(UserRole.admin, UserRole.org_admin)
   @Delete(':id')
   @ApiOperation({ summary: 'Xóa nhà tuyển dụng' })
   @ApiResponse({ status: 200, description: 'Xóa thành công' })
-  async remove(@Param('id') id: string) {
-    const recruiter = await this.recruitersService.remove(id);
+  async remove(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+    const recruiter = await this.recruitersService.remove(id, caller);
     return recruiter;
   }
 }

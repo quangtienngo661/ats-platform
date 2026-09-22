@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { createDepartmentAction, DepartmentState, updateDepartmentAction } from '@/servers/departments/departments.action';
 import SubmitButton from '@/components/common/SubmitButton';
 import { Department } from '@/types/interfaces/departments.interface';
+import { IOrganizationOption } from '@ats-platform/types';
 
 const COLOR_OPTIONS = ['#0071E3', '#34C759', '#FF9500', '#6366F1', '#AF52DE', '#FF3B30'];
 
@@ -16,11 +17,15 @@ interface AddDepartmentModalProps {
     isEdited: boolean;
     editingDept: Department | null;
     onResult: (result: DepartmentState) => void;
+    /** Offered only to a platform admin, and only when creating. */
+    organizations?: IOrganizationOption[];
 }
 
 const initialState = { success: false, message: '' };
 
-export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult }: AddDepartmentModalProps) {
+export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult, organizations = [] }: AddDepartmentModalProps) {
+    // A department never changes organization, so the picker exists on create only.
+    const showOrganizationPicker = !isEdited && organizations.length > 0;
     const [color, setColor] = useState(isEdited && editingDept?.color ? editingDept.color : COLOR_OPTIONS[0]);
 
     // 1. Tự động chọn Action dựa trên trạng thái isEdited
@@ -89,6 +94,31 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                         )}
 
                         <div className="p-6 space-y-4">
+                            {showOrganizationPicker && (
+                                <div>
+                                    <label htmlFor="department-organization" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                        Tổ chức
+                                    </label>
+                                    <select
+                                        id="department-organization"
+                                        name="organizationId"
+                                        required
+                                        defaultValue={organizations.length === 1 ? organizations[0].organizationId : ""}
+                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    >
+                                        <option value="" disabled>Chọn tổ chức sở hữu phòng ban</option>
+                                        {organizations.map((organization) => (
+                                            <option key={organization.organizationId} value={organization.organizationId}>
+                                                {organization.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="mt-1.5 text-[12px] text-[#6E6E73]">
+                                        Quản trị viên nền tảng không thuộc tổ chức nào, nên cần chọn tổ chức cho phòng ban mới.
+                                    </p>
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Tên phòng ban

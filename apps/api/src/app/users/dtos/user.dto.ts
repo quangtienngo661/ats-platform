@@ -1,7 +1,7 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID } from 'class-validator';
 import { UserRole, UserStatus } from '@ats-platform/database';
 import { IUserDto } from '@ats-platform/types';
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
 import { User } from '@ats-platform/database';
 
 export class CreateUserDto implements IUserDto {
@@ -50,9 +50,27 @@ export class CreateUserDto implements IUserDto {
     })
     @IsEnum(UserRole)
     role!: UserRole;
+
+    @ApiPropertyOptional({
+        example: '00000000-0000-4000-8000-000000000001',
+        description: 'Bắt buộc khi role = org_admin (tổ chức mà tài khoản quản trị); không được gửi với vai trò khác.',
+    })
+    @IsUUID()
+    @IsOptional()
+    organizationId?: string;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) { }
+
+/**
+ * Body of PATCH /users/me — the only fields an account may change about itself.
+ * Deliberately NOT UpdateUserDto: that one carries role/status for the admin route,
+ * and reusing it here let any logged-in user promote itself to administrator.
+ * With the global `forbidNonWhitelisted`, a `role` in this body is now a 400.
+ */
+export class UpdateMeDto extends PartialType(
+    PickType(CreateUserDto, ['fullName', 'phoneNumber'] as const),
+) { }
 
 export class ChangePasswordDto {
     @ApiProperty({

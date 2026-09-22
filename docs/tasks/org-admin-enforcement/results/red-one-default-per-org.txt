@@ -1,0 +1,6 @@
+partial unique indexes on ai_configs:
+  ai_configs_only_one_default_idx: ai_configs USING btree (is_default) WHERE (is_default = true)
+FAIL — a default in a SECOND organization, while org A has one: rejected (23505 ai_configs_only_one_default_idx)
+PASS — CONTROL a second default inside org A: rejected (23505 ai_configs_only_one_default_idx)
+probe rows left behind: 0
+RESULT: 1 failure(s)

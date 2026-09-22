@@ -96,6 +96,8 @@ export async function createAIConfigFormAction(
     const experienceWeight = Number(formData.get('experienceWeight'));
     const educationWeight = Number(formData.get('educationWeight'));
     const minimumScoreThreshold = Number(formData.get('minimumScoreThreshold'));
+    // Sent only by a platform admin's form; everyone else's organization is applied by the API.
+    const organizationId = (formData.get('organizationId') as string | null) || undefined;
 
     if (!name) {
         return { success: false, message: 'Vui lòng nhập tên cấu hình' };
@@ -106,7 +108,7 @@ export async function createAIConfigFormAction(
 
     try {
         const profile = { name, description, isDefault: false, skillsWeight, experienceWeight, educationWeight, minimumScoreThreshold };
-        const payload = await convertToAPI(profile);
+        const payload = { ...(await convertToAPI(profile)), ...(organizationId ? { organizationId } : {}) };
         const res = await http.post(`/ai-config`, payload);
         const created = await convertToUI(res.data) as ConfigProfile;
         revalidatePath("/ai-configuration");
@@ -184,7 +186,12 @@ export async function duplicateAIConfigAction(
             minimumScoreThreshold: Number(existing.data.minimumScoreThreshold),
         };
 
-        const res = await http.post(`/ai-config`, duplicatedProfile);
+        // A copy stays in the organization of the config it copies. A platform admin
+        // must name it (it belongs to none); for anyone else it is their own anyway.
+        const res = await http.post(`/ai-config`, {
+            ...duplicatedProfile,
+            organizationId: existing.data.organizationId,
+        });
         const created = await convertToUI(res.data) as ConfigProfile;
         revalidatePath("/ai-configuration");
         return { success: true, data: created };

@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { resolveSoleOrganizationId } from '../../utils/organization.util';
+import { defaultAiConfigData } from '../../constants/default-ai-config';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -63,32 +63,39 @@ export class AdminSeedService implements OnApplicationBootstrap {
     }
   }
 
+  /**
+   * Every organization needs its own default screening config (they are per
+   * organization). Seeds one for each organization that has none — a safety net,
+   * since OrganizationsService already creates one with every new organization.
+   *
+   * This used to check for "a default config" across the whole table, which is
+   * satisfied by any single organization's and would leave every other one without.
+   */
   private async seedDefaultAiConfig() {
-    const existingDefaultConfig = await this.prisma.aiConfig.findFirst({
-      where: { isDefault: true },
-      select: { configId: true, name: true },
+    const organizationsWithoutDefault = await this.prisma.organization.findMany({
+      where: { aiConfigs: { none: { isDefault: true } } },
+      select: { organizationId: true, name: true },
     });
 
-    if (existingDefaultConfig) {
+    if (organizationsWithoutDefault.length === 0) {
       this.logger.log(
-        `AI config seed skipped: default config already exists (${existingDefaultConfig.name})`,
+        'AI config seed skipped: every organization already has a default config',
       );
       return;
     }
 
-    const defaultConfig = await this.prisma.aiConfig.create({
-      data: {
-        organizationId: await resolveSoleOrganizationId(this.prisma),
-        name: process.env.AI_DEFAULT_CONFIG_NAME || 'Default CV Screening Config',
-        isDefault: true,
-        skillsWeight: 0.5,
-        experienceWeight: 0.3,
-        educationWeight: 0.2,
-        minimumScoreThreshold: 60,
-      },
-      select: { configId: true, name: true },
-    });
+    for (const organization of organizationsWithoutDefault) {
+      const config = await this.prisma.aiConfig.create({
+        data: {
+          ...defaultAiConfigData(),
+          organizationId: organization.organizationId,
+        },
+        select: { name: true },
+      });
 
-    this.logger.log(`Seeded default AI config: ${defaultConfig.name}`);
+      this.logger.log(
+        `Seeded default AI config "${config.name}" for organization ${organization.name}`,
+      );
+    }
   }
 }

@@ -15,10 +15,14 @@ datasource db {
 // ENUMS
 // ============================================================
 
+// `admin` is the PLATFORM administrator: global reach, no organization.
+// `org_admin` administers exactly one organization and never reaches outside it;
+// it inherits everything a recruiter may do (RolesGuard), scoped to its organization.
 enum UserRole {
   candidate
   recruiter
   admin
+  org_admin
 
   @@map("user_role")
 }
@@ -170,6 +174,13 @@ model User {
   emailVerified Boolean    @default(false) @map("email_verified")
   createdAt     DateTime   @default(now()) @map("created_at")
 
+  // Set ONLY for role = org_admin — the one organization it administers. A database
+  // CHECK constraint enforces "org_admin <=> organization_id IS NOT NULL" (see the
+  // add_org_admin_binding_check migration); Prisma cannot express it here.
+  // Recruiters resolve their organization through Recruiter.organizationId instead.
+  organizationId String?  @map("organization_id")
+
+  organization       Organization?        @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
   refreshTokens      RefreshToken[]
   candidate          Candidate?
   recruiter          Recruiter?
@@ -178,6 +189,7 @@ model User {
   scheduledBy        InterviewSchedule[]  @relation("ScheduledBy")
   notifications      Notification[]
 
+  @@index([organizationId])
   @@map("users")
 }
 
@@ -208,6 +220,7 @@ model Organization {
   slug           String   @unique
   createdAt      DateTime @default(now()) @map("created_at")
 
+  admins             User[]
   departments        Department[]
   recruiters         Recruiter[]
   jobPostings        JobPosting[]

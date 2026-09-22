@@ -64,13 +64,15 @@ export async function createDepartmentAction(
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const color = formData.get("color") as string;
+    // Sent only by a platform admin's form; everyone else's organization is applied by the API.
+    const organizationId = (formData.get("organizationId") as string | null) || undefined;
 
     if (!name?.trim()) {
         return { success: false, message: "Vui lòng nhập tên phòng ban" };
     }
 
     try {
-        await http.post(`/departments`, { name, description, color });
+        await http.post(`/departments`, { name, description, color, ...(organizationId ? { organizationId } : {}) });
 
         revalidatePath("/department-management");
         return { success: true, message: "Tạo phòng ban thành công" };

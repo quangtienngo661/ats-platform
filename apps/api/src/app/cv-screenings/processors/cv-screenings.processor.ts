@@ -167,10 +167,23 @@ ${rawJobJson}
     geminiResult,
     config: any,
   ): Promise<any> {
-    if (!config)
-      config = await this.prisma.aiConfig.findFirst({
-        where: { isDefault: true },
+    // Fallback only: createScreeningRecord always stores a config. When it is
+    // missing, use the default of the SCREENING'S organization — never whichever
+    // organization's default happens to come back first.
+    if (!config) {
+      const screening = await this.prisma.cVScreening.findUnique({
+        where: { screeningId },
+        select: { organizationId: true },
       });
+      config = screening
+        ? await this.prisma.aiConfig.findFirst({
+            where: {
+              isDefault: true,
+              organizationId: screening.organizationId,
+            },
+          })
+        : null;
+    }
     if (!config)
       throw new NotFoundException('Không tìm thấy cấu hình AI mặc định');
     // Lưu ý: geminiResult trả về thường là string JSON, bạn cần parse nó trước

@@ -6,6 +6,8 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@ats-platform/database';
 import { Request } from 'express';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 @ApiTags('Sàng lọc CV')
 @ApiBearerAuth()
@@ -20,10 +22,10 @@ export class CvScreeningsController {
   @ApiQuery({ name: 'jobId', required: true, description: 'ID vị trí tuyển dụng' })
   @ApiResponse({ status: 200, description: 'Thành công' })
   async getScreeningStats(
-    @Req() req: Request & { user: { userId: string; role: UserRole } },
+    @CurrentCaller() caller: TenantCaller,
     @Query('jobId') jobId: string,
   ) {
-    return this.cvScreeningsService.getScreeningStats(jobId, req.user.userId, req.user.role);
+    return this.cvScreeningsService.getScreeningStats(jobId, caller);
   }
 
   @Get('me/:applicationId')
@@ -41,9 +43,9 @@ export class CvScreeningsController {
   @ApiResponse({ status: 200, description: 'Thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy kết quả sàng lọc' })
   async getScreeningResult(
-    @Req() req: Request & { user: { userId: string; role: UserRole } },
+    @CurrentCaller() caller: TenantCaller,
     @Param('applicationId') applicationId: string,
   ) {
-    return this.cvScreeningsService.getScreeningResult(applicationId, req.user.userId, req.user.role);
+    return this.cvScreeningsService.getScreeningResult(applicationId, caller);
   }
 }

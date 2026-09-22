@@ -5,6 +5,7 @@ import {
 } from '@ats-platform/database';
 import { CvScreeningsService } from './cv-screenings.service';
 import {
+  callerOf,
   createPrismaMock,
   createQueueMock,
 } from '../../test-utils/unit-test-helpers';
@@ -21,7 +22,10 @@ describe('CvScreeningsService', () => {
   });
 
   it('creates or resets a screening record and queues processing', async () => {
-    prisma.application.findUnique.mockResolvedValue({ applicationId: 'app-1' });
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
     prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
     prisma.aiConfig.findFirst.mockResolvedValue({ configId: 'cfg-1' });
     prisma.cVScreening.upsert.mockResolvedValue({ screeningId: 'screen-1' });
@@ -49,6 +53,44 @@ describe('CvScreeningsService', () => {
     });
   });
 
+  // Criterion 5: with no config named, the default is THIS organization's — it
+  // used to be `findFirst({ isDefault: true })`, i.e. any organization's.
+  it("screens with the default config of the application's own organization", async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
+    prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
+    prisma.aiConfig.findFirst.mockResolvedValue({ configId: 'cfg-1' });
+    prisma.cVScreening.upsert.mockResolvedValue({ screeningId: 'screen-1' });
+
+    await service.createScreeningRecord('app-1', 'cv-1');
+
+    expect(prisma.aiConfig.findFirst).toHaveBeenCalledWith({
+      where: { isDefault: true, organizationId: 'org-1' },
+    });
+    expect(
+      prisma.cVScreening.upsert.mock.calls[0][0].create.organizationId,
+    ).toBe('org-1');
+  });
+
+  it('treats a named config of another organization as not found', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
+    prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
+    prisma.aiConfig.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.createScreeningRecord('app-1', 'cv-1', 'cfg-of-org-2'),
+    ).rejects.toThrow('cfg-of-org-2');
+    expect(prisma.aiConfig.findFirst).toHaveBeenCalledWith({
+      where: { configId: 'cfg-of-org-2', organizationId: 'org-1' },
+    });
+    expect(prisma.cVScreening.upsert).not.toHaveBeenCalled();
+  });
+
   it('throws when application, CV, or config is missing', async () => {
     prisma.application.findUnique.mockResolvedValue(null);
     prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
@@ -56,14 +98,17 @@ describe('CvScreeningsService', () => {
       service.createScreeningRecord('missing', 'cv-1'),
     ).rejects.toThrow('ng');
 
-    prisma.application.findUnique.mockResolvedValue({ applicationId: 'app-1' });
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
     prisma.cV.findUnique.mockResolvedValue(null);
     await expect(
       service.createScreeningRecord('app-1', 'missing'),
     ).rejects.toThrow('CV');
 
     prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
-    prisma.aiConfig.findUnique.mockResolvedValue(null);
+    prisma.aiConfig.findFirst.mockResolvedValue(null);
     await expect(
       service.createScreeningRecord('app-1', 'cv-1', 'missing'),
     ).rejects.toThrow('AI');
@@ -100,6 +145,7 @@ describe('CvScreeningsService', () => {
       jobId: 'job-1',
       title: 'Backend',
       departmentId: 'dep-1',
+      organizationId: 'org-1',
     });
     prisma.cVScreening.findMany.mockResolvedValue([
       {
@@ -120,9 +166,11 @@ describe('CvScreeningsService', () => {
     ]);
 
     await expect(
-      service.getScreeningStats('job-1', 'admin-1', UserRole.admin),
+      service.getScreeningStats('job-1', callerOf(UserRole.admin)),
     ).resolves.toEqual(
       expect.objectContaining({
+        // organizationId is an internal filter column, never response data
+        job: { jobId: 'job-1', title: 'Backend', departmentId: 'dep-1' },
         total: 3,
         averageScore: 70,
         byStatus: expect.objectContaining({ completed: 2, failed: 1 }),
@@ -135,6 +183,7 @@ describe('CvScreeningsService', () => {
     prisma.cVScreening.findUnique.mockResolvedValue({
       screeningId: 'screen-1',
       applicationId: 'app-1',
+      organizationId: 'org-1',
       application: {
         jobPosting: { departmentId: 'dep-1' },
       },
@@ -144,15 +193,54 @@ describe('CvScreeningsService', () => {
     });
 
     await expect(
-      service.getScreeningResult('app-1', 'rec-1', UserRole.recruiter),
+      service.getScreeningResult(
+        'app-1',
+        callerOf(UserRole.recruiter, { userId: 'rec-1' }),
+      ),
     ).resolves.toEqual(expect.objectContaining({ screeningId: 'screen-1' }));
 
     prisma.recruiter.findUnique.mockResolvedValueOnce({
       departmentId: 'dep-2',
     });
     await expect(
-      service.getScreeningResult('app-1', 'rec-2', UserRole.recruiter),
-    ).rejects.toThrow('quy');
+      service.getScreeningResult(
+        'app-1',
+        callerOf(UserRole.recruiter, { userId: 'rec-2' }),
+      ),
+    ).rejects.toThrow('quyền');
+  });
+
+  describe('full screening result across organizations', () => {
+    beforeEach(() => {
+      prisma.cVScreening.findUnique.mockResolvedValue({
+        screeningId: 'screen-2',
+        applicationId: 'app-2',
+        organizationId: 'org-2',
+        application: { jobPosting: { departmentId: 'dep-of-org-2' } },
+      });
+    });
+
+    it('refuses an org_admin of another organization (criterion 2)', async () => {
+      await expect(
+        service.getScreeningResult('app-2', callerOf(UserRole.org_admin)),
+      ).rejects.toThrow('tổ chức khác');
+    });
+
+    it('lets the org_admin of that organization in, with no department check (6b)', async () => {
+      await expect(
+        service.getScreeningResult(
+          'app-2',
+          callerOf(UserRole.org_admin, { organizationId: 'org-2' }),
+        ),
+      ).resolves.toEqual(expect.objectContaining({ screeningId: 'screen-2' }));
+      expect(prisma.recruiter.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('lets a platform admin in (6a)', async () => {
+      await expect(
+        service.getScreeningResult('app-2', callerOf(UserRole.admin)),
+      ).resolves.toEqual(expect.objectContaining({ screeningId: 'screen-2' }));
+    });
   });
 
   it('calculates scores and normalizes fractional thresholds', () => {
