@@ -87,6 +87,29 @@ describe('UsersService', () => {
     ).rejects.toThrow('kh');
   });
 
+  // PATCH /users/me is reachable by ANY authenticated account, candidates included.
+  // Its body type used to be the admin's UpdateUserDto, and updateMe forwarded it to
+  // the admin update path verbatim — so a candidate could send {"role":"admin"} and
+  // promote itself to platform administrator.
+  it('never lets a user change its own role or status through updateMe', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      userId: 'user-1',
+      email: 'mallory@test.com',
+    });
+    prisma.user.update.mockResolvedValue({ userId: 'user-1' });
+
+    await service.updateMe('user-1', {
+      fullName: 'Mallory',
+      role: UserRole.admin,
+      status: UserStatus.inactive,
+    } as any);
+
+    const { data } = prisma.user.update.mock.calls[0][0];
+    expect(data.fullName).toBe('Mallory');
+    expect(data.role).toBeUndefined();
+    expect(data.status).toBeUndefined();
+  });
+
   it('rejects empty updates and duplicate update emails', async () => {
     await expect(service.update('user-1', {})).rejects.toThrow('c');
 
