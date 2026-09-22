@@ -8,13 +8,16 @@ import {
   AiRecommendation,
   Prisma,
   ScreeningStatus,
-  UserRole,
 } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ProcessCvScreeningJobData } from './processors/cv-screenings.processor';
+import {
+  assertOrganizationAccess,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
 
 const screeningResultIncludeOptions = {
   aiConfig: {
@@ -75,23 +78,18 @@ export class CvScreeningsService {
   ) {}
 
   private async assertCanAccessJob(
-    userId: string,
-    role: UserRole,
-    departmentId: string,
+    caller: TenantCaller,
+    resource: { organizationId: string; departmentId: string },
   ) {
-    if (role === UserRole.admin) return;
-    if (role !== UserRole.recruiter) {
-      throw new ForbiddenException(
-        'Bạn không có quyền truy cập dữ liệu sàng lọc này',
-      );
-    }
+    // Platform admin, and an org_admin inside the organization, stop here.
+    if (assertOrganizationAccess(caller, resource.organizationId)) return;
 
     const recruiter = await this.prisma.recruiter.findUnique({
-      where: { userId },
+      where: { userId: caller.userId },
       select: { departmentId: true },
     });
 
-    if (!recruiter || recruiter.departmentId !== departmentId) {
+    if (!recruiter || recruiter.departmentId !== resource.departmentId) {
       throw new ForbiddenException(
         'Bạn không có quyền truy cập dữ liệu sàng lọc của khoa này',
       );
@@ -126,7 +124,10 @@ export class CvScreeningsService {
       throw new NotFoundException(`Không tìm thấy CV '${cvId}'`);
     }
 
-    const config = await this.getActiveConfig(configId);
+    const config = await this.getActiveConfig(
+      application.organizationId,
+      configId,
+    );
 
     const screening = await this.prisma.cVScreening.upsert({
       where: { applicationId },
@@ -167,8 +168,7 @@ export class CvScreeningsService {
   }
   async getScreeningResult(
     applicationId: string,
-    userId: string,
-    role: UserRole,
+    caller: TenantCaller,
   ): Promise<
     Prisma.CVScreeningGetPayload<{
       include: typeof screeningResultIncludeOptions;
@@ -185,11 +185,10 @@ export class CvScreeningsService {
       );
     }
 
-    await this.assertCanAccessJob(
-      userId,
-      role,
-      screening.application.jobPosting.departmentId,
-    );
+    await this.assertCanAccessJob(caller, {
+      organizationId: screening.organizationId,
+      departmentId: screening.application.jobPosting.departmentId,
+    });
 
     return screening;
   }
@@ -237,17 +236,21 @@ export class CvScreeningsService {
   }
   async getScreeningStats(
     jobId: string,
-    userId: string,
-    role: UserRole,
+    caller: TenantCaller,
   ): Promise<ScreeningStats> {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
-      select: { jobId: true, title: true, departmentId: true },
+      select: {
+        jobId: true,
+        title: true,
+        departmentId: true,
+        organizationId: true,
+      },
     });
     if (!job)
       throw new NotFoundException(`Không tìm thấy tin tuyển dụng '${jobId}'`);
 
-    await this.assertCanAccessJob(userId, role, job.departmentId);
+    await this.assertCanAccessJob(caller, job);
 
     const screenings = await this.prisma.cVScreening.findMany({
       where: { application: { jobId } },
@@ -286,7 +289,13 @@ export class CvScreeningsService {
     }
 
     return {
-      job,
+      // Listed field by field: `job` was widened to carry organizationId for the
+      // access check, and that column is an internal filter, never response data.
+      job: {
+        jobId: job.jobId,
+        title: job.title,
+        departmentId: job.departmentId,
+      },
       total,
       byStatus,
       byRecommendation,
@@ -330,10 +339,19 @@ export class CvScreeningsService {
     if (value > 0 && value < 1) return value * 100;
     return value;
   }
-  async getActiveConfig(configId?: string): Promise<AiConfig> {
+  /**
+   * The screening config for an application in `organizationId`: the one named, or
+   * that organization's default. Configs are per organization (module spec
+   * criterion 5), so neither lookup may reach another organization's rows — a
+   * config id from elsewhere is reported as not found, not used.
+   */
+  async getActiveConfig(
+    organizationId: string,
+    configId?: string,
+  ): Promise<AiConfig> {
     if (configId) {
-      const config = await this.prisma.aiConfig.findUnique({
-        where: { configId },
+      const config = await this.prisma.aiConfig.findFirst({
+        where: { configId, organizationId },
       });
       if (!config) {
         throw new NotFoundException(`Không tìm thấy cấu hình AI '${configId}'`);
@@ -342,7 +360,7 @@ export class CvScreeningsService {
     }
 
     const defaultConfig = await this.prisma.aiConfig.findFirst({
-      where: { isDefault: true },
+      where: { isDefault: true, organizationId },
     });
     if (!defaultConfig) {
       throw new NotFoundException(

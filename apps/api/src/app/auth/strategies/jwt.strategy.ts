@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../../common/prisma/prisma.service';
+import { resolveTenantCaller } from '../../../common/tenancy/resolve-tenant-caller';
 
 const extractJwtFromCookieOrHeader = (req: Request) => {
   if (
@@ -35,12 +36,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token không hợp lệ');
     }
 
-    // Re-read role/status from the DB on every request: a token minted before a
-    // role change or a deactivation must not keep working until it expires.
-    const user = await this.prisma.user.findUnique({
-      where: { userId: payload.userId },
-      select: { userId: true, role: true, fullName: true, status: true },
-    });
+    // Re-read role/status/organization from the DB on every request: a token
+    // minted before a role change, a deactivation or a move to another
+    // organization must not keep working until it expires.
+    const user = await resolveTenantCaller(this.prisma, payload.userId);
 
     if (!user) {
       throw new UnauthorizedException('Token không hợp lệ');
@@ -50,6 +49,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Tài khoản đã bị vô hiệu hóa');
     }
 
-    return { userId: user.userId, role: user.role, fullName: user.fullName };
+    return {
+      userId: user.userId,
+      role: user.role,
+      fullName: user.fullName,
+      organizationId: user.organizationId,
+    };
   }
 }

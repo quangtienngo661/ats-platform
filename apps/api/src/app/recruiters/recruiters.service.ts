@@ -10,41 +10,70 @@ import {
 } from './dtos/recruiters.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { recruiterIncludeOptions } from '../../common/utils/include-options.util';
+import {
+  organizationScope,
+  resolveWriteOrganization,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
+
+const RECRUITER_NOT_FOUND = 'Không tìm thấy nhà tuyển dụng';
 
 @Injectable()
 export class RecruitersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Both `create` and `update` accept `userId`/`departmentId`; both must check them. */
-  private async ensureRelationsExist(dto: {
-    userId?: string;
-    departmentId?: string;
-  }) {
-    if (dto.userId) {
-      const user = await this.prisma.user.findUnique({
-        where: { userId: dto.userId },
-        select: { userId: true },
-      });
+  private async ensureUserExists(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { userId },
+      select: { userId: true },
+    });
 
-      if (!user) {
-        throw new NotFoundException('Không tìm thấy người dùng');
-      }
-    }
-
-    if (dto.departmentId) {
-      const department = await this.prisma.department.findUnique({
-        where: { departmentId: dto.departmentId },
-        select: { departmentId: true },
-      });
-
-      if (!department) {
-        throw new NotFoundException('Không tìm thấy phòng ban');
-      }
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
   }
 
-  async create(createRecruiterDto: CreateRecruiterDto) {
-    await this.ensureRelationsExist(createRecruiterDto);
+  /**
+   * The organization a recruiter placed in `departmentId` belongs to: always that
+   * department's own, never one the request names. A platform admin may place a
+   * recruiter in any department; an org_admin only in its own organization's.
+   */
+  private async resolveDepartmentOrganization(
+    caller: TenantCaller,
+    departmentId: string,
+  ): Promise<string> {
+    const department = await this.prisma.department.findUnique({
+      where: { departmentId },
+      select: { organizationId: true },
+    });
+
+    if (!department) {
+      throw new NotFoundException('Không tìm thấy phòng ban');
+    }
+
+    return resolveWriteOrganization(caller, department.organizationId);
+  }
+
+  /** A recruiter the caller may see — anyone else's is reported as not found. */
+  private async findVisibleOrThrow(id: string, caller: TenantCaller) {
+    const recruiter = await this.prisma.recruiter.findFirst({
+      where: { recruiterId: id, ...organizationScope(caller) },
+      include: { _count: { select: { jobPostings: true } } },
+    });
+
+    if (!recruiter) {
+      throw new NotFoundException(RECRUITER_NOT_FOUND);
+    }
+
+    return recruiter;
+  }
+
+  async create(createRecruiterDto: CreateRecruiterDto, caller: TenantCaller) {
+    await this.ensureUserExists(createRecruiterDto.userId);
+    const organizationId = await this.resolveDepartmentOrganization(
+      caller,
+      createRecruiterDto.departmentId,
+    );
 
     const existingRecruiter = await this.prisma.recruiter.findUnique({
       where: {
@@ -58,22 +87,11 @@ export class RecruitersService {
       );
     }
 
-    const department = await this.prisma.department.findUnique({
-      where: { departmentId: createRecruiterDto.departmentId },
-      select: { organizationId: true },
-    });
-
-    if (!department) {
-      throw new NotFoundException(
-        `Không tìm thấy phòng ban với ID ${createRecruiterDto.departmentId}`,
-      );
-    }
-
-    const recruiter = await this.prisma.recruiter.create({
+    return await this.prisma.recruiter.create({
       data: {
         userId: createRecruiterDto.userId,
-        // A recruiter belongs to the organization that owns their department.
-        organizationId: department.organizationId,
+        // A recruiter belongs to the organization that owns its department.
+        organizationId,
         departmentId: createRecruiterDto.departmentId,
         position: createRecruiterDto.position,
       },
@@ -83,8 +101,6 @@ export class RecruitersService {
         departmentId: true,
       },
     });
-
-    return recruiter;
   }
 
   async getMe(userId: string) {
@@ -118,8 +134,13 @@ export class RecruitersService {
     });
   }
 
-  async findAll() {
+  /**
+   * The recruiters directory. It used to list every recruiter of every department
+   * to any recruiter — once organizations exist that is a cross-organization leak.
+   */
+  async findAll(caller: TenantCaller) {
     return await this.prisma.recruiter.findMany({
+      where: organizationScope(caller),
       include: { ...recruiterIncludeOptions },
       omit: {
         userId: true,
@@ -128,11 +149,9 @@ export class RecruitersService {
     });
   }
 
-  async findOne(id: string) {
-    const recruiter = await this.prisma.recruiter.findUnique({
-      where: {
-        recruiterId: id,
-      },
+  async findOne(id: string, caller: TenantCaller) {
+    const recruiter = await this.prisma.recruiter.findFirst({
+      where: { recruiterId: id, ...organizationScope(caller) },
       omit: {
         userId: true,
         departmentId: true,
@@ -141,33 +160,46 @@ export class RecruitersService {
     });
 
     if (!recruiter) {
-      throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
+      throw new NotFoundException(RECRUITER_NOT_FOUND);
     }
 
     return recruiter;
   }
 
-  async update(id: string, updateRecruiterDto: UpdateRecruiterDto) {
-    const recruiter = await this.prisma.recruiter.findUnique({
-      where: {
-        recruiterId: id,
-      },
-    });
-
-    if (!recruiter) {
-      throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
-    }
+  async update(
+    id: string,
+    updateRecruiterDto: UpdateRecruiterDto,
+    caller: TenantCaller,
+  ) {
+    await this.findVisibleOrThrow(id, caller);
 
     // `create()` validates these FKs; `update()` used to pass the DTO straight
     // through, so a bad departmentId/userId surfaced as a raw Prisma FK error.
-    await this.ensureRelationsExist(updateRecruiterDto);
+    if (updateRecruiterDto.userId) {
+      await this.ensureUserExists(updateRecruiterDto.userId);
+    }
+
+    // Moving a recruiter to another department moves its organization with it.
+    // The DTO used to be written verbatim, which left the denormalised
+    // organizationId pointing at the old organization after a move.
+    const organizationId = updateRecruiterDto.departmentId
+      ? await this.resolveDepartmentOrganization(
+          caller,
+          updateRecruiterDto.departmentId,
+        )
+      : undefined;
 
     return await this.prisma.recruiter.update({
       where: {
         recruiterId: id,
       },
       include: { ...recruiterIncludeOptions },
-      data: updateRecruiterDto,
+      data: {
+        userId: updateRecruiterDto.userId,
+        departmentId: updateRecruiterDto.departmentId,
+        position: updateRecruiterDto.position,
+        organizationId,
+      },
       omit: {
         userId: true,
         departmentId: true,
@@ -175,17 +207,8 @@ export class RecruitersService {
     });
   }
 
-  async remove(id: string) {
-    const recruiter = await this.prisma.recruiter.findUnique({
-      where: {
-        recruiterId: id,
-      },
-      include: { _count: { select: { jobPostings: true } } },
-    });
-
-    if (!recruiter) {
-      throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
-    }
+  async remove(id: string, caller: TenantCaller) {
+    const recruiter = await this.findVisibleOrThrow(id, caller);
 
     // `JobPosting.recruiter` is Restrict — deleting an owner with live postings
     // threw a raw P2003 (unhandled 500) instead of an actionable message.

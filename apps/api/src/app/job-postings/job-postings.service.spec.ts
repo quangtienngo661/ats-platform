@@ -1,7 +1,8 @@
-import { BadRequestException } from '@nestjs/common';
-import { JobStatus } from '@ats-platform/database';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { JobStatus, UserRole } from '@ats-platform/database';
 import { JobPostingsService } from './job-postings.service';
 import {
+  callerOf,
   createPrismaMock,
   createPrismaTransactionMock,
 } from '../../test-utils/unit-test-helpers';
@@ -139,9 +140,14 @@ describe('JobPostingsService', () => {
       jobId: 'job-1',
       salaryMin: 1000,
       salaryMax: 3000,
+      departmentId: 'dep-1',
+      organizationId: 'org-1',
     });
     prisma.jobCategory.findUnique.mockResolvedValue({ categoryId: 'cat-1' });
-    prisma.recruiter.findUnique.mockResolvedValue({ recruiterId: 'rec-1' });
+    prisma.recruiter.findUnique.mockResolvedValue({
+      departmentId: 'dep-1',
+      organizationId: 'org-1',
+    });
     tx.jobPosting.update.mockResolvedValue({ jobId: 'job-1' });
     tx.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',
@@ -182,42 +188,116 @@ describe('JobPostingsService', () => {
     ).rejects.toThrow('JSON');
   });
 
-  it('forces active-only listing for non-staff callers, ignoring a draft status filter', async () => {
+  it.each([
+    ['an anonymous visitor', undefined],
+    ['a candidate', callerOf(UserRole.candidate)],
+  ])(
+    'forces active-only listing for %s, ignoring a draft status filter',
+    async (_who, viewer) => {
+      prisma.$transaction.mockResolvedValue([[], 0]);
+
+      await service.findAll({ status: JobStatus.draft } as any, viewer);
+
+      // The shared job board: published postings from EVERY organization.
+      expect(
+        prisma.jobPosting.findMany.mock.calls[0][0].where.organizationId,
+      ).toBeUndefined();
+
+      expect(prisma.jobPosting.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: JobStatus.active }),
+        }),
+      );
+    },
+  );
+
+  // Gap surface: staff used to browse every department's drafts — every
+  // organization's, once organizations exist.
+  it.each([
+    ['a recruiter', UserRole.recruiter],
+    ['an org_admin', UserRole.org_admin],
+  ])(
+    'honours the status filter for %s, inside its organization only',
+    async (_who, role) => {
+      prisma.$transaction.mockResolvedValue([[], 0]);
+
+      await service.findAll({ status: JobStatus.draft } as any, callerOf(role));
+
+      expect(prisma.jobPosting.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: JobStatus.draft,
+            organizationId: 'org-1',
+          }),
+        }),
+      );
+    },
+  );
+
+  it("lists every organization's postings, any status, for a platform admin (6a)", async () => {
     prisma.$transaction.mockResolvedValue([[], 0]);
 
-    await service.findAll({ status: JobStatus.draft } as any, false);
-
-    expect(prisma.jobPosting.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ status: JobStatus.active }),
-      }),
+    await service.findAll(
+      { status: JobStatus.draft } as any,
+      callerOf(UserRole.admin),
     );
-  });
 
-  it('honours the status filter for staff callers', async () => {
-    prisma.$transaction.mockResolvedValue([[], 0]);
-
-    await service.findAll({ status: JobStatus.draft } as any, true);
-
-    expect(prisma.jobPosting.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ status: JobStatus.draft }),
-      }),
-    );
+    const { where } = prisma.jobPosting.findMany.mock.calls[0][0];
+    expect(where.status).toBe(JobStatus.draft);
+    expect(where.organizationId).toBeUndefined();
   });
 
   it('hides an unpublished posting from a non-staff caller behind the same 404', async () => {
     prisma.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',
+      organizationId: 'org-1',
       status: JobStatus.draft,
     });
 
-    await expect(service.findOne('job-1', false)).rejects.toThrow(
+    await expect(service.findOne('job-1')).rejects.toThrow(
       'Không tìm thấy tin tuyển dụng',
     );
-    await expect(service.findOne('job-1', true)).resolves.toEqual(
-      expect.objectContaining({ jobId: 'job-1' }),
+    await expect(
+      service.findOne('job-1', callerOf(UserRole.recruiter)),
+    ).resolves.toEqual(expect.objectContaining({ jobId: 'job-1' }));
+  });
+
+  // Criterion 2 — and the same 404 as a missing posting, even when it is active.
+  it("hides another organization's posting from staff behind the same 404", async () => {
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-2',
+      organizationId: 'org-2',
+      status: JobStatus.active,
+    });
+
+    await expect(
+      service.findOne('job-2', callerOf(UserRole.recruiter)),
+    ).rejects.toThrow('Không tìm thấy tin tuyển dụng');
+    await expect(
+      service.findOne('job-2', callerOf(UserRole.org_admin)),
+    ).rejects.toThrow('Không tìm thấy tin tuyển dụng');
+    // ...while the public still sees it on the shared job board.
+    await expect(service.findOne('job-2')).resolves.toEqual(
+      expect.objectContaining({ jobId: 'job-2' }),
     );
+    await expect(
+      service.findOne('job-2', callerOf(UserRole.admin)),
+    ).resolves.toEqual(expect.objectContaining({ jobId: 'job-2' }));
+  });
+
+  it('fails closed for staff with no organization (E2)', async () => {
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      organizationId: 'org-1',
+      status: JobStatus.draft,
+    });
+
+    await expect(
+      service.findOne(
+        'job-1',
+        callerOf(UserRole.recruiter, { organizationId: null }),
+      ),
+    ).rejects.toThrow('Không tìm thấy tin tuyển dụng');
   });
 
   describe('update — status transitions and publishedAt', () => {
@@ -228,6 +308,7 @@ describe('JobPostingsService', () => {
       status: JobStatus.active,
       publishedAt: new Date('2026-01-01T00:00:00Z'),
       departmentId: 'dep-1',
+      organizationId: 'org-1',
       ...overrides,
     });
 
@@ -291,7 +372,10 @@ describe('JobPostingsService', () => {
     it('realigns departmentId when the posting is handed to a recruiter in another department', async () => {
       const tx = createPrismaTransactionMock();
       prisma.jobPosting.findUnique.mockResolvedValue(existing());
-      prisma.recruiter.findUnique.mockResolvedValue({ departmentId: 'dep-2' });
+      prisma.recruiter.findUnique.mockResolvedValue({
+        departmentId: 'dep-2',
+        organizationId: 'org-1',
+      });
       prisma.$transaction.mockImplementation((cb: any) => cb(tx));
       tx.jobPosting.update.mockResolvedValue({ jobId: 'job-1' });
       tx.jobPosting.findUnique.mockResolvedValue({ jobId: 'job-1' });
@@ -305,6 +389,21 @@ describe('JobPostingsService', () => {
           }),
         }),
       );
+    });
+
+    // Never across organizations — not even for a platform admin: the posting's
+    // organizationId would stay behind while its department moved.
+    it('refuses to hand a posting to a recruiter in another organization', async () => {
+      prisma.jobPosting.findUnique.mockResolvedValue(existing());
+      prisma.recruiter.findUnique.mockResolvedValue({
+        departmentId: 'dep-of-org-2',
+        organizationId: 'org-2',
+      });
+
+      await expect(
+        service.update('job-1', { createdBy: 'rec-of-org-2' } as any),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });
 });

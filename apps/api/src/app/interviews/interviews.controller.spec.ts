@@ -1,6 +1,6 @@
 import { UserRole } from '@ats-platform/database';
 import { InterviewsController } from './interviews.controller';
-import { mockRequest } from '../../test-utils/unit-test-helpers';
+import { callerOf, mockRequest } from '../../test-utils/unit-test-helpers';
 
 describe('InterviewsController', () => {
   it('delegates schedule and topic endpoints', () => {
@@ -25,24 +25,24 @@ describe('InterviewsController', () => {
       abandonSession: jest.fn(),
     };
     const controller = new InterviewsController(interviewsService as any, sessionService as any);
-    const req = mockRequest({ userId: 'user-1', role: UserRole.recruiter });
+    const caller = callerOf(UserRole.recruiter);
 
-    controller.createSchedule(req, { applicationId: 'app-1' } as any);
-    controller.getMySchedules(req, { page: 1 } as any);
-    controller.getScheduleById('int-1', req);
-    controller.updateSchedule('int-1', req, { status: 'scheduled' } as any);
-    controller.removeSchedule('int-1', req);
+    controller.createSchedule(caller, { applicationId: 'app-1' } as any);
+    controller.getMySchedules(caller, { page: 1 } as any);
+    controller.getScheduleById('int-1', caller);
+    controller.updateSchedule('int-1', caller, { status: 'scheduled' } as any);
+    controller.removeSchedule('int-1', caller);
     controller.createTopic({ name: 'Backend' } as any);
     controller.findAllTopics();
     controller.findTopicById('topic-1');
     controller.updateTopic('topic-1', { name: 'Frontend' } as any);
     controller.removeTopic('topic-1');
 
-    expect(interviewsService.createSchedule).toHaveBeenCalledWith('user-1', UserRole.recruiter, { applicationId: 'app-1' });
-    expect(interviewsService.getMySchedules).toHaveBeenCalledWith('user-1', UserRole.recruiter, { page: 1 });
-    expect(interviewsService.getScheduleById).toHaveBeenCalledWith('int-1', 'user-1', UserRole.recruiter);
-    expect(interviewsService.updateSchedule).toHaveBeenCalledWith('int-1', 'user-1', UserRole.recruiter, { status: 'scheduled' });
-    expect(interviewsService.removeSchedule).toHaveBeenCalledWith('int-1', 'user-1', UserRole.recruiter);
+    expect(interviewsService.createSchedule).toHaveBeenCalledWith(caller, { applicationId: 'app-1' });
+    expect(interviewsService.getMySchedules).toHaveBeenCalledWith(caller, { page: 1 });
+    expect(interviewsService.getScheduleById).toHaveBeenCalledWith('int-1', caller);
+    expect(interviewsService.updateSchedule).toHaveBeenCalledWith('int-1', caller, { status: 'scheduled' });
+    expect(interviewsService.removeSchedule).toHaveBeenCalledWith('int-1', caller);
     expect(interviewsService.createTopic).toHaveBeenCalledWith({ name: 'Backend' });
     expect(interviewsService.findAllTopics).toHaveBeenCalled();
     expect(interviewsService.findTopicById).toHaveBeenCalledWith('topic-1');

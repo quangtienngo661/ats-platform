@@ -11,6 +11,7 @@ import {
   JobStatus,
   NotificationType,
   ParsingStatus,
+  Prisma,
   RelatedEntityType,
   ScreeningStatus,
   UserRole,
@@ -23,6 +24,11 @@ import {
 } from './dtos/application.dto';
 import { applicationIncludeOptions } from '../../common/utils/include-options.util';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
+import {
+  assertOrganizationAccess,
+  organizationScope,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
 import { SocketIoService } from '../../common/socket-io/socket-io.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -128,21 +134,21 @@ export class ApplicationsService {
     return [...held];
   }
 
+  /**
+   * Staff access to hiring data owned by a job. Organization first (a platform
+   * admin, and an org_admin inside its organization, stop there); a recruiter then
+   * also needs the job's department — the narrower, pre-existing boundary.
+   */
   private async assertCanAccessDepartment(
-    userId: string,
-    role: string,
-    departmentId: string,
+    caller: TenantCaller,
+    resource: { organizationId: string; departmentId: string },
   ) {
-    if (role === UserRole.admin) return;
+    if (assertOrganizationAccess(caller, resource.organizationId)) return;
 
-    if (role !== UserRole.recruiter) {
-      throw new ForbiddenException(
-        'Bạn không có quyền truy cập tài nguyên này',
-      );
-    }
-
-    const recruiterDepartmentId = await this.getRecruiterDepartmentId(userId);
-    if (recruiterDepartmentId !== departmentId) {
+    const recruiterDepartmentId = await this.getRecruiterDepartmentId(
+      caller.userId,
+    );
+    if (recruiterDepartmentId !== resource.departmentId) {
       throw new ForbiddenException(
         'Bạn không có quyền truy cập dữ liệu tuyển dụng của khoa này',
       );
@@ -150,14 +156,14 @@ export class ApplicationsService {
   }
 
   private async assertCanAccessApplication(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     applicationId: string,
   ) {
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
       select: {
         applicationId: true,
+        organizationId: true,
         candidate: { select: { userId: true } },
         jobPosting: { select: { departmentId: true } },
       },
@@ -166,8 +172,8 @@ export class ApplicationsService {
     if (!application)
       throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
 
-    if (role === UserRole.candidate) {
-      if (application.candidate.userId !== userId) {
+    if (caller.role === UserRole.candidate) {
+      if (application.candidate.userId !== caller.userId) {
         throw new ForbiddenException(
           'Bạn không phải chủ sở hữu đơn ứng tuyển này',
         );
@@ -175,11 +181,10 @@ export class ApplicationsService {
       return;
     }
 
-    await this.assertCanAccessDepartment(
-      userId,
-      role,
-      application.jobPosting.departmentId,
-    );
+    await this.assertCanAccessDepartment(caller, {
+      organizationId: application.organizationId,
+      departmentId: application.jobPosting.departmentId,
+    });
   }
 
   async apply(userId: string, dto: CreateApplicationDto) {
@@ -333,14 +338,17 @@ export class ApplicationsService {
     return { message: 'Rút đơn ứng tuyển thành công' };
   }
 
-  async getAllKanbanBoard(userId: string, role: string) {
-    const whereCondition: any = {
+  async getAllKanbanBoard(caller: TenantCaller) {
+    // Organization scope for every staff role. Before this only a recruiter was
+    // filtered at all, so any other role that reached here saw every application.
+    const whereCondition: Prisma.ApplicationWhereInput = {
       status: { not: ApplicationStatus.cancelled },
+      ...organizationScope(caller),
     };
 
-    if (role === UserRole.recruiter) {
+    if (caller.role === UserRole.recruiter) {
       const recruiter = await this.prisma.recruiter.findUnique({
-        where: { userId },
+        where: { userId: caller.userId },
       });
       if (!recruiter)
         throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
@@ -377,7 +385,7 @@ export class ApplicationsService {
     return board;
   }
 
-  async getKanbanBoard(userId: string, role: string, jobId: string) {
+  async getKanbanBoard(caller: TenantCaller, jobId: string) {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
       select: {
@@ -386,10 +394,11 @@ export class ApplicationsService {
         status: true,
         locationType: true,
         departmentId: true,
+        organizationId: true,
       },
     });
     if (!job) throw new NotFoundException('Không tìm thấy tin tuyển dụng');
-    await this.assertCanAccessDepartment(userId, role, job.departmentId);
+    await this.assertCanAccessDepartment(caller, job);
 
     const applications = await this.prisma.application.findMany({
       where: { jobId, status: { not: ApplicationStatus.cancelled } },
@@ -435,17 +444,16 @@ export class ApplicationsService {
   }
 
   async getApplicationsByJob(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     jobId: string,
     query: GetApplicationsByJobQueryDto = {},
   ) {
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
-      select: { jobId: true, departmentId: true },
+      select: { jobId: true, departmentId: true, organizationId: true },
     });
     if (!job) throw new NotFoundException('Không tìm thấy tin tuyển dụng');
-    await this.assertCanAccessDepartment(userId, role, job.departmentId);
+    await this.assertCanAccessDepartment(caller, job);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 50;
@@ -474,12 +482,8 @@ export class ApplicationsService {
     };
   }
 
-  async getApplicationById(
-    applicationId: string,
-    userId: string,
-    role: string,
-  ) {
-    await this.assertCanAccessApplication(userId, role, applicationId);
+  async getApplicationById(applicationId: string, caller: TenantCaller) {
+    await this.assertCanAccessApplication(caller, applicationId);
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -500,11 +504,10 @@ export class ApplicationsService {
 
   async updateStatus(
     applicationId: string,
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     dto: UpdateApplicationStatusDto,
   ) {
-    await this.assertCanAccessApplication(userId, role, applicationId);
+    await this.assertCanAccessApplication(caller, applicationId);
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -555,7 +558,7 @@ export class ApplicationsService {
           applicationId,
           fromStatus: application.status,
           toStatus: dto.status,
-          changedBy: userId,
+          changedBy: caller.userId,
           notes: dto.notes,
           rejectionReason: dto.rejectionReason,
         },
@@ -569,12 +572,8 @@ export class ApplicationsService {
     return updated;
   }
 
-  async getApplicationHistory(
-    applicationId: string,
-    userId: string,
-    role: string,
-  ) {
-    await this.assertCanAccessApplication(userId, role, applicationId);
+  async getApplicationHistory(applicationId: string, caller: TenantCaller) {
+    await this.assertCanAccessApplication(caller, applicationId);
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -594,11 +593,10 @@ export class ApplicationsService {
 
   async triggerScreening(
     applicationId: string,
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     configId?: string,
   ) {
-    await this.assertCanAccessApplication(userId, role, applicationId);
+    await this.assertCanAccessApplication(caller, applicationId);
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
@@ -649,24 +647,14 @@ export class ApplicationsService {
       }
     }
 
-    let aiConfig;
-    if (configId) {
-      aiConfig = await this.prisma.aiConfig.findUnique({
-        where: { configId },
-        select: { configId: true },
-      });
-      if (!aiConfig) throw new NotFoundException('Không tìm thấy cấu hình AI');
-    } else {
-      aiConfig = await this.prisma.aiConfig.findFirst({
-        where: { isDefault: true },
-        select: { configId: true },
-      });
-    }
-
+    // The config — an explicit one, or the default — is resolved INSIDE the
+    // application's own organization by createScreeningRecord. This used to call
+    // findFirst({ isDefault: true }) here, which with several organizations picks
+    // some other organization's default as often as its own.
     return this.cvScreeningsService.createScreeningRecord(
       application.applicationId,
       application.cvId,
-      aiConfig?.configId,
+      configId,
     );
   }
 

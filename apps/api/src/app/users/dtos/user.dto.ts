@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID } from 'class-validator';
 import { UserRole, UserStatus } from '@ats-platform/database';
 import { IUserDto } from '@ats-platform/types';
 import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
@@ -50,6 +50,14 @@ export class CreateUserDto implements IUserDto {
     })
     @IsEnum(UserRole)
     role!: UserRole;
+
+    @ApiPropertyOptional({
+        example: '00000000-0000-4000-8000-000000000001',
+        description: 'Bắt buộc khi role = org_admin (tổ chức mà tài khoản quản trị); không được gửi với vai trò khác.',
+    })
+    @IsUUID()
+    @IsOptional()
+    organizationId?: string;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) { }

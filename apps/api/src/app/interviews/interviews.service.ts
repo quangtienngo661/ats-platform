@@ -5,6 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import {
+  assertOrganizationAccess,
+  isOrganizationStaff,
+  isPlatformAdmin,
+  organizationScope,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
 import { CreateInterviewScheduleDto } from './dto/create-interview.dto';
 import { UpdateInterviewScheduleDto } from './dto/update-interview.dto';
 import { GetInterviewSchedulesQueryDto } from './dto/get-interview-schedules-query.dto';
@@ -72,8 +79,7 @@ export class InterviewsService {
   }
 
   private async assertCanScheduleApplication(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     applicationId: string,
   ) {
     const application = await this.prisma.application.findUnique({
@@ -94,14 +100,14 @@ export class InterviewsService {
       );
     }
 
-    if (role === UserRole.admin) return application;
-    if (role !== UserRole.recruiter) {
-      throw new ForbiddenException(
-        'Bạn không có quyền lên lịch phỏng vấn cho đơn ứng tuyển này',
-      );
+    // Platform admin, and an org_admin inside the organization, stop here.
+    if (assertOrganizationAccess(caller, application.organizationId)) {
+      return application;
     }
 
-    const recruiterDepartmentId = await this.getRecruiterDepartmentId(userId);
+    const recruiterDepartmentId = await this.getRecruiterDepartmentId(
+      caller.userId,
+    );
     if (recruiterDepartmentId !== application.jobPosting.departmentId) {
       throw new ForbiddenException(
         'Bạn không có quyền lên lịch phỏng vấn cho đơn ứng tuyển này',
@@ -112,16 +118,16 @@ export class InterviewsService {
   }
 
   private async assertCanUseInterviewer(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     interviewerId: string,
-    departmentId: string,
+    resource: { organizationId: string; departmentId: string },
   ) {
     const interviewer = await this.prisma.recruiter.findUnique({
       where: { userId: interviewerId },
       select: {
         recruiterId: true,
         departmentId: true,
+        organizationId: true,
         user: { select: { userId: true, role: true } },
       },
     });
@@ -138,15 +144,23 @@ export class InterviewsService {
       );
     }
 
-    if (role === UserRole.admin) return;
-    if (role !== UserRole.recruiter) {
-      throw new ForbiddenException('Bạn không có quyền chọn người phỏng vấn');
+    // For EVERY caller, platform admin included: an interviewer from another
+    // organization would be handed that organization's candidate through the
+    // schedule. Before organizations existed an admin could pick anyone.
+    if (interviewer.organizationId !== resource.organizationId) {
+      throw new ForbiddenException(
+        'Người phỏng vấn phải thuộc cùng tổ chức với đơn ứng tuyển',
+      );
     }
 
-    const recruiterDepartmentId = await this.getRecruiterDepartmentId(userId);
+    if (assertOrganizationAccess(caller, resource.organizationId)) return;
+
+    const recruiterDepartmentId = await this.getRecruiterDepartmentId(
+      caller.userId,
+    );
     if (
-      recruiterDepartmentId !== departmentId ||
-      interviewer.departmentId !== departmentId
+      recruiterDepartmentId !== resource.departmentId ||
+      interviewer.departmentId !== resource.departmentId
     ) {
       throw new ForbiddenException(
         'Người phỏng vấn phải thuộc cùng khoa với đơn ứng tuyển',
@@ -193,13 +207,13 @@ export class InterviewsService {
   }
 
   private async assertCanViewSchedule(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     interviewId: string,
   ) {
     const schedule = await this.prisma.interviewSchedule.findUnique({
       where: { interviewId },
       select: {
+        organizationId: true,
         scheduledBy: true,
         interviewerId: true,
         application: {
@@ -212,17 +226,26 @@ export class InterviewsService {
     });
 
     if (!schedule) throw new NotFoundException('Không tìm thấy lịch phỏng vấn');
-    if (role === UserRole.admin) return;
     if (
-      role === UserRole.candidate &&
-      schedule.application.candidate.userId === userId
+      caller.role === UserRole.candidate &&
+      schedule.application.candidate.userId === caller.userId
     )
       return;
-    if (role === UserRole.recruiter) {
-      if (schedule.scheduledBy === userId || schedule.interviewerId === userId)
+
+    if (isPlatformAdmin(caller.role) || isOrganizationStaff(caller.role)) {
+      // Organization first, even for the recruiter who scheduled or runs the
+      // interview: one since moved to another organization keeps no access.
+      if (assertOrganizationAccess(caller, schedule.organizationId)) return;
+
+      if (
+        schedule.scheduledBy === caller.userId ||
+        schedule.interviewerId === caller.userId
+      )
         return;
 
-      const recruiterDepartmentId = await this.getRecruiterDepartmentId(userId);
+      const recruiterDepartmentId = await this.getRecruiterDepartmentId(
+        caller.userId,
+      );
       if (
         recruiterDepartmentId === schedule.application.jobPosting.departmentId
       )
@@ -235,14 +258,14 @@ export class InterviewsService {
   }
 
   private async assertCanMutateSchedule(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     interviewId: string,
   ) {
     const schedule = await this.prisma.interviewSchedule.findUnique({
       where: { interviewId },
       select: {
         interviewId: true,
+        organizationId: true,
         scheduledBy: true,
         interviewerId: true,
         startAt: true,
@@ -255,28 +278,27 @@ export class InterviewsService {
     });
 
     if (!schedule) throw new NotFoundException('Không tìm thấy lịch phỏng vấn');
-    if (role === UserRole.admin || schedule.scheduledBy === userId)
-      return schedule;
+    if (isPlatformAdmin(caller.role) || isOrganizationStaff(caller.role)) {
+      // Platform admin, or an org_admin inside the organization: any schedule.
+      if (assertOrganizationAccess(caller, schedule.organizationId)) {
+        return schedule;
+      }
+      // A recruiter: only the schedules it created, inside its organization.
+      if (schedule.scheduledBy === caller.userId) return schedule;
+    }
 
     throw new ForbiddenException('Bạn không phải người tạo lịch phỏng vấn này');
   }
 
-  async createSchedule(
-    userId: string,
-    role: string,
-    dto: CreateInterviewScheduleDto,
-  ) {
+  async createSchedule(caller: TenantCaller, dto: CreateInterviewScheduleDto) {
     const application = await this.assertCanScheduleApplication(
-      userId,
-      role,
+      caller,
       dto.applicationId,
     );
-    await this.assertCanUseInterviewer(
-      userId,
-      role,
-      dto.interviewerId,
-      application.jobPosting.departmentId,
-    );
+    await this.assertCanUseInterviewer(caller, dto.interviewerId, {
+      organizationId: application.organizationId,
+      departmentId: application.jobPosting.departmentId,
+    });
     const startAt = new Date(dto.startAt);
     await this.assertNoScheduleConflict(
       dto.interviewerId,
@@ -289,7 +311,7 @@ export class InterviewsService {
         // The schedule belongs to the organization that owns the application.
         organizationId: application.organizationId,
         applicationId: dto.applicationId,
-        scheduledBy: userId,
+        scheduledBy: caller.userId,
         interviewerId: dto.interviewerId,
         interviewType: dto.interviewType,
         startAt,
@@ -301,10 +323,10 @@ export class InterviewsService {
   }
 
   async getMySchedules(
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     query: GetInterviewSchedulesQueryDto,
   ) {
+    const { userId, role } = caller;
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -320,8 +342,14 @@ export class InterviewsService {
         throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
 
       where.application = { candidateId: candidate.candidateId };
-    } else if (role === UserRole.recruiter) {
-      where.OR = [{ interviewerId: userId }, { scheduledBy: userId }];
+    } else {
+      // Staff: never outside the caller's organization. Before this, only a
+      // recruiter was narrowed at all, so any other staff role saw every
+      // organization's schedules. A platform admin still gets {} here.
+      Object.assign(where, organizationScope(caller));
+      if (role === UserRole.recruiter) {
+        where.OR = [{ interviewerId: userId }, { scheduledBy: userId }];
+      }
     }
 
     if (query.applicationId) {
@@ -360,8 +388,8 @@ export class InterviewsService {
     };
   }
 
-  async getScheduleById(interviewId: string, userId: string, role: string) {
-    await this.assertCanViewSchedule(userId, role, interviewId);
+  async getScheduleById(interviewId: string, caller: TenantCaller) {
+    await this.assertCanViewSchedule(caller, interviewId);
 
     const schedule = await this.prisma.interviewSchedule.findUnique({
       where: { interviewId },
@@ -374,24 +402,17 @@ export class InterviewsService {
 
   async updateSchedule(
     interviewId: string,
-    userId: string,
-    role: string,
+    caller: TenantCaller,
     dto: UpdateInterviewScheduleDto,
   ) {
-    const schedule = await this.assertCanMutateSchedule(
-      userId,
-      role,
-      interviewId,
-    );
+    const schedule = await this.assertCanMutateSchedule(caller, interviewId);
 
     const updateData: any = {};
     if (dto.interviewerId) {
-      await this.assertCanUseInterviewer(
-        userId,
-        role,
-        dto.interviewerId,
-        schedule.application.jobPosting.departmentId,
-      );
+      await this.assertCanUseInterviewer(caller, dto.interviewerId, {
+        organizationId: schedule.organizationId,
+        departmentId: schedule.application.jobPosting.departmentId,
+      });
       updateData.interviewerId = dto.interviewerId;
     }
     if (dto.interviewType) updateData.interviewType = dto.interviewType;
@@ -437,8 +458,8 @@ export class InterviewsService {
     });
   }
 
-  async removeSchedule(interviewId: string, userId: string, role: string) {
-    await this.assertCanMutateSchedule(userId, role, interviewId);
+  async removeSchedule(interviewId: string, caller: TenantCaller) {
+    await this.assertCanMutateSchedule(caller, interviewId);
 
     return this.prisma.interviewSchedule.delete({
       where: { interviewId },

@@ -18,7 +18,45 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * An org_admin is bound to exactly one existing organization, and no other role
+   * carries one. The database enforces the same pair with a CHECK constraint; this
+   * turns a violation into a readable 400/404 instead of a raw constraint error.
+   */
+  private async resolveAdminOrganization(
+    role: UserRole,
+    organizationId?: string | null,
+  ): Promise<string | null> {
+    if (role !== UserRole.org_admin) {
+      if (organizationId) {
+        throw new BadRequestException(
+          'Chỉ tài khoản quản trị tổ chức (org_admin) mới được gắn với một tổ chức',
+        );
+      }
+      return null;
+    }
+
+    if (!organizationId) {
+      throw new BadRequestException(
+        'Tài khoản quản trị tổ chức phải được gắn với một tổ chức (organizationId)',
+      );
+    }
+
+    const organization = await this.prisma.organization.findUnique({
+      where: { organizationId },
+      select: { organizationId: true },
+    });
+    if (!organization) {
+      throw new NotFoundException('Không tìm thấy tổ chức');
+    }
+    return organizationId;
+  }
+
   async create(data: CreateUserDto) {
+    const organizationId = await this.resolveAdminOrganization(
+      data.role,
+      data.organizationId,
+    );
     const passwordHash = bcrypt.hashSync(data.password, 10);
 
     const existingUser = await this.prisma.user.findUnique({
@@ -37,6 +75,7 @@ export class UsersService {
           fullName: data.fullName,
           status: data.status ?? UserStatus.active,
           role: data.role,
+          organizationId,
           emailVerified: true,
         },
         omit: { passwordHash: true },
@@ -128,7 +167,8 @@ export class UsersService {
       updateUserDto.password !== undefined ||
       updateUserDto.fullName !== undefined ||
       updateUserDto.status !== undefined ||
-      updateUserDto.role !== undefined;
+      updateUserDto.role !== undefined ||
+      updateUserDto.organizationId !== undefined;
 
     if (!hasDataToUpdate) {
       throw new BadRequestException('Không có dữ liệu để cập nhật');
@@ -139,6 +179,8 @@ export class UsersService {
       select: {
         userId: true,
         email: true,
+        role: true,
+        organizationId: true,
       },
     });
 
@@ -157,6 +199,24 @@ export class UsersService {
       }
     }
 
+    // Role and organization change as a pair. Leaving org_admin drops the binding;
+    // becoming one requires it; staying one keeps the current binding unless a new
+    // one is given.
+    let organizationId: string | null | undefined;
+    if (
+      updateUserDto.role !== undefined ||
+      updateUserDto.organizationId !== undefined
+    ) {
+      const nextRole = updateUserDto.role ?? currentUser.role;
+      const requested =
+        updateUserDto.organizationId !== undefined
+          ? updateUserDto.organizationId
+          : nextRole === UserRole.org_admin
+            ? currentUser.organizationId
+            : null;
+      organizationId = await this.resolveAdminOrganization(nextRole, requested);
+    }
+
     const passwordHash = updateUserDto.password
       ? bcrypt.hashSync(updateUserDto.password, 10)
       : undefined;
@@ -170,6 +230,7 @@ export class UsersService {
           fullName: updateUserDto.fullName,
           status: updateUserDto.status,
           role: updateUserDto.role,
+          organizationId,
         },
         omit: { passwordHash: true },
       });

@@ -10,6 +10,12 @@ import {
   UpdateCandidateProfileDto,
 } from './dtos/candidates.dto';
 import { candidateIncludeOptions } from '../../common/utils/include-options.util';
+import {
+  isOrgAdmin,
+  isPlatformAdmin,
+  requireCallerOrganization,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
 
 @Injectable()
 export class CandidatesService {
@@ -108,47 +114,74 @@ export class CandidatesService {
     return recruiter.departmentId;
   }
 
-  private getRecruiterCandidateScope(
-    departmentId: string,
-  ): Prisma.CandidateWhereInput {
-    return {
-      applications: {
-        some: {
-          status: { not: ApplicationStatus.cancelled },
-          jobPosting: { departmentId },
+  /**
+   * Candidates are one pool shared by every organization, so staff reach a
+   * candidate only THROUGH a live application inside their own scope:
+   *   platform admin → null (no restriction)
+   *   org_admin      → an application in its organization
+   *   recruiter      → an application to a job in its department (which is
+   *                    inside its organization by construction)
+   * `denial` is the message a caller outside all three gets.
+   */
+  private async getCandidateScope(
+    caller: TenantCaller,
+    denial: string,
+  ): Promise<Prisma.CandidateWhereInput | null> {
+    if (isPlatformAdmin(caller.role)) return null;
+
+    if (isOrgAdmin(caller.role)) {
+      return {
+        applications: {
+          some: {
+            status: { not: ApplicationStatus.cancelled },
+            organizationId: requireCallerOrganization(caller),
+          },
         },
-      },
-    };
+      };
+    }
+
+    if (caller.role === UserRole.recruiter) {
+      const departmentId = await this.getRecruiterDepartmentId(caller.userId);
+      return {
+        applications: {
+          some: {
+            status: { not: ApplicationStatus.cancelled },
+            jobPosting: { departmentId },
+          },
+        },
+      };
+    }
+
+    throw new ForbiddenException(denial);
   }
 
   private async assertCanViewCandidate(
     candidateId: string,
-    userId: string,
-    role: UserRole,
+    caller: TenantCaller,
   ) {
-    if (role === UserRole.admin) return;
-    if (role !== UserRole.recruiter) {
-      throw new ForbiddenException('Bạn không có quyền truy cập ứng viên này');
-    }
+    const scope = await this.getCandidateScope(
+      caller,
+      'Bạn không có quyền truy cập ứng viên này',
+    );
+    if (!scope) return;
 
-    const departmentId = await this.getRecruiterDepartmentId(userId);
     const candidate = await this.prisma.candidate.findFirst({
       where: {
         candidateId,
-        ...this.getRecruiterCandidateScope(departmentId),
+        ...scope,
       },
       select: { candidateId: true },
     });
 
     if (!candidate) {
       throw new ForbiddenException(
-        'Bạn không có quyền truy cập ứng viên ngoài phạm vi khoa',
+        'Bạn không có quyền truy cập ứng viên ngoài phạm vi của bạn',
       );
     }
   }
 
-  async findOne(candidateId: string, userId: string, role: UserRole) {
-    await this.assertCanViewCandidate(candidateId, userId, role);
+  async findOne(candidateId: string, caller: TenantCaller) {
+    await this.assertCanViewCandidate(candidateId, caller);
 
     const candidate = await this.prisma.candidate.findUnique({
       where: { candidateId },
@@ -188,7 +221,7 @@ export class CandidatesService {
     };
   }
 
-  async findAll(query: FindCandidatesQueryDto, userId: string, role: UserRole) {
+  async findAll(query: FindCandidatesQueryDto, caller: TenantCaller) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
 
@@ -223,16 +256,13 @@ export class CandidatesService {
           }
         : {}),
     };
-    let where = baseWhere;
-
-    if (role === UserRole.recruiter) {
-      const departmentId = await this.getRecruiterDepartmentId(userId);
-      where = {
-        AND: [baseWhere, this.getRecruiterCandidateScope(departmentId)],
-      };
-    } else if (role !== UserRole.admin) {
-      throw new ForbiddenException('Bạn không có quyền tìm kiếm ứng viên');
-    }
+    const scope = await this.getCandidateScope(
+      caller,
+      'Bạn không có quyền tìm kiếm ứng viên',
+    );
+    const where: Prisma.CandidateWhereInput = scope
+      ? { AND: [baseWhere, scope] }
+      : baseWhere;
 
     const [candidates, total] = await this.prisma.$transaction([
       this.prisma.candidate.findMany({

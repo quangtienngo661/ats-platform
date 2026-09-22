@@ -12,6 +12,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { resolveTenantCaller } from '../tenancy/resolve-tenant-caller';
+import { assertOrganizationAccess } from '../tenancy/tenant-caller';
 @WebSocketGateway({
   cors: {
     origin: process.env.CLIENT_URL,
@@ -59,11 +61,9 @@ export class SocketIoService
       // A valid signature isn't enough: the account may have been deactivated
       // after this token was issued. HTTP re-checks this in JwtStrategy; the
       // socket handshake must do the same or deactivation wouldn't apply here.
+      // Same resolver as JwtStrategy, so HTTP and sockets agree on the organization.
       const user = payload?.userId
-        ? await this.prisma.user.findUnique({
-            where: { userId: payload.userId },
-            select: { userId: true, role: true, fullName: true, status: true },
-          })
+        ? await resolveTenantCaller(this.prisma, payload.userId)
         : null;
 
       if (!user || user.status !== UserStatus.active) {
@@ -78,6 +78,7 @@ export class SocketIoService
         userId: user.userId,
         role: user.role,
         fullName: user.fullName,
+        organizationId: user.organizationId,
       };
 
       const room = `user_${user.userId}`;
@@ -111,13 +112,23 @@ export class SocketIoService
 
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
-      select: { departmentId: true },
+      select: { departmentId: true, organizationId: true },
     });
 
     if (!job) return false;
-    if (user.role === 'admin') return true;
-    if (user.role !== 'recruiter') return false;
 
+    // Organization first — the socket half of criterion 2. Platform admin: yes.
+    // org_admin inside the job's organization: yes. Anyone outside it: no.
+    // This is not a Prisma query, so no query-level filter would ever cover it.
+    let fullyAuthorised: boolean;
+    try {
+      fullyAuthorised = assertOrganizationAccess(user, job.organizationId);
+    } catch {
+      return false;
+    }
+    if (fullyAuthorised) return true;
+
+    // A recruiter inside the right organization still needs the job's department.
     const recruiter = await this.prisma.recruiter.findUnique({
       where: { userId: user.userId },
       select: { departmentId: true },

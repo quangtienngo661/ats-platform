@@ -9,6 +9,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { RESOURCES_KEY } from '../decorators/resources.decorator';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+    assertOrganizationAccess,
+    isOrgAdmin,
+    isOrganizationStaff,
+    TenantCaller,
+} from '../tenancy/tenant-caller';
 
 @Injectable()
 export class OwnershipGuard implements CanActivate {
@@ -28,6 +34,11 @@ export class OwnershipGuard implements CanActivate {
         const { user, params } = context.switchToHttp().getRequest();
         const resourceId = params.id ?? params.cvId ?? params.jobId ?? params.jobPostingId;
         const userId = user.userId;
+        const caller: TenantCaller = {
+            userId,
+            role: user.role,
+            organizationId: user.organizationId ?? null,
+        };
 
         if (!resourceId) return true;
         if (user.role === UserRole.admin) return true;
@@ -37,6 +48,7 @@ export class OwnershipGuard implements CanActivate {
                 const jobPosting = await this.prisma.jobPosting.findUnique({
                     where: { jobId: resourceId },
                     select: {
+                        organizationId: true,
                         recruiter: {
                             select: { userId: true },
                         },
@@ -47,6 +59,14 @@ export class OwnershipGuard implements CanActivate {
                     throw new NotFoundException('Không tìm thấy tin tuyển dụng');
                 }
 
+                // An org_admin may manage any posting in its own organization.
+                if (assertOrganizationAccess(caller, jobPosting.organizationId)) {
+                    return true;
+                }
+
+                // A recruiter must own it AND still be in its organization — owning
+                // alone would let a recruiter moved to another organization keep
+                // editing the postings it left behind.
                 if (jobPosting.recruiter.userId !== userId) {
                     throw new ForbiddenException('Bạn không phải chủ sở hữu tin tuyển dụng này');
                 }
@@ -62,6 +82,7 @@ export class OwnershipGuard implements CanActivate {
                         applications: {
                             where: { status: { not: ApplicationStatus.cancelled } },
                             select: {
+                                organizationId: true,
                                 jobPosting: { select: { departmentId: true } },
                             },
                         },
@@ -77,6 +98,18 @@ export class OwnershipGuard implements CanActivate {
                         throw new ForbiddenException('Bạn không phải chủ sở hữu CV này');
                     }
                     return true;
+                }
+
+                // A candidate's CV is shared across organizations; an org_admin sees it
+                // only while it backs an application inside its own organization.
+                if (isOrgAdmin(user.role)) {
+                    const canAccess =
+                        caller.organizationId !== null &&
+                        cv.applications.some(
+                            (application) => application.organizationId === caller.organizationId,
+                        );
+                    if (canAccess) return true;
+                    throw new ForbiddenException('Bạn không có quyền truy cập CV này');
                 }
 
                 if (user.role === UserRole.recruiter) {
@@ -101,6 +134,7 @@ export class OwnershipGuard implements CanActivate {
                 const application = await this.prisma.application.findUnique({
                     where: { applicationId: resourceId },
                     select: {
+                        organizationId: true,
                         candidate: { select: { userId: true } },
                         jobPosting: { select: { departmentId: true } },
                     },
@@ -110,7 +144,13 @@ export class OwnershipGuard implements CanActivate {
                     throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
                 }
 
-                if (user.role === UserRole.recruiter) {
+                if (isOrganizationStaff(user.role)) {
+                    // Organization first: an org_admin is done here, a recruiter
+                    // continues to its department check.
+                    if (assertOrganizationAccess(caller, application.organizationId)) {
+                        return true;
+                    }
+
                     const recruiter = await this.prisma.recruiter.findUnique({
                         where: { userId },
                         select: { departmentId: true },

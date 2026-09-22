@@ -1,6 +1,7 @@
 import { CandidatesService } from './candidates.service';
-import { createPrismaMock } from '../../test-utils/unit-test-helpers';
+import { callerOf, createPrismaMock } from '../../test-utils/unit-test-helpers';
 import { UserRole } from '@ats-platform/database';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('CandidatesService', () => {
   let service: CandidatesService;
@@ -73,7 +74,7 @@ describe('CandidatesService', () => {
     ]);
     prisma.candidate.count.mockResolvedValue(1);
 
-    await service.findAll({ search: 'alice', status: 'active' as any, page: 2, limit: 5 }, 'admin-1', UserRole.admin);
+    await service.findAll({ search: 'alice', status: 'active' as any, page: 2, limit: 5 }, callerOf(UserRole.admin));
 
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(prisma.candidate.findMany).toHaveBeenCalledWith(
@@ -93,7 +94,7 @@ describe('CandidatesService', () => {
     prisma.candidate.findMany.mockResolvedValue([]);
     prisma.candidate.count.mockResolvedValue(0);
 
-    await service.findAll({ page: 1, limit: 10 }, 'rec-user-1', UserRole.recruiter);
+    await service.findAll({ page: 1, limit: 10 }, callerOf(UserRole.recruiter, { userId: 'rec-user-1' }));
 
     expect(prisma.candidate.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -110,5 +111,51 @@ describe('CandidatesService', () => {
         }),
       }),
     );
+  });
+
+  // Candidates are a pool shared across organizations: an org_admin reaches a
+  // candidate only through an application inside its own organization (6b).
+  it('scopes an org_admin\'s candidate search to its organization\'s applications', async () => {
+    prisma.candidate.findMany.mockResolvedValue([]);
+    prisma.candidate.count.mockResolvedValue(0);
+
+    await service.findAll({ page: 1, limit: 10 }, callerOf(UserRole.org_admin));
+
+    const { where } = prisma.candidate.findMany.mock.calls[0][0];
+    expect(where.AND[1]).toEqual({
+      applications: {
+        some: {
+          status: { not: 'cancelled' },
+          organizationId: 'org-1',
+        },
+      },
+    });
+    // Not narrowed to a department: an org_admin sees all of them.
+    expect(prisma.recruiter.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('refuses an org_admin a candidate with no application in its organization', async () => {
+    prisma.candidate.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.findOne('cand-of-org-2-only', callerOf(UserRole.org_admin)),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.candidate.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          candidateId: 'cand-of-org-2-only',
+          applications: {
+            some: expect.objectContaining({ organizationId: 'org-1' }),
+          },
+        }),
+      }),
+    );
+    expect(prisma.candidate.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('refuses candidate search to a caller who is not staff', async () => {
+    await expect(
+      service.findAll({ page: 1, limit: 10 }, callerOf(UserRole.candidate)),
+    ).rejects.toThrow('Bạn không có quyền tìm kiếm ứng viên');
   });
 });

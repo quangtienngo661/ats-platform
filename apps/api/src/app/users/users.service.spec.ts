@@ -149,6 +149,126 @@ describe('UsersService', () => {
     });
   });
 
+  // An org_admin is bound to exactly one organization and nobody else carries one
+  // (a DB CHECK constraint says the same; this is the readable version).
+  describe('org_admin binding', () => {
+    const base = {
+      email: 'oa@test.com',
+      password: 'secret',
+      fullName: 'Org Admin',
+      status: UserStatus.active,
+    };
+    let tx: ReturnType<typeof createPrismaTransactionMock>;
+
+    beforeEach(() => {
+      tx = createPrismaTransactionMock();
+      tx.user.create.mockResolvedValue({ userId: 'user-9' });
+      prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+      prisma.user.findUnique.mockResolvedValue(null);
+    });
+
+    it('creates an org_admin bound to the organization it names', async () => {
+      prisma.organization.findUnique.mockResolvedValue({
+        organizationId: 'org-1',
+      });
+
+      await service.create({
+        ...base,
+        role: UserRole.org_admin,
+        organizationId: 'org-1',
+      });
+
+      expect(tx.user.create.mock.calls[0][0].data).toMatchObject({
+        role: UserRole.org_admin,
+        organizationId: 'org-1',
+      });
+    });
+
+    it('refuses an org_admin with no organization', async () => {
+      await expect(
+        service.create({ ...base, role: UserRole.org_admin }),
+      ).rejects.toThrow('phải được gắn với một tổ chức');
+      expect(tx.user.create).not.toHaveBeenCalled();
+    });
+
+    it('404s an org_admin bound to an organization that does not exist', async () => {
+      prisma.organization.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.create({
+          ...base,
+          role: UserRole.org_admin,
+          organizationId: 'org-ghost',
+        }),
+      ).rejects.toThrow('Không tìm thấy tổ chức');
+      expect(tx.user.create).not.toHaveBeenCalled();
+    });
+
+    it.each([UserRole.recruiter, UserRole.candidate, UserRole.admin])(
+      'refuses an organization on a %s',
+      async (role) => {
+        await expect(
+          service.create({ ...base, role, organizationId: 'org-1' }),
+        ).rejects.toThrow('Chỉ tài khoản quản trị tổ chức');
+        expect(tx.user.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it('stores no organization for any other role', async () => {
+      await service.create({ ...base, role: UserRole.recruiter });
+
+      expect(tx.user.create.mock.calls[0][0].data.organizationId).toBeNull();
+    });
+
+    it('drops the binding when an org_admin becomes a recruiter', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        userId: 'user-9',
+        email: 'oa@test.com',
+        role: UserRole.org_admin,
+        organizationId: 'org-1',
+      });
+      prisma.user.update.mockResolvedValue({ userId: 'user-9' });
+
+      await service.update('user-9', { role: UserRole.recruiter });
+
+      expect(prisma.user.update.mock.calls[0][0].data).toMatchObject({
+        role: UserRole.recruiter,
+        organizationId: null,
+      });
+    });
+
+    it('refuses to make a user an org_admin without an organization', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        userId: 'user-9',
+        email: 'r@test.com',
+        role: UserRole.recruiter,
+        organizationId: null,
+      });
+
+      await expect(
+        service.update('user-9', { role: UserRole.org_admin }),
+      ).rejects.toThrow('phải được gắn với một tổ chức');
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('leaves the binding alone when the update touches neither role nor organization', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        userId: 'user-9',
+        email: 'oa@test.com',
+        role: UserRole.org_admin,
+        organizationId: 'org-1',
+      });
+      prisma.user.update.mockResolvedValue({ userId: 'user-9' });
+
+      await service.update('user-9', { fullName: 'Renamed' });
+
+      expect(
+        prisma.user.update.mock.calls[0][0].data.organizationId,
+      ).toBeUndefined();
+      expect(prisma.organization.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
   it('rejects an updateMe with nothing to change', async () => {
     await expect(service.updateMe('user-1', {})).rejects.toBeInstanceOf(
       BadRequestException,

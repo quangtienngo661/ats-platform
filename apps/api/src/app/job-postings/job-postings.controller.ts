@@ -31,13 +31,22 @@ import { OwnershipGuard } from '../../common/guards/resources.guard';
 import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt.guard';
 import { Request } from 'express';
 import { Resources } from '../../common/decorators/resources.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 /**
- * Draft and closed postings are internal — only staff may see them. Anonymous
- * callers AND logged-in candidates are both restricted to published postings.
+ * The optional viewer of a public route, as JwtStrategy resolved it — undefined
+ * for an anonymous visitor. The service decides what each viewer may see: staff
+ * their organization's postings in every status, everyone else only published
+ * postings from every organization.
  */
-const canSeeUnpublished = (user?: { role?: string }) =>
-  user?.role === UserRole.recruiter || user?.role === UserRole.admin;
+const viewerOf = (user?: Partial<TenantCaller>): TenantCaller | undefined =>
+  user?.userId && user.role
+    ? {
+        userId: user.userId,
+        role: user.role,
+        organizationId: user.organizationId ?? null,
+      }
+    : undefined;
 
 @ApiTags('Tin tuyển dụng')
 @Controller('job-postings')
@@ -85,11 +94,11 @@ export class JobPostingsController {
   @ApiOperation({
     summary: 'Lấy danh sách tin tuyển dụng',
     description:
-      'Tìm kiếm và lọc tin tuyển dụng. Hỗ trợ phân trang. Chỉ nhà tuyển dụng và quản trị viên xem được tin nháp/đã đóng.',
+      'Tìm kiếm và lọc tin tuyển dụng. Hỗ trợ phân trang. Nhân sự chỉ thấy tin của tổ chức mình (mọi trạng thái); khách và ứng viên thấy tin đang mở của mọi tổ chức.',
   })
   @ApiResponse({ status: 200, description: 'Thành công' })
   findAll(@Query() query: FindJobPostingsQueryDto, @Req() req: Request) {
-    return this.jobPostingsService.findAll(query, canSeeUnpublished(req.user));
+    return this.jobPostingsService.findAll(query, viewerOf(req.user));
   }
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -98,7 +107,7 @@ export class JobPostingsController {
   @ApiResponse({ status: 200, description: 'Thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy tin tuyển dụng' })
   findOne(@Param('id') id: string, @Req() req: Request) {
-    return this.jobPostingsService.findOne(id, canSeeUnpublished(req.user));
+    return this.jobPostingsService.findOne(id, viewerOf(req.user));
   }
 
   @Resources('job-posting')

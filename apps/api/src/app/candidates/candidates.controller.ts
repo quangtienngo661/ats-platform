@@ -7,6 +7,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { CandidatesService } from './candidates.service';
 import { FindCandidatesQueryDto, UpdateCandidateProfileDto } from './dtos/candidates.dto';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 @ApiTags('Ứng viên')
 @ApiBearerAuth()
@@ -44,9 +46,9 @@ export class CandidatesController {
   @ApiResponse({ status: 404, description: 'Không tìm thấy ứng viên' })
   findOne(
     @Param('id') id: string,
-    @Req() req: Request & { user: { userId: string; role: UserRole } },
+    @CurrentCaller() caller: TenantCaller,
   ) {
-    return this.candidatesService.findOne(id, req.user.userId, req.user.role);
+    return this.candidatesService.findOne(id, caller);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -56,8 +58,8 @@ export class CandidatesController {
   @ApiResponse({ status: 200, description: 'Thành công' })
   findAll(
     @Query() query: FindCandidatesQueryDto,
-    @Req() req: Request & { user: { userId: string; role: UserRole } },
+    @CurrentCaller() caller: TenantCaller,
   ) {
-    return this.candidatesService.findAll(query, req.user.userId, req.user.role);
+    return this.candidatesService.findAll(query, caller);
   }
 }

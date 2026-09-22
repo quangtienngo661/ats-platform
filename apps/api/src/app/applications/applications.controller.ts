@@ -19,6 +19,8 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@ats-platform/database';
 import { OwnershipGuard } from '../../common/guards/resources.guard';
 import { Resources } from '../../common/decorators/resources.decorator';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
 @ApiTags('Đơn ứng tuyển')
 @ApiBearerAuth()
@@ -54,18 +56,18 @@ export class ApplicationsController {
 
   @Roles(UserRole.recruiter, UserRole.admin)
   @Get('board/all')
-  @ApiOperation({ summary: 'Kanban tổng quan', description: 'Lấy bảng Kanban tất cả đơn thuộc phòng ban.' })
+  @ApiOperation({ summary: 'Kanban tổng quan', description: 'Lấy bảng Kanban các đơn trong phạm vi của người gọi: phòng ban (recruiter), tổ chức (org_admin), hoặc toàn hệ thống (admin).' })
   @ApiResponse({ status: 200, description: 'Thành công' })
-  getAllKanbanBoard(@Req() req: Request) {
-    return this.applicationsService.getAllKanbanBoard(req.user['userId'], req.user['role']);
+  getAllKanbanBoard(@CurrentCaller() caller: TenantCaller) {
+    return this.applicationsService.getAllKanbanBoard(caller);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
   @Get('board/:jobId')
   @ApiOperation({ summary: 'Kanban theo vị trí', description: 'Lấy bảng Kanban cho một vị trí tuyển dụng cụ thể.' })
   @ApiResponse({ status: 200, description: 'Thành công' })
-  getKanbanBoard(@Param('jobId') jobId: string, @Req() req: Request) {
-    return this.applicationsService.getKanbanBoard(req.user['userId'], req.user['role'], jobId);
+  getKanbanBoard(@Param('jobId') jobId: string, @CurrentCaller() caller: TenantCaller) {
+    return this.applicationsService.getKanbanBoard(caller, jobId);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
@@ -75,9 +77,9 @@ export class ApplicationsController {
   getApplicationsByJob(
     @Param('jobId') jobId: string,
     @Query() query: GetApplicationsByJobQueryDto,
-    @Req() req: Request,
+    @CurrentCaller() caller: TenantCaller,
   ) {
-    return this.applicationsService.getApplicationsByJob(req.user['userId'], req.user['role'], jobId, query);
+    return this.applicationsService.getApplicationsByJob(caller, jobId, query);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
@@ -87,26 +89,26 @@ export class ApplicationsController {
   @ApiResponse({ status: 400, description: 'Trạng thái chuyển đổi không hợp lệ' })
   updateStatus(
     @Param('id') id: string,
-    @Req() req: Request,
+    @CurrentCaller() caller: TenantCaller,
     @Body() dto: UpdateApplicationStatusDto,
   ) {
-    return this.applicationsService.updateStatus(id, req.user['userId'], req.user['role'], dto);
+    return this.applicationsService.updateStatus(id, caller, dto);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
   @Post(':id/trigger-screening')
   @ApiOperation({ summary: 'Kích hoạt sàng lọc AI', description: 'Kích hoạt quy trình sàng lọc CV bằng AI cho một đơn ứng tuyển.' })
   @ApiResponse({ status: 200, description: 'Đã kích hoạt sàng lọc' })
-  triggerScreening(@Param('id') id: string, @Req() req: Request, @Body('configId') configId?: string) {
-    return this.applicationsService.triggerScreening(id, req.user['userId'], req.user['role'], configId);
+  triggerScreening(@Param('id') id: string, @CurrentCaller() caller: TenantCaller, @Body('configId') configId?: string) {
+    return this.applicationsService.triggerScreening(id, caller, configId);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin, UserRole.candidate)
   @Get(':id/history')
   @ApiOperation({ summary: 'Lịch sử trạng thái', description: 'Xem lịch sử chuyển trạng thái của đơn ứng tuyển.' })
   @ApiResponse({ status: 200, description: 'Thành công' })
-  getApplicationHistory(@Param('id') id: string, @Req() req: Request) {
-    return this.applicationsService.getApplicationHistory(id, req.user['userId'], req.user['role']);
+  getApplicationHistory(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+    return this.applicationsService.getApplicationHistory(id, caller);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin, UserRole.candidate)
@@ -116,7 +118,7 @@ export class ApplicationsController {
   @ApiOperation({ summary: 'Xem chi tiết đơn ứng tuyển' })
   @ApiResponse({ status: 200, description: 'Thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy đơn ứng tuyển' })
-  getApplicationById(@Param('id') id: string, @Req() req: Request) {
-    return this.applicationsService.getApplicationById(id, req.user['userId'], req.user['role']);
+  getApplicationById(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+    return this.applicationsService.getApplicationById(id, caller);
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,8 +13,19 @@ import {
 } from './dto/job-posting.dto';
 import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
+import {
+  isOrganizationStaff,
+  isPlatformAdmin,
+  organizationScope,
+  TenantCaller,
+} from '../../common/tenancy/tenant-caller';
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { randomUUID } from 'crypto';
+
+/** Staff browse their organization's postings in every status; nobody else does. */
+const isStaffViewer = (viewer?: TenantCaller): viewer is TenantCaller =>
+  !!viewer &&
+  (isPlatformAdmin(viewer.role) || isOrganizationStaff(viewer.role));
 
 /**
  * A posting is drafted, published, then closed. Closing is final: re-opening a
@@ -159,21 +171,21 @@ export class JobPostingsService {
     });
   }
 
-  async findAll(
-    query: FindJobPostingsQueryDto = {},
-    canSeeUnpublished = false,
-  ) {
+  async findAll(query: FindJobPostingsQueryDto = {}, viewer?: TenantCaller) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
     const where: Prisma.JobPostingWhereInput = {
-      // Non-staff callers (anonymous visitors AND logged-in candidates) only ever
-      // see published postings — a client-supplied `status` filter must not be
+      // Staff see every status, but only inside their own organization (a platform
+      // admin: every organization). Everyone else — anonymous visitors AND
+      // logged-in candidates — browses the shared job board: published postings
+      // from EVERY organization, and a client-supplied `status` filter must not be
       // able to surface drafts or closed postings.
-      ...(canSeeUnpublished
-        ? query.status
-          ? { status: query.status }
-          : {}
+      ...(isStaffViewer(viewer)
+        ? {
+            ...organizationScope(viewer),
+            ...(query.status ? { status: query.status } : {}),
+          }
         : { status: JobStatus.active }),
       ...(query.departmentId ? { departmentId: query.departmentId } : {}),
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
@@ -205,7 +217,7 @@ export class JobPostingsService {
     };
   }
 
-  async findOne(id: string, canSeeUnpublished = false) {
+  async findOne(id: string, viewer?: TenantCaller) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },
       include: jobPostingIncludeOptions,
@@ -220,9 +232,16 @@ export class JobPostingsService {
       throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
-    // Same 404 for "missing" and "exists but unpublished" — a non-staff caller
-    // must not be able to tell a draft posting apart from one that doesn't exist.
-    if (!canSeeUnpublished && jobPosting.status !== JobStatus.active) {
+    // One 404 for "missing", "exists but unpublished" and "belongs to another
+    // organization": no caller may tell those apart from a posting that does not
+    // exist (criterion 2).
+    const visible = isStaffViewer(viewer)
+      ? isPlatformAdmin(viewer.role) ||
+        (viewer.organizationId !== null &&
+          jobPosting.organizationId === viewer.organizationId)
+      : jobPosting.status === JobStatus.active;
+
+    if (!visible) {
       throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
@@ -239,6 +258,7 @@ export class JobPostingsService {
         status: true,
         publishedAt: true,
         departmentId: true,
+        organizationId: true,
       },
     });
 
@@ -253,7 +273,7 @@ export class JobPostingsService {
       updateJobPostingDto.status,
     );
     const departmentId = await this.resolveOwnerDepartment(
-      existingJobPosting.departmentId,
+      existingJobPosting,
       updateJobPostingDto.createdBy,
     );
 
@@ -367,14 +387,14 @@ export class JobPostingsService {
    * (applications, candidates) then disagreed with reality.
    */
   private async resolveOwnerDepartment(
-    currentDepartmentId: string,
+    posting: { departmentId: string; organizationId: string },
     nextRecruiterId?: string,
   ): Promise<string | undefined> {
     if (!nextRecruiterId) return undefined;
 
     const recruiter = await this.prisma.recruiter.findUnique({
       where: { recruiterId: nextRecruiterId },
-      select: { departmentId: true },
+      select: { departmentId: true, organizationId: true },
     });
 
     if (!recruiter) {
@@ -383,7 +403,16 @@ export class JobPostingsService {
       );
     }
 
-    return recruiter.departmentId === currentDepartmentId
+    // Never across organizations — not even for a platform admin. The posting's
+    // organizationId would stay behind while its department moved, and every
+    // application under it would still belong to the old organization.
+    if (recruiter.organizationId !== posting.organizationId) {
+      throw new ForbiddenException(
+        'Nhà tuyển dụng mới phải thuộc cùng tổ chức với tin tuyển dụng',
+      );
+    }
+
+    return recruiter.departmentId === posting.departmentId
       ? undefined
       : recruiter.departmentId;
   }
