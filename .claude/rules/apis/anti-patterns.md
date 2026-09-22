@@ -16,6 +16,8 @@ Live source of truth for what's fixed — flip a row here when an item's status 
 | BullMQ retry: `attempts: 3` actually reaching every queue | 🟡 Fixed in code, **verify pending** — see "The registerQueue trap" below | 2026-07-14 |
 | `cv-screenings.processor` swallows errors → BullMQ records failed jobs as `completed` | 🟡 Fixed in code, verify pending | 2026-07-14 |
 | Privilege escalation via `PATCH /candidates/me` `userInfo` | ✅ Fixed + verified end-to-end (400 + DB row unchanged) | 2026-07-14 |
+| Privilege escalation via `PATCH /users/me` — body was the admin's `UpdateUserDto`, so any account (candidates included) could send `{"role":"admin"}` | ✅ Fixed + verified against the running API: `{"role":"admin"}` and `{"organizationId":…}` → 400, `{"fullName":…}` → 200, DB row unchanged (`docs/tasks/org-admin-enforcement/results/operation-walk.md`) | 2026-09-19 |
+| Only ONE default AI config allowed in the whole system (`ai_configs_only_one_default_idx`, a partial index that exists only in a migration) — blocked every second organization | ✅ Replaced by a per-organization partial unique index (migration `20260919053000`); RED/GREEN probe against the real DB. Unit tests could not see it | 2026-09-19 |
 | `UserStatus.inactive` never enforced (login/refresh/JWT/socket) | ✅ Fixed + verified (pre-issued token → 401) | 2026-07-14 |
 | `GET /job-postings` leaks `draft`/`closed` to anonymous **and to candidates** | ✅ Fixed + verified | 2026-07-14 |
 | Swagger UI exposed in production | ✅ Fixed + verified | 2026-07-14 |
