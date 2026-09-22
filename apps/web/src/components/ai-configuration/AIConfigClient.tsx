@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Cpu, Plus } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
+import { IOrganizationOption } from '@ats-platform/types';
 import { ConfigCard } from '@/components/ai-configuration/ui/ConfigCard';
 import { AddProfileModal } from '@/components/ai-configuration/ui/AddProfileModal';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -17,9 +18,11 @@ import { aiConfigToast } from '@/lib/toast';
 
 interface Props {
     profiles: ConfigProfile[];
+    /** Non-empty only for a platform admin — see getOrganizationOptionsForCurrentUser. */
+    organizations: IOrganizationOption[];
 }
 
-export default function AIScreeningConfigClient({ profiles }: Props) {
+export default function AIScreeningConfigClient({ profiles, organizations }: Props) {
     const [showModal, setShowModal] = useState(false);
 
     const updateProfile = async (updated: ConfigProfile) => {
@@ -151,7 +154,7 @@ export default function AIScreeningConfigClient({ profiles }: Props) {
             {/* ── Add Profile Modal ── */}
             <AnimatePresence>
                 {showModal && (
-                    <AddProfileModal onClose={() => setShowModal(false)} />
+                    <AddProfileModal organizations={organizations} onClose={() => setShowModal(false)} />
                 )}
             </AnimatePresence>
         </div>

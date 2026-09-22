@@ -11,6 +11,7 @@ export * from './lib/interfaces/cv-parsed-data/cv-parsed-data.interface';
 export * from './lib/interfaces/candidates/candidates.interface';
 export * from './lib/interfaces/applications/applications.interface';
 export * from './lib/interfaces/cv-screenings/cv-screenings.interface';
+export * from './lib/interfaces/organizations/organizations.interface';
 // Re-export shared enums thay vì dùng prisma-enums (đã bị gỡ bỏ để chống lỗi Turbopack)
 export * from './lib/enums';
 export * from './lib/interfaces/pagination.interface';

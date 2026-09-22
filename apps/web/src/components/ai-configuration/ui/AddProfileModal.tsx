@@ -7,13 +7,17 @@ import { ConfigProfile } from '../../../types/interfaces/configProfile.interface
 import { SF, SFT } from '@/types/fonts/fonts';
 import { createAIConfigFormAction, AIConfigActionState } from '@/servers/ai-config/ai-config.action';
 import { toast } from '@/lib/toast';
+import { IOrganizationOption } from '@ats-platform/types';
 
 const initialState: AIConfigActionState = { success: false, message: '' };
 
 export function AddProfileModal({
     onClose,
+    organizations = [],
 }: {
     onClose: () => void;
+    /** Offered only to a platform admin, which must say whose config this is. */
+    organizations?: IOrganizationOption[];
 }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -76,6 +80,27 @@ export function AddProfileModal({
                 <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
                     {/* Tên & mô tả */}
                     <div className="space-y-3">
+                        {organizations.length > 0 && (
+                            <div>
+                                <label htmlFor="ai-config-organization" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
+                                    Tổ chức *
+                                </label>
+                                <select
+                                    id="ai-config-organization"
+                                    name="organizationId"
+                                    required
+                                    defaultValue={organizations.length === 1 ? organizations[0].organizationId : ''}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
+                                >
+                                    <option value="" disabled>Chọn tổ chức áp dụng cấu hình</option>
+                                    {organizations.map((organization) => (
+                                        <option key={organization.organizationId} value={organization.organizationId}>
+                                            {organization.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
                                 Tên cấu hình *
