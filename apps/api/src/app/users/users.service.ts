@@ -7,6 +7,7 @@ import { UserRole, UserStatus } from '@ats-platform/database';
 import {
   ChangePasswordDto,
   CreateUserDto,
+  UpdateMeDto,
   UpdateUserDto,
 } from './dtos/user.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -69,10 +70,30 @@ export class UsersService {
     return user;
   }
 
-  async updateMe(userId: string, updateMeDto: UpdateUserDto) {
-    return this.update(userId, {
-      ...updateMeDto,
-    });
+  async updateMe(userId: string, updateMeDto: UpdateMeDto) {
+    // Copy only the self-service fields. The body must never be forwarded to
+    // update(): that is the administrator's path and it writes role and status.
+    const data = {
+      fullName: updateMeDto.fullName,
+      phoneNumber: updateMeDto.phoneNumber,
+    };
+
+    if (data.fullName === undefined && data.phoneNumber === undefined) {
+      throw new BadRequestException('Không có dữ liệu để cập nhật');
+    }
+
+    try {
+      return await this.prisma.user.update({
+        where: { userId },
+        data,
+        omit: { passwordHash: true },
+      });
+    } catch (error: any) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+      throw error;
+    }
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto) {

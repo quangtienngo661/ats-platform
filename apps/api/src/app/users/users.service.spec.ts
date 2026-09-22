@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcrypt';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { UserRole, UserStatus } from '@ats-platform/database';
 import { UsersService } from './users.service';
+import { UpdateMeDto } from './dtos/user.dto';
 import {
   createPrismaMock,
   createPrismaTransactionMock,
@@ -108,6 +110,50 @@ describe('UsersService', () => {
     expect(data.fullName).toBe('Mallory');
     expect(data.role).toBeUndefined();
     expect(data.status).toBeUndefined();
+  });
+
+  describe('PATCH /users/me body (UpdateMeDto)', () => {
+    // Same options main.ts installs globally.
+    const pipe = new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    });
+    const asBody = { type: 'body' as const, metatype: UpdateMeDto };
+
+    it('accepts the profile fields', async () => {
+      await expect(
+        pipe.transform(
+          { fullName: 'Mallory', phoneNumber: '+84901234567' },
+          asBody,
+        ),
+      ).resolves.toMatchObject({ fullName: 'Mallory' });
+    });
+
+    it.each([
+      ['role', { fullName: 'Mallory', role: UserRole.admin }],
+      ['status', { fullName: 'Mallory', status: UserStatus.inactive }],
+      ['email', { email: 'someone-else@test.com' }],
+      // A self-service organization binding would let anyone make itself an
+      // administrator of any organization.
+      [
+        'organizationId',
+        {
+          fullName: 'Mallory',
+          organizationId: '00000000-0000-4000-8000-000000000001',
+        },
+      ],
+    ])('rejects a body that carries %s', async (_field, body) => {
+      await expect(pipe.transform(body, asBody)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+    });
+  });
+
+  it('rejects an updateMe with nothing to change', async () => {
+    await expect(service.updateMe('user-1', {})).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
   it('rejects empty updates and duplicate update emails', async () => {
