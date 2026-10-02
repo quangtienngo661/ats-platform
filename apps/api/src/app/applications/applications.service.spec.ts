@@ -78,6 +78,70 @@ describe('ApplicationsService', () => {
     );
   });
 
+  describe('status transitions — all 49 pairs', () => {
+    // This is the business contract, kept independent of the implementation map.
+    const permitted: Partial<Record<ApplicationStatus, ApplicationStatus[]>> = {
+      applied: [ApplicationStatus.screening, ApplicationStatus.rejected],
+      screening: [ApplicationStatus.interview, ApplicationStatus.rejected],
+      interview: [ApplicationStatus.offer, ApplicationStatus.rejected],
+      offer: [ApplicationStatus.hired, ApplicationStatus.rejected],
+    };
+    const pairs = Object.values(ApplicationStatus).flatMap((from) =>
+      Object.values(ApplicationStatus).map((to) => ({ from, to })),
+    );
+
+    it.each(pairs)('$from → $to', async ({ from, to }) => {
+      const tx = createPrismaTransactionMock();
+      prisma.application.findUnique.mockResolvedValue({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        status: from,
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      });
+      tx.application.update.mockResolvedValue({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        status: to,
+        candidate: { user: { userId: 'cand-user' } },
+      });
+      prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+      const result = service.updateStatus('app-1', platformAdmin, {
+        status: to,
+      });
+      if ((permitted[from] ?? []).includes(to)) {
+        await expect(result).resolves.toMatchObject({ status: to });
+        expect(tx.applicationHistory.create).toHaveBeenCalledWith({
+          data: {
+            organizationId: 'org-1',
+            applicationId: 'app-1',
+            fromStatus: from,
+            toStatus: to,
+            changedBy: 'admin-1',
+            notes: undefined,
+            rejectionReason: undefined,
+          },
+        });
+        const shouldNotify = new Set<ApplicationStatus>([
+          ApplicationStatus.interview,
+          ApplicationStatus.offer,
+          ApplicationStatus.hired,
+          ApplicationStatus.rejected,
+        ]).has(to);
+        expect(notificationsService.create).toHaveBeenCalledTimes(
+          shouldNotify ? 1 : 0,
+        );
+      } else {
+        await expect(result).rejects.toThrow(
+          `Không thể chuyển trạng thái từ '${from}' sang '${to}'`,
+        );
+        expect(prisma.$transaction).not.toHaveBeenCalled();
+        expect(notificationsService.create).not.toHaveBeenCalled();
+      }
+    });
+  });
+
   // Criterion 3. Candidates are one pool shared by every organization; an
   // application belongs to the organization of the JOB it is for. The test above
   // stayed green with no organization at all — undefined is not asserted.
@@ -474,6 +538,27 @@ describe('ApplicationsService', () => {
     await expect(
       service.triggerScreening('app-3', platformAdmin),
     ).rejects.toThrow('thất bại');
+    expect(cvScreeningsService.createScreeningRecord).not.toHaveBeenCalled();
+  });
+
+  it('does not queue paid AI screening for a cancelled application', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+      status: ApplicationStatus.cancelled,
+      cvId: 'cv-1',
+      screening: null,
+      candidate: { userId: 'cand-user' },
+      jobPosting: { departmentId: 'dep-1' },
+    });
+    cvScreeningsService.createScreeningRecord.mockResolvedValue({
+      screeningId: 'scr-1',
+    });
+
+    await expect(
+      service.triggerScreening('app-1', platformAdmin),
+    ).rejects.toThrow('cancelled');
+
     expect(cvScreeningsService.createScreeningRecord).not.toHaveBeenCalled();
   });
 
