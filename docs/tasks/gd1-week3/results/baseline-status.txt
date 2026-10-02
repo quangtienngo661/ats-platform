@@ -1,0 +1,35 @@
+ M .dockerignore
+ M .github/workflows/ci.yml
+ M .gitignore
+ M apps/api/jest.config.ts
+ M apps/api/src/app/applications/applications.service.spec.ts
+ M apps/api/src/app/applications/applications.service.ts
+ M apps/api/src/app/cvs/processors/cv-parsing.processor.ts
+ M apps/api/src/app/health/health.service.spec.ts
+ M apps/api/src/app/health/health.service.ts
+ M apps/api/src/common/external-apis/gemini/gemini.service.spec.ts
+ M apps/api/src/common/external-apis/gemini/gemini.service.ts
+ M apps/api/src/common/socket-io/socket-io.service.spec.ts
+ M apps/api/src/common/socket-io/socket-io.service.ts
+ M apps/api/src/test-utils/unit-test-helpers.ts
+ M apps/web/project.json
+ M apps/web/src/components/ai-configuration/ui/AddProfileModal.tsx
+ M apps/web/src/components/auth/forms/StaffLoginForm.tsx
+ M apps/web/src/proxy.ts
+ M apps/web/src/servers/auth/auth.action.ts
+ M apps/web/tsconfig.json
+ M package-lock.json
+ M package.json
+?? apps/api/src/app/cvs/processors/cv-parsing.processor.spec.ts
+?? apps/web/e2e/
+?? apps/web/playwright.config.ts
+?? apps/web/src/components/ai-configuration/ui/AddProfileModal.test.tsx
+?? apps/web/src/proxy.test.ts
+?? apps/web/src/servers/auth/auth.action.test.ts
+?? apps/web/src/test/
+?? apps/web/tsconfig.spec.json
+?? apps/web/vitest.config.mts
+?? docker-compose.test.yml
+?? docs/tasks/gd1-week3/
+?? docs/tasks/test-coverage-audit/
+?? docs/tasks/test-defect-fixes/

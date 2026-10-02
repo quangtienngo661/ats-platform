@@ -147,6 +147,14 @@ not directly reachable from an org-scoped row, and this module changes nothing a
 
 ```mermaid
 erDiagram
+    ORGANIZATION o|--o{ USER : binds_org_admin
+    USER ||--o| RECRUITER : profile
+    USER ||--o| CANDIDATE : profile
+    USER {
+        string userId PK
+        string role
+        string organizationId FK "required only for org_admin"
+    }
     ORGANIZATION ||--o{ DEPARTMENT : owns
     ORGANIZATION ||--o{ AI_CONFIG : configures
     DEPARTMENT ||--o{ RECRUITER : employs
@@ -236,11 +244,7 @@ drawn rather than only described. Every org-scoped entity here (including the pu
 `organizationId FK` rather than relying on a join through its parent — see `decision.md` D3 for why
 that denormalization was chosen over the alternative, and the drift risk it does not close.
 
-**One relationship is deliberately absent from this diagram:** how an **`org-admin`** is bound to its
-`Organization`. Scope A requires the tier to exist, but three workable storage shapes are still open
-(`decision.md` D4) and drawing one here would pin a choice this document said it would leave to
-`build-feature`. The ERD is therefore complete for the data model and **incomplete on exactly that
-one edge**, which is stated rather than quietly omitted.
+**Implementation addendum 2026-09-29:** the binding choice is now implemented as nullable `User.organizationId`, with a CHECK that requires it for org_admin and forbids it for other roles. The ERD above includes that edge. The September survey text earlier in this spec remains historical; implementation details and executable criteria are in [GĐ1 tuần cuối](../gd1-week3/spec.md).
 
 ## UC — extends this project's own existing Use Case inventory, not a parallel one
 
@@ -262,7 +266,7 @@ duplicate it under a new name.**
 | `<<extend>>` | `Apply` (§6 Candidate Experience, `research.md` #4) | Optional variant: the job posting applied to may belong to a different organization than a previous application — still one `Candidate` record | Candidate | 3 |
 | `<<extend>>` | `Adjust AI Screening Criteria` (§2 Authentication and Administration, `research.md` #4) | Optional variant: the criteria being adjusted belong to the caller's own organization only | Recruiter / Admin | 5 |
 | `<<extend>>` | `Manage Department` (§2, full CRUD, `research.md` #4) | Owning organization comes from the `org-admin`'s own binding, or must be supplied explicitly by a `platform-admin` | org-admin / platform-admin | 7 |
-| `<<extend>>` | `Manage User`, `Manage Department`, `Setup Configuration` / `Adjust AI Screening Criteria` (§2, `research.md` #4) | These admin use cases gain a second, narrower actor: an `org-admin` may perform them **only within its own organization** | org-admin (**new actor**) | 6b |
+| `<<extend>>` | `Manage User`, `Manage Department`, `Setup Configuration` / `Adjust AI Screening Criteria` (§2, `research.md` #4) | Org-admin manages departments/configs and creates recruiter accounts only within its organization. Global User CRUD, arbitrary existing-user assignment, taxonomy mutations and AI usage logs stay platform-admin-only. See the implementation addendum | org-admin (**new actor**) | 6b |
 | Generalization | `platform-admin ──▷ org-admin ──▷ Recruiter` (new, this module — see above) | Only the outermost tier crosses the organization boundary | platform-admin / org-admin | 6a, 6b |
 | **New use case** — no existing analog (`research.md` #4 found none) | — | Run the tenant migration so every existing row lands in exactly one organization | Ops/Admin (**new actor** — not previously modeled anywhere in the project's UC documentation) | 4 |
 

@@ -1,0 +1,87 @@
+
+> nx run api:test --runInBand --testPathPatterns=socket-io.gd1.spec.ts --testNamePattern=previously authorized socket after its User is --json --outputFile=docs/tasks/gd1-week3/results/be-teeth-socket-red.json
+
+(node:24400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Nest] 24400  - 09/29/2026, 10:45:18 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 24400  - 09/29/2026, 10:45:18 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 24400  - 09/29/2026, 10:45:18 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 24400  - 09/29/2026, 10:45:18 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+ FAIL   api  apps/api/src/common/socket-io/socket-io.gd1.spec.ts (6.215 s)
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is moved to another organization
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is demoted to candidate
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is deactivated
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is deleted
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 5 skipped, 9 total
+Snapshots:   0 total
+Time:        6.62 s
+Ran all test suites matching socket-io.gd1.spec.ts with tests matching "previously authorized socket after its User is".
+Test results written to: docs\tasks\gd1-week3\results\be-teeth-socket-red.json
+
+
+ NX   Running target test for project api failed
+
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+

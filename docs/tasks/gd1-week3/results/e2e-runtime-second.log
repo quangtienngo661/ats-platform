@@ -1,0 +1,64 @@
+[WebServer] (node:20096) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:23940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:4868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (3.1s)
+  ok 2 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (10.3s)
+  ok 3 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (13.3s)
+  ok 4 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (1.4s)
+  ok 5 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (2.3s)
+  ok 6 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:241:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (1.6s)
+  x  7 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:270:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (656ms)
+  -  8 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:326:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi
+
+
+  1) [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:270:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 403
+    Received: 404
+
+      317 |       headers, data: { title: 'Không được tạo', locationType: 'onsite', createdBy: fixture.recruiterB.id, description: 'Boundary test' },
+      318 |     });
+    > 319 |     expect(forbiddenOwner.status()).toBe(403);
+          |                                     ^
+      320 |     const forbiddenAssignment = await organizationContext.request.post(`${apiBaseUrl()}/recruiters`, {
+      321 |       headers, data: { userId: fixture.recruiterB.userId, departmentId: fixture.departmentA.id, position: 'No global user assignment' },
+      322 |     });
+        at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\web\e2e\gd1-org-admin.e2e.ts:319:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\error-context.md
+
+    Error Context: apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace apps\web\test-results\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:270:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant 
+  1 did not run
+  6 passed (53.5s)

@@ -1,10 +1,23 @@
 # Hạ tầng (Infrastructure)
 
+## Cấu hình và kiểm chứng hiện hành — 2026-09-29
+
+Nhánh `feat/org-admin-enforcement`, baseline `8ec4751`; đây là mô tả cấu hình repo và kiểm chứng local. PR/production deployment **chưa xác minh**.
+
+- [Compose dev](../../docker-compose-dev.yml): Postgres, Redis, API và web. [Compose production](../../docker-compose.yml) thêm gateway Nginx/SSL; việc có cấu hình không chứng minh đã deploy.
+- [Compose test](../../docker-compose.test.yml): stack `ats-platform-tests`, PostgreSQL 18.4:55432, Redis 8:56379, API:55000; dữ liệu/volume riêng. Chromium E2E chạy Next localhost:3000, API thật; không gọi provider AI thật.
+- [Web Dockerfile](../../apps/web/Dockerfile): Node 24 bookworm-slim, URL public là build args. `API_INTERNAL_URL` ở runtime định tuyến SSR/actions/proxy tới API nội bộ; URL public dùng cho browser/download/socket.
+- [Health](../../apps/api/src/app/health/health.service.ts) kiểm tra DB/Redis với deadline 3 giây. [CI](../../.github/workflows/ci.yml) chạy BE unit + FE behavior cùng lint/build; E2E cần stack riêng, chưa được suy là đã chạy trên remote CI.
+- [Kết quả gói GĐ1](../tasks/gd1-week3/results/) phân biệt build/test/live probe. Không dùng các quan sát instance July bên dưới làm bằng chứng deploy hôm nay.
+
+## Baseline hạ tầng July (cần đối chiếu theo ngày)
+
+
 > Snapshot: 2026-07-16. Nguồn: `docker-compose.yml`, `docker-compose-dev.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `nginx/`, `apps/api/src/app/health/`, và quan sát trực tiếp instance chạy local trong phiên làm việc này. (§1-§7 re-verify 2026-07-16: không có commit nào chạm `docker-compose*.yml`/`Dockerfile`/`nginx/` kể từ 2026-07-11 — nội dung các mục đó giữ nguyên, chỉ thêm §8 health check endpoint là mới.)
 
-## 1. Hai topology riêng biệt
+## 1. Cấu hình topology
 
-- **`docker-compose-dev.yml`** — chỉ Postgres + Redis. Dùng khi chạy app trực tiếp trên máy qua `npx nx serve api` / `npx nx dev web`. Đây là cách phát triển hàng ngày.
+- **`docker-compose-dev.yml`** — Postgres + Redis + API + web. Có thể chỉ up Postgres/Redis khi chạy app trực tiếp trên host qua Nx.
 - **`docker-compose.yml`** (prod-shaped) — 5 container đầy đủ: `postgres`, `redis`, `api`, `web`, `gateway` (Nginx). Không chạy local trừ khi chủ đích test bản build prod.
 
 ## 2. Container & networking (docker-compose.yml)
@@ -43,7 +56,7 @@ Nghĩa là chứng chỉ SSL được quản lý ở tầng **host VM**, không 
 
 `.github/workflows/cd.yml` **rỗng** (0 byte). `.github/workflows/ci.yml` chỉ chạy `nx affected` lint/build + `nx test api` khi có PR vào `dev` — không deploy gì cả.
 
-→ Mọi lần deploy lên GCP là thao tác **thủ công**: SSH vào VM, chạy `docker-compose -f docker-compose.yml up --build -d` (đúng như README hướng dẫn). Không có staging environment, không có approve gate, không có rollback tự động.
+→ Repo mô tả deploy lên GCP bằng thao tác **thủ công**; thực trạng instance hiện tại chưa xác minh. Quy trình cấu hình là: SSH vào VM, chạy `docker-compose -f docker-compose.yml up --build -d` (đúng như README hướng dẫn). Không có staging environment, không có approve gate, không có rollback tự động.
 
 ## 6. Sự cố hạ tầng gần nhất — đã fix, đang chờ verify
 

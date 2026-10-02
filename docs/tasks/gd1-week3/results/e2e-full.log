@@ -1,0 +1,21 @@
+
+Running 13 tests using 1 worker
+
+(node:15200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (3.7s)
+  ok  2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới (3.0s)
+  ok  3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (3.9s)
+  ok  4 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:173:5 › admin thiếu access cookie → refresh → đọc cấu hình ngay trong request hiện tại (1.8s)
+  ok  5 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (1.0s)
+GĐ1: waiting 48s for the real local auth window.
+  ok  6 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (3.4s)
+  ok  7 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (4.8s)
+  ok  8 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (790ms)
+  ok  9 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (878ms)
+  ok 10 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:241:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (926ms)
+  ok 11 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:270:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (284ms)
+  ok 12 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:326:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi (768ms)
+  ok 13 [chromium] › apps\web\e2e\session-policy.e2e.ts:4:5 › candidate refresh phiên thật → bị chặn trang admin → login trở về trang việc làm (908ms)
+
+  13 passed (1.3m)
