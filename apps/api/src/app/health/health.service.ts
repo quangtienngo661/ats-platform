@@ -16,6 +16,7 @@ export interface HealthReport {
 @Injectable()
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
+  private readonly dependencyTimeoutMs = 3_000;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -42,7 +43,7 @@ export class HealthService {
 
   private async checkDatabase(): Promise<DependencyStatus> {
     try {
-      await this.prisma.$queryRaw`SELECT 1`;
+      await this.withDeadline(this.prisma.$queryRaw`SELECT 1`);
       return 'up';
     } catch (error) {
       this.logger.error(
@@ -55,7 +56,7 @@ export class HealthService {
 
   private async checkRedis(): Promise<DependencyStatus> {
     try {
-      const pong = await this.redis.ping();
+      const pong = await this.withDeadline(this.redis.ping());
       return pong === 'PONG' ? 'up' : 'down';
     } catch (error) {
       this.logger.error(
@@ -63,6 +64,23 @@ export class HealthService {
         error.stack,
       );
       return 'down';
+    }
+  }
+
+  private async withDeadline<T>(operation: PromiseLike<T>): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        operation,
+        new Promise<T>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error('Dependency did not respond within 3 seconds')),
+            this.dependencyTimeoutMs,
+          );
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
 }
