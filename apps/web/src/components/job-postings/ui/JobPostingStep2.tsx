@@ -68,7 +68,7 @@ export function JobPostingStep2({
                                     <div key={skill} className="relative group">
                                         <div className={`flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-lg border text-[13px] ${isValid ? 'bg-[#EBF3FD] border-[#0071E3]/20 text-[#0071E3]' : 'bg-[#FEF2F2] border-red-500/20 text-red-600'}`}>
                                             <span style={{ fontWeight: 500, textDecoration: isValid ? 'none' : 'line-through' }}>{skill}</span>
-                                            <button type="button" onClick={() => removeSkill(skill)} className="p-1 hover:bg-black/5 rounded-md transition-colors ml-1">
+                                            <button aria-label="Đóng" type="button" onClick={() => removeSkill(skill)} className="p-1 hover:bg-black/5 rounded-md transition-colors ml-1">
                                                 <X className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
@@ -87,7 +87,7 @@ export function JobPostingStep2({
                         </div>
 
                         <div className="flex items-center gap-2 pt-2 border-t border-[#E5E5EA]">
-                            <select
+                            <select aria-label="Chọn kỹ năng cần thêm"
                                 value={selectedSkillToAdd}
                                 onChange={event => setSelectedSkillToAdd(event.target.value)}
                                 className="px-5 py-2 rounded-xl border border-[#E5E5EA] text-[13px] outline-none focus:border-[#0071E3] bg-white min-w-[200px] appearance-none cursor-pointer"
@@ -99,7 +99,7 @@ export function JobPostingStep2({
                                         <option key={dbSkill.skillId} value={dbSkill.skillId}>{dbSkill.name}</option>
                                     ))}
                             </select>
-                            <button
+                            <button aria-label="Thêm"
                                 type="button"
                                 onClick={handleAddExistingSkill}
                                 disabled={!selectedSkillToAdd}
@@ -114,8 +114,8 @@ export function JobPostingStep2({
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Danh mục công việc</label>
-                    <select
+                    <label htmlFor="jobpostingstep2-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Danh mục công việc</label>
+                    <select id="jobpostingstep2-field-1"
                         name="categoryId"
                         value={formData.categoryId}
                         onChange={event => updateField('categoryId', event.target.value)}
@@ -128,8 +128,8 @@ export function JobPostingStep2({
                     </select>
                 </div>
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Trạng thái</label>
-                    <select
+                    <label htmlFor="jobpostingstep2-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Trạng thái</label>
+                    <select id="jobpostingstep2-field-2"
                         name="status"
                         value={formData.status}
                         onChange={event => updateField('status', event.target.value)}
@@ -144,8 +144,8 @@ export function JobPostingStep2({
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương từ</label>
-                    <input
+                    <label htmlFor="jobpostingstep2-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương từ</label>
+                    <input id="jobpostingstep2-field-3"
                         type="number"
                         name="salaryMin"
                         placeholder="2000"
@@ -155,8 +155,8 @@ export function JobPostingStep2({
                     />
                 </div>
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương đến</label>
-                    <input
+                    <label htmlFor="jobpostingstep2-field-4" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương đến</label>
+                    <input id="jobpostingstep2-field-4"
                         type="number"
                         name="salaryMax"
                         placeholder="4000"

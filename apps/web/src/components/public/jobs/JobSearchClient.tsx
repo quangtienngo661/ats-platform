@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-    Search, SlidersHorizontal, Briefcase, X, ChevronLeft, ChevronRight, Zap
-} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, SlidersHorizontal, Briefcase, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
@@ -65,17 +63,18 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
             <div className="bg-white border-b border-[#E5E5EA] sticky top-[60px] z-30">
                 <div className="max-w-[1200px] mx-auto px-6 py-4">
                     <form onSubmit={handleSearch} className="flex gap-2">
-                        <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition-all">
+                        <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 min-w-0 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition-all">
                             <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                             <input
+                                aria-label="Tìm việc làm"
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="Tên vị trí, kỹ năng, công ty..."
-                                className="bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
+                                className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                             />
                             {searchQuery && (
-                                <button type="button" onClick={() => setSearchQuery('')} className="text-[#AEAEB2] hover:text-[#6E6E73]">
+                                <button aria-label="Đóng" type="button" onClick={() => setSearchQuery('')} className="text-[#AEAEB2] hover:text-[#6E6E73]">
                                     <X className="w-3.5 h-3.5" />
                                 </button>
                             )}
@@ -85,6 +84,8 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
                         </button>
                         <button
                             type="button"
+                            aria-label="Bộ lọc"
+                            aria-expanded={showFilters}
                             onClick={() => setShowFilters(!showFilters)}
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-[13px] transition-all flex-shrink-0 ${showFilters || hasActiveFilters ? 'border-[#0071E3] text-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
                         >
@@ -106,10 +107,10 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
                                 <div className="pt-4 flex flex-col sm:flex-row gap-4">
                                     {/* Category */}
                                     <div className="flex-1">
-                                        <label className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
+                                        <label htmlFor="jobsearchclient-field-1" className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
                                             Ngành nghề
                                         </label>
-                                        <select
+                                        <select id="jobsearchclient-field-1"
                                             value={selectedCategory}
                                             onChange={e => { setSelectedCategory(e.target.value); applyFilters({ categoryId: e.target.value }); }}
                                             className="w-full px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] outline-none focus:border-[#0071E3] bg-white"
@@ -123,9 +124,9 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
 
                                     {/* Location Type */}
                                     <div>
-                                        <label className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
+                                        <span className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
                                             Hình thức
-                                        </label>
+                                        </span>
                                         <div className="flex gap-2">
                                             {LOCATION_TYPES.map(t => (
                                                 <button
@@ -202,7 +203,7 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex items-center justify-center gap-2 mt-10">
-                        <button
+                        <button type="button" aria-label="Trước"
                             disabled={currentPage <= 1}
                             onClick={() => applyFilters({ page: currentPage - 1 })}
                             className="p-2 rounded-xl hover:bg-[#F5F5F7] text-[#6E6E73] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -230,7 +231,7 @@ export function JobSearchClient({ initialJobs, total, categories, currentPage, i
                                     </button>
                                 )
                             )}
-                        <button
+                        <button type="button" aria-label="Tiếp"
                             disabled={currentPage >= totalPages}
                             onClick={() => applyFilters({ page: currentPage + 1 })}
                             className="p-2 rounded-xl hover:bg-[#F5F5F7] text-[#6E6E73] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

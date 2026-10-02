@@ -4,6 +4,7 @@ import { IJobPostingSkills, ISkill } from '@ats-platform/types'
 import {
 	IsDateString,
 	IsEnum,
+	IsInt,
 	IsNotEmpty,
 	IsNumber,
 	IsOptional,
@@ -18,6 +19,11 @@ export class FindJobPostingsQueryDto {
 	@IsOptional()
 	@IsEnum(JobStatus)
 	status?: JobStatus;
+
+	@ApiPropertyOptional({ enum: LocationType })
+	@IsOptional()
+	@IsEnum(LocationType)
+	locationType?: LocationType;
 
 	@ApiPropertyOptional()
 	@IsOptional()
@@ -36,15 +42,15 @@ export class FindJobPostingsQueryDto {
 
 	@ApiPropertyOptional({ default: 1 })
 	@IsOptional()
-	@Transform(({ value }) => parseInt(value, 10))
-	@IsNumber()
+	@Transform(({ value }) => Number(value))
+	@IsInt()
 	@Min(1)
 	page?: number;
 
 	@ApiPropertyOptional({ default: 20 })
 	@IsOptional()
-	@Transform(({ value }) => parseInt(value, 10))
-	@IsNumber()
+	@Transform(({ value }) => Number(value))
+	@IsInt()
 	@Min(1)
 	limit?: number;
 }

@@ -33,7 +33,7 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Phòng ban phụ trách *</label>
+                    <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Phòng ban phụ trách *</span>
                     <div className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] text-[14px] text-[#1D1D1F]">
                         {department?.name ?? 'Chưa chọn recruiter phụ trách'}
                     </div>
@@ -44,8 +44,8 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
                     )}
                 </div>
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Hình thức *</label>
-                    <select
+                    <label htmlFor="jobpostingstep1-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Hình thức *</label>
+                    <select id="jobpostingstep1-field-1"
                         name="locationType" aria-label="Hình thức"
                         value={formData.locationType}
                         onChange={e => updateField('locationType', e.target.value)}
@@ -59,8 +59,8 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
             </div>
 
             <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mô tả công việc *</label>
-                <RichTextEditor
+                <label htmlFor="jobpostingstep1-editor-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mô tả công việc *</label>
+                <RichTextEditor id="jobpostingstep1-editor-2"
                     ariaLabel="Mô tả công việc"
                     placeholder="Nhập chi tiết mô tả công việc, quyền lợi, yêu cầu... để AI có thể phân tích chính xác nhất."
                     value={formData.description || ''}

@@ -1,18 +1,20 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logoutAction, signInAction } from './auth.action';
+import { logoutAction, signInAction, verifyEmailAction } from './auth.action';
 
 const mocks = vi.hoisted(() => ({
   post: vi.fn(),
+  apiGet: vi.fn(),
   get: vi.fn(),
   remove: vi.fn(),
   set: vi.fn(),
 }));
-vi.mock('axios', () => ({ default: { post: mocks.post } }));
+vi.mock('axios', () => ({ default: { post: mocks.post, get: mocks.apiGet } }));
 vi.mock('next/headers', () => ({
   cookies: async () => ({ get: mocks.get, delete: mocks.remove, set: mocks.set }),
 }));
-vi.mock('next/navigation', () => ({
+vi.mock('next/navigation', async (importOriginal) => ({
+  ...await importOriginal<typeof import('next/navigation')>(),
   redirect: (path: string) => {
     throw new Error(`redirect:${path}`);
   },
@@ -132,5 +134,43 @@ describe('signInAction — organization-admin portal (A1)', () => {
     await expect(signInAction({ success: false, message: '' }, loginFormFor('recruiter')))
       .rejects.toThrow('redirect:/dashboard');
     expect(mocks.set).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('safe login and verification redirects', () => {
+  it.each(['https://outside.example/jobs', '//outside.example', '/\\outside.example', '/%2f%2foutside.example'])(
+    'uses the authenticated role fallback for unsafe callback %s', async (callback) => {
+      mocks.post.mockResolvedValue({ data: { accessToken: accessTokenFor('candidate') }, headers: {} });
+      const form = loginFormFor('candidate');
+      form.set('callbackUrl', callback);
+      await expect(signInAction({ success: false, message: '' }, form)).rejects.toThrow('redirect:/job-postings');
+    },
+  );
+  it('keeps the query of a safe local callback', async () => {
+    mocks.post.mockResolvedValue({ data: { accessToken: accessTokenFor('candidate') }, headers: {} });
+    const form = loginFormFor('candidate');
+    form.set('callbackUrl', '/job-postings?q=React&page=2');
+    await expect(signInAction({ success: false, message: '' }, form)).rejects.toThrow('redirect:/job-postings?q=React&page=2');
+  });
+  it('encodes the callback when forwarding a staff login to its portal', async () => {
+    mocks.post.mockResolvedValue({ data: { accessToken: accessTokenFor('admin') }, headers: {} });
+    const form = loginFormFor('candidate');
+    form.set('callbackUrl', '/jobs?page=2&locationType=remote');
+    await expect(signInAction({ success: false, message: '' }, form)).rejects.toThrow('redirect:/sign-in/admin?isRoleDifferent=true&callbackUrl=%2Fjobs%3Fpage%3D2%26locationType%3Dremote');
+    expect(mocks.set).not.toHaveBeenCalled();
+  });
+  it('does not redirect when the API omits its login token', async () => {
+    mocks.post.mockResolvedValue({ data: {}, headers: {} });
+    await expect(signInAction({ success: false, message: '' }, loginFormFor('candidate'))).resolves.toMatchObject({ success: false });
+  });
+  it('follows a successful verification locally without catching its own redirect', async () => {
+    mocks.apiGet.mockResolvedValue({ data: { url: 'http://localhost:3000/reset-password?token=sample' } });
+    const form = new FormData(); form.set('token', 'sample'); form.set('type', 'reset');
+    await expect(verifyEmailAction({ success: false, message: '' }, form)).rejects.toThrow('redirect:/reset-password?token=sample');
+  });
+  it('accepts the API verification 302 while keeping navigation inside the application', async () => {
+    mocks.apiGet.mockRejectedValue({ response: { status: 302, headers: { location: 'https://client.example/verification-success' } } });
+    const form = new FormData(); form.set('token', 'sample');
+    await expect(verifyEmailAction({ success: false, message: '' }, form)).rejects.toThrow('redirect:/verification-success');
   });
 });

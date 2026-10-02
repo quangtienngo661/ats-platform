@@ -9,13 +9,11 @@ import { SF, SFT } from '@/types/fonts/fonts';
 export function HomeHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
-    const [location, setLocation] = useState('');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         const params = new URLSearchParams();
         if (query) params.set('q', query);
-        if (location) params.set('location', location);
         router.push(`/job-postings?${params.toString()}`);
     };
 
@@ -50,10 +48,11 @@ export function HomeHero() {
                                 <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                                 <input
                                     type="text"
+                                    aria-label="Tìm việc theo từ khóa"
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
                                     placeholder="Tên vị trí, kỹ năng, công ty..."
-                                    className="bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
+                                    className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                                     style={{ fontFamily: SFT }}
                                 />
                             </div>
@@ -61,10 +60,12 @@ export function HomeHero() {
                                 <MapPin className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                                 <input
                                     type="text"
-                                    value={location}
-                                    onChange={e => setLocation(e.target.value)}
+                                    value=""
+                                    disabled
+                                    aria-label="Địa điểm (chưa hỗ trợ)"
+                                    title="API hiện chưa hỗ trợ tìm theo địa điểm"
                                     placeholder="Địa điểm..."
-                                    className="bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
+                                    className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                                     style={{ fontFamily: SFT }}
                                 />
                             </div>

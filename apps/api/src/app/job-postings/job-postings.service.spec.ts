@@ -68,7 +68,7 @@ describe('JobPostingsService', () => {
         locationType: 'remote' as any,
         salaryMin: 1000,
         salaryMax: 2000,
-        description: 'JD',
+        description: '<p onclick="evil()">JD <strong>text</strong></p><script>evil()</script>',
         status: JobStatus.active,
         categoryId: 'cat-1',
         parsedRequirements: '{"skills":["nestjs"]}',
@@ -80,6 +80,7 @@ describe('JobPostingsService', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           parsedRequirements: { skills: ['nestjs'] },
+          description: '<p>JD <strong>text</strong></p>',
           publishedAt: expect.any(Date),
           // The posting is tied to the organization owning the recruiter's department.
           organization: { connect: { organizationId: 'org-1' } },
@@ -116,7 +117,7 @@ describe('JobPostingsService', () => {
   });
 
   it('returns paginated filtered job postings', async () => {
-    prisma.jobPosting.findMany.mockResolvedValue([{ jobId: 'job-1' }]);
+    prisma.jobPosting.findMany.mockResolvedValue([{ jobId: 'job-1', description: '<p onmouseover="evil()">JD</p>' }]);
     prisma.jobPosting.count.mockResolvedValue(1);
 
     await expect(
@@ -127,7 +128,7 @@ describe('JobPostingsService', () => {
         status: JobStatus.active,
       }),
     ).resolves.toEqual({
-      items: [{ jobId: 'job-1' }],
+      items: [{ jobId: 'job-1', description: '<p>JD</p>' }],
       pagination: { page: 2, limit: 5, total: 1, totalPages: 1 },
     });
 
@@ -138,6 +139,38 @@ describe('JobPostingsService', () => {
         where: expect.objectContaining({ status: JobStatus.active }),
       }),
     );
+  });
+
+  it.each(['onsite', 'remote', 'hybrid'] as const)(
+    'filters %s jobs while retaining the public active-only scope',
+    async (locationType) => {
+      prisma.jobPosting.findMany.mockResolvedValue([]);
+      prisma.jobPosting.count.mockResolvedValue(0);
+      await service.findAll({ locationType } as any);
+      const { where } = prisma.jobPosting.findMany.mock.calls[0][0];
+      expect(where).toEqual(expect.objectContaining({
+        status: JobStatus.active,
+        locationType,
+      }));
+      expect(prisma.jobPosting.count).toHaveBeenCalledWith({ where });
+    },
+  );
+
+  it('rejects an invalid page before querying Prisma', async () => {
+    await expect(service.findAll({ page: Number.NaN })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.findAll({ page: 0 })).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.jobPosting.findMany).not.toHaveBeenCalled();
+  });
+
+  it('sanitizes legacy description HTML when returning a posting', async () => {
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      organizationId: 'org-1',
+      status: JobStatus.active,
+      description: '<p onclick="evil()">Hello <strong>world</strong></p><script>evil()</script>',
+    });
+    const posting = await service.findOne('job-1');
+    expect(posting?.description).toBe('<p>Hello <strong>world</strong></p>');
   });
 
   it('updates relations, parsed requirements, and replaces skills when provided', async () => {
@@ -164,6 +197,7 @@ describe('JobPostingsService', () => {
     await service.update('job-1', {
       categoryId: 'cat-1',
       createdBy: 'rec-1',
+      description: '<ul><li style="color:red">Safe</li></ul><iframe src="https://evil.example"></iframe>',
       parsedRequirements: { skills: ['react'] },
       skills: [],
     } as any);
@@ -176,6 +210,7 @@ describe('JobPostingsService', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           parsedRequirements: { skills: ['react'] },
+          description: '<ul><li>Safe</li></ul>',
           category: { connect: { categoryId: 'cat-1' } },
         }),
       }),

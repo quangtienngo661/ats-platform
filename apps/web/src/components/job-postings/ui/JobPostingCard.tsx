@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Briefcase, MapPin, Clock, Users, Edit3, Trash2, CheckCircle, XCircle, List, LayoutGrid } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 
 const formatAmount = (value: number): string => {
@@ -21,7 +21,7 @@ const formatAmount = (value: number): string => {
 
 const salaryFormat = (min: number | null, max: number | null): string => {
     if (min === null && max === null) return 'Thỏa thuận';
-    if (min === null) return `Đến ${formatAmount(max!)} VNĐ`;
+    if (min === null) return `Đến ${formatAmount(max ?? 0)} VNĐ`;
     if (max === null) return `Từ ${formatAmount(min)} VNĐ`;
     if (min === max) return `${formatAmount(min)} VNĐ`;
     return `${formatAmount(min)} - ${formatAmount(max)} VNĐ`;
@@ -153,7 +153,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
                     <button onClick={() => onEdit(job)} className="p-2 rounded-xl text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                         <Edit3 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
+                    <button type="button" aria-label="Xóa" onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                     </button>
                 </div>

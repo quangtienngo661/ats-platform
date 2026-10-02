@@ -1,5 +1,6 @@
+import { positivePage } from '@/lib/pagination';
 import { getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
-import { getJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
+import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { JobSearchClient } from '@/components/public/jobs/JobSearchClient';
 
@@ -19,17 +20,18 @@ export const metadata = {
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
     const params = await searchParams;
-    const page = parseInt(params.page ?? '1', 10);
+    const page = positivePage(params.page);
 
     const [jobs, categories] = await Promise.all([
         getJobPostingsAction({
             status: 'active',
             search: params.q,
             categoryId: params.categoryId,
+            locationType: params.locationType,
             page,
             limit: 12,
         }),
-        getJobCategoriesAction(),
+        getViewerJobCategoriesAction(),
     ]);
 
     return (

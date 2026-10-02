@@ -1,12 +1,12 @@
 'use server';
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
-import {
-    IJobPostingDto,
-    IFindJobPostingsQuery,
-    IPaginatedJobPostings,
-} from '@/types/interfaces/job-posting.interface';
+import { IJobPostingDto, IFindJobPostingsQuery, IPaginatedJobPostings } from '@/types/interfaces/job-posting.interface';
 import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 import { cookies } from 'next/headers';
 
@@ -49,15 +49,7 @@ async function isAvailable(jobData: IJobPostingDto, token: string): Promise<bool
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET ALL JOB POSTINGS ─────────────────────────────────────────────────────
 
@@ -91,6 +83,7 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
     try {
         const params: Record<string, string | number> = {};
         if (query?.status) params.status = query.status;
+        if (query?.locationType) params.locationType = query.locationType;
         if (query?.departmentId) params.departmentId = query.departmentId;
         if (query?.categoryId) params.categoryId = query.categoryId;
         if (query?.search) params.search = query.search;
@@ -99,8 +92,8 @@ export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promi
 
         const response = await http.get('/job-postings', { params });
         return response.data as IPaginatedJobPostings;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -113,8 +106,9 @@ export async function getJobPostingByIdAction(id: string): Promise<{ job: IJobPo
         const response = await http.get(`/job-postings/${id}`);
         const available = await isAvailable(response.data, token ?? "");
         return { job: response.data, available };
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -124,6 +118,7 @@ export async function createJobPostingAction(
     formData: FormData
 ): Promise<ActionState<IJobPostingDto>> {
     const departmentId = (formData.get('departmentId') as string)?.trim();
+    
     const createdBy = (formData.get('createdBy') as string)?.trim();
     const title = (formData.get('title') as string)?.trim();
     const locationType = (formData.get('locationType') as string)?.trim();
@@ -153,7 +148,8 @@ export async function createJobPostingAction(
         // Skills được xử lý riêng (JSON string từ hidden input)
         const skillsRaw = formData.get('skills') as string | null;
         if (skillsRaw) {
-            try { payload.skills = JSON.parse(skillsRaw); } catch { /* bỏ qua */ }
+            try { payload.skills = JSON.parse(skillsRaw); } catch (error) {
+        unstable_rethrow(error); /* bỏ qua */ }
         }
 
         const response = await http.post('/job-postings', payload);
@@ -176,7 +172,7 @@ export async function updateJobPostingAction(
     try {
         const payload: Record<string, unknown> = {};
 
-        const createdBy = (formData.get('createdBy') as string)?.trim();
+        
     const title = (formData.get('title') as string)?.trim();
         const locationType = (formData.get('locationType') as string)?.trim();
         const categoryId = (formData.get('categoryId') as string)?.trim() || undefined;
@@ -199,7 +195,8 @@ export async function updateJobPostingAction(
 
         const skillsRaw = formData.get('skills') as string | null;
         if (skillsRaw) {
-            try { payload.skills = JSON.parse(skillsRaw); } catch { /* bỏ qua */ }
+            try { payload.skills = JSON.parse(skillsRaw); } catch (error) {
+        unstable_rethrow(error); /* bỏ qua */ }
         }
 
         const response = await http.patch(`/job-postings/${jobId}`, payload);

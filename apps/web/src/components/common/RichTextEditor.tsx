@@ -5,13 +5,14 @@ import { Bold, Italic, List } from 'lucide-react';
 import { SFT } from '@/types/fonts/fonts';
 
 interface RichTextEditorProps {
+    id?: string;
     value: string;
     onChange: (val: string) => void;
     placeholder?: string;
     ariaLabel?: string;
 }
 
-export function RichTextEditor({ value, onChange, placeholder, ariaLabel }: RichTextEditorProps) {
+export function RichTextEditor({ id, value, onChange, placeholder, ariaLabel }: RichTextEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
 
     // Sync external value changes (only if editor is empty or on mount)
@@ -25,6 +26,29 @@ export function RichTextEditor({ value, onChange, placeholder, ariaLabel }: Rich
         if (editorRef.current) {
             onChange(editorRef.current.innerHTML);
         }
+    };
+
+    const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        const text = event.clipboardData.getData('text/plain');
+        if (!document.execCommand?.('insertText', false, text)) {
+            const editor = editorRef.current;
+            if (!editor) return;
+            const selection = window.getSelection();
+            const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+            const node = document.createTextNode(text);
+            if (range && editor.contains(range.commonAncestorContainer)) {
+                range.deleteContents();
+                range.insertNode(node);
+                range.setStartAfter(node);
+                range.collapse(true);
+                selection?.removeAllRanges();
+                selection?.addRange(range);
+            } else {
+                editor.appendChild(node);
+            }
+        }
+        handleInput();
     };
 
     const format = (command: string) => {
@@ -63,36 +87,20 @@ export function RichTextEditor({ value, onChange, placeholder, ariaLabel }: Rich
                 </button>
             </div>
             
-            <style jsx global>{`
-                .rich-text-editor-content {
-                    outline: none;
-                }
-                .rich-text-editor-content ul {
-                    list-style-type: disc;
-                    padding-left: 1.5rem;
-                    margin-top: 0.5rem;
-                    margin-bottom: 0.5rem;
-                }
-                .rich-text-editor-content p {
-                    margin-bottom: 0.5rem;
-                }
-                .rich-text-editor-content[data-placeholder]:empty:before {
-                    content: attr(data-placeholder);
-                    color: #AEAEB2;
-                    pointer-events: none;
-                    display: block; /* For Firefox */
-                }
-            `}</style>
+            
             
             <div
+                id={id}
                 ref={editorRef}
                 className="rich-text-editor-content p-4 min-h-[200px] max-h-[400px] overflow-y-auto text-[14px] text-[#1D1D1F]"
                 style={{ fontFamily: SFT }}
                 role="textbox"
-                aria-label={ariaLabel ?? placeholder}
+                aria-label={ariaLabel ?? placeholder ?? 'Nội dung mô tả'}
                 aria-multiline="true"
+                tabIndex={0}
                 contentEditable
                 onInput={handleInput}
+                onPaste={handlePaste}
                 onBlur={handleInput}
                 data-placeholder={placeholder}
             />

@@ -1,10 +1,12 @@
 "use server";
 
 import { decodeTokenPayload } from "@/lib/decodeTokenPayload";
+import { safeCallbackPath } from "@/lib/safe-callback-url";
 import { SERVER_URL } from "@/types/constants/urls";
 import axios, { AxiosResponse } from "axios";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
+import { actionErrorMessage, apiErrorResponse } from "@/lib/action-error";
 
 // -------------- Helpers ----------------
 const getAccessToken = async (payload: RequestPayload) => {
@@ -81,6 +83,7 @@ export async function signInAction(
     const role = formData.get("role") as string;
 
     let isRoleDifferent = false;
+    let authenticatedRole: string | undefined;
 
     const payload = {
         email,
@@ -96,6 +99,7 @@ export async function signInAction(
 
         if (accessToken) {
             const tokenPayload = decodeTokenPayload(accessToken);
+            authenticatedRole = tokenPayload?.role;
 
             if (tokenPayload?.role === role || (tokenPayload?.role === "admin" && role === "recruiter")) {
                 await setAuthCookies(accessToken, response);
@@ -107,9 +111,9 @@ export async function signInAction(
                 return { success: false, message: "Tài khoản của bạn không có quyền truy cập portal này" };
             }
         }
-    } catch (error: any) {
-        const msg: string = error.response?.data?.message || "Sai tài khoản hoặc mật khẩu";
-        const rawMsg = Array.isArray(msg) ? msg[0] : msg;
+        else return { success: false, message: "Đăng nhập thất bại" };
+    } catch (error) {
+        const rawMsg = actionErrorMessage(error, "Sai tài khoản hoặc mật khẩu");
 
         // Email chưa xác thực → redirect đến trang verify-email
         if (rawMsg.startsWith('EMAIL_NOT_VERIFIED:')) {
@@ -119,20 +123,23 @@ export async function signInAction(
 
         return { success: false, message: rawMsg };
     }
-    const callbackUrl = formData.get("callbackUrl");
+    const callbackUrl = safeCallbackPath(formData.get("callbackUrl"));
 
     if (isRoleDifferent) {
-        redirect(`/sign-in/admin?isRoleDifferent=true${callbackUrl ? `&callbackUrl=${callbackUrl as string}` : ""}`);
+        const query = new URLSearchParams({ isRoleDifferent: 'true' });
+        if (callbackUrl) query.set('callbackUrl', callbackUrl);
+        redirect(`/sign-in/admin?${query.toString()}`);
     }
 
     if (callbackUrl) {
-        redirect(callbackUrl as string)
+        redirect(callbackUrl);
     }
 
-    if (role === "org_admin") redirect("/department-management");
-    if (role === "candidate") {
+    if (authenticatedRole === "candidate") {
         redirect("/job-postings");
     }
+
+    if (authenticatedRole === "org_admin") redirect("/department-management");
 
     redirect("/dashboard");
 }
@@ -153,9 +160,8 @@ export async function registerAction(
 
     try {
         await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/register`, payload);
-    } catch (error: any) {
-        const msg = error.response?.data?.message || "Đăng ký thất bại";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+    } catch (error) {
+        return { success: false, message: actionErrorMessage(error, "Đăng ký thất bại") };
     }
 
     redirect(`/verify-email?email=${encodeURIComponent(email)}`);
@@ -190,9 +196,8 @@ export async function refreshAction(): Promise<AuthState> {
         }
 
         return { success: false, message: "Không thể lấy token mới" };
-    } catch (error: any) {
-        const msg = error.response?.data?.message || "Làm mới token thất bại";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+    } catch (error) {
+        return { success: false, message: actionErrorMessage(error, "Làm mới token thất bại") };
     }
 }
 
@@ -216,18 +221,17 @@ export async function logoutAction(
         cookiesStore.delete("accessToken");
         cookiesStore.delete("refreshToken");
 
-    } catch (error: any) {
+    } catch (error) {
         // Dù lỗi cũng xoá cookie local
         const cookiesStore = await cookies();
         cookiesStore.delete("accessToken");
         cookiesStore.delete("refreshToken");
 
-        const msg = error.response?.data?.message || "Đăng xuất có lỗi nhưng đã xoá session ở client";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+        return { success: false, message: actionErrorMessage(error, "Đăng xuất có lỗi nhưng đã xoá session ở client") };
     }
 
     // Redirect cần để ra ngoài try/catch
-    redirect(redirectTo);
+    redirect(safeCallbackPath(redirectTo) ?? "/sign-in");
 }
 
 export async function requestEmailVerificationAction(
@@ -244,9 +248,8 @@ export async function requestEmailVerificationAction(
     try {
         await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/request-email-verification`, { email, type });
         return { success: true, message: "Email xác thực đã được gửi" };
-    } catch (error: any) {
-        const msg = error.response?.data?.message || "Không thể gửi email xác thực";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+    } catch (error) {
+        return { success: false, message: actionErrorMessage(error, "Không thể gửi email xác thực") };
     }
 }
 
@@ -256,32 +259,37 @@ export async function verifyEmailAction(
 ): Promise<AuthState> {
     const token = formData.get("token") as string;
     const type = formData.get("type") as string;
+    if (!token) return { success: false, message: "Mã xác thực không hợp lệ" };
 
-    if (!token) {
-        return { success: false, message: "Mã xác thực không hợp lệ" };
-    }
-
+    let destination: string | undefined;
     try {
         const response = await axios.get(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/verify-email`, {
-            params: { token, type },
-            maxRedirects: 0, // Không follow redirect, lấy response data
+            params: { token, type }, maxRedirects: 0,
         });
-        const redirectUrl: string | undefined = response.data?.url;
-
-        // Nếu backend trả về redirectUrl (type=reset), redirect bằng Next.js
-        if (redirectUrl) {
-            redirect(redirectUrl);
+        destination = response.data?.url;
+    } catch (error) {
+        unstable_rethrow(error);
+        const response = apiErrorResponse(error);
+        if (response?.status === 302 && response.headers?.location) {
+            destination = response.headers.location;
+        } else {
+            return { success: false, message: actionErrorMessage(error, "Xác thực email thất bại") };
         }
-
-        return { success: true, message: "Xác thực email thành công" };
-    } catch (error: any) {
-        // axios ném lỗi khi gặp status 3xx nếu maxRedirects=0 — bắt redirect URL từ đây
-        if (error.response?.status === 302 && error.response?.headers?.location) {
-            redirect(error.response.headers.location);
-        }
-        const msg = error.response?.data?.message || "Xác thực email thất bại";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
     }
+
+    if (destination) {
+        // The API supplies an absolute CLIENT_URL; navigate locally to its known verification routes.
+        let path: string | null = null;
+        try {
+            const url = new URL(destination, 'https://talentai.local');
+            if (['/reset-password', '/verification-success', '/verify-email', '/sign-in'].includes(url.pathname)) {
+                path = safeCallbackPath(url.pathname + url.search);
+            }
+        } catch { /* Invalid destinations are reported to the form. */ }
+        if (!path) return { success: false, message: "Đường dẫn xác thực không hợp lệ" };
+        redirect(path);
+    }
+    return { success: true, message: "Xác thực email thành công" };
 }
 
 export async function forgotPasswordAction(
@@ -297,9 +305,8 @@ export async function forgotPasswordAction(
     try {
         await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/forgot-password`, { email });
         return { success: true, message: "Email khôi phục mật khẩu đã được gửi" };
-    } catch (error: any) {
-        const msg = error.response?.data?.message || "Không thể gửi email khôi phục mật khẩu";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+    } catch (error) {
+        return { success: false, message: actionErrorMessage(error, "Không thể gửi email khôi phục mật khẩu") };
     }
 }
 
@@ -317,8 +324,7 @@ export async function resetPasswordAction(
     try {
         await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/reset-password`, { token, password });
         return { success: true, message: "Đặt lại mật khẩu thành công" };
-    } catch (error: any) {
-        const msg = error.response?.data?.message || "Đặt lại mật khẩu thất bại";
-        return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
+    } catch (error) {
+        return { success: false, message: actionErrorMessage(error, "Đặt lại mật khẩu thất bại") };
     }
 }
