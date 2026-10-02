@@ -1,0 +1,94 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts --reporter=verbose
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in candidate from the login page to its own landing page 11ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in recruiter from the login page to its own landing page 2ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in admin from the login page to its own landing page 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in org_admin from the login page to its own landing page 2ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > allows an admin with a valid token to open AI configuration 2ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > denies a candidate an admin route with a valid access token 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > applies the same candidate denial after refreshing an expired token 8ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards the refreshed access cookie to server components on the current request 3ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > sends a guest opening a private admin route to staff login 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards both rotated cookies and preserves unrelated browser preferences 3ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > keeps the refresh cookie if the API does not rotate it 3ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns to sign-in when refresh fails 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /department-management with a fresh access token 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /recruiter-management with a fresh access token 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /ai-configuration with a fresh access token 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /dashboard with a fresh access token 0ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /jobs with a fresh access token 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /interviews with a fresh access token 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows org_admin to open /my-profile with a fresh access token 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /department-management after refresh 3ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /recruiter-management after refresh 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /ai-configuration after refresh 20ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /dashboard after refresh 5ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /jobs after refresh 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /interviews after refresh 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > keeps org_admin access to /my-profile after refresh 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies org_admin access to the platform-only page /user-management before and after refresh 4ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies org_admin access to the platform-only page /skill-management before and after refresh 2ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies org_admin access to the platform-only page /interview-topic-management before and after refresh 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies org_admin access to the platform-only page /job-category-management before and after refresh 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > requires staff login for a guest opening /recruiter-management 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > requires staff login for a guest opening /my-profile 0ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > requires staff login for a guest opening /recruiter-management/detail 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows platform admin to open staff page /recruiter-management 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows platform admin to open staff page /interviews 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > allows platform admin to open staff page /my-profile 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies candidates the staff page /recruiter-management 1ms
+ ✓ src/proxy.test.ts > proxy — GĐ1 organization-admin boundaries (A2) > denies candidates the staff page /my-profile 1ms
+ ✓ src/components/user-management/ui/EditUserModal.test.tsx > EditUserModal — org_admin organization binding (A3) > names the locked org_admin role and starts with its current organization 440ms
+ ✓ src/components/user-management/ui/EditUserModal.test.tsx > EditUserModal — org_admin organization binding (A3) > submits a changed organization with the same locked org_admin role 340ms
+ ✓ src/components/user-management/ui/EditUserModal.test.tsx > EditUserModal — org_admin organization binding (A3) > does not offer organization binding when editing a global candidate account 92ms
+ ✓ src/components/user-management/ui/AddUserModal.test.tsx > AddUserModal — org_admin organization selection (A3) > requires a specific organization after selecting organization admin 689ms
+ ✓ src/components/user-management/ui/AddUserModal.test.tsx > AddUserModal — org_admin organization selection (A3) > submits the selected organization with the org_admin role 1383ms
+ ✓ src/components/user-management/ui/AddUserModal.test.tsx > AddUserModal — org_admin organization selection (A3) > removes the organization binding when switching back to a recruiter account 1694ms
+ ✓ src/components/user-management/ui/AddUserModal.test.tsx > AddUserModal — org_admin organization selection (A3) > keeps org_admin creation invalid when no organizations are available 208ms
+ ✓ src/components/auth/forms/StaffLoginForm.test.tsx > StaffLoginForm — organization-admin choice (A1) > offers the organization-admin portal and submits its exact role 1824ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Hủy closes a valid form without creating a configuration 2289ms
+ ✓ src/components/ai-configuration/ui/ConfigCard.test.tsx > ConfigCard — organization label (A7) > shows the provided organization beside its own default AI profile 761ms
+ ✓ src/components/ai-configuration/ui/ConfigCard.test.tsx > ConfigCard — organization label (A7) > does not invent an organization label when none is provided 31ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Đóng cấu hình closes a valid form without creating a configuration 1059ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > submits the selected organization and exact default weights/threshold 912ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks a blank or whitespace name 279ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks submission when the weights total is not 100 687ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > requires an explicit organization when a platform admin has multiple choices 563ms
+ ✓ src/components/user-management/ui/UserRow.test.tsx > UserRow — organization label (A7) > shows the organization-admin role together with the assigned organization 401ms
+ ✓ src/components/user-management/ui/UserRow.test.tsx > UserRow — organization label (A7) > does not label a global candidate as belonging to an organization 79ms
+ ✓ src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > sends the refresh cookie required by AuthService.logout to revoke the token 6ms
+ ✓ src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > clears both browser cookies even when the API is unavailable 1ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > sets both session cookies and sends org_admin to department management 30ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > rejects an org_admin account in the admin portal without setting cookies 1ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > rejects an org_admin account in the recruiter portal without setting cookies 1ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > rejects an org_admin account in the candidate portal without setting cookies 1ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > rejects a candidate account selecting the organization-admin portal 1ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > rejects a recruiter account selecting the organization-admin portal 0ms
+ ✓ src/servers/auth/auth.action.test.ts > signInAction — organization-admin portal (A1) > retains the permitted platform-admin login through the recruiter portal 1ms
+ ✓ src/components/department-management/ui/DepartmentCard.test.tsx > DepartmentCard — organization label (A7) > shows the provided organization name alongside a department 312ms
+ ✓ src/components/department-management/ui/DepartmentCard.test.tsx > DepartmentCard — organization label (A7) > does not invent an organization label when none is provided 15ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the selected organization with a new org_admin account 27ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the changed organization when updating an org_admin 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "" before HTTP 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "   " before HTTP 0ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects editing org_admin with an empty organization before HTTP 0ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing admin 2ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing candidate 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing recruiter 0ms
+ ✓ src/servers/job-postings/job-postings.action.test.ts > createJobPostingAction — owner selected by organization admin (A5) > forwards the selected recruiter owner alongside the selected department 29ms
+ ✓ src/servers/job-postings/job-postings.action.test.ts > createJobPostingAction — owner selected by organization admin (A5) > trims the submitted owner ID 1ms
+ ✓ src/servers/job-postings/job-postings.action.test.ts > createJobPostingAction — owner selected by organization admin (A5) > omits an empty owner "" for the existing self-owned recruiter flow 1ms
+ ✓ src/servers/job-postings/job-postings.action.test.ts > createJobPostingAction — owner selected by organization admin (A5) > omits an empty owner "   " for the existing self-owned recruiter flow 0ms
+ ✓ src/servers/departments/departments.action.test.ts > Department actions — preserve organization identity for list labels (A7) > keeps different organization IDs on same-name departments 2ms
+ ✓ src/servers/departments/departments.action.test.ts > Department actions — preserve organization identity for list labels (A7) > keeps the organization ID when fetching one department 1ms
+
+ Test Files  12 passed (12)
+      Tests  81 passed (81)
+   Start at  22:44:31
+   Duration  25.00s (transform 968ms, setup 5.86s, import 5.57s, tests 14.29s, environment 12.98s)
+

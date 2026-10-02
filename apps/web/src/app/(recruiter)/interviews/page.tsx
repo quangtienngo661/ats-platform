@@ -3,6 +3,7 @@ import {
     getMyInterviewSchedulesAction,
     getSchedulableInterviewApplicationsAction,
 } from '@/servers/interviews/interviews.action';
+import { getMeAction } from '@/servers/users/users.action';
 import { getMyRecruiterProfileAction, getRecruitersAction } from '@/servers/recruiters/recruiters.action';
 
 interface InterviewSchedulePageProps {
@@ -66,7 +67,7 @@ export default async function InterviewSchedulePage({ searchParams }: InterviewS
         ? toDateInputValue(today)
         : toDateInputValue(selectedWeekStart);
 
-    const [schedules, applications, recruiters, currentRecruiter] = await Promise.all([
+    const [schedules, applications, recruiters, me] = await Promise.all([
         getMyInterviewSchedulesAction({
             fromDate,
             toDate: toDateInputValue(selectedWeekEnd),
@@ -74,18 +75,20 @@ export default async function InterviewSchedulePage({ searchParams }: InterviewS
         }),
         getSchedulableInterviewApplicationsAction(),
         getRecruitersAction(),
-        getMyRecruiterProfileAction(),
+        getMeAction(),
     ]);
 
+    const currentRecruiter = me?.role === 'recruiter' ? await getMyRecruiterProfileAction() : null;
     const departmentId = currentRecruiter?.department?.departmentId;
     const departmentRecruiters = departmentId
         ? recruiters.filter((recruiter) => recruiter.user?.userId && recruiter.department?.departmentId === departmentId)
-        : [];
+        : recruiters.filter(recruiter => recruiter.user?.role === 'recruiter' && recruiter.user?.status === 'active');
     return (
         <InterviewScheduleClient
             schedules={schedules.items}
             applications={applications}
             interviewers={departmentRecruiters}
+            userRole={me?.role}
             currentRecruiter={currentRecruiter}
             selectedWeekStart={toDateInputValue(selectedWeekStart)}
             minWeekStart={toDateInputValue(minWeekStart)}

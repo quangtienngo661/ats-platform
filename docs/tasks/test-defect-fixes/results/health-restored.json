@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "status": 200,
+  "data": {
+    "status": "up",
+    "uptimeSeconds": 69,
+    "dependencies": {
+      "database": "up",
+      "redis": "up"
+    }
+  }
+}

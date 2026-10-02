@@ -1,0 +1,7 @@
+{
+  "mutation": "replace DB caller resolver by cached active caller",
+  "testExitCode": 1,
+  "restoredIdentically": true,
+  "originalSha256": "F3A150F9B896121B2E332933B94237E29A7B857B8F54731CC968D0C86AD1AF8A",
+  "restoredSha256": "F3A150F9B896121B2E332933B94237E29A7B857B8F54731CC968D0C86AD1AF8A"
+}

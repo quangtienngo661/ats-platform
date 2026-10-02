@@ -1,4 +1,6 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { getMeAction } from '@/servers/users/users.action';
+import { getCurrentOrganizationAction } from '@/servers/organizations/organizations.action';
 import { cookies } from 'next/headers';
 import { getNotificationsAction, getUnreadCountAction } from '@/servers/notifications/notifications.action';
 
@@ -27,6 +29,9 @@ export default async function AdminLayout({
       // ignore token parse errors
     }
   }
+  const me = token ? await getMeAction() : null;
+  if (me) { userRole = me.role; userName = me.fullName; userEmail = me.email; }
+  const organization = me && (me.role === 'org_admin' || me.role === 'recruiter') ? await getCurrentOrganizationAction() : null;
   const [notifications, unreadCount] = token
     ? await Promise.all([
       getNotificationsAction(1, 20),
@@ -39,6 +44,7 @@ export default async function AdminLayout({
       userRole={userRole}
       userName={userName}
       userEmail={userEmail}
+      organizationName={organization?.name}
       initialNotifications={notifications.items}
       initialUnreadCount={unreadCount}
     >

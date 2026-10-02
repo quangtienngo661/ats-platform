@@ -10,6 +10,10 @@
 |---|---|---|---|
 | Multi-tenant row-level isolation (GĐ1) | [`multi-tenant-isolation/module-spec-multi-tenant.md`](multi-tenant-isolation/module-spec-multi-tenant.md) | ats-platform source (`apps/api`, `libs/backend/database`) — no live reference system exists for this not-yet-built module; read from source | 2026-09-12 |
 
+## GĐ1 tuần cuối
+
+[Spec triển khai portal và ranh giới quyền](gd1-week3/spec.md), ngày 2026-09-29, nhánh `feat/org-admin-enforcement`. Người dùng đã duyệt triển khai; thay đổi mới chưa commit. Các kết quả xác minh nằm trong [results/](gd1-week3/results/).
+
 ## Builds implementing those specs
 
 | Build | Task folder | Implements | Landed |

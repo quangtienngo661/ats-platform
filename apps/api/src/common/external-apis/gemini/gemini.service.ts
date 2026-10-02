@@ -159,7 +159,9 @@ export class GeminiService {
                 `Gemini API call completed — action: ${actionType}, refId: ${refId}, duration: ${duration}ms`,
                 'GeminiService',
             );
-            const { promptTokenCount, candidatesTokenCount } = response.usageMetadata;
+            // Parse before recording success: malformed JSON is one failed call.
+            const text = JSON.parse(response.text);
+            const { promptTokenCount = 0, candidatesTokenCount = 0 } = response.usageMetadata ?? {};
 
             void this.aiUsageLogsService.create({
                 refId,
@@ -172,14 +174,14 @@ export class GeminiService {
             });
 
             return {
-                text: JSON.parse(response.text),
+                text,
             };
 
         } catch (error) {
             clearTimeout(timeoutId);
             const duration = Math.round(performance.now() - startTime);
             if (error.name === 'AbortError') {
-                Logger.error(`Gemini API TIMEOUT after 15s. BullMQ will retry this job...`, 'GeminiService');
+                Logger.error(`Gemini API TIMEOUT after ${timeoutStr / 1000}s. BullMQ will retry this job...`, 'GeminiService');
             } else {
                 Logger.error(`Gemini API ERROR. BullMQ will retry this job...`, error.stack, 'GeminiService');
             }

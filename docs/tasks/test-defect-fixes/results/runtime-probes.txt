@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "checks": [
+    {
+      "check": "org_admin requires organization binding",
+      "sqlState": "23514",
+      "passed": true
+    },
+    {
+      "check": "one default per organization; two organizations may each have one",
+      "duplicateSqlState": "23505",
+      "passed": true
+    },
+    {
+      "check": "immediate socket join receives real application event; other organization denied",
+      "passed": true
+    },
+    {
+      "check": "HTTP application list same organization 200; other organization 403",
+      "passed": true
+    },
+    {
+      "check": "withdrawn application rejects screening with 400 and creates no screening record",
+      "passed": true
+    }
+  ],
+  "cleanedUp": true
+}

@@ -71,7 +71,7 @@ export function AddProfileModal({
                             Thêm cấu hình mới
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
+                    <button type="button" aria-label="Đóng cấu hình" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
@@ -102,10 +102,11 @@ export function AddProfileModal({
                             </div>
                         )}
                         <div>
-                            <label className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
+                            <label htmlFor="ai-config-name" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
                                 Tên cấu hình *
                             </label>
                             <input
+                                id="ai-config-name"
                                 name="name"
                                 type="text" placeholder="Vd: Vị trí quản lý"
                                 value={name} onChange={(e) => setName(e.target.value)}
@@ -277,6 +278,7 @@ export function AddProfileModal({
                 {/* Modal footer */}
                 <div className="px-6 py-4 border-t border-[#F2F2F7] flex gap-3">
                     <button
+                        type="button"
                         onClick={onClose}
                         className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px]"
                         style={{ fontWeight: 500 }}

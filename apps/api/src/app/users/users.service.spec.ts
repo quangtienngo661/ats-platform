@@ -19,7 +19,10 @@ describe('UsersService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new UsersService(prisma as any);
+    service = new UsersService(prisma as any, { disconnectUser: jest.fn() } as any);
+    // A successful callback transaction executes against the same model spies,
+    // so password/scope updates preserve these exact write assertions.
+    prisma.$transaction.mockImplementation((callback: any) => callback(prisma));
     (bcrypt.hashSync as jest.Mock).mockReturnValue('hashed-password');
     (bcrypt.compareSync as jest.Mock).mockReturnValue(true);
   });
@@ -162,6 +165,8 @@ describe('UsersService', () => {
 
     beforeEach(() => {
       tx = createPrismaTransactionMock();
+      tx.user.update = prisma.user.update;
+      tx.refreshToken.updateMany = prisma.refreshToken.updateMany;
       tx.user.create.mockResolvedValue({ userId: 'user-9' });
       prisma.$transaction.mockImplementation((callback: any) => callback(tx));
       prisma.user.findUnique.mockResolvedValue(null);

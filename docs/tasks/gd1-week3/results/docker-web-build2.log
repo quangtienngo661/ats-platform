@@ -1,0 +1,244 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.04kB 0.1s done
+#1 DONE 0.2s
+
+#2 [internal] load metadata for docker.io/library/node:24-bookworm-slim
+#2 DONE 0.4s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 33B
+#3 transferring context: 328B 0.0s done
+#3 DONE 0.2s
+
+#4 [builder  1/11] FROM docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+#4 resolve docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf 0.0s done
+#4 DONE 0.1s
+
+#5 [builder  2/11] WORKDIR /app
+#5 CACHED
+
+#6 [runner 3/7] RUN groupadd --system --gid 1001 nodejs
+#6 CACHED
+
+#7 [runner 4/7] RUN useradd --system --uid 1001 --gid nodejs nextjs
+#7 CACHED
+
+#8 [internal] load build context
+#8 transferring context: 39.81MB 4.9s
+#8 transferring context: 114.63MB 9.9s
+#8 transferring context: 241.35MB 15.0s
+#8 transferring context: 356.01MB 20.1s
+#8 transferring context: 393.03MB 23.4s done
+#8 DONE 23.6s
+
+#9 [builder  5/11] COPY tsconfig.base.json ./
+#9 CACHED
+
+#10 [builder  3/11] COPY package*.json ./
+#10 CACHED
+
+#11 [builder  4/11] COPY nx.json ./
+#11 CACHED
+
+#12 [builder  6/11] RUN npm ci
+#12 CACHED
+
+#13 [builder  7/11] COPY . .
+#13 DONE 61.8s
+
+#14 [builder  8/11] RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+#14 1.022 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#14 1.227 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#14 1.286 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#14 1.346 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#14 2.033 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#14 2.033 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [342 kB]
+#14 2.850 Fetched 9381 kB in 2s (4554 kB/s)
+#14 2.850 Reading package lists...
+#14 3.367 Reading package lists...
+#14 3.957 Building dependency tree...
+#14 4.152 Reading state information...
+#14 4.354 The following additional packages will be installed:
+#14 4.355   libssl3
+#14 4.357 Suggested packages:
+#14 4.357   ca-certificates
+#14 4.398 The following NEW packages will be installed:
+#14 4.403   libssl3 openssl
+#14 4.537 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+#14 4.537 Need to get 3481 kB of archives.
+#14 4.537 After this operation, 8556 kB of additional disk space will be used.
+#14 4.537 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#14 4.991 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#14 5.345 debconf: delaying package configuration, since apt-utils is not installed
+#14 5.392 Fetched 3481 kB in 1s (5141 kB/s)
+#14 5.454 Selecting previously unselected package libssl3:amd64.
+#14 5.454 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#14 5.487 Preparing to unpack .../libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#14 5.504 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#14 5.691 Selecting previously unselected package openssl.
+#14 5.692 Preparing to unpack .../openssl_3.0.22-1~deb12u1_amd64.deb ...
+#14 5.699 Unpacking openssl (3.0.22-1~deb12u1) ...
+#14 5.840 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#14 5.868 Setting up openssl (3.0.22-1~deb12u1) ...
+#14 5.902 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#14 DONE 6.2s
+
+#15 [builder  9/11] RUN npx nx run database:prisma-generate
+#15 8.553 
+#15 8.553 > nx run database:prisma-generate
+#15 8.553 
+#15 8.555 > npx prisma generate
+#15 8.555 
+#15 10.21 Loaded Prisma config from prisma.config.ts.
+#15 10.21 
+#15 11.33 Prisma schema loaded from prisma/schema.prisma.
+#15 11.70 
+#15 11.70 ✔ Generated Prisma Client (7.8.0) to ./src/generated/prisma in 272ms
+#15 11.70 
+#15 11.75 
+#15 11.75 
+#15 11.75 
+#15 11.75  NX   Successfully ran target prisma-generate for project database
+#15 11.75 
+#15 11.75 
+#15 DONE 16.5s
+
+#16 [builder 10/11] RUN npx nx build types
+#16 2.147 
+#16 2.147  NX   Running target build for project types and 1 task it depends on:
+#16 2.147 
+#16 2.147 
+#16 4.104 
+#16 4.104 > nx run database:build
+#16 4.104 
+#16 4.104 > tsc --build tsconfig.lib.json
+#16 4.104 
+#16 4.216 
+#16 4.216 > nx run types:build
+#16 4.216 
+#16 4.217 > tsc --build tsconfig.lib.json
+#16 4.217 
+#16 5.076 
+#16 5.076 
+#16 5.076 
+#16 5.076  NX   Successfully ran target build for project types and 1 task it depends on
+#16 5.076 
+#16 5.076 
+#16 DONE 5.5s
+
+#17 [builder 11/11] RUN npx nx build web --prod
+#17 1.865 
+#17 1.865 > nx run web:build:production
+#17 1.865 
+#17 2.830 ▲ Next.js 16.3.3 (Turbopack)
+#17 3.322 ✓ Running next.config.js took 491ms
+#17 3.332 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#17 3.332 This information is used to shape Next.js' roadmap and prioritize features.
+#17 3.332 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#17 3.332 https://nextjs.org/telemetry
+#17 3.447   Creating an optimized production build ...
+#17 24.72 ✓ Compiled successfully in 19.6s
+#17 24.73   Running TypeScript ...
+#17 32.73   Finished TypeScript in 8.0s ...
+#17 32.74   Collecting page data using 11 workers ...
+#17 33.79   Generating static pages using 11 workers (0/25) ...
+#17 33.89 [getDepartmentsAction] Không thể tải danh sách phòng ban
+#17 33.90   Generating static pages using 11 workers (6/25) 
+#17 33.97 [getDepartmentsAction] Không thể tải danh sách phòng ban
+#17 33.99   Generating static pages using 11 workers (12/25) 
+#17 34.04   Generating static pages using 11 workers (18/25) 
+#17 34.09 ✓ Generating static pages using 11 workers (25/25) in 307ms
+#17 34.10   Finalizing page optimization ...
+#17 34.59 Route (app)
+#17 34.59 ┌ ƒ /
+#17 34.59 ├ ƒ /_not-found
+#17 34.59 ├ ƒ /ai-configuration
+#17 34.59 ├ ƒ /ai-usage-logs
+#17 34.59 ├ ƒ /api/hello
+#17 34.59 ├ ƒ /auth-callback
+#17 34.59 ├ ƒ /company-profile
+#17 34.59 ├ ƒ /dashboard
+#17 34.59 ├ ƒ /department-management
+#17 34.59 ├ ƒ /forgot-password
+#17 34.59 ├ ƒ /interview-topic-management
+#17 34.59 ├ ƒ /interviews
+#17 34.59 ├ ƒ /job-category-management
+#17 34.59 ├ ƒ /job-postings
+#17 34.59 ├ ƒ /job-postings/[id]
+#17 34.59 ├ ƒ /jobs
+#17 34.59 ├ ƒ /jobs/[jobId]/candidates
+#17 34.59 ├ ƒ /jobs/[jobId]/candidates/[id]
+#17 34.59 ├ ƒ /jobs/[jobId]/kanban
+#17 34.59 ├ ƒ /mock-interview
+#17 34.59 ├ ƒ /mock-interview/[sessionId]
+#17 34.59 ├ ƒ /mock-interview/[sessionId]/result
+#17 34.59 ├ ƒ /my-applications
+#17 34.59 ├ ƒ /my-cvs
+#17 34.59 ├ ƒ /my-profile
+#17 34.59 ├ ƒ /profile
+#17 34.59 ├ ƒ /recruiter-management
+#17 34.59 ├ ƒ /register
+#17 34.59 ├ ƒ /reset-password
+#17 34.59 ├ ƒ /sign-in
+#17 34.59 ├ ƒ /sign-in/admin
+#17 34.59 ├ ƒ /skill-management
+#17 34.59 ├ ƒ /user-management
+#17 34.59 ├ ƒ /verification-success
+#17 34.59 └ ƒ /verify-email
+#17 34.59 ƒ Proxy (Middleware)
+#17 34.59 ƒ  (Dynamic)  server-rendered on demand
+#17 34.71 
+#17 34.71 
+#17 34.71 
+#17 34.71  NX   Successfully ran target build for project web
+#17 34.71 
+#17 34.71 
+#17 DONE 35.1s
+
+#18 [runner 5/7] COPY --from=builder /app/dist/apps/web/public ./apps/web/public
+#18 DONE 0.1s
+
+#19 [runner 6/7] COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/standalone ./
+#19 DONE 1.3s
+
+#20 [runner 7/7] COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/static ./dist/apps/web/.next/static
+#20 DONE 0.7s
+
+#21 exporting to image
+#21 exporting layers
+#21 exporting layers 2.1s done
+#21 exporting manifest sha256:1e409d57b856d4a5fafffb7c7f9dcd18de481e690da728862f7329a0e2ac2bff 0.1s done
+#21 exporting config sha256:bec3ba8878286bbb7596e384596e8a9bab70c5c43f6d03753af86299da708e95 0.0s done
+#21 exporting attestation manifest sha256:34dfd47ed167b1345f3d7d31ea5936e9f4e246ea4389cbf06950a9b11836dae3
+#21 exporting attestation manifest sha256:34dfd47ed167b1345f3d7d31ea5936e9f4e246ea4389cbf06950a9b11836dae3 0.0s done
+#21 exporting manifest list sha256:a6423570577af664303a515b69c9219f81913113148c8d3802df39a7566cbfbb 0.1s done
+#21 naming to docker.io/library/ats-platform-gd1-web:latest
+#21 naming to docker.io/library/ats-platform-gd1-web:latest 0.0s done
+#21 unpacking to docker.io/library/ats-platform-gd1-web:latest
+#21 unpacking to docker.io/library/ats-platform-gd1-web:latest 0.8s done
+#21 DONE 3.4s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/g6b8y0t8culroqzrdalcdp7gz

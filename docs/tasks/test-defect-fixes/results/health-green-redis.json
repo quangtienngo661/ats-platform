@@ -1,0 +1,1 @@
+{"phase":"after-fix","dependency":"redis","status":503,"elapsedMs":3053,"body":{"success":true,"status":503,"data":{"status":"down","uptimeSeconds":63,"dependencies":{"database":"up","redis":"down"}}}}

@@ -1,0 +1,15 @@
+
+Running 8 tests using 1 worker
+
+(node:14784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (1.7s)
+  ok 2 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (5.2s)
+  ok 3 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (9.3s)
+  ok 4 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (1.6s)
+  ok 5 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (2.5s)
+  ok 6 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:241:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (1.6s)
+  ok 7 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:270:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (701ms)
+  ok 8 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:326:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi (2.2s)
+
+  8 passed (29.9s)

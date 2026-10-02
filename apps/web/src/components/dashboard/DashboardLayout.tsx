@@ -12,6 +12,7 @@ import {
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { mayVisit } from '@/lib/role-policy';
 import { INotification } from '@/types/interfaces/notification.interface';
 
 const navItems = [
@@ -37,11 +38,11 @@ const bottomItems = [
 ];
 
 // ── SidebarContent ───────────────────────────────────────────────────────────
-function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string }) {
+function SidebarContent({ onClose, userRole, userName, userEmail, organizationName }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string, organizationName?: string }) {
   const pathname = usePathname();
   const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
 
-  const formattedRole = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Recruiter';
+  const formattedRole = userRole === 'org_admin' ? 'Quản trị tổ chức' : userRole === 'admin' ? 'Quản trị hệ thống' : 'Nhà tuyển dụng';
 
   return (
     <div className="flex flex-col h-full">
@@ -92,7 +93,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
           })}
         </ul>
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'org_admin') && (
           <>
             <div className="my-3 border-t border-[#F2F2F7]" />
 
@@ -104,7 +105,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
             </div>
 
             <ul className="space-y-0.5">
-              {adminItems.map(({ icon: Icon, label, href }) => {
+              {adminItems.filter(item => mayVisit(userRole, item.href)).map(({ icon: Icon, label, href }) => {
                 const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
                 return (
                   <li key={label}>
@@ -178,7 +179,9 @@ function SidebarContent({ onClose, userRole, userName, userEmail }: { onClose?: 
               {userName || 'HR Manager'}
             </p>
             <p className="text-[11px] text-[#AEAEB2] truncate" style={{ fontFamily: SFT }}>
-              {userEmail || formattedRole || 'recruiter'}
+              {userEmail || formattedRole}
+            </p>
+            <p className="text-[11px] text-blue-700 truncate">{organizationName ?? formattedRole}
             </p>
           </div>
         </div>
@@ -220,6 +223,7 @@ export function DashboardLayout({
   userRole,
   userName,
   userEmail,
+  organizationName,
   initialNotifications = [],
   initialUnreadCount = 0,
 }: {
@@ -227,6 +231,7 @@ export function DashboardLayout({
   userRole?: string,
   userName?: string,
   userEmail?: string,
+  organizationName?: string,
   initialNotifications?: INotification[],
   initialUnreadCount?: number,
 }) {
@@ -237,7 +242,7 @@ export function DashboardLayout({
     <div className="flex h-screen bg-[#F5F5F7] overflow-hidden" style={{ fontFamily: SFT }}>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] h-screen bg-white border-r border-[#F2F2F7] fixed left-0 top-0 z-30 flex-shrink-0">
-        <SidebarContent userRole={userRole} userName={userName} userEmail={userEmail} />
+        <SidebarContent userRole={userRole} userName={userName} userEmail={userEmail} organizationName={organizationName} />
       </aside>
 
       {/* Mobile Sidebar — slide-in with Framer Motion */}
@@ -258,7 +263,7 @@ export function DashboardLayout({
               transition={{ ease: [0.25, 0.46, 0.45, 0.94], duration: 0.3 }}
               className="relative w-[240px] h-full bg-white border-r border-[#F2F2F7] z-50 flex flex-col"
             >
-              <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} userName={userName} userEmail={userEmail} />
+              <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} userName={userName} userEmail={userEmail} organizationName={organizationName} />
             </motion.aside>
           </div>
         )}

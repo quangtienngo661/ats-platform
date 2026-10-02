@@ -78,6 +78,15 @@ export class CvParsingProcessor extends WorkerHost {
 
 
             } catch (error) {
+                const maxAttempts = job.opts.attempts ?? 1;
+                if (job.attemptsMade + 1 < maxAttempts) {
+                    Logger.warn(
+                        `CV parsing will retry for CV ID: ${cvId} (attempt ${job.attemptsMade + 1}/${maxAttempts}): ${error.message}`,
+                        'CvParsingProcessor',
+                    );
+                    throw error;
+                }
+
                 // 6. Update failed + ghi error log
                 const errorCv = await this.prisma.cV.update({
                     where: { cvId },

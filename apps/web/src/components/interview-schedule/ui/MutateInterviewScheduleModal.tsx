@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CalendarPlus, X } from 'lucide-react';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
@@ -21,6 +21,7 @@ interface MutateInterviewScheduleModalProps {
     applications: IApplicationDto[];
     interviewers: IRecruiterDto[];
     currentRecruiter: IRecruiterDto | null;
+    userRole?: string;
     defaultDate: string;
     minDate: string;
     onClose: () => void;
@@ -51,6 +52,7 @@ export function MutateInterviewScheduleModal({
     applications,
     interviewers,
     currentRecruiter,
+    userRole,
     defaultDate,
     minDate,
     onClose,
@@ -58,17 +60,14 @@ export function MutateInterviewScheduleModal({
     const action = schedule ? updateInterviewScheduleAction : createInterviewScheduleAction;
     const [state, dispatch, isPending] = useActionState(action, initialState);
 
-    const selectedApplication = useMemo(() => {
-        if (!schedule) return null;
-        return schedule.application ?? applications.find((item) => item.applicationId === schedule.applicationId) ?? null;
-    }, [applications, schedule]);
-
-    const defaultInterviewerId = schedule?.interviewerId
-        ?? currentRecruiter?.user?.userId
-        ?? interviewers[0]?.user?.userId
-        ?? '';
-
-    const disabled = isPending || (!schedule && applications.length === 0) || interviewers.length === 0;
+    const [applicationId, setApplicationId] = useState(schedule?.applicationId ?? applications[0]?.applicationId ?? '');
+    const selectedApplication = schedule?.application ?? applications.find(item => item.applicationId === applicationId) ?? null;
+    const organizationId = selectedApplication?.jobPosting?.organizationId ?? selectedApplication?.jobPosting?.department?.organizationId;
+    const eligible = interviewers.filter(recruiter => recruiter.user?.role === 'recruiter' && recruiter.user?.status === 'active' &&
+        (userRole !== 'admin' || (!!organizationId && recruiter.department?.organizationId === organizationId)));
+    const [interviewerId, setInterviewerId] = useState(schedule?.interviewerId ?? currentRecruiter?.user?.userId ?? '');
+    const effectiveInterviewerId = eligible.some(recruiter => recruiter.user?.userId === interviewerId) ? interviewerId : eligible[0]?.user?.userId ?? '';
+    const disabled = isPending || (!schedule && applications.length === 0) || eligible.length === 0;
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -140,7 +139,9 @@ export function MutateInterviewScheduleModal({
                                     </>
                                 ) : (
                                     <select
-                                        name="applicationId"
+                                        name="applicationId" aria-label="Ứng viên"
+                                        value={applicationId}
+                                        onChange={event => { setApplicationId(event.target.value); setInterviewerId(''); }}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     >
@@ -161,13 +162,15 @@ export function MutateInterviewScheduleModal({
                                 </label>
                                 <select
                                     name="interviewerId"
-                                    defaultValue={defaultInterviewerId}
+                                    aria-label="Người phỏng vấn"
+                                    value={effectiveInterviewerId}
+                                    onChange={event => setInterviewerId(event.target.value)}
                                     required
                                     className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                 >
-                                    {interviewers.length === 0 ? (
-                                        <option value="">Chưa có recruiter cùng khoa</option>
-                                    ) : interviewers.map((recruiter) => (
+                                    {eligible.length === 0 ? (
+                                        <option value="">Chưa có recruiter phù hợp trong tổ chức</option>
+                                    ) : eligible.map((recruiter) => (
                                         <option key={recruiter.recruiterId} value={recruiter.user?.userId ?? ''}>
                                             {recruiter.user?.fullName ?? 'Recruiter'}{recruiter.position ? ` - ${recruiter.position}` : ''}
                                         </option>
@@ -182,7 +185,7 @@ export function MutateInterviewScheduleModal({
                                     </label>
                                     <input
                                         type="date"
-                                        name="scheduledDate"
+                                        name="scheduledDate" aria-label="Ngày phỏng vấn"
                                         defaultValue={schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate}
                                         min={minDate}
                                         required
@@ -195,7 +198,7 @@ export function MutateInterviewScheduleModal({
                                     </label>
                                     <input
                                         type="time"
-                                        name="scheduledTime"
+                                        name="scheduledTime" aria-label="Giờ phỏng vấn"
                                         defaultValue={formatInputTime(schedule?.startAt)}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
@@ -209,7 +212,7 @@ export function MutateInterviewScheduleModal({
                                 </label>
                                 <input
                                     type="number"
-                                    name="durationMinutes"
+                                    name="durationMinutes" aria-label="Thời lượng (phút)"
                                     defaultValue={schedule?.durationMinutes ?? 60}
                                     min={15}
                                     max={480}

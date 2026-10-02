@@ -1,15 +1,16 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { X, UserPlus } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import { createUserAction, type UserActionState } from '@/servers/users/users.action';
 import { toast } from '@/lib/toast';
-import { UserRole, UserStatus } from '@ats-platform/types';
+import { IOrganizationOption, UserRole, UserStatus } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
 
 interface AddUserModalProps {
+  organizations?: IOrganizationOption[];
   onClose: () => void;
   onCreated: (user: IUserResponseDto) => void;
 }
@@ -17,6 +18,7 @@ interface AddUserModalProps {
 const ROLES: { value: UserRole; label: string }[] = [
   { value: UserRole.recruiter, label: 'Tuyển dụng' },
   { value: UserRole.admin, label: 'Quản trị viên' },
+  { value: UserRole.org_admin, label: 'Quản trị tổ chức' },
   { value: UserRole.candidate, label: 'Ứng viên' },
 ];
 
@@ -31,8 +33,9 @@ const selectCls = `${inputCls} cursor-pointer appearance-none`;
 
 const INITIAL_STATE: UserActionState = { success: false, message: '' };
 
-export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
+export function AddUserModal({ onClose, onCreated, organizations = [] }: AddUserModalProps) {
   const [state, formAction, isPending] = useActionState(createUserAction, INITIAL_STATE);
+  const [role, setRole] = useState<UserRole>(UserRole.recruiter);
   const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -112,7 +115,7 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                 </label>
                 <input
                   ref={nameRef}
-                  name="fullName"
+                  name="fullName" aria-label="Họ và tên"
                   type="text"
                   required
                   placeholder="Nguyễn Văn A"
@@ -129,7 +132,7 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                   Email <span className="text-[#FF3B30]">*</span>
                 </label>
                 <input
-                  name="email"
+                  name="email" aria-label="Email"
                   type="email"
                   required
                   placeholder="email@company.com"
@@ -146,7 +149,7 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                   Mật khẩu <span className="text-[#FF3B30]">*</span>
                 </label>
                 <input
-                  name="password"
+                  name="password" aria-label="Mật khẩu"
                   type="password"
                   required
                   placeholder="Tối thiểu 8 ký tự, có chữ hoa, số, ký tự đặc biệt"
@@ -165,7 +168,7 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                   <span className="text-[#AEAEB2] font-normal">(tùy chọn)</span>
                 </label>
                 <input
-                  name="phone"
+                  name="phone" aria-label="Số điện thoại"
                   type="tel"
                   placeholder="+84901234567"
                   className={inputCls}
@@ -173,6 +176,16 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                 />
               </div>
 
+              {role === UserRole.org_admin && (
+                <div>
+                  <label htmlFor="Add-organization" className="block text-[13px] mb-2">Tổ chức *</label>
+                  <select id="Add-organization" aria-label="Tổ chức" name="organizationId" required className={selectCls} defaultValue={''}>
+                    <option value="">Chọn tổ chức</option>
+                    {organizations.map(org => <option key={org.organizationId} value={org.organizationId}>{org.name}</option>)}
+                  </select>
+                  {organizations.length === 0 && <p role="status">Chưa có tổ chức để chọn. Vui lòng kiểm tra danh sách tổ chức.</p>}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label
@@ -182,8 +195,9 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                     Vai trò <span className="text-[#FF3B30]">*</span>
                   </label>
                   <select
-                    name="role"
-                    defaultValue={UserRole.recruiter}
+                    name="role" aria-label="Vai trò"
+                    value={role}
+                    onChange={event => setRole(event.target.value as UserRole)}
                     className={selectCls}
                     style={{ fontFamily: SF }}
                   >
@@ -202,7 +216,7 @@ export function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
                     Trạng thái
                   </label>
                   <select
-                    name="status"
+                    name="status" aria-label="Trạng thái"
                     defaultValue={UserStatus.active}
                     className={selectCls}
                     style={{ fontFamily: SF }}

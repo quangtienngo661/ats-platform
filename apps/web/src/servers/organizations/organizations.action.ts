@@ -27,3 +27,13 @@ export async function getOrganizationOptionsForCurrentUser(): Promise<IOrganizat
         return [];
     }
 }
+
+/** DB-resolved scope for staff; platform admins have no organization. */
+export async function getCurrentOrganizationAction(): Promise<IOrganizationOption | null> {
+    try {
+        const response = await http.get('/organizations/me');
+        return response.data as IOrganizationOption;
+    } catch {
+        return null;
+    }
+}

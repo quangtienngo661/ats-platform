@@ -1,0 +1,124 @@
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ × src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the selected organization with a new org_admin account 44ms
+   → expected "vi.fn()" to be called with arguments: [ '/users', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "/users",
+    {
+      "email": "admin-b@ats.test",
+      "fullName": "Quản trị B",
+-     "organizationId": "org-b",
+      "password": "OrgAdmin@123",
+      "role": "org_admin",
+      "status": "active",
+    },
+  ]
+
+
+Number of calls: 1
+
+ × src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the changed organization when updating an org_admin 3ms
+   → expected "vi.fn()" to be called with arguments: [ '/users/user-1', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "/users/user-1",
+    {
+      "email": "admin-b@ats.test",
+      "fullName": "Quản trị B",
+-     "organizationId": "org-a",
+      "role": "org_admin",
+      "status": "active",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "" before HTTP 6ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "   " before HTTP 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects editing org_admin with an empty organization before HTTP 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing admin 4ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing candidate 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing recruiter 1ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  22:45:50
+   Duration  2.73s (transform 99ms, setup 806ms, import 74ms, tests 62ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the selected organization with a new org_admin account
+AssertionError: expected "vi.fn()" to be called with arguments: [ '/users', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "/users",
+    {
+      "email": "admin-b@ats.test",
+      "fullName": "Quản trị B",
+-     "organizationId": "org-b",
+      "password": "OrgAdmin@123",
+      "role": "org_admin",
+      "status": "active",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/servers/users/users.action.test.ts:28:24
+     26|     const result = await createUserAction(initialState, formFor('org_a…
+     27|     expect(result.success).toBe(true);
+     28|     expect(mocks.post).toHaveBeenCalledWith('/users', {
+       |                        ^
+     29|       fullName: 'Quản trị B', email: 'admin-b@ats.test', password: 'Or…
+     30|       role: 'org_admin', status: 'active', organizationId: 'org-b',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the changed organization when updating an org_admin
+AssertionError: expected "vi.fn()" to be called with arguments: [ '/users/user-1', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "/users/user-1",
+    {
+      "email": "admin-b@ats.test",
+      "fullName": "Quản trị B",
+-     "organizationId": "org-a",
+      "role": "org_admin",
+      "status": "active",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/servers/users/users.action.test.ts:40:25
+     38|     const result = await updateUserAction(initialState, form);
+     39|     expect(result.success).toBe(true);
+     40|     expect(mocks.patch).toHaveBeenCalledWith('/users/user-1', {
+       |                         ^
+     41|       fullName: 'Quản trị B', email: 'admin-b@ats.test', role: 'org_ad…
+     42|       status: 'active', organizationId: 'org-a',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

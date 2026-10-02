@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 // -------------- Helpers ----------------
 const getAccessToken = async (payload: RequestPayload) => {
     const response = await axios.post(
-        `${SERVER_URL}/auth/login`,
+        `${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/login`,
         payload
     );
 
@@ -129,6 +129,7 @@ export async function signInAction(
         redirect(callbackUrl as string)
     }
 
+    if (role === "org_admin") redirect("/department-management");
     if (role === "candidate") {
         redirect("/job-postings");
     }
@@ -151,7 +152,7 @@ export async function registerAction(
     }
 
     try {
-        await axios.post(`${SERVER_URL}/auth/register`, payload);
+        await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/register`, payload);
     } catch (error: any) {
         const msg = error.response?.data?.message || "Đăng ký thất bại";
         return { success: false, message: Array.isArray(msg) ? msg[0] : msg };
@@ -165,7 +166,7 @@ export async function refreshAction(): Promise<AuthState> {
         const cookiesStore = await cookies();
         const refreshToken = cookiesStore.get("refreshToken")?.value;
 
-        const response = await axios.post(`${SERVER_URL}/auth/refresh`, {}, {
+        const response = await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/refresh`, {}, {
             headers: refreshToken ? { Cookie: `refreshToken=${refreshToken}` } : undefined
         });
 
@@ -203,8 +204,12 @@ export async function logoutAction(
         const accessToken = cookiesStore.get("accessToken")?.value;
 
         // Gọi API logout
-        await axios.post(`${SERVER_URL}/auth/logout`, {}, {
-            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined
+        const refreshToken = cookiesStore.get("refreshToken")?.value;
+        await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/logout`, {}, {
+            headers: {
+                ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+                ...(refreshToken ? { Cookie: `refreshToken=${refreshToken}` } : {}),
+            },
         });
 
         // Xoá cookie
@@ -237,7 +242,7 @@ export async function requestEmailVerificationAction(
     }
 
     try {
-        await axios.post(`${SERVER_URL}/auth/request-email-verification`, { email, type });
+        await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/request-email-verification`, { email, type });
         return { success: true, message: "Email xác thực đã được gửi" };
     } catch (error: any) {
         const msg = error.response?.data?.message || "Không thể gửi email xác thực";
@@ -257,7 +262,7 @@ export async function verifyEmailAction(
     }
 
     try {
-        const response = await axios.get(`${SERVER_URL}/auth/verify-email`, {
+        const response = await axios.get(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/verify-email`, {
             params: { token, type },
             maxRedirects: 0, // Không follow redirect, lấy response data
         });
@@ -290,7 +295,7 @@ export async function forgotPasswordAction(
     }
 
     try {
-        await axios.post(`${SERVER_URL}/auth/forgot-password`, { email });
+        await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/forgot-password`, { email });
         return { success: true, message: "Email khôi phục mật khẩu đã được gửi" };
     } catch (error: any) {
         const msg = error.response?.data?.message || "Không thể gửi email khôi phục mật khẩu";
@@ -310,7 +315,7 @@ export async function resetPasswordAction(
     }
 
     try {
-        await axios.post(`${SERVER_URL}/auth/reset-password`, { token, password });
+        await axios.post(`${process.env.API_INTERNAL_URL ?? SERVER_URL}/auth/reset-password`, { token, password });
         return { success: true, message: "Đặt lại mật khẩu thành công" };
     } catch (error: any) {
         const msg = error.response?.data?.message || "Đặt lại mật khẩu thất bại";

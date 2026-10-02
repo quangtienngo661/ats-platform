@@ -6,10 +6,11 @@ import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import { updateUserAction, type UserActionState } from '@/servers/users/users.action';
 import { toast } from '@/lib/toast';
-import { UserRole, UserStatus } from '@ats-platform/types';
+import { IOrganizationOption, UserRole, UserStatus } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
 
 interface EditUserModalProps {
+  organizations?: IOrganizationOption[];
   user: IUserResponseDto;
   onClose: () => void;
   onUpdated: (user: IUserResponseDto) => void;
@@ -18,6 +19,7 @@ interface EditUserModalProps {
 const ROLES: { value: UserRole; label: string }[] = [
   { value: UserRole.recruiter, label: 'Tuyển dụng' },
   { value: UserRole.admin, label: 'Quản trị viên' },
+  { value: UserRole.org_admin, label: 'Quản trị tổ chức' },
   { value: UserRole.candidate, label: 'Ứng viên' },
 ];
 
@@ -32,7 +34,7 @@ const selectCls = `${inputCls} cursor-pointer appearance-none`;
 
 const INITIAL_STATE: UserActionState = { success: false, message: '' };
 
-export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) {
+export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: EditUserModalProps) {
   const [state, formAction, isPending] = useActionState(updateUserAction, INITIAL_STATE);
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -119,7 +121,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                 </label>
                 <input
                   ref={nameRef}
-                  name="fullName"
+                  name="fullName" aria-label="Họ và tên"
                   type="text"
                   required
                   defaultValue={user.fullName}
@@ -136,7 +138,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                   Email <span className="text-[#FF3B30]">*</span>
                 </label>
                 <input
-                  name="email"
+                  name="email" aria-label="Email"
                   type="email"
                   required
                   defaultValue={user.email}
@@ -154,7 +156,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                   <span className="text-[#AEAEB2] font-normal">(bỏ trống để giữ nguyên)</span>
                 </label>
                 <input
-                  name="password"
+                  name="password" aria-label="Mật khẩu mới"
                   type="password"
                   placeholder="Nhập để thay đổi mật khẩu..."
                   className={inputCls}
@@ -171,7 +173,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                   <span className="text-[#AEAEB2] font-normal">(tùy chọn)</span>
                 </label>
                 <input
-                  name="phone"
+                  name="phone" aria-label="Số điện thoại"
                   type="tel"
                   defaultValue={user.phoneNumber ?? ''}
                   placeholder="+84901234567"
@@ -180,6 +182,16 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                 />
               </div>
 
+              {user.role === UserRole.org_admin && (
+                <div>
+                  <label htmlFor="Edit-organization" className="block text-[13px] mb-2">Tổ chức *</label>
+                  <select id="Edit-organization" aria-label="Tổ chức" name="organizationId" required className={selectCls} defaultValue={user.organizationId ?? ''}>
+                    <option value="">Chọn tổ chức</option>
+                    {organizations.map(org => <option key={org.organizationId} value={org.organizationId}>{org.name}</option>)}
+                  </select>
+                  {organizations.length === 0 && <p role="status">Chưa có tổ chức để chọn. Vui lòng kiểm tra danh sách tổ chức.</p>}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label
@@ -189,7 +201,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                     Vai trò
                   </label>
                   <select
-                    disabled={true}
+                    disabled={true} aria-label="Vai trò"
                     defaultValue={user.role}
                     className={selectCls}
                     style={{ fontFamily: SF }}
@@ -208,7 +220,7 @@ export function EditUserModal({ user, onClose, onUpdated }: EditUserModalProps) 
                     Trạng thái
                   </label>
                   <select
-                    name="status"
+                    name="status" aria-label="Trạng thái"
                     defaultValue={user.status}
                     className={selectCls}
                     style={{ fontFamily: SF }}

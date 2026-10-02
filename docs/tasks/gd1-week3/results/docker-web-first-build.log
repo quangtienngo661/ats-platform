@@ -1,0 +1,96 @@
+2026/09/29 22:50:17 http2: server: error reading preface from client //./pipe/dockerDesktopLinuxEngine: file has already been closed
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.75kB 0.1s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 328B 0.0s done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [builder 1/9] FROM docker.io/library/node:24-alpine@sha256:f36fed0b2129a8492535e2853c64fbdbd2d29dc1219ee3217023ca48aebd3787
+#5 resolve docker.io/library/node:24-alpine@sha256:f36fed0b2129a8492535e2853c64fbdbd2d29dc1219ee3217023ca48aebd3787 0.1s done
+#5 DONE 0.1s
+
+#4 [internal] load build context
+#4 transferring context: 10.31MB 3.7s done
+#4 DONE 3.9s
+
+#6 [builder 2/9] WORKDIR /app
+#6 CACHED
+
+#7 [builder 3/9] COPY package*.json ./
+#7 DONE 0.8s
+
+#8 [builder 4/9] COPY nx.json ./
+#8 DONE 1.6s
+
+#9 [builder 5/9] COPY tsconfig.base.json ./
+#9 DONE 0.3s
+
+#10 [builder 6/9] RUN npm ci
+#10 11.05 npm error code EUSAGE
+#10 11.06 npm error
+#10 11.06 npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.
+#10 11.06 npm error
+#10 11.06 npm error Missing: readdirp@4.1.2 from lock file
+#10 11.06 npm error Missing: readdirp@4.1.2 from lock file
+#10 11.06 npm error
+#10 11.06 npm error Clean install a project
+#10 11.06 npm error
+#10 11.06 npm error Usage:
+#10 11.06 npm error npm ci
+#10 11.06 npm error
+#10 11.06 npm error Options:
+#10 11.06 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+#10 11.06 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+#10 11.06 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+#10 11.06 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+#10 11.06 npm error [--no-bin-links] [--no-fund] [--dry-run]
+#10 11.06 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+#10 11.06 npm error [--workspaces] [--include-workspace-root] [--install-links]
+#10 11.06 npm error
+#10 11.06 npm error aliases: clean-install, ic, install-clean, isntall-clean
+#10 11.06 npm error
+#10 11.06 npm error Run "npm help ci" for more info
+#10 11.06 npm notice
+#10 11.06 npm notice New minor version of npm available! 11.6.1 -> 11.20.0
+#10 11.06 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.20.0
+#10 11.06 npm notice To update run: npm install -g npm@11.20.0
+#10 11.06 npm notice
+#10 11.07 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-09-29T15_50_27_994Z-debug-0.log
+#10 ERROR: process "/bin/sh -c npm ci" did not complete successfully: exit code: 1
+------
+ > [builder 6/9] RUN npm ci:
+11.06 npm error
+11.06 npm error aliases: clean-install, ic, install-clean, isntall-clean
+11.06 npm error
+11.06 npm error Run "npm help ci" for more info
+11.06 npm notice
+11.06 npm notice New minor version of npm available! 11.6.1 -> 11.20.0
+11.06 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.20.0
+11.06 npm notice To update run: npm install -g npm@11.20.0
+11.06 npm notice
+11.07 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-09-29T15_50_27_994Z-debug-0.log
+------
+
+ 1 warning found (use docker --debug to expand):
+ - UndefinedVar: Usage of undefined variable '$NEXT_PUBLIC_API_BASE_URL' (line 36)
+Dockerfile:12
+--------------------
+  10 |     COPY tsconfig.base.json ./
+  11 |     
+  12 | >>> RUN npm ci
+  13 |     
+  14 |     COPY . .
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c npm ci" did not complete successfully: exit code: 1
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/bi65q3zbhj8gbom4os68l78ew

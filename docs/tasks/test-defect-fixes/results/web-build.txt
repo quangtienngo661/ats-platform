@@ -1,0 +1,92 @@
+(node:34748) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+> nx run web:build:production
+
+(node:28364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ Next.js 16.3.3 (Turbopack)
+(node:17732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✓ Running next.config.js took 983ms
+  Creating an optimized production build ...
+(node:17732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✓ Compiled successfully in 4.2s
+  Running TypeScript ...
+  Finished TypeScript in 3.5s ...
+  Collecting page data using 11 workers ...
+(node:15220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  Generating static pages using 11 workers (0/25) ...
+[getDepartmentsAction] Không thể tải danh sách phòng ban
+  Generating static pages using 11 workers (6/25) 
+[getDepartmentsAction] Không thể tải danh sách phòng ban
+  Generating static pages using 11 workers (12/25) 
+  Generating static pages using 11 workers (18/25) 
+✓ Generating static pages using 11 workers (25/25) in 288ms
+  Finalizing page optimization ...
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /ai-configuration
+├ ƒ /ai-usage-logs
+├ ƒ /api/hello
+├ ƒ /auth-callback
+├ ƒ /company-profile
+├ ƒ /dashboard
+├ ƒ /department-management
+├ ƒ /forgot-password
+├ ƒ /interview-topic-management
+├ ƒ /interviews
+├ ƒ /job-category-management
+├ ƒ /job-postings
+├ ƒ /job-postings/[id]
+├ ƒ /jobs
+├ ƒ /jobs/[jobId]/candidates
+├ ƒ /jobs/[jobId]/candidates/[id]
+├ ƒ /jobs/[jobId]/kanban
+├ ƒ /mock-interview
+├ ƒ /mock-interview/[sessionId]
+├ ƒ /mock-interview/[sessionId]/result
+├ ƒ /my-applications
+├ ƒ /my-cvs
+├ ƒ /my-profile
+├ ƒ /profile
+├ ƒ /recruiter-management
+├ ƒ /register
+├ ƒ /reset-password
+├ ƒ /sign-in
+├ ƒ /sign-in/admin
+├ ƒ /skill-management
+├ ƒ /user-management
+├ ƒ /verification-success
+└ ƒ /verify-email
+ƒ Proxy (Middleware)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+
+ NX   Successfully ran target build for project web
+
+

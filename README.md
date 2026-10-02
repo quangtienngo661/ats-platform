@@ -86,10 +86,12 @@ graph TD
         Worker_Parse["CV Parser Worker"]:::api
         Worker_Screen["CV Screener Worker"]:::api
         Worker_Interview["Interview Evaluation Worker"]:::api
+        Worker_Generation["Interview Generation Worker"]:::api
+        Worker_Maintenance["Interview Maintenance Worker"]:::api
     end
 
     subgraph Database ["Data Storage"]
-        Postgres[(PostgreSQL 15)]:::db
+        Postgres[(PostgreSQL 18.4)]:::db
         Redis[(Redis Cache & SessionStore)]:::db
     end
 
@@ -202,7 +204,7 @@ The system applies common web application security practices to protect candidat
 - **Token Rotation**: When the Access Token expires, the system uses the Refresh Token to issue a new token pair and immediately revokes the old token in the database (marked `revoked` in the `RefreshToken` table). This limits the exposure window if a token is compromised.
 
 ### 2. Role-Based Access Control (RBAC) & Data Isolation (OwnershipGuard)
-- **Role-Based Access Control**: Uses custom decorators (`@Roles()`) to strictly partition permissions between user groups: `Admin`, `Recruiter`, and `Candidate`.
+- **Role-Based Access Control**: Uses custom decorators (`@Roles()`) to strictly partition permissions between user groups: `admin` (platform), `org_admin` (one organization), `recruiter` (organization + department), and `candidate` (shared pool). Authorization scope is resolved from the database for every HTTP request and job-room join.
 - **Dynamic Ownership Guard**: Enforces resource-level security via the `@Resources()` decorator. All access to sensitive data (such as candidate profiles, interview score details, and personal information) is cross-checked by the `OwnershipGuard` to verify that the requester is the actual owner or the managing recruiter, helping mitigate **IDOR (Insecure Direct Object Reference)** vulnerabilities.
 
 ---
@@ -225,7 +227,7 @@ The project uses modern technologies with versions pinned to `package.json`:
 - **Database ORM**: Prisma 7.8.0
 - **Real-time Gateway**: Socket.IO 4.8.3 (`@nestjs/platform-socket.io` 11.1.19)
 - **Message Broker & Queue**: BullMQ 5.71.1 (`@nestjs/bullmq` 11.0.4)
-- **Database Engine**: PostgreSQL 15 & Redis 5.10.0 (`ioredis`)
+- **Database Engine**: PostgreSQL 18.4 & Redis 8 (server image; `ioredis` is the client library)
 - **AI Integrations**: Google Gemini API SDK (`@google/genai` 1.46.0)
 - **API Documentation**: NestJS Swagger 11.2.6 (`swagger-ui-express`)
 - **Security & Utilities**: Passport.js 0.7.0, Bcrypt 6.0.0, Nodemailer 8.0.2

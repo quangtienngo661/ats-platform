@@ -99,6 +99,7 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
                             <ConfigCard
                                 key={profile.configId}
                                 profile={profile}
+                                organizationName={organizations.find(org => org.organizationId === profile.organizationId)?.name}
                                 onUpdate={(updated) => updateProfile(updated)}
                                 onDelete={() => deleteProfile(profile.configId || '', profile.name)}
                                 onSetDefault={() => setDefault(profile.configId || '', profile.name)}

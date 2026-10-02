@@ -1,210 +1,70 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
-import { X, ChevronDown } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { createRecruiterAction, updateRecruiterAction, RecruiterActionState } from '@/servers/recruiters/recruiters.action';
-import SubmitButton from '@/components/common/SubmitButton';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
 import { IUserDto } from '@ats-platform/types';
 
-const UserRole = {
-    candidate: 'candidate',
-    recruiter: 'recruiter',
-    admin: 'admin'
-} as const
-
-interface DepartmentOption {
-    departmentId: string;
-    name: string;
-    color: string;
+interface Props {
+  onClose: () => void;
+  isEdited: boolean;
+  editingRecruiter: IRecruiterDto | null;
+  departments: { departmentId: string; name: string; color: string }[];
+  users: IUserDto[];
+  canAssignExisting?: boolean;
+  onResult: (result: RecruiterActionState) => void;
 }
 
-interface MutateRecruiterModalProps {
-    onClose: () => void;
-    isEdited: boolean;
-    editingRecruiter: IRecruiterDto | null;
-    departments: DepartmentOption[];
-    users: IUserDto[];
-    onResult: (result: RecruiterActionState) => void;
-}
-
-const initialState: RecruiterActionState = { success: false, message: '' };
-
-export function MutateRecruiterModal({
-    onClose,
-    isEdited,
-    editingRecruiter,
-    departments,
-    users,
-    onResult,
-}: MutateRecruiterModalProps) {
-    const actionToRun = isEdited ? updateRecruiterAction : createRecruiterAction;
-    const [state, formAction] = useActionState(actionToRun, initialState);
-
-    const onCloseRef = useRef(onClose);
-    const onResultRef = useRef(onResult);
-    useEffect(() => {
-        onCloseRef.current = onClose;
-        onResultRef.current = onResult;
-    }, [onClose, onResult]);
-
-    useEffect(() => {
-        if (state.success) {
-            if (onResultRef.current) onResultRef.current(state);
-            const timer = setTimeout(() => onCloseRef.current(), 300);
-            return () => clearTimeout(timer);
-        }
-    }, [state.success]);
-
-    return (
-        <AnimatePresence>
-            <motion.div
-                key="backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    key="modal"
-                    initial={{ opacity: 0, scale: 0.96, y: 12 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 12 }}
-                    transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
-                        <h2
-                            className="text-[20px] text-[#1D1D1F] tracking-[-0.01em]"
-                            style={{ fontFamily: SF, fontWeight: 600 }}
-                        >
-                            {isEdited ? 'Cập nhật nhà tuyển dụng' : 'Thêm nhà tuyển dụng mới'}
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
-                            type="button"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    <form action={formAction}>
-                        {/* Hidden ID for update mode */}
-                        {isEdited && editingRecruiter?.recruiterId && (
-                            <input type="hidden" name="recruiterId" value={editingRecruiter.recruiterId} />
-                        )}
-
-                        <div className="p-6 space-y-4">
-                            {/* userId — only for create */}
-                            {!isEdited && (
-                                <div>
-                                    <label
-                                        className="block text-[13px] text-[#1D1D1F] mb-2"
-                                        style={{ fontWeight: 500 }}
-                                    >
-                                        Chọn user <span className="text-[#FF3B30]">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            name="userId"
-                                            defaultValue={isEdited ? (editingRecruiter?.userId ?? '') : ''}
-                                            required
-                                            className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] appearance-none bg-white"
-                                            style={{ fontFamily: SFT }}
-                                        >
-                                            <option value="" disabled>Chọn user</option>
-                                            {users
-                                                .filter((user) => user.role === UserRole.recruiter)
-                                                .map((user) => (
-                                                    <option key={user.userId} value={user.userId}>
-                                                        {user.fullName}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2] pointer-events-none" />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Department */}
-                            <div>
-                                <label
-                                    className="block text-[13px] text-[#1D1D1F] mb-2"
-                                    style={{ fontWeight: 500 }}
-                                >
-                                    Phòng ban <span className="text-[#FF3B30]">*</span>
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        name="departmentId"
-                                        required
-                                        defaultValue={isEdited ? (editingRecruiter?.departmentId ?? '') : ''}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] appearance-none bg-white"
-                                        style={{ fontFamily: SFT }}
-                                    >
-                                        <option value="" disabled>Chọn phòng ban</option>
-                                        {departments.map((dept) => (
-                                            <option key={dept.departmentId} value={dept.departmentId}>
-                                                {dept.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2] pointer-events-none" />
-                                </div>
-                            </div>
-
-                            {/* Position */}
-                            <div>
-                                <label
-                                    className="block text-[13px] text-[#1D1D1F] mb-2"
-                                    style={{ fontWeight: 500 }}
-                                >
-                                    Chức vụ <span className="text-[#FF3B30]">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="position"
-                                    required
-                                    placeholder="VD: Senior Recruiter, HR Manager..."
-                                    defaultValue={isEdited ? (editingRecruiter?.position ?? '') : ''}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
-                                    style={{ fontFamily: SFT }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Error message */}
-                        {state.message && !state.success && (
-                            <div className="mx-6 mb-4 px-4 py-3 rounded-xl bg-[#FFF0F0] border border-[#FFD5D5]">
-                                <p className="text-[13px] text-[#FF3B30]" style={{ fontFamily: SFT }}>
-                                    {state.message}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="p-6 border-t border-[#F2F2F7] flex gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="flex-1 mt-[3px] py-3 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px] text-[#1D1D1F]"
-                                style={{ fontWeight: 500 }}
-                            >
-                                Hủy
-                            </button>
-                            <div className="flex-1">
-                                <SubmitButton content={`${isEdited ? 'Cập nhật' : 'Tạo'}`} />
-                            </div>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
-    );
+export function MutateRecruiterModal({ onClose, isEdited, editingRecruiter, departments, users, canAssignExisting = false, onResult }: Props) {
+  const [mode, setMode] = useState('new');
+  const [state, action, pending] = useActionState(isEdited ? updateRecruiterAction : createRecruiterAction, { success: false, message: '' } as RecruiterActionState);
+  const callbacks = useRef({ onClose, onResult });
+  useEffect(() => { callbacks.current = { onClose, onResult }; }, [onClose, onResult]);
+  useEffect(() => {
+    if (state.success) { callbacks.current.onResult(state); callbacks.current.onClose(); }
+  }, [state]);
+  const input = 'border rounded-xl p-3 w-full text-sm';
+  return (
+    <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4" onClick={onClose}>
+      <section role="dialog" aria-modal="true" aria-labelledby="recruiter-dialog-title" className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={event => event.stopPropagation()}>
+        <div className="flex justify-between items-center mb-5">
+          <h2 id="recruiter-dialog-title" className="text-xl font-semibold">{isEdited ? 'Cập nhật nhà tuyển dụng' : 'Thêm nhà tuyển dụng mới'}</h2>
+          <button type="button" aria-label="Đóng" onClick={onClose}>×</button>
+        </div>
+        <form action={action} className="space-y-4">
+          {isEdited && <input type="hidden" name="recruiterId" value={editingRecruiter?.recruiterId ?? ''} />}
+          <input type="hidden" name="accountMode" value={mode} />
+          {!isEdited && canAssignExisting && (
+            <div><label htmlFor="recruiter-mode">Cách thêm recruiter</label>
+              <select id="recruiter-mode" value={mode} onChange={e => setMode(e.target.value)} className={input}>
+                <option value="new">Tạo tài khoản mới</option><option value="existing">Gán tài khoản recruiter có sẵn</option>
+              </select></div>
+          )}
+          {isEdited ? <p>Tài khoản: {editingRecruiter?.user?.fullName} · {editingRecruiter?.user?.email}</p> : mode === 'existing' ? (
+            <div><label htmlFor="recruiter-user">Tài khoản recruiter</label><select id="recruiter-user" name="userId" required className={input}>
+              <option value="">Chọn tài khoản chưa có hồ sơ</option>
+              {users.filter(user => user.role === 'recruiter' && user.status === 'active').map(user => <option key={user.userId} value={user.userId}>{user.fullName} · {user.email}</option>)}
+            </select></div>
+          ) : <>
+            <div><label htmlFor="recruiter-name">Họ và tên</label><input id="recruiter-name" name="fullName" required className={input} /></div>
+            <div><label htmlFor="recruiter-email">Email</label><input id="recruiter-email" name="email" type="email" required className={input} /></div>
+            <div><label htmlFor="recruiter-password">Mật khẩu</label><input id="recruiter-password" name="password" type="password" autoComplete="new-password" required minLength={8} className={input} />
+              <p className="text-xs text-gray-500 mt-1">Tối thiểu 8 ký tự, có chữ thường, chữ hoa, số và ký tự đặc biệt.</p></div>
+          </>}
+          <div><label htmlFor="recruiter-department">Phòng ban</label>
+            <select id="recruiter-department" name="departmentId" required defaultValue={editingRecruiter?.department?.departmentId ?? ''} className={input}>
+              <option value="">Chọn phòng ban</option>
+              {departments.map(dept => <option key={dept.departmentId} value={dept.departmentId}>{dept.name}</option>)}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Tài khoản thuộc tổ chức của phòng ban đã chọn.</p>
+          </div>
+          <div><label htmlFor="recruiter-position">Chức vụ</label><input id="recruiter-position" name="position" required defaultValue={editingRecruiter?.position ?? ''} className={input} /></div>
+          {state.message && <p role="status" className="text-red-700">{state.message}</p>}
+          {departments.length === 0 && <p role="status">Cần tạo phòng ban trước khi thêm recruiter.</p>}
+          <div className="flex gap-3 pt-3"><button type="button" onClick={onClose} className={input}>Hủy</button>
+            <button type="submit" disabled={pending || departments.length === 0} className="bg-blue-600 disabled:bg-gray-300 text-white rounded-xl p-3 w-full">{pending ? 'Đang lưu...' : isEdited ? 'Cập nhật' : 'Tạo'}</button></div>
+        </form>
+      </section>
+    </div>
+  );
 }

@@ -22,9 +22,10 @@ interface RecruiterClientProps {
     recruiters: IRecruiterDto[];
     departments: DepartmentOption[];
     users: IUserDto[];
+    canAssignExisting?: boolean;
 }
 
-export default function RecruiterClient({ recruiters, departments, users }: RecruiterClientProps) {
+export default function RecruiterClient({ recruiters, departments, users, canAssignExisting = false }: RecruiterClientProps) {
     const [showMutateModal, setShowMutateModal] = useState(false);
     const [editingRecruiter, setEditingRecruiter] = useState<IRecruiterDto | null>(null);
     const [isEdited, setIsEdited] = useState(false);
@@ -120,6 +121,7 @@ export default function RecruiterClient({ recruiters, departments, users }: Recr
                     editingRecruiter={editingRecruiter}
                     departments={departments}
                     users={users}
+                canAssignExisting={canAssignExisting}
                     onResult={handleActionComplete}
                 />
             )}

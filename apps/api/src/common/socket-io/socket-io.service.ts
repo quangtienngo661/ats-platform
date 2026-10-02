@@ -30,6 +30,9 @@ export class SocketIoService
 {
   @WebSocketServer() server: Server;
   logger: Logger = new Logger(SocketIoService.name);
+  private readonly pendingAuthentication = new WeakMap<Socket, Promise<void>>();
+  private readonly authenticatingUsers = new WeakMap<Socket, string>();
+  private readonly revokedClients = new WeakSet<Socket>();
 
   constructor(
     private readonly jwtService: JwtService,
@@ -40,7 +43,13 @@ export class SocketIoService
     this.logger.log('WebSocket server initialized');
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket): Promise<void> {
+    const authentication = this.authenticate(client);
+    this.pendingAuthentication.set(client, authentication);
+    return authentication;
+  }
+
+  private async authenticate(client: Socket): Promise<void> {
     try {
       let token =
         client.handshake.auth?.token || client.handshake.headers?.authorization;
@@ -57,6 +66,7 @@ export class SocketIoService
       }
 
       const payload = await this.jwtService.verifyAsync(token);
+      if (payload?.userId) this.authenticatingUsers.set(client, payload.userId);
 
       // A valid signature isn't enough: the account may have been deactivated
       // after this token was issued. HTTP re-checks this in JwtStrategy; the
@@ -66,7 +76,7 @@ export class SocketIoService
         ? await resolveTenantCaller(this.prisma, payload.userId)
         : null;
 
-      if (!user || user.status !== UserStatus.active) {
+      if (!user || user.status !== UserStatus.active || this.revokedClients.has(client)) {
         this.logger.warn(
           `Client disconnected: inactive or unknown user - ${client.id}`,
         );
@@ -106,9 +116,29 @@ export class SocketIoService
     }
   }
 
+  /** The current deployment uses one API process. Do not rely on user-room membership. */
+  disconnectUser(userId: string): void {
+    for (const client of this.server?.sockets?.sockets?.values() ?? []) {
+      if (client.data.user?.userId === userId || this.authenticatingUsers.get(client) === userId) {
+        this.revokedClients.add(client);
+        client.disconnect(true);
+      }
+    }
+  }
+
   private async canJoinJobRoom(client: Socket, jobId: string) {
-    const user = client.data.user;
-    if (!user?.userId) return false;
+    // Socket.IO accepts messages while the async connection handler is pending.
+    // Wait for the same DB-backed authentication before checking room access.
+    await this.pendingAuthentication.get(client);
+    const userId = client.data.user?.userId;
+    if (!userId || this.revokedClients.has(client)) return false;
+    const user = await resolveTenantCaller(this.prisma, userId);
+    if (!user || user.status !== UserStatus.active) {
+      this.revokedClients.add(client);
+      client.disconnect(true);
+      return false;
+    }
+    client.data.user = user;
 
     const job = await this.prisma.jobPosting.findUnique({
       where: { jobId },
@@ -191,7 +221,7 @@ export class SocketIoService
     if (!data?.jobId) return;
 
     const canJoin = await this.canJoinJobRoom(client, data.jobId);
-    if (!canJoin) {
+    if (!canJoin || this.revokedClients.has(client)) {
       this.logger.warn(
         `Client ${client.id} attempted to join unauthorized job room: job_${data.jobId}`,
       );

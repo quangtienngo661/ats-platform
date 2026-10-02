@@ -10,14 +10,15 @@ import { AddUserModal } from './ui/AddUserModal';
 import { EditUserModal } from './ui/EditUserModal';
 import { deleteUserAction } from '@/servers/users/users.action';
 import { toast } from '@/lib/toast';
-import { UserRole, UserStatus } from '@ats-platform/types';
+import { IOrganizationOption, UserRole, UserStatus } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
 
 interface UserClientProps {
   initialUsers: IUserResponseDto[];
+  organizations: IOrganizationOption[];
 }
 
-export default function UserClient({ initialUsers }: UserClientProps) {
+export default function UserClient({ initialUsers, organizations }: UserClientProps) {
   const [users, setUsers] = useState<IUserResponseDto[]>(initialUsers);
   const [optimisticUsers, setOptimisticUsers] = useOptimistic(users);
   const [isPending, startTransition] = useTransition();
@@ -79,12 +80,14 @@ export default function UserClient({ initialUsers }: UserClientProps) {
       />
       <UserTable
         users={filtered}
+        organizations={organizations}
         onEdit={setEditingUser}
         onDelete={handleDelete}
       />
 
       {showAddModal && (
         <AddUserModal
+          organizations={organizations}
           onClose={() => setShowAddModal(false)}
           onCreated={handleCreated}
         />
@@ -92,6 +95,7 @@ export default function UserClient({ initialUsers }: UserClientProps) {
 
       {editingUser && (
         <EditUserModal
+          organizations={organizations}
           user={editingUser}
           onClose={() => setEditingUser(null)}
           onUpdated={handleUpdated}

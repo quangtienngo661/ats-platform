@@ -1,0 +1,228 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 810B 0.2s done
+#1 DONE 0.2s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.71kB 0.0s done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/node:24-bookworm-slim
+#3 DONE 0.2s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 328B 0.0s done
+#4 DONE 0.2s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [builder  1/10] FROM docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+#6 resolve docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf 0.1s done
+#6 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 13.33MB 4.9s
+#5 transferring context: 33.41MB 10.1s
+#5 transferring context: 73.33MB 15.1s
+#5 transferring context: 109.19MB 20.3s
+#5 transferring context: 142.94MB 25.4s
+#5 transferring context: 212.02MB 30.6s
+#5 transferring context: 281.43MB 35.7s
+#5 transferring context: 343.24MB 40.8s
+#5 transferring context: 406.23MB 45.9s
+#5 transferring context: 471.70MB 50.9s
+#5 transferring context: 516.47MB 56.0s
+#5 transferring context: 584.84MB 61.1s
+#5 transferring context: 643.59MB 66.3s
+#5 transferring context: 727.09MB 71.5s
+#5 transferring context: 797.51MB 76.5s
+#5 transferring context: 861.49MB 81.7s
+#5 transferring context: 927.34MB 86.7s
+#5 transferring context: 987.64MB 91.7s
+#5 transferring context: 1.04GB 98.2s
+#5 transferring context: 1.05GB 103.3s
+#5 transferring context: 1.06GB 105.1s done
+#5 DONE 106.3s
+
+#7 [builder  4/10] COPY nx.json ./
+#7 CACHED
+
+#8 [builder  5/10] COPY tsconfig.base.json ./
+#8 CACHED
+
+#9 [builder  2/10] WORKDIR /app
+#9 CACHED
+
+#10 [builder  3/10] COPY package*.json ./
+#10 CACHED
+
+#11 [builder  6/10] RUN npm ci
+#11 CACHED
+
+#12 [builder  7/10] COPY . .
+#12 ...
+
+#9 [builder  2/10] WORKDIR /app
+#9 CACHED
+
+#12 [builder  7/10] COPY . .
+#12 DONE 47.9s
+
+#13 [builder  8/10] RUN apt-get update -y && apt-get install -y openssl
+#13 13.24 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#13 13.46 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#13 13.51 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#13 13.92 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#13 14.76 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#13 14.76 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [342 kB]
+#13 30.85 Fetched 9381 kB in 3s (3673 kB/s)
+#13 30.85 Reading package lists...
+#13 32.68 Reading package lists...
+#13 34.85 Building dependency tree...
+#13 35.23 Reading state information...
+#13 35.69 The following additional packages will be installed:
+#13 35.69   libssl3
+#13 35.70 Suggested packages:
+#13 35.70   ca-certificates
+#13 35.73 The following NEW packages will be installed:
+#13 35.74   libssl3 openssl
+#13 35.89 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+#13 35.89 Need to get 3481 kB of archives.
+#13 35.89 After this operation, 8556 kB of additional disk space will be used.
+#13 35.89 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#13 38.37 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#13 42.70 debconf: delaying package configuration, since apt-utils is not installed
+#13 43.09 Fetched 3481 kB in 4s (994 kB/s)
+#13 44.21 Selecting previously unselected package libssl3:amd64.
+#13 44.21 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#13 44.48 Preparing to unpack .../libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#13 44.86 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 46.15 Selecting previously unselected package openssl.
+#13 46.15 Preparing to unpack .../openssl_3.0.22-1~deb12u1_amd64.deb ...
+#13 46.17 Unpacking openssl (3.0.22-1~deb12u1) ...
+#13 46.64 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 46.73 Setting up openssl (3.0.22-1~deb12u1) ...
+#13 46.83 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#13 DONE 48.5s
+
+#14 [builder  9/10] RUN npx nx run database:prisma-generate
+#14 19.38 
+#14 19.38 > nx run database:prisma-generate
+#14 19.38 
+#14 19.38 > npx prisma generate
+#14 19.38 
+#14 25.65 [2mLoaded Prisma config from prisma.config.ts.
+#14 25.65 [22m
+#14 31.06 [2mPrisma schema loaded from prisma/schema.prisma.[22m
+#14 32.35 
+#14 32.35 ✔ Generated [1mPrisma Client[22m (7.8.0)[2m to ./src/generated/prisma[22m in 999ms
+#14 32.35 
+#14 32.45 
+#14 32.45 
+#14 32.45 
+#14 32.45  NX   Successfully ran target prisma-generate for project database
+#14 32.45 
+#14 32.45 
+#14 DONE 40.4s
+
+#15 [builder 10/10] RUN npx nx build api --prod
+#15 5.843 
+#15 5.843  NX   Running target build for project api and 2 tasks it depends on:
+#15 5.843 
+#15 5.844 
+#15 12.19 
+#15 12.19 > nx run database:build
+#15 12.19 
+#15 12.19 > tsc --build tsconfig.lib.json
+#15 12.19 
+#15 17.42 
+#15 17.42 > nx run types:build
+#15 17.42 
+#15 17.42 > tsc --build tsconfig.lib.json
+#15 17.42 
+#15 17.83 
+#15 17.83 > nx run api:build
+#15 17.83 
+#15 17.83 > webpack-cli build --node-env=production
+#15 17.83 
+#15 46.06 webpack compiled [1m[32msuccessfully[39m[22m (9e09e320b1ad91dc)
+#15 46.62 
+#15 46.62 
+#15 46.62 
+#15 46.62  NX   Successfully ran target build for project api and 2 tasks it depends on
+#15 46.62 
+#15 46.62 
+#15 DONE 48.8s
+
+#16 [runner 6/9] RUN npm install prisma@7.8.0 --save-prod
+#16 CACHED
+
+#17 [runner 3/9] COPY --from=builder /app/dist/apps/api/package*.json ./
+#17 CACHED
+
+#18 [runner 4/9] RUN npm ci --only=production
+#18 CACHED
+
+#19 [runner 5/9] RUN apt-get update -y && apt-get install -y openssl
+#19 CACHED
+
+#20 [runner 7/9] RUN npm install @prisma/client
+#20 CACHED
+
+#21 [runner 8/9] COPY --from=builder /app/dist/apps/api ./
+#21 DONE 1.3s
+
+#22 [runner 9/9] COPY --from=builder /app/libs/backend/database ./libs/backend/database
+#22 DONE 1.4s
+
+#23 exporting to image
+#23 exporting layers
+#23 exporting layers 2.1s done
+#23 exporting manifest sha256:af881c39a1fa4958a6eb062f32d83c415ee3202045854655ad5850a02ce566c0 0.1s done
+#23 exporting config sha256:6b4bb18d2fd19300620aadffb5025a8c7d520e9f1a569a9e5fc2ef3ab8d9810b
+#23 exporting config sha256:6b4bb18d2fd19300620aadffb5025a8c7d520e9f1a569a9e5fc2ef3ab8d9810b 0.1s done
+#23 exporting attestation manifest sha256:590af984a174a80e661055045a12b98b1fa109fb2de15dde6a8f5e17fb731482
+#23 exporting attestation manifest sha256:590af984a174a80e661055045a12b98b1fa109fb2de15dde6a8f5e17fb731482 0.3s done
+#23 exporting manifest list sha256:a2d2df72300a98ac077946baa4eaaf47ddc6f8453784e2875f1198ae7f4f0e00
+#23 exporting manifest list sha256:a2d2df72300a98ac077946baa4eaaf47ddc6f8453784e2875f1198ae7f4f0e00 0.1s done
+#23 naming to docker.io/library/ats-platform-tests-api:latest 0.0s done
+#23 unpacking to docker.io/library/ats-platform-tests-api:latest
+#23 unpacking to docker.io/library/ats-platform-tests-api:latest 0.3s done
+#23 DONE 3.3s
+
+#24 resolving provenance for metadata file
+#24 DONE 0.1s
+ ats-platform-tests-api  Built
+ Container ats-platform-tests-api-1  Recreate
+ Container ats-platform-tests-api-1  Recreated
+ Container ats-platform-tests-postgres-1  Starting
+ Container ats-platform-tests-redis-1  Starting
+ Container ats-platform-tests-redis-1  Started
+ Container ats-platform-tests-postgres-1  Started
+ Container ats-platform-tests-postgres-1  Waiting
+ Container ats-platform-tests-redis-1  Waiting
+ Container ats-platform-tests-redis-1  Healthy
+ Container ats-platform-tests-postgres-1  Healthy
+ Container ats-platform-tests-api-1  Starting
+ Container ats-platform-tests-api-1  Started

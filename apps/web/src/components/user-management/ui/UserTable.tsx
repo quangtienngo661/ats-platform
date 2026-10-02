@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { UserRow } from './UserRow';
+import { IOrganizationOption } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
 
 interface UserTableProps {
   users: IUserResponseDto[];
+  organizations?: IOrganizationOption[];
   onEdit: (user: IUserResponseDto) => void;
   onDelete: (userId: string) => void;
 }
@@ -15,7 +17,7 @@ interface UserTableProps {
 const PAGE_SIZE = 20;
 const COLS = ['Người dùng', 'Vai trò', 'Trạng thái', 'Ngày tạo', 'Thao tác'];
 
-export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
+export function UserTable({ users, onEdit, onDelete, organizations = [] }: UserTableProps) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
   const safe = Math.min(page, totalPages);
@@ -65,6 +67,7 @@ export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
               <UserRow
                 key={user.userId}
                 user={user}
+                organizationName={organizations.find(org => org.organizationId === user.organizationId)?.name}
                 onEdit={onEdit}
                 onDelete={onDelete}
               />

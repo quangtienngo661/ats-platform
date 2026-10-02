@@ -7,6 +7,7 @@ import { UserRole, UserStatus } from '@ats-platform/types';
 
 const ROLE_OPTIONS: { value: UserRole | ''; label: string }[] = [
   { value: '', label: 'Tất cả vai trò' },
+  { value: UserRole.org_admin, label: 'Quản trị tổ chức' },
   { value: UserRole.admin, label: 'Quản trị viên' },
   { value: UserRole.recruiter, label: 'Tuyển dụng' },
   { value: UserRole.candidate, label: 'Ứng viên' },

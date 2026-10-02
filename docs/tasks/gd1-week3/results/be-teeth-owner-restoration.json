@@ -1,0 +1,7 @@
+{
+  "restoredSha256": "5131ECEAC05122D6E7AF6D5218362C8BB16AD5EFF109131AC31A1F67120B8DBF",
+  "mutation": "remove foreign owner organization guard",
+  "testExitCode": 1,
+  "originalSha256": "5131ECEAC05122D6E7AF6D5218362C8BB16AD5EFF109131AC31A1F67120B8DBF",
+  "restoredIdentically": true
+}
