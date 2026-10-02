@@ -29,12 +29,12 @@ async function accessToken(page: Page) {
 async function signIn(page: Page, email: string, password: string, role: 'admin' | 'org_admin') {
   await page.goto('/sign-in/admin');
   if (role === 'org_admin') {
-    await page.getByRole('button', { name: 'Quản trị tổ chức', exact: true }).click();
+    await page.getByRole('button', { name: 'Org', exact: true }).click();
   }
   await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(password);
   await page.getByRole('button', {
-    name: role === 'admin' ? 'Đăng nhập với tư cách Admin' : 'Đăng nhập với tư cách Quản trị tổ chức',
+    name: role === 'admin' ? 'Đăng nhập với tư cách Admin' : 'Đăng nhập với tư cách Org',
     exact: true,
   }).click();
   await expect(page).toHaveURL(role === 'admin' ? /\/dashboard$/ : /\/department-management$/);

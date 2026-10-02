@@ -71,7 +71,7 @@ npx playwright install chromium
 
 $fixture = Get-Content docs/tasks/test-defect-fixes/results/local-fixture.json | ConvertFrom-Json
 $env:WEB_E2E_API_URL = $fixture.api
-$env:WEB_E2E_BASE_URL = 'http://localhost:3000'
+$env:WEB_E2E_BASE_URL = 'http://localhost:3001'
 $env:WEB_E2E_ADMIN_EMAIL = 'admin@ats.local'
 $env:WEB_E2E_ADMIN_PASSWORD = 'Admin@123'
 $env:WEB_E2E_CANDIDATE_EMAIL = 'candidate-e2e@ats.test'
@@ -85,7 +85,7 @@ npm run test:e2e:web
 
 Các mật khẩu trên chỉ dành cho [Compose test local](../../../docker-compose.test.yml), được bind loopback.
 Seeder chờ counter giới hạn đăng nhập hết hạn tự nhiên, không tắt hoặc xóa counter.
-FE E2E cần cổng 3000 rảnh. Runner dùng URL API local rõ ràng.
+FE E2E cần cổng 3001 rảnh. Runner dùng URL API local rõ ràng.
 Traces/screenshots chứa dữ liệu phiên được gitignore và loại khỏi Docker context.
 
 Chạy probes riêng sau một lần chuẩn bị fixture mới:

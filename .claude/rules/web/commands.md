@@ -13,6 +13,18 @@ npx nx build web             # @nx/next:build, outputs to dist/apps/web, output:
 npx nx lint web
 ```
 
-There is **no `test` target for `apps/web`** in `project.json` — no jest config exists for this project, and no test files exist under `apps/web` today (see `testing.md`). Don't assume `nx test web` works; if you add tests here, wire up a jest config first (mirror `apps/api/jest.config.ts`) before writing test files.
+Frontend quality commands are wired into `apps/web/project.json` and the root scripts:
+
+```bash
+npm run lint:web             # source lint, Next/Hooks/a11y, zero warnings
+npm run typecheck:web        # shared declarations, application and test types
+npm run test:web             # Vitest and Testing Library
+npm run test:e2e:web         # Playwright with separate test API/fixtures
+npx nx typecheck web
+npx nx test web
+npx nx e2e web
+```
+
+For E2E, start `docker compose -f docker-compose.test.yml up -d --build --wait`, run `node apps/web/e2e/support/prepare-local.mjs`, and provide the documented sample account/organization environment variables. Stop that named test stack after the run.
 
 Path alias `@/*` → `apps/web/src/*` is set up two ways that must stay in sync if changed: `tsconfig.json` (`paths`) for type-checking, and `next.config.js`'s webpack `alias` for bundler resolution.

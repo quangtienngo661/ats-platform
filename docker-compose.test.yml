@@ -43,7 +43,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       SERVER_PORT: "5000"
-      CLIENT_URL: http://localhost:3000
+      CLIENT_URL: ${WEB_E2E_BASE_URL:-http://localhost:3001}
       JWT_SECRET: ats-local-verification-only-not-for-production
       GOOGLE_API_KEY: local-verification-no-external-ai
       SMTP_ENABLED: "false"

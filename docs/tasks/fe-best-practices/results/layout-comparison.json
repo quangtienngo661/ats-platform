@@ -1,0 +1,116 @@
+[
+  {
+    "page": "home",
+    "viewportWidth": 1440,
+    "same": false,
+    "documentWidthBefore": 1440,
+    "documentWidthAfter": 1440,
+    "differences": [
+      {
+        "element": "INPUT",
+        "text": "Địa điểm...",
+        "before": [
+          753.14,
+          459.97,
+          191,
+          21
+        ],
+        "after": [
+          753.14,
+          459.97,
+          122,
+          21
+        ]
+      }
+    ]
+  },
+  {
+    "page": "jobs",
+    "viewportWidth": 1440,
+    "same": true,
+    "documentWidthBefore": 1440,
+    "documentWidthAfter": 1440,
+    "differences": []
+  },
+  {
+    "page": "signin",
+    "viewportWidth": 1440,
+    "same": true,
+    "documentWidthBefore": 1440,
+    "documentWidthAfter": 1440,
+    "differences": []
+  },
+  {
+    "page": "home",
+    "viewportWidth": 390,
+    "same": true,
+    "documentWidthBefore": 390,
+    "documentWidthAfter": 390,
+    "differences": []
+  },
+  {
+    "page": "jobs",
+    "viewportWidth": 390,
+    "same": false,
+    "documentWidthBefore": 408,
+    "documentWidthAfter": 390,
+    "differences": [
+      {
+        "element": "INPUT",
+        "text": "Tên vị trí, kỹ năng, công ty...",
+        "before": [
+          68,
+          88,
+          191,
+          21
+        ],
+        "after": [
+          68,
+          88,
+          148.89,
+          21
+        ]
+      },
+      {
+        "element": "BUTTON",
+        "text": "Tìm",
+        "before": [
+          285,
+          76,
+          65.11,
+          45
+        ],
+        "after": [
+          242.89,
+          76,
+          65.11,
+          45
+        ]
+      },
+      {
+        "element": "BUTTON",
+        "text": "Lọc",
+        "before": [
+          358.11,
+          76,
+          50,
+          45
+        ],
+        "after": [
+          316,
+          76,
+          50,
+          45
+        ]
+      }
+    ]
+  },
+  {
+    "page": "signin",
+    "viewportWidth": 390,
+    "same": true,
+    "documentWidthBefore": 390,
+    "documentWidthAfter": 390,
+    "differences": []
+  }
+]

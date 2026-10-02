@@ -32,7 +32,9 @@
     },
     "build": {
       "executor": "@nx/next:build",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/web"
@@ -47,7 +49,26 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "eslintConfig": "apps/web/eslint.config.mjs",
+        "lintFilePatterns": [
+          "apps/web/src/**/*.{ts,tsx}"
+        ],
+        "maxWarnings": 0
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --build libs/shared/types && tsc --project apps/web/tsconfig.json --noEmit --incremental false && tsc --project apps/web/tsconfig.spec.json --noEmit --incremental false"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "playwright test --config apps/web/playwright.config.ts"
+      }
     }
   }
 }

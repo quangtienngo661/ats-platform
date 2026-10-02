@@ -59,7 +59,11 @@ jobs:
     - name: Lint affected projects
       run: npx nx affected -t lint
 
-    # Will add the e2e test later
+    - name: Validate frontend types and lint
+      run: |
+        npm run typecheck:web
+        npm run lint:web
+
     - name: Test backend units
       run: npx nx test api --runInBand --silent
 
@@ -82,3 +86,49 @@ jobs:
       run: npx nx affected -t build
       env:
         NODE_ENV: production
+
+  web-e2e:
+    name: Frontend journeys with isolated API fixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NX_DAEMON: 'false'
+      NX_ISOLATE_PLUGINS: 'false'
+      WEB_E2E_BASE_URL: http://localhost:3001
+      WEB_E2E_API_URL: http://localhost:55000/api
+      API_INTERNAL_URL: http://localhost:55000/api
+      WEB_E2E_ADMIN_EMAIL: admin@ats.local
+      WEB_E2E_ADMIN_PASSWORD: Admin@123
+      WEB_E2E_CANDIDATE_EMAIL: candidate-e2e@ats.test
+      WEB_E2E_CANDIDATE_PASSWORD: Candidate@123
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start the dedicated test stack
+        run: docker compose -f docker-compose.test.yml up -d --build --wait --wait-timeout 180
+      - name: Prepare sample accounts and organization
+        run: |
+          node apps/web/e2e/support/prepare-local.mjs
+          node -e "const f=require('./docs/tasks/test-defect-fixes/results/local-fixture.json');require('fs').appendFileSync(process.env.GITHUB_ENV,'WEB_E2E_ORGANIZATION_ID='+f.organizationId+'\n')"
+      - name: Run browser journeys
+        run: npm run test:e2e:web
+      - name: Save failure diagnostics
+        if: failure()
+        run: docker compose -f docker-compose.test.yml logs --no-color > test-stack.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frontend-e2e-failure
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+            test-stack.log
+          retention-days: 7
+      - name: Clean up the dedicated test stack
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v --remove-orphans
