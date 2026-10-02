@@ -64,7 +64,7 @@ export default function InterviewScheduleClient({
     minWeekStart,
     today,
 }: InterviewScheduleClientProps) {
-    const schedules = schedulesProp ?? [];
+    const schedules = useMemo(() => schedulesProp ?? [], [schedulesProp]);
     const router = useRouter();
     const [selectedSchedule, setSelectedSchedule] = useState<IInterviewSchedule | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);

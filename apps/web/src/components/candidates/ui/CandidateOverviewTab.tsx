@@ -2,6 +2,10 @@ import { Briefcase, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
 interface CandidateOverviewTabProps {
   application: IApplicationDto;
 }
@@ -44,8 +48,8 @@ export function CandidateOverviewTab({
     if (Array.isArray(parsedMatch)) {
       matchedHardSkills = parsedMatch;
     } else if (parsedMatch && typeof parsedMatch === 'object') {
-      matchedHardSkills = (parsedMatch as any).hardSkills || [];
-      matchedNiceToHaveSkills = (parsedMatch as any).niceToHaveSkills || [];
+      matchedHardSkills = stringArray((parsedMatch as Record<string, unknown>).hardSkills);
+      matchedNiceToHaveSkills = stringArray((parsedMatch as Record<string, unknown>).niceToHaveSkills);
     }
   }
 

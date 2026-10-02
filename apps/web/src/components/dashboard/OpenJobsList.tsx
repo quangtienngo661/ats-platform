@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { ArrowRight, ChevronRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ChevronRight } from 'lucide-react';
+import { SF } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 
 interface OpenJobsListProps {

@@ -1,6 +1,6 @@
 import { IApplication, IApplicationCard, IKanbanColumn, IPaginatedResponse } from "@ats-platform/types";
 import { ICandidateDto } from "./candidate.interface";
-import { IJobPostingDto } from "./job-posting.interface";
+
 import { IScreeningResultDto } from "./cv-screening.interface";
 
 export interface IApplicationDto extends IApplication {

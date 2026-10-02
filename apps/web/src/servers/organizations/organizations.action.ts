@@ -1,5 +1,7 @@
 "use server";
 
+import { rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from "@/lib/http";
 import { IOrganizationOption, UserRole } from "@ats-platform/types";
 import { getMeAction } from "@/servers/users/users.action";
@@ -23,8 +25,8 @@ export async function getOrganizationOptionsForCurrentUser(): Promise<IOrganizat
             name,
             slug,
         }));
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -33,7 +35,8 @@ export async function getCurrentOrganizationAction(): Promise<IOrganizationOptio
     try {
         const response = await http.get('/organizations/me');
         return response.data as IOrganizationOption;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -18,6 +18,7 @@ export default function InterviewPendingResultClient({
     topicName,
 }: InterviewPendingResultClientProps) {
     const router = useRouter();
+    const [pollFailed, setPollFailed] = useState(false);
     const socket = useSocketStore();
 
     useEffect(() => {
@@ -36,14 +37,21 @@ export default function InterviewPendingResultClient({
     }, [router, sessionId, socket]);
 
     useEffect(() => {
+        let active = true;
+        let running = false;
         const interval = window.setInterval(async () => {
-            const result = await getInterviewResultAction(sessionId);
-            if (result?.session) {
-                router.refresh();
-            }
+            if (running) return;
+            running = true;
+            try {
+                const result = await getInterviewResultAction(sessionId);
+                if (!active) return;
+                setPollFailed(false);
+                if (result?.session) router.refresh();
+            } catch {
+                if (active) setPollFailed(true);
+            } finally { running = false; }
         }, 5000);
-
-        return () => window.clearInterval(interval);
+        return () => { active = false; window.clearInterval(interval); };
     }, [router, sessionId]);
 
     return (
@@ -52,6 +60,7 @@ export default function InterviewPendingResultClient({
                 <div className="w-14 h-14 rounded-2xl bg-[#EBF3FD] flex items-center justify-center mx-auto mb-4">
                     <LoaderCircle className="w-7 h-7 text-[#0071E3] animate-spin" />
                 </div>
+                {pollFailed && <p role="alert" className="mb-3 text-[13px] text-[#FF3B30]">Không thể cập nhật kết quả. Đang thử kết nối lại…</p>}
                 <h1 className="text-[20px] text-[#1D1D1F] mb-2" style={{ fontFamily: SF, fontWeight: 700 }}>
                     Đang tổng hợp kết quả
                 </h1>

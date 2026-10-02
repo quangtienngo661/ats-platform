@@ -16,24 +16,24 @@ export function OAuthButtons({ errorMessage }: OAuthButtonsProps) {
 
             <div className="grid grid-cols-2 gap-3">
                 {/* Google */}
-                <a
+                <button type="button" disabled
                     // href={`${SERVER_URL}/auth/google`}
                     className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-[#E5E5EA] bg-white hover:bg-[#F5F5F7] hover:border-[#D2D2D7] hover:shadow-sm transition-all text-[13px] text-[#1D1D1F]"
                     style={{ fontFamily: SFT, fontWeight: 500, textDecoration: 'none' }}
                 >
                     <GoogleIcon />
                     Google
-                </a>
+                </button>
 
                 {/* GitHub */}
-                <a
+                <button type="button" disabled
                     // href={`${SERVER_URL}/auth/github`}
                     className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-[#E5E5EA] bg-white hover:bg-[#F5F5F7] hover:border-[#D2D2D7] hover:shadow-sm transition-all text-[13px] text-[#1D1D1F]"
                     style={{ fontFamily: SFT, fontWeight: 500, textDecoration: 'none' }}
                 >
                     <GitHubIcon />
                     GitHub
-                </a>
+                </button>
             </div>
 
             {/* Divider */}

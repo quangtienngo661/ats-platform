@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useTransition } from 'react';
 import { motion } from 'motion/react';
 import { Ban, Building2, Briefcase, CalendarDays, CheckCircle2, Clock, RefreshCw, UserRound, X } from 'lucide-react';
@@ -62,21 +64,21 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
     };
 
     return (
-        <div className="fixed inset-0 z-40 flex justify-end bg-black/20" onClick={onClose}>
-            <motion.aside
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><DialogOverlay asChild><div className="fixed inset-0 z-40 flex justify-end bg-black/20" >
+            <DialogContent title="Chi tiết lịch phỏng vấn"><motion.aside
                 initial={{ x: 360, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 360, opacity: 0 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="flex h-full w-full max-w-[380px] flex-col bg-white shadow-2xl"
-                onClick={(event) => event.stopPropagation()}
+                
             >
                 <div className="flex items-center justify-between border-b border-[#F2F2F7] px-5 py-4">
                     <div>
                         <h2 className="text-[16px] text-[#1D1D1F]" style={{ fontWeight: 800 }}>Chi tiết phỏng vấn</h2>
                         <p className="text-[12px] text-[#6E6E73]">{statusLabels[schedule.status] ?? schedule.status}</p>
                     </div>
-                    <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
+                    <button aria-label="Đóng" type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
@@ -148,7 +150,7 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
                         Đổi lịch
                     </button>
                 </div>
-            </motion.aside>
-        </div>
+            </motion.aside></DialogContent>
+        </div></DialogOverlay></AccessibleDialog>
     );
 }

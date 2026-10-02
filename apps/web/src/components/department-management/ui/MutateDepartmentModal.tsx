@@ -1,8 +1,10 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useState, useActionState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 // Import thêm action update
 import { createDepartmentAction, DepartmentState, updateDepartmentAction } from '@/servers/departments/departments.action';
@@ -50,26 +52,26 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
             }, 300);
             return () => clearTimeout(timer);
         }
-    }, [state.success]);
+    }, [state]);
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Thông tin phòng ban"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
                         <h2
@@ -78,7 +80,7 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                         >
                             {isEdited ? 'Cập nhật phòng ban' : 'Thêm phòng ban mới'}
                         </h2>
-                        <button
+                        <button aria-label="Đóng"
                             onClick={onClose}
                             className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
                             type="button"
@@ -120,10 +122,10 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                             )}
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <label htmlFor="mutatedepartmentmodal-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Tên phòng ban
                                 </label>
-                                <input
+                                <input id="mutatedepartmentmodal-field-1"
                                     type="text"
                                     name="name"
                                     required
@@ -135,10 +137,10 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                             </div>
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <label htmlFor="mutatedepartmentmodal-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Mô tả
                                 </label>
-                                <textarea
+                                <textarea id="mutatedepartmentmodal-field-2"
                                     name="description"
                                     placeholder="Mô tả chức năng và nhiệm vụ"
                                     rows={3}
@@ -149,9 +151,9 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                             </div>
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Màu đại diện
-                                </label>
+                                </span>
                                 <input type="hidden" name="color" value={color} />
                                 <div className="flex gap-2">
                                     {COLOR_OPTIONS.map((c) => (
@@ -181,8 +183,8 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                             </div>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

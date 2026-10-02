@@ -4,8 +4,8 @@ import { Building2, Edit2, Trash2, Users, ChevronRight } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 
 import { Department } from '@/types/interfaces/departments.interface';
-import { MutateDepartmentModal } from './MutateDepartmentModal';
-import { useState } from 'react';
+
+
 
 
 interface DepartmentCardProps {
@@ -35,7 +35,7 @@ export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetai
                     >
                         <Edit2 className="w-4 h-4" />
                     </button>
-                    <button
+                    <button type="button" aria-label="Xóa"
                         onClick={() => onDelete(dept)}
                         className="p-2 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
                     >

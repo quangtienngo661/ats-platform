@@ -1,5 +1,9 @@
 "use server";
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError } from '@/lib/action-error';
+
 import { revalidatePath } from "next/cache";
 import { ConfigProfile } from "@/types/interfaces/configProfile.interface";
 import http from "@/lib/http";
@@ -17,22 +21,19 @@ export type AIConfigActionState = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── Converters ──────────────────────────────────────────────────────────────
+function requireConfigId(data: IAiConfig): string {
+    if (!data.configId) throw new Error("Thiếu ID cấu hình AI");
+    return data.configId;
+}
+
 const convertToUI = async (data: IAiConfig | IAiConfig[]): Promise<ConfigProfile | ConfigProfile[]> => {
     if (Array.isArray(data)) {
         return data.map((item) => ({
             ...item,
-            configId: item.configId!,
+            configId: requireConfigId(item),
             collapsed: item.isDefault ? false : true,
             skillsWeight: Number(item.skillsWeight) * 100,
             experienceWeight: Number(item.experienceWeight) * 100,
@@ -42,7 +43,7 @@ const convertToUI = async (data: IAiConfig | IAiConfig[]): Promise<ConfigProfile
     }
     return {
         ...data,
-        configId: data.configId!,
+        configId: requireConfigId(data),
         collapsed: data.isDefault ? false : true,
         skillsWeight: Number(data.skillsWeight) * 100,
         experienceWeight: Number(data.experienceWeight) * 100,
@@ -66,8 +67,8 @@ export async function getAIConfigAction(): Promise<ConfigProfile[]> {
     try {
         const profiles = await http.get(`/ai-config`);
         return await convertToUI(profiles.data) as ConfigProfile[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -81,7 +82,8 @@ export async function addAIConfigAction(
         const created = await convertToUI(res.data) as ConfigProfile;
         revalidatePath("/ai-configuration");
         return { success: true, data: created };
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return { success: false, error: 'Không thể tạo cấu hình mới' };
     }
 }
@@ -138,6 +140,7 @@ export async function updateAIConfigAction(
         revalidatePath("/ai-configuration");
         return { success: true, data: saved };
     } catch (e) {
+        unstable_rethrow(e);
         return { success: false, error: 'Không thể cập nhật cấu hình' };
     }
 }
@@ -150,7 +153,8 @@ export async function deleteAIConfigAction(
         await http.delete(`/ai-config/${configId}`);
         revalidatePath("/ai-configuration");
         return { success: true };
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return { success: false, error: 'Không thể xóa cấu hình này' };
     }
 }
@@ -164,7 +168,8 @@ export async function setDefaultAIConfigAction(
         const updated = await convertToUI(res.data) as ConfigProfile;
         revalidatePath("/ai-configuration");
         return { success: true, data: updated };
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return { success: false, error: 'Không thể đặt cấu hình mặc định' };
     }
 }
@@ -195,7 +200,8 @@ export async function duplicateAIConfigAction(
         const created = await convertToUI(res.data) as ConfigProfile;
         revalidatePath("/ai-configuration");
         return { success: true, data: created };
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return { success: false, error: 'Không thể nhân bản cấu hình này' };
     }
 }

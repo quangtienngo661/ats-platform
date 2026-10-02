@@ -27,7 +27,7 @@ export function NotificationPanel({
 
     return (
         <>
-            <div className="fixed inset-0 z-40" onClick={onClose} />
+            <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-40" onClick={onClose} />
 
             <motion.div
                 initial={{ opacity: 0, y: -5, scale: 0.97 }}

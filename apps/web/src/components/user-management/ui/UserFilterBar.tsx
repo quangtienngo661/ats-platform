@@ -45,7 +45,7 @@ export function UserFilterBar({ onSearch, onRoleChange, onStatusChange }: UserFi
       {/* Search */}
       <div className="relative flex-1 min-w-[220px]">
         <Search className="w-4 h-4 text-[#AEAEB2] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-        <input
+        <input aria-label="Tìm người dùng"
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
@@ -57,7 +57,7 @@ export function UserFilterBar({ onSearch, onRoleChange, onStatusChange }: UserFi
 
       {/* Role filter */}
       <div className="relative">
-        <select
+        <select aria-label="Lọc vai trò"
           onChange={(e) => onRoleChange(e.target.value as UserRole | '')}
           className={selectClass}
           style={{ fontFamily: SF }}
@@ -73,7 +73,7 @@ export function UserFilterBar({ onSearch, onRoleChange, onStatusChange }: UserFi
 
       {/* Status filter */}
       <div className="relative">
-        <select
+        <select aria-label="Lọc trạng thái người dùng"
           onChange={(e) => onStatusChange(e.target.value as UserStatus | '')}
           className={selectClass}
           style={{ fontFamily: SF }}

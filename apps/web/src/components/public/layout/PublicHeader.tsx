@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText, Cpu } from 'lucide-react';
+import { Sparkles, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText, Cpu } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { useSocketStore } from '@/stores/useSocketStore';

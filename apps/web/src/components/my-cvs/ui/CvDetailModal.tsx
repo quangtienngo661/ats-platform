@@ -1,10 +1,9 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useRef, useState } from 'react';
-import {
-    X, Briefcase, GraduationCap, Code, Award, FolderGit2,
-    User, Mail, Phone, CheckCircle, ChevronDown, ChevronUp, UserCheck
-} from 'lucide-react';
+import { X, Briefcase, GraduationCap, Code, Award, FolderGit2, CheckCircle, ChevronDown, ChevronUp, UserCheck } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import SubmitButton from '@/components/common/SubmitButton';
@@ -158,23 +157,23 @@ export function CvDetailModal({ cv, onClose }: CvDetailModalProps) {
     const hasSkills = data.skills.technical.length > 0 || data.skills.soft.length > 0 || data.skills.languages.length > 0;
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Chi tiết CV"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     {/* Header */}
                     <div className="flex items-start justify-between p-6 border-b border-[#F2F2F7] flex-shrink-0">
@@ -184,7 +183,7 @@ export function CvDetailModal({ cv, onClose }: CvDetailModalProps) {
                             </h2>
                             <p className="text-[12px] text-[#AEAEB2] mt-0.5">{cv.fileName}</p>
                         </div>
-                        <button onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors mt-0.5" type="button">
+                        <button aria-label="Đóng" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors mt-0.5" type="button">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
@@ -388,8 +387,8 @@ export function CvDetailModal({ cv, onClose }: CvDetailModalProps) {
                             </form>
                         )}
                     </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

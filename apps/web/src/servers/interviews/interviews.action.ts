@@ -1,5 +1,9 @@
 'use server';
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import {
@@ -45,15 +49,7 @@ type NormalizedSchedulePayload =
     | { ok: false; error: string }
     | { ok: true; payload: SchedulePayload };
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 function getString(formData: FormData, key: string) {
     return (formData.get(key) as string | null)?.trim() ?? '';
@@ -105,8 +101,8 @@ export async function getInterviewTopicsAction(): Promise<IInterviewTopic[]> {
     try {
         const response = await http.get('/interviews/topics');
         return response.data as unknown as IInterviewTopic[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -189,8 +185,8 @@ export async function getMyInterviewSchedulesAction(
 
         const response = await http.get('/interviews/schedules/my', { params });
         return response.data as IPaginatedInterviewSchedules;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -271,8 +267,8 @@ export async function getSchedulableInterviewApplicationsAction(): Promise<IAppl
         const response = await http.get('/applications/board/all');
         const board = response.data ?? response;
         return (board?.[ApplicationStatus.interview] ?? []) as IApplicationDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -298,8 +294,9 @@ export async function resumeInterviewSessionAction(): Promise<IResumeSession | n
     try {
         const response = await http.get('/interviews/sessions/resume');
         return response.data as unknown as IResumeSession;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -307,8 +304,9 @@ export async function getInterviewResultAction(sessionId: string): Promise<IInte
     try {
         const response = await http.get(`/interviews/sessions/${sessionId}/result`);
         return response.data;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -316,8 +314,9 @@ export async function getInterviewById(sessionId: string): Promise<IInterviewSes
     try {
         const response = await http.get(`/interviews/sessions/${sessionId}`);
         return response.data;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -325,7 +324,8 @@ export async function abandonInterviewSessionAction(sessionId: string): Promise<
     try {
         await http.patch(`/interviews/sessions/${sessionId}/abandon`);
         return true;
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return false;
     }
 }
@@ -334,7 +334,7 @@ export async function getMySessionsAction(): Promise<ISessionSummary[]> {
     try {
         const response = await http.get('/interviews/sessions/my');
         return response.data as unknown as ISessionSummary[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

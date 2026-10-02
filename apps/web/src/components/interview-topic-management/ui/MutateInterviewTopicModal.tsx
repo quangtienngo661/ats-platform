@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ClipboardList, X } from 'lucide-react';
@@ -47,23 +49,23 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
     }, [state]);
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-[2px]"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Chủ đề phỏng vấn"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="w-full max-w-[480px] overflow-hidden rounded-2xl bg-white shadow-2xl"
-                    onClick={(event) => event.stopPropagation()}
+                    
                 >
                     <div className="flex items-center justify-between border-b border-[#F2F2F7] px-6 py-4">
                         <div className="flex items-center gap-2.5">
@@ -74,7 +76,7 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                                 {topic ? 'Chỉnh sửa chủ đề' : 'Thêm chủ đề phỏng vấn'}
                             </h2>
                         </div>
-                        <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
+                        <button aria-label="Đóng" type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
@@ -90,10 +92,10 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                             {topic && <input type="hidden" name="topicId" value={topic.topicId} />}
 
                             <div>
-                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
+                                <label htmlFor="mutateinterviewtopicmodal-field-1" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
                                     Tên chủ đề <span className="text-[#FF3B30]">*</span>
                                 </label>
-                                <input
+                                <input id="mutateinterviewtopicmodal-field-1"
                                     ref={nameRef}
                                     type="text"
                                     name="name"
@@ -106,10 +108,10 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                             </div>
 
                             <div>
-                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
+                                <label htmlFor="mutateinterviewtopicmodal-field-2" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
                                     Danh mục công việc
                                 </label>
-                                <select
+                                <select id="mutateinterviewtopicmodal-field-2"
                                     name="categoryId"
                                     value={categoryId}
                                     onChange={(event) => setCategoryId(event.target.value)}
@@ -145,8 +147,8 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                             </motion.button>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

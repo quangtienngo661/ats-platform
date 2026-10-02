@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SFT } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
+
 import { MyApplicationsHeader } from './ui/MyApplicationsHeader';
 import { MyApplicationsStats } from './ui/MyApplicationsStats';
 import { ApplicationCard } from './ui/ApplicationCard';

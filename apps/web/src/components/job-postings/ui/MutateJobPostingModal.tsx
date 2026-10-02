@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useState, type MouseEvent } from 'react';
 import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles, X } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -77,7 +79,7 @@ export function MutateJobPostingModal({
         if (editingJob?.parsedRequirements) {
             setParsedData(editingJob.parsedRequirements);
         }
-    }, [editingJob?.parsedRequirements, setParsedData]);
+    }, [editingJob, setParsedData]);
 
     useEffect(() => {
         if (!state?.message) return;
@@ -162,10 +164,10 @@ export function MutateJobPostingModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><DialogOverlay asChild><div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" >
+            <DialogContent title="Thông tin tin tuyển dụng"><div
                 className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
-                onClick={event => event.stopPropagation()}
+                
                 style={{ fontFamily: SFT }}
             >
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[#F2F2F7]">
@@ -182,7 +184,7 @@ export function MutateJobPostingModal({
                             </p>
                         </div>
                     </div>
-                    <button type="button" onClick={onClose} className="p-2 hover:bg-[#F5F5F7] rounded-lg transition-colors flex-shrink-0">
+                    <button aria-label="Đóng" type="button" onClick={onClose} className="p-2 hover:bg-[#F5F5F7] rounded-lg transition-colors flex-shrink-0">
                         <X className="w-4 h-4 text-[#6E6E73]" />
                     </button>
                 </div>
@@ -282,7 +284,7 @@ export function MutateJobPostingModal({
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div></DialogContent>
+        </div></DialogOverlay></AccessibleDialog>
     );
 }

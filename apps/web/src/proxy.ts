@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { SERVER_URL } from './types/constants/urls';
 import { privatePaths, roleProtectedPaths, landingForRole, mayVisit } from './lib/role-policy';
 import { decodeTokenPayload } from './lib/decodeTokenPayload';
+import { signInRedirectUrl } from './lib/safe-callback-url';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function isTokenExpired(token: string): boolean {
@@ -58,6 +59,10 @@ function privateRouteResponse(request: NextRequest, token: string, headers?: Hea
 
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
+    const candidateRoute = roleProtectedPaths.candidate.some(path => pathname === path || pathname.startsWith(`${path}/`));
+    const signInWithCallback = (sessionExpired = false) => NextResponse.redirect(
+        signInRedirectUrl(request.url, candidateRoute ? '/sign-in' : '/sign-in/admin', sessionExpired),
+    );
 
     const isPrivatePath = privatePaths.some(p => pathname.startsWith(p));
     const isAuthPath = authPaths.some(p => pathname.startsWith(p));
@@ -102,9 +107,7 @@ export async function proxy(request: NextRequest) {
         const refreshResult = await tryRefreshToken(refreshToken);
 
         if (!refreshResult || !refreshResult.newAccessToken) {
-            return NextResponse.redirect(
-                new URL(`/sign-in?session_expired=true&callbackUrl=${request.url}`, request.url)
-            );
+            return signInWithCallback(true);
         }
         const { newAccessToken, newRefreshToken } = refreshResult;
         const requestHeaders = new Headers(request.headers);
@@ -128,10 +131,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // CASE 3: Không có gì cả → chưa đăng nhập
-    if (roleProtectedPaths.candidate.includes(request.nextUrl.pathname)) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
-    }
-    return NextResponse.redirect(new URL('/sign-in/admin', request.url));
+    return signInWithCallback();
 }
 
 export const config = {

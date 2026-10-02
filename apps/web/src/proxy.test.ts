@@ -108,7 +108,7 @@ describe('proxy — route policy and refreshed sessions', () => {
   it('sends a guest opening a private admin route to staff login', async () => {
     const response = await proxy(requestFor('/ai-configuration'));
     expect(response.headers.get('location')).toBe(
-      'http://localhost:3000/sign-in/admin',
+      'http://localhost:3000/sign-in/admin?callbackUrl=%2Fai-configuration',
     );
   });
 
@@ -143,7 +143,7 @@ describe('proxy — route policy and refreshed sessions', () => {
     const response = await proxy(
       requestFor('/my-cvs', tokenFor('candidate', true), 'bad-refresh'),
     );
-    const redirect = new URL(response.headers.get('location')!);
+    const redirect = new URL(response.headers.get('location') ?? '');
     expect(redirect.pathname).toBe('/sign-in');
     expect(redirect.searchParams.get('session_expired')).toBe('true');
   });
@@ -201,7 +201,7 @@ describe('proxy — GĐ1 organization-admin boundaries (A2)', () => {
       );
       for (const response of [fresh, refreshed]) {
         expect(response.headers.get('x-middleware-next')).toBeNull();
-        expect(new URL(response.headers.get('location')!).pathname).not.toBe(path);
+        expect(new URL(response.headers.get('location') ?? '').pathname).not.toBe(path);
       }
       expect(refreshed.headers.get('location')).toBe(fresh.headers.get('location'));
     },
@@ -213,7 +213,7 @@ describe('proxy — GĐ1 organization-admin boundaries (A2)', () => {
       const response = await proxy(requestFor(path));
       expect(response.headers.get('x-middleware-next')).toBeNull();
       expect(response.headers.get('location')).toBe(
-        'http://localhost:3000/sign-in/admin',
+        `http://localhost:3000/sign-in/admin?callbackUrl=${encodeURIComponent(path)}`,
       );
     },
   );

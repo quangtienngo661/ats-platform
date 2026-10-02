@@ -2,11 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-    ChevronRight, ChevronDown, Edit2, Trash2, Plus,
-    FolderOpen, Folder, Briefcase,
-} from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ChevronRight, ChevronDown, Edit2, Trash2, Plus, FolderOpen, Folder, Briefcase } from 'lucide-react';
+import { SF } from '@/types/fonts/fonts';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 
 // ── Colors for parent categories ──────────────────────────────────────────────
@@ -51,7 +48,7 @@ function ChildCategoryRow({
                 >
                     <Edit2 className="w-3.5 h-3.5" />
                 </button>
-                <button
+                <button type="button" aria-label="Xóa"
                     onClick={() => onDelete(category)}
                     className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
                 >
@@ -170,7 +167,7 @@ function ParentCategoryRow({
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                         className="overflow-hidden"
                     >
-                        {category.childCategories!.map((child) => (
+                        {category.childCategories?.map((child) => (
                             <ChildCategoryRow
                                 key={child.categoryId}
                                 category={child}

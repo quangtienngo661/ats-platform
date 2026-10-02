@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { BookOpen, BarChart3, Clock, ArrowRight, Zap, Flame } from 'lucide-react';
+
+import { BookOpen, BarChart3, Zap, Flame } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { DifficultyLevel } from '@ats-platform/types';
 

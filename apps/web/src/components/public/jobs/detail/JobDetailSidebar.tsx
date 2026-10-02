@@ -7,7 +7,7 @@ function formatSalary(min?: number | null, max?: number | null): string {
     const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(0)}M` : `${(n / 1_000).toFixed(0)}K`;
     if (min && max) return `${fmt(min)} – ${fmt(max)} VNĐ`;
     if (min) return `Từ ${fmt(min)} VNĐ`;
-    return `Đến ${fmt(max!)} VNĐ`;
+    return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
 
 function formatLocation(locationType?: string): string {
@@ -23,8 +23,8 @@ interface JobDetailSidebarProps {
 }
 
 export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
-    const dept = (job as any).department;
-    const category = (job as any).category;
+    const dept = job.department;
+    const category = job.category;
 
     const infoItems = [
         { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: DollarSign },

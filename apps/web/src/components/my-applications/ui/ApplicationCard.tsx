@@ -1,5 +1,5 @@
 import { MapPin, Briefcase, Star } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
 import { WithdrawApplicationForm } from './WithdrawApplicationForm';
 

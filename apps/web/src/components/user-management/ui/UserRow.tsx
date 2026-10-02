@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash2, AlertTriangle, Phone, Mail } from 'lucide-react';
+import { Pencil, Trash2, AlertTriangle, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { UserRole, UserStatus } from '@ats-platform/types';

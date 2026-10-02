@@ -69,7 +69,7 @@ export function SkillTable({ skills, onEdit, onDelete }: SkillTableProps) {
                         {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, skills.length)} / {skills.length} kỹ năng
                     </p>
                     <div className="flex items-center gap-1">
-                        <button
+                        <button type="button" aria-label="Trước"
                             disabled={safePage === 1}
                             onClick={() => setPage((p) => p - 1)}
                             className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -97,7 +97,7 @@ export function SkillTable({ skills, onEdit, onDelete }: SkillTableProps) {
                                     </button>
                                 )
                             )}
-                        <button
+                        <button type="button" aria-label="Tiếp"
                             disabled={safePage === totalPages}
                             onClick={() => setPage((p) => p + 1)}
                             className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

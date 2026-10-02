@@ -8,7 +8,7 @@ import { DepartmentCard } from './ui/DepartmentCard';
 import { MutateDepartmentModal } from './ui/MutateDepartmentModal';
 import { DepartmentDetailModal } from './ui/DepartmentDetailModal';
 import { Department } from '@/types/interfaces/departments.interface';
-import { deleteDepartmentAction, DepartmentState, updateDepartmentAction } from '@/servers/departments/departments.action';
+import { deleteDepartmentAction, DepartmentState } from '@/servers/departments/departments.action';
 import { toast } from '@/lib/toast';
 import { IOrganizationOption } from '@ats-platform/types';
 

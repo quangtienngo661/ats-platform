@@ -1,7 +1,7 @@
-import { Mail, Phone, MapPin, Globe, AlignLeft } from 'lucide-react';
+import { Mail, Phone, MapPin, AlignLeft } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { ICandidateDto } from '@/types/interfaces/candidate.interface';
-import { GitHubIcon } from '@/components/public/icons/common.icon';
+
 
 
 // Temporary

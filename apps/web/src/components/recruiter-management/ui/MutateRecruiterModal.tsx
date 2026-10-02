@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { createRecruiterAction, updateRecruiterAction, RecruiterActionState } from '@/servers/recruiters/recruiters.action';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
@@ -25,8 +27,8 @@ export function MutateRecruiterModal({ onClose, isEdited, editingRecruiter, depa
   }, [state]);
   const input = 'border rounded-xl p-3 w-full text-sm';
   return (
-    <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4" onClick={onClose}>
-      <section role="dialog" aria-modal="true" aria-labelledby="recruiter-dialog-title" className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={event => event.stopPropagation()}>
+    <AccessibleDialog onClose={onClose}><DialogOverlay asChild><div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4" >
+      <DialogContent title="Thông tin nhà tuyển dụng"><section    className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" >
         <div className="flex justify-between items-center mb-5">
           <h2 id="recruiter-dialog-title" className="text-xl font-semibold">{isEdited ? 'Cập nhật nhà tuyển dụng' : 'Thêm nhà tuyển dụng mới'}</h2>
           <button type="button" aria-label="Đóng" onClick={onClose}>×</button>
@@ -64,7 +66,7 @@ export function MutateRecruiterModal({ onClose, isEdited, editingRecruiter, depa
           <div className="flex gap-3 pt-3"><button type="button" onClick={onClose} className={input}>Hủy</button>
             <button type="submit" disabled={pending || departments.length === 0} className="bg-blue-600 disabled:bg-gray-300 text-white rounded-xl p-3 w-full">{pending ? 'Đang lưu...' : isEdited ? 'Cập nhật' : 'Tạo'}</button></div>
         </form>
-      </section>
-    </div>
+      </section></DialogContent>
+    </div></DialogOverlay></AccessibleDialog>
   );
 }

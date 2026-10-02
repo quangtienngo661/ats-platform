@@ -1,6 +1,6 @@
 import { Send, Clock, CheckCircle } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
-import { IApplicationCard, IApplicationDto } from '@/types/interfaces/application.interface';
+import { IApplicationCard } from '@/types/interfaces/application.interface';
 
 interface MyApplicationsStatsProps {
     applications: IApplicationCard[];

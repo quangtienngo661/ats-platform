@@ -5,9 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
-import {
-  ExternalLink, Trash2, Cpu, X, ArchiveX, Clock,
-} from 'lucide-react';
+import { ExternalLink, Cpu, X, ArchiveX, Clock } from 'lucide-react';
 import KanbanColumn from './KanbanColumn';
 import ScreeningConfigModal from './ScreeningConfigModal';
 import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
@@ -25,7 +23,7 @@ function mapApplicationToCandidate(app: IApplicationDto, stage: Stage): Candidat
   const name = app.candidate?.user?.fullName || 'N/A';
   const initials = name.split(' ').filter(Boolean).slice(-2).map(w => w[0]).join('').toUpperCase();
   const score = app.screening?.overallScore ?? 0;
-  const hasScore = app.screening?.overallScore !== undefined && app.screening?.overallScore !== null;
+  
   const screeningStatus = app.screening?.status ?? undefined;
 
   return {
@@ -76,7 +74,7 @@ export default function KanbanClient({
   const [cancelledApplications, setCancelledApplications] = useState<IApplicationDto[]>(initialCancelledApplications);
   const [candidates, setCandidates] = useState<Candidate[]>(() => boardToCandidates(kanbanBoard));
   const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number; stage: Stage; screeningStatus?: ScreeningStatus } | null>(null);
-  const [query, setQuery] = useState('');
+  const [query, ] = useState('');
   const [showCancelled, setShowCancelled] = useState(false);
   const [showScreeningModal, setShowScreeningModal] = useState<string | null>(null);
   const socket = useSocketStore();
@@ -262,7 +260,7 @@ export default function KanbanClient({
                     <h2 className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>Đã hủy / Rút đơn</h2>
                     <p className="text-[12px] text-[#AEAEB2]">{cancelledApplications.length} ứng viên</p>
                   </div>
-                  <button onClick={() => setShowCancelled(false)} className="p-1.5 rounded-lg hover:bg-[#F5F5F7] transition-colors">
+                  <button type="button" aria-label="Đóng" onClick={() => setShowCancelled(false)} className="p-1.5 rounded-lg hover:bg-[#F5F5F7] transition-colors">
                     <X className="w-4 h-4 text-[#070708]" />
                   </button>
                 </div>
@@ -316,7 +314,7 @@ export default function KanbanClient({
         {/* ── Context menu ──────────────────────────────────────────────── */}
         {contextMenu && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
+            <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
             <div className="fixed z-50 bg-white rounded-2xl shadow-xl border border-[#E5E5EA] overflow-hidden w-[200px]"
               style={{ left: contextMenu.x, top: contextMenu.y }}>
               <Link href={`/jobs/${jobId}/candidates/${contextMenu.id}`} className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"

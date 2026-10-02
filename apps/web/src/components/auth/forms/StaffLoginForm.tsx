@@ -18,7 +18,7 @@ const INPUT_CLS =
 type StaffRole = 'admin' | 'org_admin' | 'recruiter';
 
 const ROLES: { id: StaffRole; label: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'org_admin', label: 'Quản trị tổ chức', icon: <Shield className="w-4 h-4" />, color: '#60A5FA' },
+    { id: 'org_admin', label: 'Org', icon: <Shield className="w-4 h-4" />, color: '#60A5FA' },
     {
         id: 'admin',
         label: 'Admin',
@@ -40,7 +40,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '';
 
-    const activeRole = ROLES.find((r) => r.id === role)!;
+    const activeRole = ROLES.find((r) => r.id === role) ?? ROLES[0];
 
     useEffect(() => {
         if (isRoleDifferent) {
@@ -108,7 +108,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                                 }}
                             >
                                 {r.icon}
-                                <span>{r.label}</span>
+                                <span className="whitespace-nowrap">{r.label}</span>
                             </button>
                         );
                     })}
@@ -174,7 +174,9 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowPw(!showPw)}
+                                aria-label={showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                            aria-pressed={showPw}
+                            onClick={() => setShowPw(!showPw)}
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                             >
                                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

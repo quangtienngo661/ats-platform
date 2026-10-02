@@ -1,15 +1,11 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
-import {
-    IApplicationDto,
-    IApplicationHistoryItem,
-    IGetApplicationsByJobQuery,
-    IPaginatedApplications,
-    IApplicationCard,
-} from '@/types/interfaces/application.interface';
-import { AiRecommendation, ApplicationStatus } from '@ats-platform/types';
+import { IApplicationDto, IApplicationHistoryItem, IGetApplicationsByJobQuery, IPaginatedApplications, IApplicationCard } from '@/types/interfaces/application.interface';
+
 import { IKanbanDto } from '@/types/interfaces/kanban.interface';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -22,15 +18,7 @@ export type ApplicationActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 function mapDtoToCard(dto: IApplicationDto): IApplicationCard {
     return {
@@ -74,8 +62,8 @@ export async function getMyApplicationsAction(): Promise<IApplicationCard[]> {
         const rawItems = (response.data ?? []) as IApplicationDto[];
         const result = rawItems.map((item: IApplicationDto) => mapDtoToCard(item));
         return result;
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -105,8 +93,8 @@ export async function getKanbanBoardAction(jobId: string): Promise<IKanbanDto> {
     try {
         const response = await http.get(`/applications/board/${jobId}`);
         return response.data as IKanbanDto;
-    } catch {
-        return {} as IKanbanDto;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -123,8 +111,8 @@ export async function getApplicationsByJobAction(
 
         const response = await http.get(`/applications/job/${jobId}`, { params });
         return response.data as IPaginatedApplications;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -165,7 +153,7 @@ export async function triggerCvScreeningAction(
 
     try {
         const response = await http.post(`/applications/${applicationId}/trigger-screening`, { configId });
-        return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data as any };
+        return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data as IApplicationDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Kích hoạt sàng lọc CV thất bại') };
     }
@@ -177,8 +165,8 @@ export async function getApplicationHistoryAction(applicationId: string): Promis
     try {
         const response = await http.get(`/applications/${applicationId}/history`);
         return response.data as IApplicationHistoryItem[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -188,7 +176,7 @@ export async function getApplicationByIdAction(applicationId: string): Promise<I
     try {
         const response = await http.get(`/applications/${applicationId}`);
         return response.data as IApplicationDto;
-    } catch {
-        return {} as IApplicationDto;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

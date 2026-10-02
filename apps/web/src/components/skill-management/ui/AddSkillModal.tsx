@@ -1,11 +1,14 @@
 'use client';
+import { useLatestCallback } from '@/lib/useLatestCallback';
+
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 
 import { useEffect, useRef, useActionState } from 'react';
 import { X, Zap } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import { createSkillAction, SkillActionState } from '@/servers/skills/skills.action';
-import { ISkillDto } from '@/types/interfaces/skill.interface';
+
 import { toast } from '@/lib/toast';
 
 interface AddSkillModalProps {
@@ -16,6 +19,7 @@ interface AddSkillModalProps {
 const initialState: SkillActionState = { success: false, message: '' };
 
 export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProps) {
+    const onCloseLatest = useLatestCallback(onClose);
     const [state, dispatch, isPending] = useActionState(createSkillAction, initialState);
     const nameRef = useRef<HTMLInputElement>(null);
 
@@ -25,30 +29,30 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
     useEffect(() => {
         if (state.success && state.data) {
             toast.success('Thành công', state.message);
-            onClose();
+            onCloseLatest();
         } else if (state.message) {
             toast.error('Lỗi', state.message);
         }
-    }, [state]);
+    }, [state, onCloseLatest]);
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Thêm kỹ năng mới"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
@@ -60,7 +64,7 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                                 Thêm kỹ năng mới
                             </h2>
                         </div>
-                        <button onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
+                        <button type="button" aria-label="Đóng" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
@@ -75,10 +79,10 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                             )}
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <label htmlFor="addskillmodal-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Tên kỹ năng <span className="text-[#FF3B30]">*</span>
                                 </label>
-                                <input
+                                <input id="addskillmodal-field-1"
                                     ref={nameRef}
                                     type="text"
                                     name="name"
@@ -90,10 +94,10 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                             </div>
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <label htmlFor="addskillmodal-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Danh mục <span className="text-[#AEAEB2] font-normal">(tùy chọn)</span>
                                 </label>
-                                <input
+                                <input id="addskillmodal-field-2"
                                     type="text"
                                     name="category"
                                     placeholder="Ví dụ: Programming Language, Framework..."
@@ -129,8 +133,8 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                             </motion.button>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

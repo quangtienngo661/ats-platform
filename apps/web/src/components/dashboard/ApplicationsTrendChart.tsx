@@ -1,17 +1,14 @@
 'use client';
 
 import { SF, SFT } from '@/types/fonts/fonts';
-import { TrendingUp } from 'lucide-react';
-import {
-    AreaChart, Area,
-    XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from 'recharts';
+
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface ApplicationsTrendChartProps {
     data: { month: string; value: number }[];
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number | string }[]; label?: string | number }) {
     if (!active || !payload?.length) return null;
     return (
         <div className="bg-white border border-[#E5E5EA] rounded-xl px-3 py-2 shadow-lg shadow-black/10">

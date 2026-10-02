@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Clock, ChevronRight, Trophy, Ban, LoaderCircle } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { ISessionSummary } from '@/types/interfaces/interview.interface';
@@ -21,6 +22,10 @@ interface SessionCardProps {
     session: ISessionSummary;
 }
 
+function CardWrapper({ href, className, children }: { href?: string; className: string; children: ReactNode }) {
+    return href ? <Link href={href} className={className}>{children}</Link> : <div className={className}>{children}</div>;
+}
+
 export function SessionCard({ session }: SessionCardProps) {
     const score = session.result?.overallScore;
     const scoreConfig = score !== undefined ? getScoreConfig(score) : null;
@@ -34,7 +39,6 @@ export function SessionCard({ session }: SessionCardProps) {
     const isAbandoned = session.status === 'abandon';
     const isPending = session.status === 'pending_result';
     const isGenerating = session.status === 'generating';
-    const CardWrapper = isAbandoned ? 'div' : Link;
     const href = isAbandoned
         ? undefined
         : session.status === 'completed' || isPending
@@ -43,7 +47,7 @@ export function SessionCard({ session }: SessionCardProps) {
 
     return (
         <CardWrapper
-            href={href as any}
+            href={href}
             className={`group flex items-center gap-4 p-4 bg-white rounded-xl border border-[#E5E5EA] transition-all duration-200 ${
                 isAbandoned ? 'opacity-60 grayscale' : 'hover:border-[#AEAEB2] hover:shadow-sm cursor-pointer'
             }`}

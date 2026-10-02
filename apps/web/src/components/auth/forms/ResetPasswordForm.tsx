@@ -87,9 +87,9 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Mật khẩu mới</label>
+                            <label htmlFor="resetpasswordform-field-1" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Mật khẩu mới</label>
                             <div className="relative">
-                                <input
+                                <input id="resetpasswordform-field-1"
                                     type={showPw ? 'text' : 'password'}
                                     name="password"
                                     placeholder="Nhập mật khẩu mới"
@@ -101,7 +101,9 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPw(!showPw)}
+                                    aria-label={showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                            aria-pressed={showPw}
+                            onClick={() => setShowPw(!showPw)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                                 >
                                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -131,9 +133,9 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
                         {/* Confirm */}
                         <div>
-                            <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Xác nhận mật khẩu</label>
+                            <label htmlFor="resetpasswordform-field-2" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Xác nhận mật khẩu</label>
                             <div className="relative">
-                                <input
+                                <input id="resetpasswordform-field-2"
                                     type={showConfirm ? 'text' : 'password'}
                                     placeholder="Nhập lại mật khẩu mới"
                                     required

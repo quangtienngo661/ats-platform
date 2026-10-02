@@ -2,7 +2,7 @@ import { CandidatesHeader } from '@/components/candidates/ui/CandidatesHeader';
 import KanbanClient from '@/components/kanban/KanbanClient';
 import { getApplicationsByJobAction, getKanbanBoardAction } from '@/servers/applications/applications.action';
 import { getAIConfigAction } from '@/servers/ai-config/ai-config.action';
-import { KanbanHydrator } from '@/components/hydrators/KanbanHydrator';
+import { KanbanStoreProvider } from '@/stores/useKanbanStore';
 import { InitSocketRoom } from '@/components/common/InitSocketRoom';
 
 interface JobKanbanPageProps {
@@ -22,8 +22,8 @@ export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
     const cancelledApplications = applications.filter((app) => app.status === 'cancelled');
 
     return (
+        <KanbanStoreProvider key={`${jobId}:${JSON.stringify([boardData, cancelledApplications])}`} initialState={{ board: boardData, cancelled: cancelledApplications }}>
         <div className="flex flex-col h-full bg-[#F5F5F7]">
-            <KanbanHydrator initialBoard={boardData} initialCancelledApplications={cancelledApplications} />
             <InitSocketRoom jobId={jobId} />
             <CandidatesHeader jobId={jobId} activeView="kanban" />
             <KanbanClient
@@ -31,5 +31,6 @@ export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
                 aiProfiles={aiProfiles}
             />
         </div>
+        </KanbanStoreProvider>
     );
 }

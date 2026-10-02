@@ -1,14 +1,4 @@
-import {
-    BookOpen,
-    BriefcaseBusiness,
-    CheckCircle2,
-    Gift,
-    GraduationCap,
-    Languages,
-    ListChecks,
-    Sparkles,
-    Star,
-} from 'lucide-react';
+import { BookOpen, BriefcaseBusiness, CheckCircle2, Gift, GraduationCap, Languages, ListChecks, Star } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 
 type ParsedJobRequirements = {

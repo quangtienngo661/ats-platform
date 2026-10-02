@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useActionState, useEffect } from 'react';
-import { UserCircle, Building2, Mail, Phone, Shield, Edit3, Save, X, Briefcase, Camera, CheckCircle2 } from 'lucide-react';
+import { Building2, Mail, Phone, Shield, Edit3, Save, Briefcase, Camera, CheckCircle2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
 import { toast } from '@/lib/toast';
@@ -130,9 +130,9 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                 {/* Email */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
+                                    <span className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
                                         <Mail className="w-3.5 h-3.5" /> Địa chỉ Email
-                                    </label>
+                                    </span>
                                     <div className="p-3 bg-[#F5F5F7] rounded-xl border border-transparent">
                                         <p className="text-[14px] text-[#1D1D1F] truncate">{user?.email || 'N/A'}</p>
                                     </div>
@@ -141,9 +141,9 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
 
                                 {/* Phone */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
+                                    <span className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
                                         <Phone className="w-3.5 h-3.5" /> Số điện thoại
-                                    </label>
+                                    </span>
                                     <div className="p-3 bg-[#F5F5F7] rounded-xl border border-transparent">
                                         <p className="text-[14px] text-[#1D1D1F] truncate">{user?.phoneNumber || 'Chưa cập nhật'}</p>
                                     </div>
@@ -151,9 +151,9 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
 
                                 {/* Department */}
                                 <div className="space-y-1.5 py-1.5 md:col-span-2">
-                                    <label className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
+                                    <span className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
                                         <Building2 className="w-3.5 h-3.5" /> Phòng ban trực thuộc
-                                    </label>
+                                    </span>
                                     <div className="p-3 bg-[#F5F5F7] rounded-xl border border-transparent flex items-center gap-2">
                                         {dept?.color && <span className="w-3 h-3 rounded-full shadow-sm" style={{ background: dept.color }} />}
                                         <p className="text-[14px] text-[#1D1D1F]">{dept?.name || 'Chưa phân bổ'}</p>
@@ -162,7 +162,7 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
 
                                 {/* Position (Editable) */}
                                 <div className="space-y-1.5 md:col-span-2">
-                                    <label className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
+                                    <label htmlFor="recruiterprofileclient-field-1" className="text-[12px] text-[#6E6E73] flex items-center gap-1.5" style={{ fontWeight: 500 }}>
                                         <Briefcase className="w-3.5 h-3.5" /> Chức danh hiển thị
                                     </label>
                                     <AnimatePresence mode="wait">
@@ -174,7 +174,7 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
                                                 exit={{ opacity: 0, y: 10 }}
                                                 transition={{ duration: 0.2 }}
                                             >
-                                                <input
+                                                <input id="recruiterprofileclient-field-1"
                                                     type="text"
                                                     name="position"
                                                     value={position}

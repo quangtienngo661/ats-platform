@@ -4,7 +4,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { MoreHorizontal, Star, Clock, MapPin, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Candidate } from '@/types/interfaces/kanban.interface';
-import { DRAG_TYPE, sourceBadge, SF, SFT } from '../../types/constants/kanban.constants';
+import { DRAG_TYPE, SF, SFT } from '../../types/constants/kanban.constants';
 
 interface KanbanCardProps {
   candidate: Candidate;
@@ -34,11 +34,11 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
     collect: m => ({ isOver: m.isOver() }),
   });
 
-  const src = sourceBadge[candidate.source] || { bg: '#F5F5F7', text: '#6E6E73' };
+  
 
   return (
     <div
-      ref={(el: HTMLDivElement | null) => { drag(el as any); drop(el as any); }}
+      ref={(el: HTMLDivElement | null) => { drag(el); drop(el); }}
       className={`group bg-white rounded-2xl border border-[#F2F2F7] p-4 cursor-grab active:cursor-grabbing select-none transition-all duration-200 ${isDragging ? 'opacity-40 scale-[0.97] shadow-lg' : isOver ? 'border-[#0071E3] shadow-md scale-[1.01]' : 'hover:shadow-md hover:border-[#E5E5EA]'
         }`}
       style={{ fontFamily: SFT }}
@@ -78,8 +78,8 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
             <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Sàng lọc thất bại</span>
           )}
         </div>
-        <button
-          className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-[#AEAEB2] hover:text-[#6E6E73] hover:bg-[#F5F5F7] transition-all flex-shrink-0"
+        <button type="button" aria-label="Tùy chọn"
+          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 p-1 rounded-lg text-[#AEAEB2] hover:text-[#6E6E73] hover:bg-[#F5F5F7] transition-all flex-shrink-0"
           onClick={e => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); onMenu(candidate.id, r.left, r.bottom + 4); }}
         >
           <MoreHorizontal className="w-4 h-4" />

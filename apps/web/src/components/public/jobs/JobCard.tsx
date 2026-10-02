@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Clock, Briefcase, MapPin, Building2, ChevronRight } from 'lucide-react';
+import { Clock, MapPin, Building2, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 
@@ -21,7 +21,7 @@ const formatAmount = (value: number): string => {
 
 const salaryFormat = (min: number | null | undefined, max: number | null | undefined): string => {
     if (!min && !max) return 'Mức lương thỏa thuận';
-    if (!min) return `Lên đến ${formatAmount(max!)}`;
+    if (!min) return `Lên đến ${formatAmount(max ?? 0)}`;
     if (!max) return `Từ ${formatAmount(min)}`;
     if (min === max) return `${formatAmount(min)}`;
     return `${formatAmount(min)} - ${formatAmount(max)}`;
@@ -49,10 +49,10 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
-    const dept = (job as any).department;
+    const dept = job.department;
     const deptColor = dept?.color || '#0071E3';
     const deptBg = `${deptColor}15`;
-    const initial = job.title?.[0]?.toUpperCase() ?? 'J';
+    
 
     return (
         <Link

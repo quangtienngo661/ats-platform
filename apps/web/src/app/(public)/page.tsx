@@ -1,4 +1,4 @@
-import { getJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
+import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { HomeHero } from '@/components/public/home/HomeHero';
 import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { HomeStats } from '@/components/public/home/HomeStats';
@@ -12,7 +12,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-    const categories = await getJobCategoriesAction();
+    const categories = await getViewerJobCategoriesAction();
 
     return (
         <>

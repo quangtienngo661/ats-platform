@@ -10,7 +10,7 @@ interface SocketState {
     setToken: (token: string) => void;
     connect: (url: string) => void;
     disconnect: () => void;
-    emitEvent: (eventName: string, payload: any) => void;
+    emitEvent: <T>(eventName: string, payload: T) => void;
     onEvent: <T>(eventName: string, callback: (payload: T) => void) => void;
     offEvent: <T>(eventName: string, callback: (payload: T) => void) => void;
 }

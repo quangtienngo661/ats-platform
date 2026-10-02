@@ -1,4 +1,7 @@
 'use client';
+import { useLatestCallback } from '@/lib/useLatestCallback';
+
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 
 import { useActionState, useEffect, useRef } from 'react';
 import { X, Pencil } from 'lucide-react';
@@ -35,6 +38,8 @@ const selectCls = `${inputCls} cursor-pointer appearance-none`;
 const INITIAL_STATE: UserActionState = { success: false, message: '' };
 
 export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: EditUserModalProps) {
+    const onCloseLatest = useLatestCallback(onClose);
+    const onUpdatedLatest = useLatestCallback(onUpdated);
   const [state, formAction, isPending] = useActionState(updateUserAction, INITIAL_STATE);
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -46,31 +51,31 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
     if (!state.message) return;
     if (state.success && state.data) {
       toast.success('Cập nhật thành công', `"${state.data.fullName}" đã được lưu`);
-      onUpdated(state.data);
-      onClose();
+      onUpdatedLatest(state.data);
+      onCloseLatest();
     } else if (!state.success && state.message) {
       toast.error('Cập nhật thất bại', state.message);
     }
-  }, [state]);
+  }, [state, onCloseLatest, onUpdatedLatest]);
 
   return (
-    <AnimatePresence>
-      <motion.div
+    <AccessibleDialog onClose={onClose} dismissible={!isPending}><AnimatePresence>
+      <DialogOverlay asChild><motion.div
         key="backdrop"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-        onClick={onClose}
+        
       >
-        <motion.div
+        <DialogContent title="Chỉnh sửa người dùng"><motion.div
           key="modal"
           initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
           transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
-          onClick={(e) => e.stopPropagation()}
+          
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7] flex-shrink-0">
@@ -88,7 +93,7 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
                 <p className="text-[12px] text-[#6E6E73]">{user.email}</p>
               </div>
             </div>
-            <button
+            <button aria-label="Đóng"
               type="button"
               onClick={onClose}
               className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
@@ -113,13 +118,13 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               )}
 
               <div>
-                <label
+                <label htmlFor="editusermodal-field-1"
                   className="block text-[13px] text-[#1D1D1F] mb-2"
                   style={{ fontWeight: 500 }}
                 >
                   Họ và tên <span className="text-[#FF3B30]">*</span>
                 </label>
-                <input
+                <input id="editusermodal-field-1"
                   ref={nameRef}
                   name="fullName" aria-label="Họ và tên"
                   type="text"
@@ -131,13 +136,13 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               </div>
 
               <div>
-                <label
+                <label htmlFor="editusermodal-field-2"
                   className="block text-[13px] text-[#1D1D1F] mb-2"
                   style={{ fontWeight: 500 }}
                 >
                   Email <span className="text-[#FF3B30]">*</span>
                 </label>
-                <input
+                <input id="editusermodal-field-2"
                   name="email" aria-label="Email"
                   type="email"
                   required
@@ -148,14 +153,14 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               </div>
 
               <div>
-                <label
+                <label htmlFor="editusermodal-field-3"
                   className="block text-[13px] text-[#1D1D1F] mb-2"
                   style={{ fontWeight: 500 }}
                 >
                   Mật khẩu mới{' '}
                   <span className="text-[#AEAEB2] font-normal">(bỏ trống để giữ nguyên)</span>
                 </label>
-                <input
+                <input id="editusermodal-field-3"
                   name="password" aria-label="Mật khẩu mới"
                   type="password"
                   placeholder="Nhập để thay đổi mật khẩu..."
@@ -165,14 +170,14 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               </div>
 
               <div>
-                <label
+                <label htmlFor="editusermodal-field-4"
                   className="block text-[13px] text-[#1D1D1F] mb-2"
                   style={{ fontWeight: 500 }}
                 >
                   Số điện thoại{' '}
                   <span className="text-[#AEAEB2] font-normal">(tùy chọn)</span>
                 </label>
-                <input
+                <input id="editusermodal-field-4"
                   name="phone" aria-label="Số điện thoại"
                   type="tel"
                   defaultValue={user.phoneNumber ?? ''}
@@ -194,13 +199,13 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label
+                  <label htmlFor="editusermodal-field-5"
                     className="block text-[13px] text-[#1D1D1F] mb-2"
                     style={{ fontWeight: 500 }}
                   >
                     Vai trò
                   </label>
-                  <select
+                  <select id="editusermodal-field-5"
                     disabled={true} aria-label="Vai trò"
                     defaultValue={user.role}
                     className={selectCls}
@@ -213,13 +218,13 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
                   <input type="hidden" name="role" value={user.role} />
                 </div>
                 <div>
-                  <label
+                  <label htmlFor="editusermodal-field-6"
                     className="block text-[13px] text-[#1D1D1F] mb-2"
                     style={{ fontWeight: 500 }}
                   >
                     Trạng thái
                   </label>
-                  <select
+                  <select id="editusermodal-field-6"
                     name="status" aria-label="Trạng thái"
                     defaultValue={user.status}
                     className={selectCls}
@@ -256,8 +261,8 @@ export function EditUserModal({ user, onClose, onUpdated, organizations = [] }: 
               </motion.button>
             </div>
           </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </motion.div></DialogContent>
+      </motion.div></DialogOverlay>
+    </AnimatePresence></AccessibleDialog>
   );
 }

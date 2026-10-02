@@ -1,5 +1,7 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import {
@@ -19,23 +21,16 @@ export type CandidateActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET MY CANDIDATE PROFILE ─────────────────────────────────────────────────
 export async function getMyCandidateProfileAction(): Promise<ICandidateDto | null> {
     try {
         const response = await http.get('/candidates/me');
         return response.data ?? response;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -120,8 +115,8 @@ export async function getCandidatesAction(query?: IFindCandidatesQuery): Promise
 
         const response = await http.get('/candidates', { params });
         return response.data as IPaginatedCandidates;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -131,7 +126,8 @@ export async function getCandidateByIdAction(id: string): Promise<ICandidateDto 
     try {
         const response = await http.get(`/candidates/${id}`);
         return response.data ?? response;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

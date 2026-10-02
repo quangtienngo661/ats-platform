@@ -1,9 +1,11 @@
 'use client'
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useState, useActionState, useEffect, useRef } from 'react';
-import { Cpu, Plus, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ConfigProfile } from '../../../types/interfaces/configProfile.interface';
+import { Cpu, X } from 'lucide-react';
+import { motion } from 'motion/react';
+
 import { SF, SFT } from '@/types/fonts/fonts';
 import { createAIConfigFormAction, AIConfigActionState } from '@/servers/ai-config/ai-config.action';
 import { toast } from '@/lib/toast';
@@ -46,8 +48,8 @@ export function AddProfileModal({
     }, [state]);
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <motion.form
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><DialogOverlay asChild><div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <DialogContent title="Thêm cấu hình mới"><motion.form
                 action={dispatch}
                 initial={{ opacity: 0, scale: 0.96, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -57,10 +59,10 @@ export function AddProfileModal({
                 style={{ fontFamily: SFT }}
             >
                 {/* Hidden fields for ranges since we use custom controlled inputs that don't have name attributes or we need them explicitly */}
-                <input type="hidden" name="skillsWeight" value={skill.weight} />
-                <input type="hidden" name="experienceWeight" value={experience.weight} />
-                <input type="hidden" name="educationWeight" value={education.weight} />
-                <input type="hidden" name="minimumScoreThreshold" value={threshold} />
+                <input aria-label="Trọng số kỹ năng (%)" type="hidden" name="skillsWeight" value={skill.weight} />
+                <input aria-label="Trọng số kinh nghiệm (%)" type="hidden" name="experienceWeight" value={experience.weight} />
+                <input aria-label="Trọng số học vấn (%)" type="hidden" name="educationWeight" value={education.weight} />
+                <input aria-label="Ngưỡng điểm tối thiểu" type="hidden" name="minimumScoreThreshold" value={threshold} />
                 {/* Modal header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[#F2F2F7]">
                     <div className="flex items-center gap-3">
@@ -114,10 +116,10 @@ export function AddProfileModal({
                             />
                         </div>
                         <div>
-                            <label className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
+                            <label htmlFor="addprofilemodal-field-1" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
                                 Mô tả
                             </label>
-                            <input
+                            <input id="addprofilemodal-field-1"
                                 name="description"
                                 type="text" placeholder="Vd: Dùng cho các vị trí cấp trung và cấp cao"
                                 value={description} onChange={(e) => setDescription(e.target.value)}
@@ -157,7 +159,7 @@ export function AddProfileModal({
                                         Kỹ năng
                                     </p>
                                     <div className="flex items-center gap-1">
-                                        <input
+                                        <input aria-label="Trọng số kỹ năng (%)"
                                             type="number" min="0" max="100"
                                             value={skill.weight}
                                             onChange={(e) => setSkill({ ...skill, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
@@ -167,7 +169,7 @@ export function AddProfileModal({
                                         <span className="text-[12px] text-[#AEAEB2]">%</span>
                                     </div>
                                 </div>
-                                <input type="range" min="0" max="100" value={skill.weight}
+                                <input aria-label="Trọng số kỹ năng (%)" type="range" min="0" max="100" value={skill.weight}
                                     onChange={(e) => setSkill({ ...skill, weight: parseInt(e.target.value) })}
                                     className="w-full accent-[#0071E3]" />
                             </div>
@@ -183,7 +185,7 @@ export function AddProfileModal({
                                         Kinh nghiệm
                                     </p>
                                     <div className="flex items-center gap-1">
-                                        <input
+                                        <input aria-label="Trọng số kinh nghiệm (%)"
                                             type="number" min="0" max="100"
                                             value={experience.weight}
                                             onChange={(e) => setExperience({ ...experience, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
@@ -193,7 +195,7 @@ export function AddProfileModal({
                                         <span className="text-[12px] text-[#AEAEB2]">%</span>
                                     </div>
                                 </div>
-                                <input type="range" min="0" max="100" value={experience.weight}
+                                <input aria-label="Trọng số kinh nghiệm (%)" type="range" min="0" max="100" value={experience.weight}
                                     onChange={(e) => setExperience({ ...experience, weight: parseInt(e.target.value) })}
                                     className="w-full" style={{ accentColor: '#6366F1' }} />
                             </div>
@@ -209,7 +211,7 @@ export function AddProfileModal({
                                         Học vấn
                                     </p>
                                     <div className="flex items-center gap-1">
-                                        <input
+                                        <input aria-label="Trọng số học vấn (%)"
                                             type="number" min="0" max="100"
                                             value={education.weight}
                                             onChange={(e) => setEducation({ ...education, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
@@ -219,7 +221,7 @@ export function AddProfileModal({
                                         <span className="text-[12px] text-[#AEAEB2]">%</span>
                                     </div>
                                 </div>
-                                <input type="range" min="0" max="100" value={education.weight}
+                                <input aria-label="Trọng số học vấn (%)" type="range" min="0" max="100" value={education.weight}
                                     onChange={(e) => setEducation({ ...education, weight: parseInt(e.target.value) })}
                                     className="w-full" style={{ accentColor: '#009900' }} />
                             </div>
@@ -255,7 +257,7 @@ export function AddProfileModal({
                                 <div className="w-2.5 h-2.5 rounded-full bg-[#FF9500] flex-shrink-0" />
                                 <p className="flex-1 text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>Điểm tối thiểu để xét duyệt</p>
                                 <div className="flex items-center gap-1">
-                                    <input
+                                    <input aria-label="Ngưỡng điểm tối thiểu"
                                         type="number" min="0" max="100"
                                         value={threshold}
                                         onChange={(e) => setThreshold(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
@@ -265,7 +267,7 @@ export function AddProfileModal({
                                     <span className="text-[12px] text-[#AEAEB2]">pts</span>
                                 </div>
                             </div>
-                            <input type="range" min="0" max="100" value={threshold}
+                            <input aria-label="Ngưỡng điểm tối thiểu" type="range" min="0" max="100" value={threshold}
                                 onChange={(e) => setThreshold(parseInt(e.target.value))}
                                 className="w-full" style={{ accentColor: '#D2691E' }} />
                             <p className="text-[11px] text-[#AEAEB2]">
@@ -294,7 +296,7 @@ export function AddProfileModal({
                         {isPending ? 'Đang thêm...' : 'Thêm cấu hình'}
                     </button>
                 </div>
-            </motion.form>
-        </div>
+            </motion.form></DialogContent>
+        </div></DialogOverlay></AccessibleDialog>
     );
 }

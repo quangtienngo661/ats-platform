@@ -198,7 +198,7 @@ export default function InterviewChatClient({
                     {
                         id: `fu-${Date.now()}`,
                         role: 'ai',
-                        content: options.followupQuestion!,
+                        content: options.followupQuestion ?? "",
                         type: 'followup',
                     },
                 ]);

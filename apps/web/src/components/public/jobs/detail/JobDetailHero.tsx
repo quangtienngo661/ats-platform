@@ -1,4 +1,4 @@
-import { Briefcase, DollarSign, Clock, MapPin } from 'lucide-react';
+import { Briefcase, DollarSign, Clock } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { ApplyButton } from './ApplyButton';
@@ -8,7 +8,7 @@ function formatSalary(min?: number | null, max?: number | null): string {
     const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(0)}M` : `${(n / 1_000).toFixed(0)}K`;
     if (min && max) return `${fmt(min)} – ${fmt(max)} VNĐ`;
     if (min) return `Từ ${fmt(min)} VNĐ`;
-    return `Đến ${fmt(max!)} VNĐ`;
+    return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
 
 function timeAgo(dateStr?: string): string {
@@ -37,7 +37,7 @@ function formatLocation(locationType?: string): string {
 
 export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps) {
     const initial = job.title?.[0]?.toUpperCase() ?? 'J';
-    const deptName = (job as any).department?.name;
+    const deptName = job.department?.name;
 
     return (
         <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
