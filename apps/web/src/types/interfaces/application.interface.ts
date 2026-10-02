@@ -15,10 +15,12 @@ export interface IApplicationDto extends IApplication {
     createdAt?: string;
     updatedAt?: string;
     jobPosting?: {
+        organizationId?: string;
         title: string;
         departmentId: string;
         department?: {
             name: string,
+            organizationId?: string;
         };         // resolved name, returned by some endpoints
         locationType?: string;
     };

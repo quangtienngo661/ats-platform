@@ -9,6 +9,6 @@ export interface IUserDto {
   phoneNumber?: string;
   status?: UserStatus;
   role?: UserRole;
+  organizationId?: string | null;
 }
-
 

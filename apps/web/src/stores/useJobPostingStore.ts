@@ -3,10 +3,10 @@ import { create } from "zustand";
 
 interface JobPostingState {
     parsedData: IParsedJobPostingDto | null;
-    setParsedData: (parsedData: IParsedJobPostingDto) => void;
+    setParsedData: (parsedData: IParsedJobPostingDto | null) => void;
 }
 
 export const useJobPostingStore = create<JobPostingState>((set, get) => ({
     parsedData: null,
-    setParsedData: (parsedData: IParsedJobPostingDto) => set({ parsedData })
+    setParsedData: (parsedData: IParsedJobPostingDto | null) => set({ parsedData })
 }))

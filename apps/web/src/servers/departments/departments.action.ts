@@ -41,6 +41,7 @@ function mapRecruiters(recruiters: any[]): DepartmentMember[] {
 function mapSingleDepartment(department: any): DepartmentDto {
     return {
         departmentId: department.departmentId,
+        organizationId: department.organizationId,
         name: department.name,
         description: department.description || "",
         color: department.color || "#0071E3",

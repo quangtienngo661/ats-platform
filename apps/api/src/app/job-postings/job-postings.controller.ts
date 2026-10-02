@@ -32,6 +32,7 @@ import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt.guard';
 import { Request } from 'express';
 import { Resources } from '../../common/decorators/resources.decorator';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
+import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
 
 /**
  * The optional viewer of a public route, as JwtStrategy resolved it — undefined
@@ -81,10 +82,10 @@ export class JobPostingsController {
   @ApiResponse({ status: 201, description: 'Tạo thành công' })
   create(
     @Body() createJobPostingDto: CreateJobPostingDto,
-    @Req() req: Request,
+    @CurrentCaller() caller: TenantCaller,
   ) {
     return this.jobPostingsService.create(
-      req.user['userId'],
+      caller,
       createJobPostingDto,
     );
   }

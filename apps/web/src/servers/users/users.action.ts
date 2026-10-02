@@ -45,10 +45,11 @@ export async function updateMeAction(
     if (!fullName) return { success: false, message: 'Họ tên không được để trống' };
 
     try {
-        const payload: { fullName: string; phone?: string } = { fullName };
-        if (phone) payload.phone = phone;
+        const payload: { fullName: string; phoneNumber: string } = { fullName, phoneNumber: phone ?? '' };
 
         const response = await http.patch('/users/me', payload);
+        revalidatePath('/my-profile');
+        revalidatePath('/profile');
         return { success: true, message: 'Cập nhật thông tin thành công', data: response.data as IUserResponseDto };
     } catch (err) {
         return { success: false, message: extractMessage(err) };
@@ -96,12 +97,15 @@ export async function createUserAction(
     const phoneNumber = (formData.get('phone') as string)?.trim() || undefined;
     const role = formData.get('role') as IUserDto['role'];
     const status = formData.get('status') as IUserDto['status'];
+    const organizationId = (formData.get('organizationId') as string)?.trim();
+    if (role === 'org_admin' && !organizationId) return { success: false, message: 'Vui lòng chọn tổ chức' };
 
     if (!fullName || !email || !password) {
         return { success: false, message: 'Vui lòng điền đầy đủ thông tin bắt buộc' };
     }
 
     const payload: IUserDto = { fullName, email, password, role, status };
+    if (role === 'org_admin') payload.organizationId = organizationId;
     if (phoneNumber) (payload as any).phoneNumber = phoneNumber;
 
     try {
@@ -126,13 +130,16 @@ export async function updateUserAction(
     const phone = (formData.get('phone') as string)?.trim() || undefined;
     const role = formData.get('role') as IUserDto['role'];
     const status = formData.get('status') as IUserDto['status'];
+    const organizationId = (formData.get('organizationId') as string)?.trim();
+    if (role === 'org_admin' && !organizationId) return { success: false, message: 'Vui lòng chọn tổ chức' };
 
     if (!userId) return { success: false, message: 'Thiếu ID người dùng' };
     if (!fullName) return { success: false, message: 'Họ tên không được để trống' };
 
     const payload: IUserDto = { fullName, email, role, status };
+    if (role === 'org_admin') payload.organizationId = organizationId;
     if (password) payload.password = password;
-    if (phone) (payload as any).phone = phone;
+    if (phone) payload.phoneNumber = phone;
 
     try {
         // API returns the updated user object directly
