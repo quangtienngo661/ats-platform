@@ -1,0 +1,4 @@
+NAME                            IMAGE                    COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+ats-platform-tests-api-1        ats-platform-tests-api   "docker-entrypoint.s…"   api        9 minutes ago    Up 9 minutes              127.0.0.1:55000->5000/tcp
+ats-platform-tests-postgres-1   postgres:18.4-alpine     "docker-entrypoint.s…"   postgres   15 minutes ago   Up 15 minutes (healthy)   127.0.0.1:55432->5432/tcp
+ats-platform-tests-redis-1      redis:8-alpine           "docker-entrypoint.s…"   redis      15 minutes ago   Up 15 minutes (healthy)   127.0.0.1:56379->6379/tcp
