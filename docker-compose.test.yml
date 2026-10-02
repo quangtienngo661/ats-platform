@@ -1,0 +1,62 @@
+# Local verification stack. Separate database, queue and uploads from development.
+# No .env is imported; no mail or paid AI calls are used by the E2E journeys.
+name: ats-platform-tests
+
+services:
+  postgres:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_USER: ats_test
+      POSTGRES_PASSWORD: ats-local-test
+      POSTGRES_DB: ats_test
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - test_database:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ats_test -d ats_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "127.0.0.1:56379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      args:
+        DATABASE_URL: postgresql://ats_test:ats-local-test@postgres:5432/ats_test
+    ports:
+      - "127.0.0.1:55000:5000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://ats_test:ats-local-test@postgres:5432/ats_test
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SERVER_PORT: "5000"
+      CLIENT_URL: http://localhost:3000
+      JWT_SECRET: ats-local-verification-only-not-for-production
+      GOOGLE_API_KEY: local-verification-no-external-ai
+      SMTP_ENABLED: "false"
+      ADMIN_EMAIL: admin@ats.local
+      ADMIN_PASSWORD: Admin@123
+    volumes:
+      - test_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  test_database:
+  test_uploads:

@@ -61,5 +61,8 @@ note.txt
 .claude/worktrees
 .nx/polygraph
 .nx/self-healing
+apps/web/test-results/
+apps/web/playwright-report/
 google-cloud-console
 generated
+.nx/

@@ -60,8 +60,11 @@ jobs:
       run: npx nx affected -t lint
 
     # Will add the e2e test later
-    - name: Test affected projects (Unit Tests only)
+    - name: Test backend units
       run: npx nx test api --runInBand --silent
+
+    - name: Test frontend behavior and session policy
+      run: npm run test:web
 
     - name: Cache Next.js build cache
       uses: actions/cache@v5
@@ -79,4 +82,3 @@ jobs:
       run: npx nx affected -t build
       env:
         NODE_ENV: production
-      
