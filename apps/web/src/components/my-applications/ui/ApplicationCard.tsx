@@ -1,4 +1,5 @@
-import { MapPin, Briefcase, Star } from 'lucide-react';
+import Link from 'next/link';
+import { MapPin, Briefcase, Star, CalendarClock } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
 import { WithdrawApplicationForm } from './WithdrawApplicationForm';
@@ -113,6 +114,17 @@ export function ApplicationCard({ application: app, onWithdrawSuccess }: Applica
                     </div>
 
                     <PipelineProgress status={app.status} />
+
+                    {app.status === 'interview' && (
+                        <Link
+                            href="/my-interviews"
+                            className="inline-flex items-center gap-1 mt-3 text-[12px] text-[#6366F1] hover:underline"
+                            style={{ fontWeight: 500 }}
+                        >
+                            <CalendarClock className="w-3.5 h-3.5" aria-hidden="true" />
+                            Xem lịch phỏng vấn
+                        </Link>
+                    )}
                 </div>
 
                 <div className="w-8 flex-shrink-0">

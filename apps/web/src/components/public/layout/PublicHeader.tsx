@@ -32,6 +32,7 @@ export function PublicHeader({
         { href: '/job-postings', label: 'Tìm việc làm' },
         ...(userInfo ? [
             { href: '/my-applications', label: 'Đơn ứng tuyển' },
+            { href: '/my-interviews', label: 'Lịch phỏng vấn' },
             { href: '/mock-interview', label: 'Phỏng vấn AI' },
         ] : []),
     ];
@@ -86,7 +87,7 @@ export function PublicHeader({
                             <Link
                                 key={href}
                                 href={href}
-                                className={`px-3 py-1.5 rounded-lg text-[13px] transition-all ${isActive
+                                className={`px-3 py-1.5 rounded-lg text-[13px] lg:whitespace-nowrap transition-all ${isActive
                                     ? 'bg-[#EBF3FD] text-[#0071E3]'
                                     : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]'
                                     }`}

@@ -149,6 +149,27 @@ describe('proxy — route policy and refreshed sessions', () => {
   });
 });
 
+describe('proxy — the candidate interview schedule page (C6, E18)', () => {
+  it('sends a guest from /my-interviews to the candidate sign-in with a callback', async () => {
+    const response = await proxy(requestFor('/my-interviews'));
+    expect(response.headers.get('location')).toBe(
+      'http://localhost:3000/sign-in?callbackUrl=%2Fmy-interviews',
+    );
+  });
+
+  it('lets a signed-in candidate open /my-interviews', async () => {
+    const response = await proxy(requestFor('/my-interviews', tokenFor('candidate')));
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+    expect(response.headers.get('location')).toBeNull();
+  });
+
+  it('keeps staff out of /my-interviews', async () => {
+    const response = await proxy(requestFor('/my-interviews', tokenFor('recruiter')));
+    expect(response.headers.get('x-middleware-next')).toBeNull();
+    expect(response.headers.get('location')).toBe('http://localhost:3000/dashboard');
+  });
+});
+
 describe('proxy — GĐ1 organization-admin boundaries (A2)', () => {
   const organizationPaths = [
     '/department-management',
