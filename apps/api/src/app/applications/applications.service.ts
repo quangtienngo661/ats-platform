@@ -23,7 +23,11 @@ import {
   GetApplicationsByJobQueryDto,
   UpdateApplicationStatusDto,
 } from './dtos/application.dto';
-import { applicationIncludeOptions } from '../../common/utils/include-options.util';
+import {
+  applicationIncludeOptions,
+  candidateHistorySelect,
+} from '../../common/utils/include-options.util';
+import { toCandidateHistory } from './candidate-history';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 import {
   assertOrganizationAccess,
@@ -300,7 +304,8 @@ export class ApplicationsService {
 
     return await this.prisma.application.findMany({
       where: { candidateId: candidate.candidateId },
-      include: applicationIncludeOptions,
+      // The list needs no history; the latest full row carried staff notes (D1).
+      include: { ...applicationIncludeOptions, history: false },
       orderBy: { appliedAt: 'desc' },
     });
   }
@@ -508,6 +513,18 @@ export class ApplicationsService {
   async getApplicationById(applicationId: string, caller: TenantCaller) {
     await this.assertCanAccessApplication(caller, applicationId);
 
+    if (caller.role === UserRole.candidate) {
+      const own = await this.prisma.application.findUnique({
+        where: { applicationId },
+        include: {
+          ...applicationIncludeOptions,
+          history: { select: candidateHistorySelect, orderBy: { changedAt: 'asc' } },
+        },
+      });
+      if (!own) throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
+      return { ...own, history: toCandidateHistory(own.history, own.status) };
+    }
+
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
       include: {
@@ -604,10 +621,20 @@ export class ApplicationsService {
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
-      select: { applicationId: true },
+      select: { applicationId: true, status: true },
     });
     if (!application)
       throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
+
+    // A candidate reads only the steps of their own application (R1, D8).
+    if (caller.role === UserRole.candidate) {
+      const rows = await this.prisma.applicationHistory.findMany({
+        where: { applicationId },
+        select: candidateHistorySelect,
+        orderBy: { changedAt: 'asc' },
+      });
+      return toCandidateHistory(rows, application.status);
+    }
 
     return await this.prisma.applicationHistory.findMany({
       where: { applicationId },

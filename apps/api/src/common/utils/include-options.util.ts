@@ -170,6 +170,19 @@ export const candidateScheduleSelect = {
   },
 } satisfies Prisma.InterviewScheduleSelect;
 
+/**
+ * The application-history columns read for a candidate. `rejectionReason` is read only
+ * so `toCandidateHistory` can decide whether to pass it on — never sent as-is.
+ * No `notes`, `changedBy` or staff `user`.
+ */
+export const candidateHistorySelect = {
+  id: true,
+  fromStatus: true,
+  toStatus: true,
+  changedAt: true,
+  rejectionReason: true,
+} satisfies Prisma.ApplicationHistorySelect;
+
 export const sessionIncludeOptions = {
   topic: {
     include: {

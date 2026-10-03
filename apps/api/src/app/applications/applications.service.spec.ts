@@ -7,6 +7,7 @@ import {
   UserRole,
 } from '@ats-platform/database';
 import { ApplicationsService } from './applications.service';
+import { candidateHistorySelect } from '../../common/utils/include-options.util';
 import { ForbiddenException } from '@nestjs/common';
 import {
   callerOf,
@@ -690,5 +691,111 @@ describe('ApplicationsService', () => {
       'cv-1',
       undefined,
     );
+  });
+
+  describe('application history for a candidate (R1, C7, D8)', () => {
+    const candidate = callerOf(UserRole.candidate, { userId: 'cand-user' });
+    const recruiter = callerOf(UserRole.recruiter);
+    const rejectedAt = new Date('2026-10-04T03:30:00.000Z');
+    const storedRows = [
+      { id: 'h1', fromStatus: null, toStatus: ApplicationStatus.applied, changedAt: new Date('2026-10-01T02:12:00.000Z'), rejectionReason: null },
+      { id: 'h2', fromStatus: ApplicationStatus.applied, toStatus: ApplicationStatus.rejected, changedAt: rejectedAt, rejectionReason: '  Thiếu NestJS  ' },
+    ];
+    const minimalRows = [
+      { id: 'h1', fromStatus: null, toStatus: ApplicationStatus.applied, changedAt: storedRows[0].changedAt },
+      { id: 'h2', fromStatus: ApplicationStatus.applied, toStatus: ApplicationStatus.rejected, changedAt: rejectedAt, rejectionReason: 'Thiếu NestJS' },
+    ];
+
+    function ownedBy(userId: string) {
+      prisma.application.findUnique.mockResolvedValueOnce({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        candidate: { userId },
+        jobPosting: { departmentId: 'dep-1' },
+      });
+    }
+
+    it('gives the candidate the minimal history, oldest first', async () => {
+      ownedBy('cand-user');
+      prisma.application.findUnique.mockResolvedValueOnce({ applicationId: 'app-1', status: ApplicationStatus.rejected });
+      prisma.applicationHistory.findMany.mockResolvedValueOnce(storedRows);
+
+      await expect(service.getApplicationHistory('app-1', candidate)).resolves.toEqual(minimalRows);
+
+      const args = prisma.applicationHistory.findMany.mock.calls[0][0];
+      expect(args.select).toBe(candidateHistorySelect);
+      expect(args).not.toHaveProperty('include');
+      expect(args.orderBy).toEqual({ changedAt: 'asc' });
+    });
+
+    it('keeps the staff history as it was', async () => {
+      prisma.application.findUnique.mockResolvedValueOnce({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      });
+      prisma.recruiter.findUnique.mockResolvedValueOnce({ userId: 'user-1', departmentId: 'dep-1', organizationId: 'org-1' });
+      prisma.application.findUnique.mockResolvedValueOnce({ applicationId: 'app-1', status: ApplicationStatus.rejected });
+      prisma.applicationHistory.findMany.mockResolvedValueOnce(storedRows);
+
+      await expect(service.getApplicationHistory('app-1', recruiter)).resolves.toBe(storedRows);
+      expect(prisma.applicationHistory.findMany).toHaveBeenCalledWith({
+        where: { applicationId: 'app-1' },
+        include: { user: { select: { userId: true, fullName: true, role: true } } },
+        orderBy: { changedAt: 'desc' },
+      });
+    });
+
+    it("refuses a candidate another candidate's history (R2)", async () => {
+      ownedBy('someone-else');
+
+      await expect(service.getApplicationHistory('app-1', candidate)).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prisma.applicationHistory.findMany).not.toHaveBeenCalled();
+    });
+
+    it('maps the history inside the application a candidate opens', async () => {
+      ownedBy('cand-user');
+      prisma.application.findUnique.mockResolvedValueOnce({
+        applicationId: 'app-1',
+        status: ApplicationStatus.rejected,
+        history: storedRows,
+      });
+
+      const application = await service.getApplicationById('app-1', candidate);
+
+      expect(application.history).toEqual(minimalRows);
+      const args = prisma.application.findUnique.mock.calls[1][0];
+      expect(args.include.history).toEqual({ select: candidateHistorySelect, orderBy: { changedAt: 'asc' } });
+    });
+
+    it('keeps the history inside the application a recruiter opens as it was', async () => {
+      prisma.application.findUnique.mockResolvedValueOnce({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      });
+      prisma.recruiter.findUnique.mockResolvedValueOnce({ userId: 'user-1', departmentId: 'dep-1', organizationId: 'org-1' });
+      prisma.application.findUnique.mockResolvedValueOnce({ applicationId: 'app-1', status: ApplicationStatus.rejected, history: storedRows });
+
+      const application = await service.getApplicationById('app-1', recruiter);
+
+      expect(application.history).toBe(storedRows);
+      const args = prisma.application.findUnique.mock.calls[1][0];
+      expect(args.include.history).toEqual({
+        include: { user: { select: { userId: true, fullName: true, role: true } } },
+        orderBy: { changedAt: 'desc' },
+      });
+    });
+
+    it('sends no history with the candidate application list', async () => {
+      prisma.candidate.findUnique.mockResolvedValueOnce({ candidateId: 'cand-1' });
+      prisma.application.findMany.mockResolvedValueOnce([]);
+
+      await service.getMyApplications('cand-user');
+
+      expect(prisma.application.findMany.mock.calls[0][0].include.history).toBe(false);
+    });
   });
 });
