@@ -4,8 +4,9 @@ import { validate } from 'class-validator';
 import { CreateInterviewScheduleDto } from './create-interview.dto';
 import { UpdateInterviewScheduleDto } from './update-interview.dto';
 
-// The global ValidationPipe validates a plainToInstance copy of the body (transform is
-// off, so the service still receives the raw body — trimming is the service's job).
+// The global ValidationPipe validates a plainToInstance copy of the body, the same thing
+// these tests do; with its validator options set it then hands the controller that
+// transformed copy (classToPlain), so @Transform(trimString) reaches the service.
 const baseCreate = {
   applicationId: '6f0f6f3a-7a3c-4b8e-9b2a-1c1d2e3f4a5b',
   interviewerId: '0b5f2f42-87f0-4dbe-b861-cde1e7f6e11e',

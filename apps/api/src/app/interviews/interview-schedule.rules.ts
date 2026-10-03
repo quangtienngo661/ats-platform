@@ -10,7 +10,11 @@ export const MEETING_LINK_INVALID_MESSAGE = 'Phỏng vấn trực tuyến cần 
 export const trimString = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
-/** The global ValidationPipe does not transform the body, so the service trims too. */
+/**
+ * Trims again in the service: the HTTP body already arrives trimmed (the global
+ * ValidationPipe hands the controller its transformed copy), but direct callers of the
+ * service do not pass through the DTO.
+ */
 export function trimToNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
