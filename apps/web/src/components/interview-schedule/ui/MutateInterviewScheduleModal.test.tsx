@@ -1,11 +1,12 @@
 // Component behaviour only: what the form submits. The API round trip and the stored
 // instant are proven by the GĐ2 schedule e2e (web server under TZ=UTC).
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import type { IApplicationDto } from '@/types/interfaces/application.interface';
 import type { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import type { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
+import { createInterviewScheduleAction } from '@/servers/interviews/interviews.action';
 import { MutateInterviewScheduleModal } from './MutateInterviewScheduleModal';
 
 const originalTz = process.env.TZ;
@@ -102,6 +103,40 @@ describe('MutateInterviewScheduleModal — interview type (C4)', () => {
     renderModal(editedSchedule({ location: 'Tầng 5, 123 Lê Lợi, Q.1' }));
 
     expect(screen.getByRole('textbox', { name: 'Địa điểm' })).toHaveValue('Tầng 5, 123 Lê Lợi, Q.1');
+  });
+});
+
+describe('MutateInterviewScheduleModal — a refused submit keeps what was typed', () => {
+  async function submitRefused(user: ReturnType<typeof userEvent.setup>) {
+    vi.mocked(createInterviewScheduleAction).mockResolvedValueOnce({ success: false, message: 'Người phỏng vấn đã có lịch trùng giờ' });
+    fireEvent.change(screen.getByLabelText('Giờ phỏng vấn'), { target: { value: '09:00' } });
+    await user.click(screen.getByRole('button', { name: 'Đặt lịch' }));
+    await waitFor(() => expect(createInterviewScheduleAction).toHaveBeenCalled());
+    expect(await screen.findByText('Người phỏng vấn đã có lịch trùng giờ')).toBeInTheDocument();
+  }
+
+  it('keeps the address and duration of an onsite interview', async () => {
+    const user = userEvent.setup();
+    renderModal();
+    await user.type(screen.getByRole('textbox', { name: 'Địa điểm' }), 'Tầng 5, 123 Lê Lợi');
+    await user.clear(screen.getByLabelText('Thời lượng (phút)'));
+    await user.type(screen.getByLabelText('Thời lượng (phút)'), '90');
+
+    await submitRefused(user);
+
+    expect(screen.getByRole('textbox', { name: 'Địa điểm' })).toHaveValue('Tầng 5, 123 Lê Lợi');
+    expect(screen.getByLabelText('Thời lượng (phút)')).toHaveValue(90);
+  });
+
+  it('keeps the meeting link of an online interview', async () => {
+    const user = userEvent.setup();
+    renderModal();
+    await user.click(screen.getByRole('radio', { name: 'Trực tuyến' }));
+    await user.type(screen.getByRole('textbox', { name: 'Đường dẫn phòng họp' }), 'https://meet.example.com/abc');
+
+    await submitRefused(user);
+
+    expect(screen.getByRole('textbox', { name: 'Đường dẫn phòng họp' })).toHaveValue('https://meet.example.com/abc');
   });
 });
 
