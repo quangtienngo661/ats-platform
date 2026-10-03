@@ -6,6 +6,7 @@ import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResour
 
 import http from '@/lib/http';
 import { isAbsoluteIso } from '@/lib/interview-time';
+import { isHttpUrl } from '@/lib/meeting-link';
 import { revalidatePath } from 'next/cache';
 import {
     IInterviewTopic,
@@ -15,6 +16,7 @@ import {
     IResumeSession,
     IInterviewScheduleQuery,
     IPaginatedInterviewSchedules,
+    IPaginatedCandidateInterviewSchedules,
     IInterviewSchedule,
 } from '@/types/interfaces/interview.interface';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
@@ -38,13 +40,18 @@ export type InterviewTopicActionState = {
     data?: IInterviewTopic;
 };
 
+// Only the field that belongs to the interview type is sent (the API stores no other).
+type SchedulePlace = { onlineMeetingLink: string } | { location: string };
+
 type SchedulePayload = {
     applicationId: string;
     interviewerId: string;
     interviewType: InterviewType;
     startAt: string;
     durationMinutes: number;
-};
+} & SchedulePlace;
+
+const LOCATION_MAX_LENGTH = 255;
 
 type NormalizedSchedulePayload =
     | { ok: false; error: string }
@@ -80,14 +87,31 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
         return { ok: false, error: 'Thời lượng phỏng vấn phải từ 15 đến 480 phút' };
     }
 
+    const interviewType =
+        getString(formData, 'interviewType') === InterviewType.online ? InterviewType.online : InterviewType.onsite;
+    let place: SchedulePlace;
+    if (interviewType === InterviewType.online) {
+        const onlineMeetingLink = getString(formData, 'onlineMeetingLink');
+        if (!isHttpUrl(onlineMeetingLink)) {
+            return { ok: false, error: 'Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ' };
+        }
+        place = { onlineMeetingLink };
+    } else {
+        const location = getString(formData, 'location');
+        if (!location) return { ok: false, error: 'Phỏng vấn trực tiếp cần địa điểm' };
+        if (location.length > LOCATION_MAX_LENGTH) return { ok: false, error: 'Địa điểm tối đa 255 ký tự' };
+        place = { location };
+    }
+
     return {
         ok: true,
         payload: {
             applicationId,
             interviewerId,
-            interviewType: InterviewType.onsite,
+            interviewType,
             startAt: startAtIso,
             durationMinutes,
+            ...place,
         },
     };
 }
@@ -167,22 +191,38 @@ export async function deleteInterviewTopicAction(
 
 
 
+function scheduleQueryParams(query?: IInterviewScheduleQuery) {
+    const params: Record<string, string | number> = {};
+    if (query?.applicationId) params.applicationId = query.applicationId;
+    if (query?.status) params.status = query.status;
+    if (query?.fromDate) params.fromDate = query.fromDate;
+    if (query?.toDate) params.toDate = query.toDate;
+    if (query?.page) params.page = query.page;
+    if (query?.limit) params.limit = query.limit;
+    if (query?.order) params.order = query.order;
+    return params;
+}
+
 export async function getMyInterviewSchedulesAction(
     query?: IInterviewScheduleQuery,
 ): Promise<IPaginatedInterviewSchedules> {
     try {
-        const params: Record<string, string | number> = {};
-        if (query?.applicationId) params.applicationId = query.applicationId;
-        if (query?.status) params.status = query.status;
-        if (query?.fromDate) params.fromDate = query.fromDate;
-        if (query?.toDate) params.toDate = query.toDate;
-        if (query?.page) params.page = query.page;
-        if (query?.limit) params.limit = query.limit;
-
-        const response = await http.get('/interviews/schedules/my', { params });
+        const response = await http.get('/interviews/schedules/my', { params: scheduleQueryParams(query) });
         return response.data as IPaginatedInterviewSchedules;
     } catch (error) {
         rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
+}
+
+/** The same endpoint as the staff list; for a candidate the API returns the minimal shape. */
+export async function getCandidateInterviewSchedulesAction(
+    query?: IInterviewScheduleQuery,
+): Promise<IPaginatedCandidateInterviewSchedules> {
+    try {
+        const response = await http.get('/interviews/schedules/my', { params: scheduleQueryParams(query) });
+        return response.data as IPaginatedCandidateInterviewSchedules;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải lịch phỏng vấn. Vui lòng thử lại.');
     }
 }
 

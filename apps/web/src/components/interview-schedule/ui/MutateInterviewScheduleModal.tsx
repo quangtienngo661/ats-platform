@@ -19,6 +19,12 @@ import { localDateTimeToIso } from '@/lib/interview-time';
 
 const initialState: InterviewScheduleActionState = { success: false, message: '' };
 
+type InterviewTypeValue = 'onsite' | 'online';
+const INTERVIEW_TYPES: { value: InterviewTypeValue; label: string }[] = [
+    { value: 'onsite', label: 'Trực tiếp' },
+    { value: 'online', label: 'Trực tuyến' },
+];
+
 interface MutateInterviewScheduleModalProps {
     schedule?: IInterviewSchedule;
     applications: IApplicationDto[];
@@ -75,6 +81,9 @@ export function MutateInterviewScheduleModal({
     // recruiter typed the time in; the server action runs wherever it is deployed.
     const [scheduledDate, setScheduledDate] = useState(schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate);
     const [scheduledTime, setScheduledTime] = useState(formatInputTime(schedule?.startAt));
+    const [interviewType, setInterviewType] = useState<InterviewTypeValue>(
+        schedule?.interviewType === 'online' ? 'online' : 'onsite',
+    );
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -232,10 +241,61 @@ export function MutateInterviewScheduleModal({
                                 />
                             </div>
 
-                            <div className="rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] px-4 py-3">
-                                <p className="text-[11px] uppercase tracking-[0.06em] text-[#6E6E73]" style={{ fontWeight: 800 }}>Hình thức</p>
-                                <p className="mt-1 text-[14px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>Phỏng vấn trực tiếp</p>
-                            </div>
+                            <fieldset>
+                                <legend className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                    Hình thức
+                                </legend>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {INTERVIEW_TYPES.map(option => (
+                                        <label
+                                            key={option.value}
+                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-3 text-[14px] transition-colors ${interviewType === option.value ? 'border-[#0071E3] bg-[#EBF3FD] text-[#0071E3]' : 'border-[#E5E5EA] text-[#1D1D1F] hover:bg-[#F5F5F7]'}`}
+                                            style={{ fontWeight: 700 }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="interviewType"
+                                                value={option.value}
+                                                checked={interviewType === option.value}
+                                                onChange={() => setInterviewType(option.value)}
+                                                className="accent-[#0071E3]"
+                                            />
+                                            {option.label}
+                                        </label>
+                                    ))}
+                                </div>
+                            </fieldset>
+
+                            {interviewType === 'onsite' ? (
+                                <div>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-6" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                        Địa điểm
+                                    </label>
+                                    <input id="mutateinterviewschedulemodal-field-6"
+                                        type="text"
+                                        name="location" aria-label="Địa điểm"
+                                        defaultValue={schedule?.location ?? ''}
+                                        maxLength={255}
+                                        placeholder="Ví dụ: Tầng 5, 123 Lê Lợi, Quận 1"
+                                        required
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-7" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                        Đường dẫn phòng họp
+                                    </label>
+                                    <input id="mutateinterviewschedulemodal-field-7"
+                                        type="url"
+                                        name="onlineMeetingLink" aria-label="Đường dẫn phòng họp"
+                                        defaultValue={schedule?.onlineMeetingLink ?? ''}
+                                        placeholder="https://meet.google.com/..."
+                                        required
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-3 border-t border-[#F2F2F7] px-6 py-4">
