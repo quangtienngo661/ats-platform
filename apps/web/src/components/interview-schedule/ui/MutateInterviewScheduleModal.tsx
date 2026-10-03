@@ -84,6 +84,10 @@ export function MutateInterviewScheduleModal({
     const [interviewType, setInterviewType] = useState<InterviewTypeValue>(
         schedule?.interviewType === 'online' ? 'online' : 'onsite',
     );
+    // Controlled: React resets uncontrolled fields after every form action, a refused one included.
+    const [durationMinutes, setDurationMinutes] = useState(String(schedule?.durationMinutes ?? 60));
+    const [location, setLocation] = useState(schedule?.location ?? '');
+    const [onlineMeetingLink, setOnlineMeetingLink] = useState(schedule?.onlineMeetingLink ?? '');
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -232,7 +236,8 @@ export function MutateInterviewScheduleModal({
                                 <input id="mutateinterviewschedulemodal-field-5"
                                     type="number"
                                     name="durationMinutes" aria-label="Thời lượng (phút)"
-                                    defaultValue={schedule?.durationMinutes ?? 60}
+                                    value={durationMinutes}
+                                    onChange={event => setDurationMinutes(event.target.value)}
                                     min={15}
                                     max={480}
                                     step={15}
@@ -274,7 +279,8 @@ export function MutateInterviewScheduleModal({
                                     <input id="mutateinterviewschedulemodal-field-6"
                                         type="text"
                                         name="location" aria-label="Địa điểm"
-                                        defaultValue={schedule?.location ?? ''}
+                                        value={location}
+                                        onChange={event => setLocation(event.target.value)}
                                         maxLength={255}
                                         placeholder="Ví dụ: Tầng 5, 123 Lê Lợi, Quận 1"
                                         required
@@ -289,7 +295,8 @@ export function MutateInterviewScheduleModal({
                                     <input id="mutateinterviewschedulemodal-field-7"
                                         type="url"
                                         name="onlineMeetingLink" aria-label="Đường dẫn phòng họp"
-                                        defaultValue={schedule?.onlineMeetingLink ?? ''}
+                                        value={onlineMeetingLink}
+                                        onChange={event => setOnlineMeetingLink(event.target.value)}
                                         placeholder="https://meet.google.com/..."
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
