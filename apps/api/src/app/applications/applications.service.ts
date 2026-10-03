@@ -13,6 +13,7 @@ import {
   ParsingStatus,
   Prisma,
   RelatedEntityType,
+  ScheduleStatus,
   ScreeningStatus,
   UserRole,
 } from '@ats-platform/database';
@@ -153,6 +154,26 @@ export class ApplicationsService {
         'Bạn không có quyền truy cập dữ liệu tuyển dụng của khoa này',
       );
     }
+  }
+
+  /**
+   * An application that is withdrawn or rejected keeps no interview to go to: its
+   * schedules that have not started yet are cancelled in the same transaction as the
+   * status change. Past schedules are history and stay as they are; reverting the
+   * status later does not reopen them.
+   */
+  private async cancelUpcomingSchedules(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+  ): Promise<void> {
+    await tx.interviewSchedule.updateMany({
+      where: {
+        applicationId,
+        status: ScheduleStatus.scheduled,
+        startAt: { gt: new Date() },
+      },
+      data: { status: ScheduleStatus.cancelled },
+    });
   }
 
   private async assertCanAccessApplication(
@@ -333,6 +354,8 @@ export class ApplicationsService {
           notes: 'Ứng viên đã rút đơn ứng tuyển',
         },
       });
+
+      await this.cancelUpcomingSchedules(tx, applicationId);
     });
 
     return { message: 'Rút đơn ứng tuyển thành công' };
@@ -563,6 +586,10 @@ export class ApplicationsService {
           rejectionReason: dto.rejectionReason,
         },
       });
+
+      if (dto.status === ApplicationStatus.rejected) {
+        await this.cancelUpcomingSchedules(tx, applicationId);
+      }
 
       return updated;
     });

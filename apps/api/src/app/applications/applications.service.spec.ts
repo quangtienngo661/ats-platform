@@ -2,6 +2,7 @@ import {
   ApplicationStatus,
   JobStatus,
   ParsingStatus,
+  ScheduleStatus,
   ScreeningStatus,
   UserRole,
 } from '@ats-platform/database';
@@ -467,6 +468,98 @@ describe('ApplicationsService', () => {
     // The old revert branch returned from inside the transaction and never reached
     // notifyCandidateStatusChangeSafe — the candidate got no signal at all.
     expect(notificationsService.create).toHaveBeenCalled();
+  });
+
+  describe('closing an application cancels its upcoming interviews (R7)', () => {
+    const now = new Date('2026-10-05T03:00:00.000Z');
+    let tx: ReturnType<typeof createPrismaTransactionMock>;
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now, doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+      tx = createPrismaTransactionMock();
+      tx.application.update.mockImplementation(async ({ data }: { data: { status: ApplicationStatus } }) => ({
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        jobId: 'job-1',
+        status: data.status,
+        candidate: { user: { userId: 'cand-user' } },
+      }));
+      prisma.$transaction.mockImplementation((callback: (client: typeof tx) => unknown) => callback(tx));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const upcomingCancellation = {
+      where: {
+        applicationId: 'app-1',
+        status: ScheduleStatus.scheduled,
+        startAt: { gt: now },
+      },
+      data: { status: ScheduleStatus.cancelled },
+    };
+
+    function applicationIn(status: ApplicationStatus) {
+      prisma.application.findUnique
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          organizationId: 'org-1',
+          candidate: { userId: 'cand-user' },
+          jobPosting: { departmentId: 'dep-1' },
+        })
+        .mockResolvedValueOnce({ applicationId: 'app-1', status });
+    }
+
+    it('cancels the upcoming interviews when an application is rejected', async () => {
+      applicationIn(ApplicationStatus.interview);
+
+      await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.rejected });
+
+      expect(tx.interviewSchedule.updateMany).toHaveBeenCalledWith(upcomingCancellation);
+      // Inside the status change's transaction, never as a separate write.
+      expect(prisma.interviewSchedule.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('leaves interviews alone when an application moves to offer', async () => {
+      applicationIn(ApplicationStatus.interview);
+
+      await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.offer });
+
+      expect(tx.interviewSchedule.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('cancels the upcoming interviews when the candidate withdraws', async () => {
+      prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+      prisma.application.findUnique.mockResolvedValue({
+        applicationId: 'app-1',
+        candidateId: 'cand-1',
+        status: ApplicationStatus.applied,
+      });
+
+      await service.withdraw('app-1', 'cand-user');
+
+      expect(tx.interviewSchedule.updateMany).toHaveBeenCalledWith(upcomingCancellation);
+      expect(prisma.interviewSchedule.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('does not reopen interviews when a rejection is reverted', async () => {
+      applicationIn(ApplicationStatus.rejected);
+      prisma.applicationHistory.findMany.mockResolvedValue([
+        { fromStatus: ApplicationStatus.applied },
+        { fromStatus: ApplicationStatus.screening },
+        { fromStatus: ApplicationStatus.interview },
+      ]);
+
+      await service.updateStatus('app-1', platformAdmin, {
+        status: ApplicationStatus.interview,
+        isReverted: true,
+      });
+
+      expect(tx.interviewSchedule.updateMany).not.toHaveBeenCalled();
+      expect(tx.interviewSchedule.update).not.toHaveBeenCalled();
+      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+    });
   });
 
   it('triggers screening only for eligible states and configs', async () => {
