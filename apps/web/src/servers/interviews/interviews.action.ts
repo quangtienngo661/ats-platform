@@ -5,6 +5,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
 
 import http from '@/lib/http';
+import { isAbsoluteIso } from '@/lib/interview-time';
 import { revalidatePath } from 'next/cache';
 import {
     IInterviewTopic,
@@ -55,13 +56,6 @@ function getString(formData: FormData, key: string) {
     return (formData.get(key) as string | null)?.trim() ?? '';
 }
 
-function toLocalDateTimeIso(date: string, time: string) {
-    const source = time.includes('T') ? time : `${date}T${time}:00`;
-    const parsed = new Date(source);
-    if (Number.isNaN(parsed.getTime())) return null;
-    return parsed.toISOString();
-}
-
 function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload {
     const applicationId = getString(formData, 'applicationId');
     const interviewerId = getString(formData, 'interviewerId');
@@ -74,8 +68,10 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
     if (!scheduledDate) return { ok: false, error: 'Vui lòng chọn ngày phỏng vấn' };
     if (!scheduledTime) return { ok: false, error: 'Vui lòng chọn giờ phỏng vấn' };
 
-    const startAtIso = toLocalDateTimeIso(scheduledDate, scheduledTime);
-    if (!startAtIso) {
+    // The browser converts the picked date and time (it knows the person's timezone);
+    // this server may run in any timezone, so it never rebuilds the instant itself.
+    const startAtIso = getString(formData, 'startAt');
+    if (!isAbsoluteIso(startAtIso)) {
         return { ok: false, error: 'Ngày hoặc giờ phỏng vấn không hợp lệ' };
     }
 

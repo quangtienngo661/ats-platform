@@ -15,6 +15,7 @@ import {
 } from '@/servers/interviews/interviews.action';
 import { SF } from '@/types/fonts/fonts';
 import { toast } from '@/lib/toast';
+import { localDateTimeToIso } from '@/lib/interview-time';
 
 const initialState: InterviewScheduleActionState = { success: false, message: '' };
 
@@ -70,6 +71,10 @@ export function MutateInterviewScheduleModal({
     const [interviewerId, setInterviewerId] = useState(schedule?.interviewerId ?? currentRecruiter?.user?.userId ?? '');
     const effectiveInterviewerId = eligible.some(recruiter => recruiter.user?.userId === interviewerId) ? interviewerId : eligible[0]?.user?.userId ?? '';
     const disabled = isPending || (!schedule && applications.length === 0) || eligible.length === 0;
+    // Converted here, in the browser, because only the browser knows the timezone the
+    // recruiter typed the time in; the server action runs wherever it is deployed.
+    const [scheduledDate, setScheduledDate] = useState(schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate);
+    const [scheduledTime, setScheduledTime] = useState(formatInputTime(schedule?.startAt));
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -188,7 +193,8 @@ export function MutateInterviewScheduleModal({
                                     <input id="mutateinterviewschedulemodal-field-3"
                                         type="date"
                                         name="scheduledDate" aria-label="Ngày phỏng vấn"
-                                        defaultValue={schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate}
+                                        value={scheduledDate}
+                                        onChange={event => setScheduledDate(event.target.value)}
                                         min={minDate}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
@@ -201,12 +207,14 @@ export function MutateInterviewScheduleModal({
                                     <input id="mutateinterviewschedulemodal-field-4"
                                         type="time"
                                         name="scheduledTime" aria-label="Giờ phỏng vấn"
-                                        defaultValue={formatInputTime(schedule?.startAt)}
+                                        value={scheduledTime}
+                                        onChange={event => setScheduledTime(event.target.value)}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                             </div>
+                            <input type="hidden" name="startAt" value={localDateTimeToIso(scheduledDate, scheduledTime) ?? ''} />
 
                             <div>
                                 <label htmlFor="mutateinterviewschedulemodal-field-5" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
