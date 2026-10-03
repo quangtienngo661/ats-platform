@@ -1,5 +1,5 @@
 import { ScheduleStatus } from '@ats-platform/database';
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsIn, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class GetInterviewSchedulesQueryDto {
@@ -30,4 +30,9 @@ export class GetInterviewSchedulesQueryDto {
     @IsNumber()
     @Min(1)
     limit?: number;
+
+    /** Sort by start time; `desc` lists the latest first (a candidate's history). */
+    @IsOptional()
+    @IsIn(['asc', 'desc'])
+    order?: 'asc' | 'desc';
 }

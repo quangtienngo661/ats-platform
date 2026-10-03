@@ -25,6 +25,7 @@ import {
   UserRole,
 } from '@ats-platform/database';
 import {
+  candidateScheduleSelect,
   interviewTopicCategorySelect,
   interviewTopicIncludeOptions,
   scheduleIncludeOptions,
@@ -379,14 +380,26 @@ export class InterviewsService {
       if (query.toDate) where.startAt.lte = this.getEndOfDay(query.toDate);
     }
 
+    const pageArgs = {
+      where,
+      orderBy: { startAt: query.order === 'desc' ? 'desc' : 'asc' } as const,
+      skip,
+      take: limit,
+    };
+    // A candidate gets only what it needs to attend (R1); staff keep the full payload.
+    const schedulesQuery =
+      role === UserRole.candidate
+        ? this.prisma.interviewSchedule.findMany({
+            ...pageArgs,
+            select: candidateScheduleSelect,
+          })
+        : this.prisma.interviewSchedule.findMany({
+            ...pageArgs,
+            include: scheduleIncludeOptions,
+          });
+
     const [schedules, total] = await Promise.all([
-      this.prisma.interviewSchedule.findMany({
-        where,
-        include: scheduleIncludeOptions,
-        orderBy: { startAt: 'asc' },
-        skip,
-        take: limit,
-      }),
+      schedulesQuery,
       this.prisma.interviewSchedule.count({ where }),
     ]);
 
@@ -404,10 +417,16 @@ export class InterviewsService {
   async getScheduleById(interviewId: string, caller: TenantCaller) {
     await this.assertCanViewSchedule(caller, interviewId);
 
-    const schedule = await this.prisma.interviewSchedule.findUnique({
-      where: { interviewId },
-      include: scheduleIncludeOptions,
-    });
+    const schedule =
+      caller.role === UserRole.candidate
+        ? await this.prisma.interviewSchedule.findUnique({
+            where: { interviewId },
+            select: candidateScheduleSelect,
+          })
+        : await this.prisma.interviewSchedule.findUnique({
+            where: { interviewId },
+            include: scheduleIncludeOptions,
+          });
 
     if (!schedule) throw new NotFoundException('Không tìm thấy lịch phỏng vấn');
     return schedule;

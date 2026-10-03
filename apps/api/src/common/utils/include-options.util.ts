@@ -142,6 +142,34 @@ export const scheduleIncludeOptions = {
 
 } satisfies Prisma.InterviewScheduleInclude;
 
+/**
+ * What a candidate may see of an interview schedule — and nothing more: no staff
+ * e-mail, phone, role or status, no scheduler, no candidate user row. Staff keep
+ * `scheduleIncludeOptions`.
+ */
+export const candidateScheduleSelect = {
+  interviewId: true,
+  startAt: true,
+  durationMinutes: true,
+  interviewType: true,
+  onlineMeetingLink: true,
+  location: true,
+  status: true,
+  interviewer: { select: { fullName: true } },
+  application: {
+    select: {
+      applicationId: true,
+      jobPosting: {
+        select: {
+          jobId: true,
+          title: true,
+          organization: { select: { name: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.InterviewScheduleSelect;
+
 export const sessionIncludeOptions = {
   topic: {
     include: {

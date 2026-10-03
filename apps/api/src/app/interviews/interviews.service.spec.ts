@@ -5,8 +5,13 @@ import {
   ScheduleStatus,
   UserRole,
 } from '@ats-platform/database';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InterviewsService } from './interviews.service';
 import { callerOf, createPrismaMock } from '../../test-utils/unit-test-helpers';
+import {
+  candidateScheduleSelect,
+  scheduleIncludeOptions,
+} from '../../common/utils/include-options.util';
 
 const platformAdmin = callerOf(UserRole.admin, { userId: 'admin-1' });
 const orgAdmin = callerOf(UserRole.org_admin); // organization 'org-1'
@@ -291,7 +296,7 @@ describe('InterviewsService', () => {
     it("lists every organization's schedules for a platform admin (6a)", async () => {
       prisma.interviewSchedule.count.mockResolvedValue(0);
 
-      await service.getMySchedules(platformAdmin, {} as any);
+      await service.getMySchedules(platformAdmin, {});
 
       const { where } = prisma.interviewSchedule.findMany.mock.calls[0][0];
       expect(where.organizationId).toBeUndefined();
@@ -397,6 +402,112 @@ describe('InterviewsService', () => {
           data: expect.objectContaining({ status: ScheduleStatus.completed }),
         }),
       );
+    });
+  });
+
+  describe('candidate payload (R1, C1, C2, C19)', () => {
+    const candidate = callerOf(UserRole.candidate); // userId 'user-1'
+
+    beforeEach(() => {
+      prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+      prisma.interviewSchedule.findMany.mockResolvedValue([]);
+      prisma.interviewSchedule.count.mockResolvedValue(0);
+    });
+
+    it('describes the candidate payload exactly', () => {
+      // The whole contract of what leaves the API for a candidate: no staff
+      // e-mail, phone, role or status, no scheduler, no candidate user row.
+      expect(candidateScheduleSelect).toEqual({
+        interviewId: true,
+        startAt: true,
+        durationMinutes: true,
+        interviewType: true,
+        onlineMeetingLink: true,
+        location: true,
+        status: true,
+        interviewer: { select: { fullName: true } },
+        application: {
+          select: {
+            applicationId: true,
+            jobPosting: {
+              select: {
+                jobId: true,
+                title: true,
+                organization: { select: { name: true } },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('returns only the candidate-safe fields of my schedules', async () => {
+      await service.getMySchedules(candidate, {});
+
+      const args = prisma.interviewSchedule.findMany.mock.calls[0][0];
+      expect(args.select).toBe(candidateScheduleSelect);
+      expect(args).not.toHaveProperty('include');
+      // Candidates are shared across organizations: never narrowed to one.
+      expect(args.where).toEqual({ application: { candidateId: 'cand-1' } });
+    });
+
+    it('keeps the full schedule payload for staff', async () => {
+      await service.getMySchedules(platformAdmin, {});
+
+      const args = prisma.interviewSchedule.findMany.mock.calls[0][0];
+      expect(args.include).toBe(scheduleIncludeOptions);
+      expect(args).not.toHaveProperty('select');
+    });
+
+    it('sorts my schedules descending when order is desc', async () => {
+      await service.getMySchedules(candidate, { order: 'desc' });
+      await service.getMySchedules(candidate, {});
+
+      expect(prisma.interviewSchedule.findMany.mock.calls[0][0].orderBy).toEqual({ startAt: 'desc' });
+      expect(prisma.interviewSchedule.findMany.mock.calls[1][0].orderBy).toEqual({ startAt: 'asc' });
+    });
+
+    it('gives a candidate the minimal payload of its own schedule', async () => {
+      prisma.interviewSchedule.findUnique
+        .mockResolvedValueOnce({
+          organizationId: 'org-1',
+          scheduledBy: 'user-9',
+          interviewerId: 'user-8',
+          application: {
+            candidate: { userId: 'user-1' },
+            jobPosting: { departmentId: 'dep-1' },
+          },
+        })
+        .mockResolvedValueOnce({ interviewId: 'int-1' });
+
+      await service.getScheduleById('int-1', candidate);
+
+      const args = prisma.interviewSchedule.findUnique.mock.calls[1][0];
+      expect(args.select).toBe(candidateScheduleSelect);
+      expect(args).not.toHaveProperty('include');
+    });
+
+    it('refuses a candidate the schedule of another candidate', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValueOnce({
+        organizationId: 'org-1',
+        scheduledBy: 'user-9',
+        interviewerId: 'user-8',
+        application: {
+          candidate: { userId: 'someone-else' },
+          jobPosting: { departmentId: 'dep-1' },
+        },
+      });
+
+      await expect(service.getScheduleById('int-1', candidate)).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prisma.interviewSchedule.findUnique).toHaveBeenCalledTimes(1);
+    });
+
+    it('still answers 404 for a candidate account without a profile', async () => {
+      prisma.candidate.findUnique.mockResolvedValue(null);
+
+      const call = service.getMySchedules(candidate, {});
+      await expect(call).rejects.toBeInstanceOf(NotFoundException);
+      await expect(call).rejects.toThrow('Không tìm thấy hồ sơ ứng viên');
     });
   });
 
