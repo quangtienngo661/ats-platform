@@ -8,6 +8,7 @@ import { Ban, Building2, Briefcase, CalendarDays, CheckCircle2, Clock, RefreshCw
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import { cancelInterviewScheduleAction, completeInterviewScheduleAction } from '@/servers/interviews/interviews.action';
 import { toast } from '@/lib/toast';
+import { isHttpUrl } from '@/lib/meeting-link';
 import { ScheduleStatus } from '@ats-platform/types';
 
 interface ScheduleDetailDrawerProps {
@@ -49,6 +50,7 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
     ];
 
     const canMutate = schedule.status === ScheduleStatus.scheduled;
+    const isOnline = schedule.interviewType === 'online';
 
     const handleStatusChange = (action: (interviewId: string) => Promise<{ success: boolean; message: string }>) => {
         startTransition(async () => {
@@ -96,7 +98,23 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
 
                     <div className="mb-5 rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] px-4 py-3">
                         <p className="text-[11px] uppercase tracking-[0.06em] text-[#6E6E73]" style={{ fontWeight: 800 }}>Hình thức</p>
-                        <p className="mt-1 text-[14px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>Phỏng vấn trực tiếp</p>
+                        <p className="mt-1 text-[14px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                            {isOnline ? 'Phỏng vấn trực tuyến' : 'Phỏng vấn trực tiếp'}
+                        </p>
+                        <div className="mt-1 break-all text-[13px] text-[#1D1D1F]">
+                            {isOnline
+                                ? schedule.onlineMeetingLink && (isHttpUrl(schedule.onlineMeetingLink) ? (
+                                    <a
+                                        href={schedule.onlineMeetingLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[#0071E3] hover:underline"
+                                    >
+                                        {schedule.onlineMeetingLink}
+                                    </a>
+                                ) : <span>{schedule.onlineMeetingLink}</span>)
+                                : <span>{schedule.location ?? 'Chưa có địa điểm'}</span>}
+                        </div>
                     </div>
 
                     <div className="space-y-3">
