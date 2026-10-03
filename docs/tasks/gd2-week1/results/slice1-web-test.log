@@ -6,8 +6,8 @@
  RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
 
 
- Test Files  28 passed (28)
-      Tests  190 passed (190)
-   Start at  20:05:51
-   Duration  59.70s (transform 2.80s, setup 24.13s, import 13.26s, tests 24.30s, environment 40.44s)
+ Test Files  29 passed (29)
+      Tests  196 passed (196)
+   Start at  20:30:30
+   Duration  21.86s (transform 984ms, setup 6.01s, import 4.28s, tests 12.49s, environment 14.58s)
 

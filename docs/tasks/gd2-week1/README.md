@@ -13,14 +13,15 @@ Hành trình E2E bằng trình duyệt đã viết nhưng **chưa chạy** (xem 
 Commits: `8ad300c` (test đỏ múi giờ) · `2d3e149` (sửa múi giờ) · `c7afda4` (cột `location`, R3) ·
 `ee4501c` (payload tối thiểu cho ứng viên) · `459b6c2` (đơn đóng thì hủy lịch) · `57d6e8f` (form chọn
 hình thức) · `4742d69` (sửa chú thích về ValidationPipe) · `ad5c523` (trang `/my-interviews`) ·
-`5384c16` (hành trình E2E).
+`5384c16` (hành trình E2E) · `701b2ed` (ghi kết quả) · sau review cuối: `6cba251` → `1908155` (form giữ dữ
+liệu đã nhập khi submit bị từ chối) và `f6ef933` → `ce43509` (drawer của recruiter hiện đúng hình thức).
 
 ### Kết quả chạy
 
 | Lệnh | Kết quả | Log |
 |---|---|---|
 | `npx nx test api --runInBand` | 60 suites, 490/490 pass | [results/slice1-api-test.log](results/slice1-api-test.log) |
-| `npm run test:web` | 28 files, 190/190 pass | [results/slice1-web-test.log](results/slice1-web-test.log) |
+| `npm run test:web` | 29 files, 196/196 pass (sau đợt sửa của review cuối) | [results/slice1-web-test.log](results/slice1-web-test.log) |
 | `npm run typecheck:web` (gồm `e2e/**`) | exit 0 | [results/slice1-web-typecheck.log](results/slice1-web-typecheck.log) |
 | `npm run lint:web` (`--max-warnings 0`) | exit 0 | [results/slice1-web-lint.log](results/slice1-web-lint.log) |
 | `npx nx lint api` | exit 0 — 300 warning, bằng baseline trước lát này | [results/slice1-api-lint.log](results/slice1-api-lint.log) |
@@ -45,7 +46,7 @@ hình thức) · `4742d69` (sửa chú thích về ValidationPipe) · `ad5c523` 
 | C19 3 lịch sắp tới không bị 20 lịch cũ đẩy mất; `order=desc` | `page.test.tsx`; `group-schedules.test.ts`; service `order`; API smoke `order=desc` | pass |
 | E1–E3, E8–E11 | `MyInterviewsClient.test.tsx`; trình duyệt (7 trường hợp seed) | pass |
 | E7 ứng viên chưa có hồ sơ → 404 | service › *still answers 404…* | pass |
-| E14 hoàn tác từ chối, lịch vẫn `cancelled` | không có code khôi phục lịch, nên đúng theo cấu trúc; **không có test riêng** | chưa có test |
+| E14 hoàn tác từ chối, lịch vẫn `cancelled` | `applications.service.spec.ts` › *does not reopen interviews when a rejection is reverted* | pass |
 | E18 hết phiên quay lại `/my-interviews` | `proxy.test.ts` (callbackUrl) | pass |
 
 ### Chưa xác minh / rủi ro
@@ -65,3 +66,16 @@ hình thức) · `4742d69` (sửa chú thích về ValidationPipe) · `ad5c523` 
 4. **Header từ 768 đến 1023px:** menu vẫn xuống dòng (lỗi có từ trước, do khối spacer rỗng chia đôi
    chiều rộng). Từ 1024px trở lên đã nằm trên 1 dòng.
 5. **Chưa push, chưa có PR, chưa deploy.**
+6. **Đổi giờ một lịch onsite cũ chưa có địa điểm qua UI thì phải nhập địa chỉ.** R3 ghi lịch cũ thiếu địa
+   điểm "vẫn đổi giờ được" — đúng ở API, nhưng form luôn gửi hình thức kèm địa điểm nên đòi nhập. Giữ
+   nguyên vì ứng viên cần địa chỉ; cần người dùng xác nhận.
+
+### Review cuối (một reviewer mới, xem cả nhánh `98ee357..701b2ed`)
+
+Kết luận: *With fixes*, không có lỗi Critical. Hai lỗi Important đã sửa, mỗi lỗi có test đỏ commit trước:
+- Drawer chi tiết lịch của recruiter luôn ghi "Phỏng vấn trực tiếp" và không hiện link/địa chỉ.
+- Submit bị từ chối (ví dụ trùng lịch) xóa trắng địa điểm, link và thời lượng vừa nhập — đã kiểm bằng test
+  đỏ trước khi sửa.
+
+Để lại (nhỏ, chưa sửa): web chấp nhận link không có TLD mà API từ chối (`https://meet/abc`); revert đơn về
+`cancelled` không hủy lịch; test action chỉ chạy `TZ=UTC`; `?page=` không có giới hạn trên.
