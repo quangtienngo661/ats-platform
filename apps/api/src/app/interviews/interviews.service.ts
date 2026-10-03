@@ -19,6 +19,7 @@ import { CreateInterviewTopicDto } from './dto/create-interview-topic.dto';
 import { UpdateInterviewTopicDto } from './dto/update-interview-topic.dto';
 import {
   ApplicationStatus,
+  InterviewType,
   Prisma,
   ScheduleStatus,
   UserRole,
@@ -28,6 +29,7 @@ import {
   interviewTopicIncludeOptions,
   scheduleIncludeOptions,
 } from '../../common/utils/include-options.util';
+import { resolveInterviewPlace, trimToNull } from './interview-schedule.rules';
 
 /**
  * Mirrors the `VALID_TRANSITIONS` map in `applications.service.ts`. Both `completed`
@@ -271,6 +273,9 @@ export class InterviewsService {
         startAt: true,
         durationMinutes: true,
         status: true,
+        interviewType: true,
+        location: true,
+        onlineMeetingLink: true,
         application: {
           select: { jobPosting: { select: { departmentId: true } } },
         },
@@ -316,7 +321,15 @@ export class InterviewsService {
         interviewType: dto.interviewType,
         startAt,
         durationMinutes: dto.durationMinutes,
-        onlineMeetingLink: dto.onlineMeetingLink,
+        // Only the field that belongs to the type is kept (the DTO already required it).
+        onlineMeetingLink:
+          dto.interviewType === InterviewType.online
+            ? trimToNull(dto.onlineMeetingLink)
+            : null,
+        location:
+          dto.interviewType === InterviewType.onsite
+            ? trimToNull(dto.location)
+            : null,
       },
       include: scheduleIncludeOptions,
     });
@@ -415,12 +428,18 @@ export class InterviewsService {
       });
       updateData.interviewerId = dto.interviewerId;
     }
-    if (dto.interviewType) updateData.interviewType = dto.interviewType;
+    if (
+      dto.interviewType !== undefined ||
+      dto.location !== undefined ||
+      dto.onlineMeetingLink !== undefined
+    ) {
+      // Untouched otherwise, so a legacy onsite schedule with no location can
+      // still change only its time or duration.
+      Object.assign(updateData, resolveInterviewPlace(schedule, dto));
+    }
     if (dto.startAt) updateData.startAt = new Date(dto.startAt);
     if (dto.durationMinutes !== undefined)
       updateData.durationMinutes = dto.durationMinutes;
-    if (dto.onlineMeetingLink !== undefined)
-      updateData.onlineMeetingLink = dto.onlineMeetingLink;
 
     if (dto.status && dto.status !== schedule.status) {
       const allowedNext = VALID_SCHEDULE_TRANSITIONS[schedule.status] ?? [];

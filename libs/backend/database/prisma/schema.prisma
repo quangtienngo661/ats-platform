@@ -614,6 +614,9 @@ model InterviewSchedule {
   startAt           DateTime       @map("start_at")
   durationMinutes   Int            @default(60) @map("duration_minutes")
   onlineMeetingLink String?        @map("online_meeting_link")
+  // Address of an onsite interview. Nullable: schedules created before this column
+  // existed have none, and the API requires it only when the type is onsite.
+  location          String?        @db.VarChar(255)
   status            ScheduleStatus @default(scheduled)
 
   organization Organization @relation(fields: [organizationId], references: [organizationId])

@@ -399,4 +399,138 @@ describe('InterviewsService', () => {
       );
     });
   });
+
+  describe('interview type and location (R3, R9)', () => {
+    const existingSchedule = (overrides: Record<string, unknown>) => ({
+      interviewId: 'int-1',
+      organizationId: 'org-1',
+      scheduledBy: 'user-1',
+      interviewerId: 'user-2',
+      startAt: new Date('2026-10-05T02:00:00Z'),
+      durationMinutes: 60,
+      status: ScheduleStatus.scheduled,
+      interviewType: InterviewType.onsite,
+      location: null,
+      onlineMeetingLink: null,
+      application: { jobPosting: { departmentId: 'dep-1' } },
+      ...overrides,
+    });
+    const updateData = () => prisma.interviewSchedule.update.mock.calls[0][0].data;
+
+    beforeEach(() => {
+      prisma.interviewSchedule.update.mockResolvedValue({ interviewId: 'int-1' });
+    });
+
+    it('clears the meeting link when switching to onsite', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        existingSchedule({ interviewType: InterviewType.online, onlineMeetingLink: 'https://meet.example.com/old' }),
+      );
+
+      await service.updateSchedule('int-1', platformAdmin, {
+        interviewType: InterviewType.onsite,
+        location: 'Tầng 5',
+      } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({ interviewType: 'onsite', location: 'Tầng 5', onlineMeetingLink: null }),
+      );
+    });
+
+    it('clears the location when switching to online', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+      await service.updateSchedule('int-1', platformAdmin, {
+        interviewType: InterviewType.online,
+        onlineMeetingLink: 'https://meet.example.com/x',
+      } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({
+          interviewType: 'online',
+          onlineMeetingLink: 'https://meet.example.com/x',
+          location: null,
+        }),
+      );
+    });
+
+    it('refuses switching to onsite without a location', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        existingSchedule({ interviewType: InterviewType.online, onlineMeetingLink: 'https://meet.example.com/old' }),
+      );
+
+      await expect(
+        service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.onsite } as any),
+      ).rejects.toThrow('Phỏng vấn trực tiếp cần địa điểm');
+      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+    });
+
+    it('refuses switching to online without a meeting link', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+      await expect(
+        service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.online } as any),
+      ).rejects.toThrow('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
+      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+    });
+
+    it('lets a legacy onsite schedule without location change only its duration', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({}));
+
+      await service.updateSchedule('int-1', platformAdmin, { durationMinutes: 90 } as any);
+
+      expect(prisma.interviewSchedule.update).toHaveBeenCalled();
+      expect(updateData()).not.toHaveProperty('location');
+      expect(updateData()).not.toHaveProperty('onlineMeetingLink');
+    });
+
+    describe('when creating', () => {
+      beforeEach(() => {
+        prisma.application.findUnique.mockResolvedValue({
+          applicationId: 'app-1',
+          organizationId: 'org-1',
+          status: ApplicationStatus.interview,
+          jobPosting: { departmentId: 'dep-1' },
+        });
+        prisma.recruiter.findUnique.mockResolvedValue({
+          recruiterId: 'rec-1',
+          departmentId: 'dep-1',
+          organizationId: 'org-1',
+          user: { userId: 'interviewer-1', role: UserRole.recruiter },
+        });
+        prisma.interviewSchedule.create.mockResolvedValue({ interviewId: 'int-1' });
+      });
+
+      const createData = () => prisma.interviewSchedule.create.mock.calls[0][0].data;
+      const base = {
+        applicationId: 'app-1',
+        interviewerId: 'interviewer-1',
+        startAt: '2026-10-05T02:00:00.000Z',
+        durationMinutes: 60,
+      };
+
+      it('stores the trimmed location of a new onsite schedule', async () => {
+        await service.createSchedule(platformAdmin, {
+          ...base,
+          interviewType: InterviewType.onsite,
+          location: '  Tầng 5, 123 Lê Lợi, Q.1  ',
+        } as any);
+
+        expect(createData()).toEqual(
+          expect.objectContaining({ location: 'Tầng 5, 123 Lê Lợi, Q.1', onlineMeetingLink: null }),
+        );
+      });
+
+      it('stores the trimmed meeting link of a new online schedule', async () => {
+        await service.createSchedule(platformAdmin, {
+          ...base,
+          interviewType: InterviewType.online,
+          onlineMeetingLink: '  HTTPS://meet.example.com/abc  ',
+        } as any);
+
+        expect(createData()).toEqual(
+          expect.objectContaining({ onlineMeetingLink: 'HTTPS://meet.example.com/abc', location: null }),
+        );
+      });
+    });
+  });
 });
