@@ -140,3 +140,22 @@ Lát 1 đã code (2026-10-03): `File:` của D2, D5, D6, D7 và phần lịch c�
 |---|---|
 | **Authorised by** | survey §S2 (hoàn tác được từ `rejected`); lựa chọn của người dùng |
 | **The answer, out loud** | Ứng viên chỉ đọc lý do của quyết định đang có hiệu lực. |
+
+---
+
+## D9 — Timeline của một đơn hiện ở đâu (người dùng chọn 2026-10-04)
+
+| Option | Pros | Cons |
+|---|---|---|
+| A — Trang chi tiết `/my-applications/[id]` | Có URL riêng (mở từ thông báo, e2e đi thẳng); server page tải một lần | Phải chuyển trang |
+| B — Mở rộng ngay trong thẻ | Không rời danh sách | Không có URL; thêm trạng thái tải/lỗi trong thẻ |
+| C — Drawer bên phải | Giữ danh sách phía sau | Trên mobile chiếm cả màn hình; không có URL |
+
+**Chosen:** A. Thẻ đơn có link "Xem tiến trình"; `role-policy` không cần đổi vì `/my-applications` đã bao cả đường dẫn con.
+**Mechanism:** server page gọi `getApplicationByIdAction`, render `ApplicationTimeline` (client).
+**File (dự kiến):** `apps/web/src/app/(candidate)/my-applications/[id]/page.tsx`, `apps/web/src/components/my-applications/timeline/`.
+
+| | |
+|---|---|
+| **Authorised by** | lựa chọn của người dùng 2026-10-04, kèm bản phác ba phương án |
+| **The answer, out loud** | Mỗi đơn có một trang riêng để xem đơn đã đi tới đâu. |

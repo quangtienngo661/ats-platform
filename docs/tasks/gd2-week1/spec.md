@@ -37,6 +37,22 @@ Mỗi lát tự đủ BE + FE + test và demo được; plan chi tiết lập ch
 - **Lỗi:** 400 có thông báo tiếng Việt; ứng viên chưa có hồ sơ → 404 như hiện tại; lỗi tải trang dùng `error.tsx` sẵn có của `(candidate)`.
 - **Kiểm thử:** unit-api C1–C3, C16, C18, C19; unit-web/component C4–C6, C17, E1–E3, E8–E11, E18; e2e C15 (phần lịch, rút đơn) và C17 (web trong container UTC, trình duyệt giờ VN).
 
+### Thiết kế lát 2 (duyệt 2026-10-04)
+
+Plan: [plan-slice2-timeline.md](plan-slice2-timeline.md).
+
+- **API:**
+  - `candidateHistorySelect` (`include-options.util.ts`) cùng hàm `toCandidateHistory` là nguồn duy nhất cho dạng lịch sử của ứng viên.
+  - `getApplicationHistory` và `getApplicationById` rẽ nhánh `candidate`, trả lịch sử theo `changedAt` tăng dần; staff không đổi.
+  - `rejectionReason` chỉ gắn vào dòng `toStatus = rejected` mới nhất, khi đơn đang `rejected`, sau khi cắt khoảng trắng và bỏ nếu rỗng. Lý do phải lọc theo `toStatus` vì `updateStatus` ghi lý do ở mọi lần đổi trạng thái.
+  - Hệ quả của D1: `GET /applications/my` của ứng viên không còn kèm `history`.
+- **Web:**
+  - Sửa kiểu `IApplicationHistoryItem` cho khớp API (C9).
+  - `buildTimeline` sắp tăng dần, dựng bước "Đã nộp đơn" từ `appliedAt` khi thiếu (E13), đánh dấu bước lùi (E4) và bước hiện tại.
+  - Trang `/my-applications/[id]` (D9) gọi một lần `GET /applications/:id`; thẻ đơn có link "Xem tiến trình".
+  - Giờ định dạng ở client theo múi giờ trình duyệt.
+- **Kiểm thử:** unit-api C7, C20, E12; unit-web/component C8, C9, E4, E5, E12, E13; e2e C15 (phần timeline) chạy ở CI `web-e2e`.
+
 ## Business rules
 
 - **R1 — Dữ liệu tối thiểu cho ứng viên (D1).** Khi người gọi là `candidate`, API chỉ trả:
