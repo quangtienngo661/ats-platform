@@ -26,14 +26,16 @@ export interface IApplicationDto extends IApplication {
     };
     candidate?: ICandidateDto;
     screening?: IScreeningResultDto | null;
+    history?: IApplicationHistoryItem[];
 }
 
+/** One step of an application, as the API sends it to a candidate (R1). */
 export interface IApplicationHistoryItem {
-    historyId: string;
-    applicationId: string;
-    status: string;
-    notes?: string;
+    id: string;
+    fromStatus: string | null;
+    toStatus: string;
     changedAt: string;
+    rejectionReason?: string;
 }
 
 export interface IGetApplicationsByJobQuery {
