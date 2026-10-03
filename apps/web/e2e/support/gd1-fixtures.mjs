@@ -29,7 +29,7 @@ export async function waitForAuthWindow() {
   }
 }
 
-async function withDatabase(operation) {
+export async function withDatabase(operation) {
   const pool = new pg.Pool({ connectionString });
   const client = await pool.connect();
   try {

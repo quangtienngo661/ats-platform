@@ -253,6 +253,8 @@ test.describe('GĐ1 tuần cuối — portal org_admin với hai tổ chức th�
     // The default date belongs to the visible work week. A late time avoids a
     // past-time rejection when the suite is run during the evening.
     await organizationPage.getByLabel('Giờ phỏng vấn', { exact: true }).fill('23:45');
+    // Onsite is the default type, and since GĐ2 (R3) it needs an address.
+    await organizationPage.getByLabel('Địa điểm', { exact: true }).fill('Phòng họp A, tầng 3');
     await organizationPage.getByRole('button', { name: 'Đặt lịch', exact: true }).click();
     await expect(organizationPage.getByRole('heading', { name: 'Đặt phỏng vấn', exact: true })).toBeHidden();
     const response = await organizationContext.request.get(`${apiBaseUrl()}/interviews/schedules/my?applicationId=${applicationAId}`, {
@@ -264,6 +266,7 @@ test.describe('GĐ1 tuần cuối — portal org_admin với hai tổ chức th�
     expect(schedules[0]).toMatchObject({
       organizationId: fixture.orgA.id, applicationId: applicationAId,
       interviewerId: recruiterA.user.userId, durationMinutes: 60,
+      interviewType: 'onsite', location: 'Phòng họp A, tầng 3',
     });
   });
 
