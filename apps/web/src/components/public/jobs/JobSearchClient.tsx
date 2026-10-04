@@ -19,6 +19,8 @@ const SALARY_INVALID_ERROR = 'Mức lương không hợp lệ';
 const SALARY_INPUT_CLASS = 'w-full sm:w-[150px] px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] outline-none focus:border-[#0071E3] bg-white';
 const GROUP_LABEL_CLASS = 'text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block';
 
+const salaryText = (value?: number) => (value !== undefined ? formatSalaryInput(value) : '');
+
 interface JobSearchClientProps {
     initialJobs: IJobPostingDto[];
     total: number;
@@ -40,10 +42,26 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
     const [searchQuery, setSearchQuery] = useState(initialQuery.q ?? '');
     const [selectedCategory, setSelectedCategory] = useState(initialQuery.categoryId ?? '');
     const [selectedLocationType, setSelectedLocationType] = useState(initialQuery.locationType ?? 'Tất cả');
-    const [salaryMinText, setSalaryMinText] = useState(initialQuery.salaryMin !== undefined ? formatSalaryInput(initialQuery.salaryMin) : '');
-    const [salaryMaxText, setSalaryMaxText] = useState(initialQuery.salaryMax !== undefined ? formatSalaryInput(initialQuery.salaryMax) : '');
+    const [salaryMinText, setSalaryMinText] = useState(salaryText(initialQuery.salaryMin));
+    const [salaryMaxText, setSalaryMaxText] = useState(salaryText(initialQuery.salaryMax));
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initialQuery.skillIds ?? []);
     const [salaryError, setSalaryError] = useState('');
+
+    // Next keeps this component's state when only the search params change (Back, a link
+    // to the same page), so the fields follow the URL they were last given: the URL is
+    // what the results on screen were made from. The panel stays open.
+    const queryKey = JSON.stringify(initialQuery);
+    const [syncedQueryKey, setSyncedQueryKey] = useState(queryKey);
+    if (syncedQueryKey !== queryKey) {
+        setSyncedQueryKey(queryKey);
+        setSearchQuery(initialQuery.q ?? '');
+        setSelectedCategory(initialQuery.categoryId ?? '');
+        setSelectedLocationType(initialQuery.locationType ?? 'Tất cả');
+        setSalaryMinText(salaryText(initialQuery.salaryMin));
+        setSalaryMaxText(salaryText(initialQuery.salaryMax));
+        setSelectedSkills(initialQuery.skillIds ?? []);
+        setSalaryError('');
+    }
     const [showFilters, setShowFilters] = useState(false);
     const [isPending, startTransition] = useTransition();
 
@@ -52,12 +70,15 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
     const applyFilters = (overrides?: Partial<typeof initialQuery & { page?: number }>) => {
         const salaryMin = parseSalaryInput(salaryMinText);
         const salaryMax = parseSalaryInput(salaryMaxText);
+        // The message lives in the panel: open it, or a refused entry would do nothing visible.
         if (salaryMin === 'invalid' || salaryMax === 'invalid') {
             setSalaryError(SALARY_INVALID_ERROR);
+            setShowFilters(true);
             return;
         }
         if (salaryMin !== null && salaryMax !== null && salaryMin > salaryMax) {
             setSalaryError(SALARY_RANGE_ERROR);
+            setShowFilters(true);
             return;
         }
         setSalaryError('');
