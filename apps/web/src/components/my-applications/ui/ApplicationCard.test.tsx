@@ -27,3 +27,10 @@ describe('ApplicationCard — the way to the interview schedule', () => {
     expect(screen.queryByRole('link', { name: 'Xem lịch phỏng vấn' })).toBeNull();
   });
 });
+
+describe('ApplicationCard — the way to the application timeline (D9)', () => {
+  it.each(['applied', 'interview', 'rejected', 'cancelled'])('links a %s application to its page', (status) => {
+    renderCard(status);
+    expect(screen.getByRole('link', { name: 'Xem tiến trình' })).toHaveAttribute('href', '/my-applications/app-1');
+  });
+});
