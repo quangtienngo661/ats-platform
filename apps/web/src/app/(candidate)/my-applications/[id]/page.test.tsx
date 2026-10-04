@@ -50,6 +50,24 @@ describe('ApplicationPage (C8, D9)', () => {
     expect(within(steps[1]).getByText('Thiếu NestJS')).toBeInTheDocument();
   });
 
+  it('hands the browser only what the page shows, not the AI screening or CV details', async () => {
+    fetchApplication.mockResolvedValueOnce({
+      ...application,
+      screening: { aiReasoning: 'Lý giải nội bộ của AI về ứng viên', aiScore: 72 },
+      cv: { fileName: 'cv-noi-bo.pdf' },
+      candidate: { user: { email: 'ung-vien@ats.test' } },
+    } as unknown as IApplicationDto);
+
+    const element = await ApplicationPage({ params: Promise.resolve({ id: 'app-1' }) });
+    const sentToBrowser = JSON.stringify(element.props);
+
+    expect(sentToBrowser).toContain('Backend Engineer');
+    expect(sentToBrowser).toContain('Thiếu NestJS');
+    expect(sentToBrowser).not.toContain('Lý giải nội bộ của AI');
+    expect(sentToBrowser).not.toContain('cv-noi-bo.pdf');
+    expect(sentToBrowser).not.toContain('ung-vien@ats.test');
+  });
+
   it("leaves another candidate's application to the error boundary (403)", async () => {
     fetchApplication.mockRejectedValueOnce(new Error('Không thể tải dữ liệu. Vui lòng thử lại.'));
 
