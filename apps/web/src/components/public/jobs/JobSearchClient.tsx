@@ -6,12 +6,13 @@ import { Search, SlidersHorizontal, Briefcase, X, ChevronLeft, ChevronRight } fr
 import { motion, AnimatePresence } from 'motion/react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { formatSalaryInput, parseSalaryInput } from '@/lib/salary-input';
+import { WORK_TYPES, WORK_TYPE_LABELS } from '@/lib/work-types';
 import { IJobFilterOptions, IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { JobCard } from './JobCard';
 
-const LOCATION_TYPES = ['Tất cả', 'remote', 'onsite', 'hybrid'];
-const LOCATION_LABELS: Record<string, string> = { 'Tất cả': 'Tất cả', remote: 'Remote', onsite: 'Văn phòng', hybrid: 'Hybrid' };
+const LOCATION_TYPES = ['Tất cả', ...WORK_TYPES];
+const LOCATION_LABELS: Record<string, string> = { 'Tất cả': 'Tất cả', ...WORK_TYPE_LABELS };
 const MAX_SKILLS = 20;
 const SALARY_RANGE_ERROR = 'Mức lương tối thiểu không thể lớn hơn mức lương tối đa';
 const SALARY_INVALID_ERROR = 'Mức lương không hợp lệ';
