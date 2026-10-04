@@ -79,3 +79,49 @@ Kết luận: *With fixes*, không có lỗi Critical. Hai lỗi Important đã 
 
 Để lại (nhỏ, chưa sửa): web chấp nhận link không có TLD mà API từ chối (`https://meet/abc`); revert đơn về
 `cancelled` không hủy lịch; test action chỉ chạy `TZ=UTC`; `?page=` không có giới hạn trên.
+
+## Lát 2 — Timeline đơn ứng tuyển
+
+**Trạng thái (2026-10-04):** đã code xong trên `feat/gd2-candidate-flows`, chưa push. Plan:
+[plan-slice2-timeline.md](plan-slice2-timeline.md); vị trí hiển thị theo D9 (trang chi tiết).
+
+Commits: `e8437af` (thiết kế + plan) · `20146a9` (API trả lịch sử tối thiểu cho ứng viên) · `07a3550`
+(component timeline, sửa kiểu web) · `f4ade35` (trang `/my-applications/[id]`, link "Xem tiến trình") ·
+`7bef728` (bước timeline trong hành trình E2E).
+
+### Kết quả chạy
+
+| Lệnh | Kết quả | Log |
+|---|---|---|
+| `npx nx test api --runInBand` | 61 suites, 503/503 pass | [results/slice2-api-test.log](results/slice2-api-test.log) |
+| `npm run test:web` | 34 files, 222/222 pass | [results/slice2-web-test.log](results/slice2-web-test.log) |
+| `npm run typecheck:web` (gồm `e2e/**`) | exit 0 | [results/slice2-web-typecheck.log](results/slice2-web-typecheck.log) |
+| `npm run lint:web` | exit 0 | [results/slice2-web-lint.log](results/slice2-web-lint.log) |
+| `npx nx lint api` | exit 0, 300 warning (bằng baseline) | [results/slice2-api-lint.log](results/slice2-api-lint.log) |
+| `npx nx build api` | exit 0 | [results/slice2-api-build.log](results/slice2-api-build.log) |
+| API smoke trên test stack | 12/12 | [results/slice2-api-smoke.log](results/slice2-api-smoke.log) |
+
+Suite web chạy trên working tree có sẵn các thay đổi chưa commit của một phiên khác (refactor header); những
+thay đổi đó không nằm trong commit nào của lát này.
+
+### Tiêu chí → bằng chứng
+
+| Tiêu chí | Bằng chứng | Kết quả |
+|---|---|---|
+| C7 / R1 lịch sử tối thiểu, staff giữ nguyên | `candidate-history.spec.ts`; `applications.service.spec.ts` › *application history for a candidate*; API smoke (đối chứng: staff vẫn thấy `notes`) | pass |
+| C8 timeline theo thời gian, đánh dấu bước hiện tại, lý do | `build-timeline.test.ts`; `ApplicationTimeline.test.tsx`; `page.test.tsx` | pass |
+| C9 kiểu web khớp API | typecheck (`IApplicationHistoryItem` mới); `applications.action.test.ts` | pass |
+| C15 phần timeline | `e2e/gd2-candidate-schedules.e2e.ts` › *C8/C15* | **chưa chạy** (không có trình duyệt Playwright); phần API: smoke 12/12 |
+| C20 hoàn tác thì không còn lý do | `candidate-history.spec.ts`; API smoke | pass |
+| R2 đơn của người khác → 403 | service › *refuses a candidate another candidate's history*; API smoke | pass |
+| E4 bước lùi | `build-timeline.test.ts`, `ApplicationTimeline.test.tsx` | pass |
+| E5 đơn đã rút | `build-timeline.test.ts` | pass |
+| E12 lý do trống | `candidate-history.spec.ts`, `ApplicationTimeline.test.tsx` | pass |
+| E13 thiếu dòng "applied" | `build-timeline.test.ts` | pass |
+
+### Chưa xác minh / rủi ro
+
+1. **Chưa xem trang trên trình duyệt.** Một `next dev` khác (không phải của phiên này) đang giữ `apps/web` ở
+   cổng 3000; bạn chọn bỏ qua thay vì tắt nó. Trang chỉ được chứng minh bằng component/page test.
+2. **E2E bằng trình duyệt chưa chạy ở máy này** — job `web-e2e` của CI sẽ chạy khi có PR vào `dev`.
+3. `GET /applications/my` của ứng viên không còn kèm `history` (hệ quả của D1). Web không dùng trường này.

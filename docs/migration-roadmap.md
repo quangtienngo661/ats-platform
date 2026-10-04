@@ -188,7 +188,7 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 
 ```
 [x] Candidate view of their InterviewSchedule (route + UI)          ~2 days (GĐ2 slice 1, docs/tasks/gd2-week1/README.md — browser E2E written, not yet run)
-[ ] Application timeline visualization (backed by ApplicationHistory) ~2 days
+[x] Application timeline visualization (backed by ApplicationHistory) ~2 days (GĐ2 slice 2, docs/tasks/gd2-week1/README.md — browser E2E written, not yet run)
 [ ] Job search: filter by category, location type, salary, skill    ~2 days
 ```
 

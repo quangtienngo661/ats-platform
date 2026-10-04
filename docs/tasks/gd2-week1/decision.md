@@ -20,7 +20,7 @@ Lát 1 đã code (2026-10-03): `File:` của D2, D5, D6, D7 và phần lịch c�
 - Hệ quả: khi làm form từ chối (GĐ2 tuần 2), nhãn phải nói rõ "ứng viên sẽ thấy lý do này".
 
 **Mechanism:** select/map riêng cho candidate trong service (không đổi payload của staff).
-**File:** `apps/api/src/common/utils/include-options.util.ts` (`candidateScheduleSelect`), `apps/api/src/app/interviews/interviews.service.ts` (`getMySchedules`, `getScheduleById`). Phần lịch sử đơn (dự kiến, lát 2): `apps/api/src/app/applications/applications.service.ts`.
+**File:** `apps/api/src/common/utils/include-options.util.ts` (`candidateScheduleSelect`), `apps/api/src/app/interviews/interviews.service.ts` (`getMySchedules`, `getScheduleById`). Phần lịch sử đơn: `candidateHistorySelect` (cùng file) và `apps/api/src/app/applications/candidate-history.ts`.
 
 | | |
 |---|---|
@@ -134,7 +134,7 @@ Lát 1 đã code (2026-10-03): `File:` của D2, D5, D6, D7 và phần lịch c�
 ## D8 — Lý do của một lần từ chối đã được hoàn tác (người dùng chọn)
 
 **Chosen:** chỉ hiện `rejectionReason` khi **trạng thái hiện tại** của đơn là `rejected`, và chỉ ở dòng từ chối mới nhất. Bước từ chối đã hoàn tác vẫn hiện trong timeline nhưng không kèm lý do. Bổ sung cho D1.
-**File (dự kiến):** `apps/api/src/app/applications/applications.service.ts` (map lịch sử cho candidate).
+**File:** `apps/api/src/app/applications/candidate-history.ts` (`toCandidateHistory`), gọi từ `applications.service.ts` (`getApplicationHistory`, `getApplicationById`).
 
 | | |
 |---|---|
@@ -153,7 +153,7 @@ Lát 1 đã code (2026-10-03): `File:` của D2, D5, D6, D7 và phần lịch c�
 
 **Chosen:** A. Thẻ đơn có link "Xem tiến trình"; `role-policy` không cần đổi vì `/my-applications` đã bao cả đường dẫn con.
 **Mechanism:** server page gọi `getApplicationByIdAction`, render `ApplicationTimeline` (client).
-**File (dự kiến):** `apps/web/src/app/(candidate)/my-applications/[id]/page.tsx`, `apps/web/src/components/my-applications/timeline/`.
+**File:** `apps/web/src/app/(candidate)/my-applications/[id]/page.tsx`, `apps/web/src/components/my-applications/ApplicationDetail.tsx`, `apps/web/src/components/my-applications/timeline/`.
 
 | | |
 |---|---|
