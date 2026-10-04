@@ -53,6 +53,23 @@ Plan: [plan-slice2-timeline.md](plan-slice2-timeline.md).
   - Giờ định dạng ở client theo múi giờ trình duyệt.
 - **Kiểm thử:** unit-api C7, C20, E12; unit-web/component C8, C9, E4, E5, E12, E13; e2e C15 (phần timeline) chạy ở CI `web-e2e`.
 
+### Thiết kế lát 3 (duyệt 2026-10-04)
+
+Plan: [plan-slice3-job-filter.md](plan-slice3-job-filter.md).
+
+- **API:**
+  - `FindJobPostingsQueryDto` thêm `salaryMin`, `salaryMax` (số không âm, rỗng thì bỏ) và `skillIds` (mảng UUID, tối đa 20; một giá trị đơn được đưa thành mảng). `@Transform` chạy hai lần nên phải idempotent.
+  - `jobPostingFilters` dựng điều kiện giao khoảng lương (R4) và `jobPostingSkills.some.skillId.in`; `findAll` nối vào `AND`, giữ nguyên phạm vi `status` của non-staff (R6); `salaryMin > salaryMax` → 400 trước khi truy vấn.
+  - `GET /job-postings/filter-options` (OptionalJwt, khai báo trước `:id`) trả kỹ năng của tin `active`, không trùng, sắp theo tên.
+  - NULL-semantics của lương chỉ chứng minh được trên PostgreSQL thật, nên có bước thăm dò riêng trên `ats_test`.
+- **Web:**
+  - `getJobPostingsAction` gửi mảng bằng khóa lặp (`paramsSerializer: { indexes: null }`, vì axios mặc định gửi `skillIds[]`).
+  - Trang `/job-postings` phân tích và bỏ giá trị xấu trên URL thay vì để API trả 400; panel "Bộ lọc" có thêm "Mức lương (VNĐ)" (nhập "15.000.000") và "Kỹ năng"; mọi thay đổi bộ lọc về trang 1.
+  - Trang chủ: ô "Địa điểm" bị khóa đổi thành chọn hình thức làm việc (D4).
+  - Sửa chip kỹ năng trên thẻ việc làm công khai, vốn đọc sai `job.skills` (D10).
+- **Kiểm thử:** unit-api C10, C12, E6, E15, E16; thăm dò DB thật C11, C12; unit-web/component C13, C14, E15, E17; e2e hành trình lọc chạy ở CI `web-e2e`.
+- **Ngoài lát này:** tin công khai lộ danh sách ứng viên và liên hệ recruiter (task riêng); đơn vị lương không thống nhất ở form recruiter.
+
 ## Business rules
 
 - **R1 — Dữ liệu tối thiểu cho ứng viên (D1).** Khi người gọi là `candidate`, API chỉ trả:

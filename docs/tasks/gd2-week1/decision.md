@@ -159,3 +159,23 @@ Lát 1 (2026-10-03) và lát 2 (2026-10-04) đã code: `File:` của D1, D2, D5�
 |---|---|
 | **Authorised by** | lựa chọn của người dùng 2026-10-04, kèm bản phác ba phương án |
 | **The answer, out loud** | Mỗi đơn có một trang riêng để xem đơn đã đi tới đâu. |
+
+---
+
+## D10 — Chip kỹ năng trên thẻ việc làm công khai (người dùng chọn 2026-10-04)
+
+Lỗi có sẵn: `JobCard`, `JobDetailHero`, `JobDetailSidebar` đọc `job.skills`, còn API trả `jobPostingSkills[].skill`, nên chip kỹ năng chưa bao giờ hiện.
+
+| Option | Pros | Cons |
+|---|---|---|
+| A — Sửa trong lát 3, test đỏ trước | Lọc theo kỹ năng nhìn được kết quả bằng mắt | Thêm một task nhỏ, hai commit |
+| B — Chỉ ghi nhận, làm sau | Lát 3 gọn hơn | Bộ lọc kỹ năng khó kiểm bằng mắt; lỗi còn mở |
+
+**Chosen:** A.
+**Mechanism:** `jobSkillsOf(job)` đọc `jobPostingSkills[].skill`; ba component đọc qua nó. Theo quy trình defect: test tái hiện commit trước, sửa commit sau.
+**File (dự kiến):** `apps/web/src/lib/job-skills.ts`, `apps/web/src/components/public/jobs/JobCard.tsx`, `detail/JobDetailHero.tsx`, `detail/JobDetailSidebar.tsx`.
+
+| | |
+|---|---|
+| **Authorised by** | lựa chọn của người dùng 2026-10-04 |
+| **The answer, out loud** | Thẻ việc làm hiện đúng kỹ năng của tin, để ứng viên thấy thứ mình vừa lọc. |
