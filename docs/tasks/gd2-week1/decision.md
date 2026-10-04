@@ -1,7 +1,7 @@
 # Decisions — GĐ2 tuần 1: luồng ứng viên
 
 **Ngày:** 2026-10-03 · D1–D4 và D6–D8 do người dùng chọn qua `AskUserQuestion` cùng ngày; D5 là mặc định của người làm, chưa hỏi (dễ đảo).
-Lát 1 đã code (2026-10-03): `File:` của D2, D5, D6, D7 và phần lịch của D1 trỏ tới nơi thật. Các mục `File (dự kiến)` còn lại thuộc lát 2–3.
+Lát 1 (2026-10-03) và lát 2 (2026-10-04) đã code: `File:` của D1, D2, D5–D9 trỏ tới nơi thật. Các mục `File (dự kiến)` còn lại (D3, D4) thuộc lát 3.
 
 ---
 

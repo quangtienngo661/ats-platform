@@ -1,7 +1,7 @@
 # Spec — GĐ2 tuần 1: luồng ứng viên
 
 **Ngày:** 2026-10-03 · **Nhánh:** `feat/gd2-candidate-flows` · Nguồn: đề cương ĐA2 (GĐ2: "Ứng viên: xem lịch phỏng vấn, timeline đơn ứng tuyển, lọc tìm việc"), [survey.md](survey.md), [decision.md](decision.md) D1–D5.
-**Trạng thái:** đã duyệt. Lát 1 (lịch phỏng vấn) đã code ngày 2026-10-03, kết quả ở [README.md](README.md). Lát 2–3 chưa code.
+**Trạng thái:** đã duyệt. Lát 1 (lịch phỏng vấn) đã code ngày 2026-10-03, lát 2 (timeline) ngày 2026-10-04; kết quả ở [README.md](README.md). Lát 3 chưa code.
 
 ## Mục tiêu
 

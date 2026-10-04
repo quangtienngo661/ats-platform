@@ -1,7 +1,8 @@
 # GĐ2 tuần 1 — luồng ứng viên
 
 Spec: [spec.md](spec.md) · quyết định: [decision.md](decision.md) · survey: [survey.md](survey.md) ·
-plan lát 1: [plan-slice1-schedules.md](plan-slice1-schedules.md). Lát 2 (timeline) và lát 3 (lọc việc
+plan lát 1: [plan-slice1-schedules.md](plan-slice1-schedules.md) · plan lát 2:
+[plan-slice2-timeline.md](plan-slice2-timeline.md). Lát 1 và lát 2 đã code (xem các mục dưới); lát 3 (lọc việc
 làm) chưa bắt đầu.
 
 ## Lát 1 — Lịch phỏng vấn của ứng viên
@@ -94,7 +95,7 @@ Commits: `e8437af` (thiết kế + plan) · `20146a9` (API trả lịch sử t�
 | Lệnh | Kết quả | Log |
 |---|---|---|
 | `npx nx test api --runInBand` | 61 suites, 503/503 pass | [results/slice2-api-test.log](results/slice2-api-test.log) |
-| `npm run test:web` | 34 files, 222/222 pass | [results/slice2-web-test.log](results/slice2-web-test.log) |
+| `npm run test:web` | 34 files, 223/223 pass (sau đợt sửa của review cuối) | [results/slice2-web-test.log](results/slice2-web-test.log) |
 | `npm run typecheck:web` (gồm `e2e/**`) | exit 0 | [results/slice2-web-typecheck.log](results/slice2-web-typecheck.log) |
 | `npm run lint:web` | exit 0 | [results/slice2-web-lint.log](results/slice2-web-lint.log) |
 | `npx nx lint api` | exit 0, 300 warning (bằng baseline) | [results/slice2-api-lint.log](results/slice2-api-lint.log) |
@@ -125,3 +126,15 @@ thay đổi đó không nằm trong commit nào của lát này.
    cổng 3000; bạn chọn bỏ qua thay vì tắt nó. Trang chỉ được chứng minh bằng component/page test.
 2. **E2E bằng trình duyệt chưa chạy ở máy này** — job `web-e2e` của CI sẽ chạy khi có PR vào `dev`.
 3. `GET /applications/my` của ứng viên không còn kèm `history` (hệ quả của D1). Web không dùng trường này.
+
+### Review cuối lát 2 (reviewer mới, `5a20b0a..346b585`)
+
+Kết luận *Yes*, không có Critical/Important. Một mục Minor được nâng lên và đã sửa, test đỏ commit trước
+(`f1e6af2` → `b4a91bb`): trang chi tiết đưa nguyên đơn (gồm lý giải AI của bước sàng lọc, CV, dòng ứng viên)
+vào HTML vì props của client component bị serialize; giờ chỉ đưa tên vị trí, khoa, trạng thái, ngày nộp và
+lịch sử. Web 223/223 sau khi sửa.
+
+Để lại (nhỏ): bước "Hiện tại" là dòng cuối sau khi sắp xếp, không đối chiếu `status` (chỉ sai khi hai dòng
+trùng giờ — chưa có đường code nào tạo ra); đơn không tồn tại (404) hiện trang "thử lại" thay vì `notFound()`;
+`IApplicationDto.history` mang kiểu của ứng viên trong khi staff nhận dòng đầy đủ; logic chờ mount lặp ở hai
+component.
