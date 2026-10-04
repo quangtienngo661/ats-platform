@@ -1,6 +1,6 @@
 // The job search filters a candidate (or a visitor) reaches from the "Bộ lọc" panel:
 // what they type becomes the URL, and a bad entry never navigates (C13, E6, E15, E17).
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { JobSearchClient } from './JobSearchClient';
@@ -15,8 +15,8 @@ const SKILLS = [
 
 type Props = Partial<React.ComponentProps<typeof JobSearchClient>>;
 
-function renderSearch(props: Props = {}) {
-  return render(
+function searchElement(props: Props = {}) {
+  return (
     <JobSearchClient
       initialJobs={[]}
       total={0}
@@ -25,8 +25,12 @@ function renderSearch(props: Props = {}) {
       skills={SKILLS}
       initialQuery={{}}
       {...props}
-    />,
+    />
   );
+}
+
+function renderSearch(props: Props = {}) {
+  return render(searchElement(props));
 }
 
 async function openFilters(user: ReturnType<typeof userEvent.setup>) {
@@ -190,5 +194,64 @@ describe('JobSearchClient — clearing (E17)', () => {
     await openFilters(user);
 
     expect(screen.getByRole('button', { name: 'Xóa bộ lọc' })).toBeInTheDocument();
+  });
+});
+
+describe('JobSearchClient — the URL changes under it (Back, a header link to the same page)', () => {
+  // Next keeps a page's client state when only the search params change, so the filters
+  // shown must follow the new props or they stop describing the results on screen.
+  it('drops the chosen skill and salary the new URL no longer has, panel still open', async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderSearch({ initialQuery: { salaryMin: 12_000_000, skillIds: ['skill-a'] } });
+    await openFilters(user);
+    expect(screen.getByRole('button', { name: 'NestJS' })).toHaveAttribute('aria-pressed', 'true');
+
+    rerender(searchElement({ initialQuery: {} }));
+
+    expect(screen.getByRole('button', { name: 'NestJS' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('textbox', { name: 'Từ' })).toHaveValue('');
+  });
+
+  it('does not bring the old filters back on the next change', async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderSearch({ initialQuery: { skillIds: ['skill-a'] }, total: 60 });
+    await openFilters(user);
+
+    rerender(searchElement({ initialQuery: {}, total: 60 }));
+    await user.click(screen.getByRole('button', { name: 'Tiếp' }));
+
+    expect(lastUrl().searchParams.has('skillIds')).toBe(false);
+  });
+
+  it('takes the filters of the new URL, keyword and salary included', async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderSearch();
+    await openFilters(user);
+    await user.type(screen.getByRole('textbox', { name: 'Từ' }), '5.000.000');
+
+    rerender(searchElement({ initialQuery: { q: 'react', salaryMax: 20_000_000, skillIds: ['skill-b'] } }));
+
+    expect(screen.getByRole('textbox', { name: 'Tìm việc làm' })).toHaveValue('react');
+    expect(screen.getByRole('textbox', { name: 'Từ' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Đến' })).toHaveValue('20.000.000');
+    expect(screen.getByRole('button', { name: 'React' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});
+
+describe('JobSearchClient — a refused entry while the panel is closed', () => {
+  it('opens the panel to show the message instead of doing nothing', async () => {
+    const user = userEvent.setup();
+    renderSearch();
+    await openFilters(user);
+    await user.type(screen.getByRole('textbox', { name: 'Từ' }), '20.000.000');
+    await user.type(screen.getByRole('textbox', { name: 'Đến' }), '10.000.000');
+    await openFilters(user);
+    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Từ' })).toBeNull());
+
+    await user.click(screen.getByRole('button', { name: 'Tìm' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Mức lương tối thiểu không thể lớn hơn mức lương tối đa');
+    expect(screen.getByRole('textbox', { name: 'Từ' })).toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 });
