@@ -1,6 +1,7 @@
 import { Briefcase, DollarSign, Clock } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
 import { ApplyButton } from './ApplyButton';
 
 function formatSalary(min?: number | null, max?: number | null): string {
@@ -38,6 +39,7 @@ function formatLocation(locationType?: string): string {
 export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps) {
     const initial = job.title?.[0]?.toUpperCase() ?? 'J';
     const deptName = job.department?.name;
+    const skills = jobSkillsOf(job);
 
     return (
         <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
@@ -71,9 +73,9 @@ export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps
             </div>
 
             {/* Skill tags */}
-            {job.skills && job.skills.length > 0 && (
+            {skills.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6">
-                    {job.skills.map(s => (
+                    {skills.map(s => (
                         <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-3 py-1" style={{ fontWeight: 500 }}>
                             {s.name ?? s.skillId}
                         </span>

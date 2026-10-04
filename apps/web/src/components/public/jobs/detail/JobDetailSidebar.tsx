@@ -1,6 +1,7 @@
 import { DollarSign, Briefcase, Building2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
 
 function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
@@ -25,6 +26,7 @@ interface JobDetailSidebarProps {
 export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
     const dept = job.department;
     const category = job.category;
+    const skills = jobSkillsOf(job);
 
     const infoItems = [
         { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: DollarSign },
@@ -54,13 +56,13 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
                 </div>
 
                 {/* Skills */}
-                {job.skills && job.skills.length > 0 && (
+                {skills.length > 0 && (
                     <div className="mt-5 pt-5 border-t border-[#F2F2F7]">
                         <p className="text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2] mb-3" style={{ fontWeight: 600 }}>
                             Kỹ năng yêu cầu
                         </p>
                         <div className="flex flex-wrap gap-1.5">
-                            {job.skills.map(s => (
+                            {skills.map(s => (
                                 <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-2.5 py-1" style={{ fontWeight: 500 }}>
                                     {s.name ?? s.skillId}
                                 </span>

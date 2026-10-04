@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Clock, MapPin, Building2, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -50,6 +51,7 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
     const dept = job.department;
+    const skills = jobSkillsOf(job);
     const deptColor = dept?.color || '#0071E3';
     const deptBg = `${deptColor}15`;
     
@@ -94,16 +96,16 @@ export function JobCard({ job }: JobCardProps) {
                 </div>
 
                 {/* Skills/Tags */}
-                {job.skills && job.skills.length > 0 && (
+                {skills.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                        {job.skills.slice(0, 3).map(s => (
+                        {skills.slice(0, 3).map(s => (
                             <span key={s.skillId} className="text-[11px] bg-[#F5F5F7] text-[#6E6E73] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
                                 {s.name ?? s.skillId}
                             </span>
                         ))}
-                        {job.skills.length > 3 && (
+                        {skills.length > 3 && (
                             <span className="text-[11px] bg-[#F5F5F7] text-[#AEAEB2] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
-                                +{job.skills.length - 3}
+                                +{skills.length - 3}
                             </span>
                         )}
                     </div>
