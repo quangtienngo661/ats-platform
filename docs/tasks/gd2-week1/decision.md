@@ -1,7 +1,7 @@
 # Decisions — GĐ2 tuần 1: luồng ứng viên
 
 **Ngày:** 2026-10-03 · D1–D4 và D6–D8 do người dùng chọn qua `AskUserQuestion` cùng ngày; D5 là mặc định của người làm, chưa hỏi (dễ đảo).
-Lát 1 (2026-10-03) và lát 2 (2026-10-04) đã code: `File:` của D1, D2, D5–D9 trỏ tới nơi thật. Các mục `File (dự kiến)` còn lại (D3, D4) thuộc lát 3.
+Cả ba lát đã code (2026-10-03 và 2026-10-04): mọi `File:` trỏ tới nơi thật.
 
 ---
 
@@ -65,7 +65,7 @@ Lát 1 (2026-10-03) và lát 2 (2026-10-04) đã code: `File:` của D1, D2, D5�
 - Danh sách kỹ năng: `GET /job-postings/filter-options` (OptionalJwt), trả các kỹ năng gắn với tin `active`.
 
 **Mechanism:** thêm `salaryMin`, `salaryMax`, `skillIds` vào query DTO và `where` của `findAll`; endpoint filter-options.
-**File (dự kiến):** `apps/api/src/app/job-postings/dto/job-posting.dto.ts`, `job-postings.service.ts`, `job-postings.controller.ts`.
+**File:** `apps/api/src/app/job-postings/dto/job-posting.dto.ts` (`FindJobPostingsQueryDto`), `job-posting-filters.ts` (`jobPostingFilters`), `job-postings.service.ts` (`findAll`, `getFilterOptions`), `job-postings.controller.ts` (`filterOptions`); web: `apps/web/src/components/public/jobs/JobSearchClient.tsx`, `apps/web/src/lib/job-filter-params.ts`, `apps/web/src/lib/salary-input.ts`.
 
 | | |
 |---|---|
@@ -78,7 +78,7 @@ Lát 1 (2026-10-03) và lát 2 (2026-10-04) đã code: `File:` của D1, D2, D5�
 ## D4 — Ô "Địa điểm" bị khóa ở trang chủ
 
 **Chosen:** bỏ ô; thay bằng chọn hình thức làm việc (`remote`/`onsite`/`hybrid`), dẫn sang `/job-postings?locationType=…`. Không thêm cột địa điểm cho JobPosting.
-**File (dự kiến):** `apps/web/src/components/public/home/HomeHero.tsx`.
+**File:** `apps/web/src/components/public/home/HomeHero.tsx`, `apps/web/src/lib/work-types.ts`.
 
 | | |
 |---|---|
@@ -173,7 +173,7 @@ Lỗi có sẵn: `JobCard`, `JobDetailHero`, `JobDetailSidebar` đọc `job.skil
 
 **Chosen:** A.
 **Mechanism:** `jobSkillsOf(job)` đọc `jobPostingSkills[].skill`; ba component đọc qua nó. Theo quy trình defect: test tái hiện commit trước, sửa commit sau.
-**File (dự kiến):** `apps/web/src/lib/job-skills.ts`, `apps/web/src/components/public/jobs/JobCard.tsx`, `detail/JobDetailHero.tsx`, `detail/JobDetailSidebar.tsx`.
+**File:** `apps/web/src/lib/job-skills.ts`, `apps/web/src/components/public/jobs/JobCard.tsx`, `detail/JobDetailHero.tsx`, `detail/JobDetailSidebar.tsx`.
 
 | | |
 |---|---|

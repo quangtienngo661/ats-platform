@@ -2,8 +2,8 @@
 
 Spec: [spec.md](spec.md) · quyết định: [decision.md](decision.md) · survey: [survey.md](survey.md) ·
 plan lát 1: [plan-slice1-schedules.md](plan-slice1-schedules.md) · plan lát 2:
-[plan-slice2-timeline.md](plan-slice2-timeline.md). Lát 1 và lát 2 đã code (xem các mục dưới); lát 3 (lọc việc
-làm) chưa bắt đầu.
+[plan-slice2-timeline.md](plan-slice2-timeline.md) · plan lát 3: [plan-slice3-job-filter.md](plan-slice3-job-filter.md).
+Cả ba lát đã code (xem các mục dưới).
 
 ## Lát 1 — Lịch phỏng vấn của ứng viên
 
@@ -138,3 +138,60 @@ lịch sử. Web 223/223 sau khi sửa.
 trùng giờ — chưa có đường code nào tạo ra); đơn không tồn tại (404) hiện trang "thử lại" thay vì `notFound()`;
 `IApplicationDto.history` mang kiểu của ứng viên trong khi staff nhận dòng đầy đủ; logic chờ mount lặp ở hai
 component.
+
+## Lát 3 — Lọc tìm việc
+
+**Trạng thái (2026-10-04):** đã code xong trên `feat/gd2-candidate-flows`, chưa push. Plan:
+[plan-slice3-job-filter.md](plan-slice3-job-filter.md). Lát 3 làm xong thì **cả ba lát của tuần 1 đã code**.
+
+Commits: `29079f9` (thiết kế + plan) · `2fc0b32` (API lọc lương và kỹ năng) · `1c20d22` (endpoint
+`filter-options`) · `2c3d355` (thăm dò trên DB thật) · `8bc464f` (action, kiểu dữ liệu, helper nhập lương) ·
+`4d34b65` (panel bộ lọc) · `7219901` (trang chủ chọn hình thức) · `456319c` → `7b941b9` (chip kỹ năng trên
+thẻ việc làm, test đỏ trước) · `a48b3a3` (hành trình E2E).
+
+### Kết quả chạy
+
+| Lệnh | Kết quả | Log |
+|---|---|---|
+| `npx nx test api --runInBand` | 62 suites, 533/533 pass | [results/slice3-api-test.log](results/slice3-api-test.log) |
+| `npm run test:web` | 42 files, 294/294 pass | [results/slice3-web-test.log](results/slice3-web-test.log) |
+| `npm run typecheck:web` (gồm `e2e/**`) | exit 0 | [results/slice3-web-typecheck.log](results/slice3-web-typecheck.log) |
+| `npm run lint:web` | exit 0 | [results/slice3-web-lint.log](results/slice3-web-lint.log) |
+| `npx nx lint api` | exit 0, 300 warning (bằng baseline) | [results/slice3-api-lint.log](results/slice3-api-lint.log) |
+| `npx nx build api` | exit 0 | [results/slice3-api-build.log](results/slice3-api-build.log) |
+| Thăm dò trên PostgreSQL thật (test stack) | 29/29 | [results/slice3-api-smoke.log](results/slice3-api-smoke.log) |
+
+Suite web chạy trên working tree có sẵn các thay đổi chưa commit của một phiên khác (refactor header); những
+thay đổi đó không nằm trong commit nào của lát này.
+
+### Tiêu chí → bằng chứng
+
+| Tiêu chí | Bằng chứng | Kết quả |
+|---|---|---|
+| C10 hình dạng `where`, 400 cho giá trị xấu | `job-posting-filters.spec.ts`; `job-posting.dto.spec.ts`; `job-postings.service.spec.ts` › *salary and skill filters*; thăm dò (400 thật) | pass |
+| C11 bốn tin lương (một đầu, không lương), biên hai đầu, tin draft không hiện | thăm dò trên PostgreSQL thật (NULL-semantics không kiểm được bằng mock) | pass |
+| C12 kỹ năng khớp bất kỳ; `filter-options` công khai, không trùng, theo tên, không bị `:id` nuốt | service/controller spec; thăm dò (200, không 404) | pass |
+| C13 URL có `salaryMin`/`salaryMax`/`skillIds`, "Xóa bộ lọc" | `JobSearchClient.test.tsx`, `page.test.ts`, `job-filter-params.test.ts` | pass |
+| C14 trang chủ chọn hình thức làm việc | `HomeHero.test.tsx` | pass |
+| E6 không có kỹ năng → ẩn mục kỹ năng | service spec; `JobSearchClient.test.tsx` | pass |
+| E15 `min = max`, nhập "15.000.000" | `salary-input.test.ts`; service spec; `JobSearchClient.test.tsx` | pass |
+| E16 kỹ năng không tồn tại → 0 kết quả; hơn 20 → 400 | DTO spec; thăm dò | pass |
+| E17 đổi bộ lọc ở trang > 1 → về trang 1; xóa cả ba tham số | `JobSearchClient.test.tsx` | pass |
+| E19 staff mở trang công khai | giữ nguyên hành vi có sẵn, không đổi | ghi nhận |
+| D10 chip kỹ năng trên thẻ việc làm | `JobCard`/`JobDetailHero`/`JobDetailSidebar` test (đỏ `456319c`, xanh `7b941b9`) | pass |
+| Hành trình trình duyệt (C11–C14) | `e2e/gd2-job-filter.e2e.ts` | **chưa chạy** |
+
+### Chưa xác minh / rủi ro
+
+1. **Chưa xem trang trên trình duyệt.** Cổng 3000 và thư mục `apps/web` vẫn bị một `next dev` của phiên khác
+   giữ (PID 240324, trỏ vào API dev); mình không tắt nó. Panel lọc chỉ được chứng minh bằng component test.
+2. **E2E bằng trình duyệt chưa chạy ở máy này** (không có trình duyệt Playwright). Phần API của cùng dữ liệu
+   đã chạy trên DB thật (29/29). Hai điểm chỉ CI mới chứng minh: panel còn mở sau khi đổi URL, và không tràn ngang
+   ở 390px khi panel đang mở.
+3. **Đơn vị lương không thống nhất.** Form recruiter không ghi đơn vị (`placeholder` 2000/4000) còn phần hiển
+   thị coi là VNĐ đầy đủ. Bộ lọc coi số đã lưu là VNĐ (D3); tin do recruiter nhập theo đơn vị khác sẽ không khớp.
+4. **Tin công khai còn lộ danh sách ứng viên và liên hệ recruiter** (`jobPostingIncludeOptions`, đọc từ code, chưa
+   chạy thử) — đã tạo task riêng; lát này cố ý không đụng phần `include`.
+5. **Nhãn hình thức làm việc không thống nhất** ("On-site" ở trang chi tiết, "Tại văn phòng (Onsite)" ở thẻ,
+   "Văn phòng" ở bộ lọc và trang chủ): có từ trước, không sửa.
+6. **Chưa push, chưa có PR, chưa deploy.**
