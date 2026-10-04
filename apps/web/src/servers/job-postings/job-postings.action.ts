@@ -6,7 +6,7 @@ import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResour
 
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
-import { IJobPostingDto, IFindJobPostingsQuery, IPaginatedJobPostings } from '@/types/interfaces/job-posting.interface';
+import { IJobPostingDto, IFindJobPostingsQuery, IJobFilterOptions, IPaginatedJobPostings } from '@/types/interfaces/job-posting.interface';
 import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 import { cookies } from 'next/headers';
 
@@ -81,19 +81,36 @@ export async function parseJdPreviewAction(
 }
 export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promise<IPaginatedJobPostings> {
     try {
-        const params: Record<string, string | number> = {};
+        const params: Record<string, string | number | string[]> = {};
         if (query?.status) params.status = query.status;
         if (query?.locationType) params.locationType = query.locationType;
         if (query?.departmentId) params.departmentId = query.departmentId;
         if (query?.categoryId) params.categoryId = query.categoryId;
         if (query?.search) params.search = query.search;
+        if (query?.salaryMin !== undefined) params.salaryMin = query.salaryMin;
+        if (query?.salaryMax !== undefined) params.salaryMax = query.salaryMax;
+        if (query?.skillIds?.length) params.skillIds = query.skillIds;
         if (query?.page) params.page = query.page;
         if (query?.limit) params.limit = query.limit;
 
-        const response = await http.get('/job-postings', { params });
+        // axios writes an array as `skillIds[]=a&skillIds[]=b`, which the API refuses
+        // (forbidNonWhitelisted); `indexes: null` sends `skillIds=a&skillIds=b`.
+        const response = await http.get('/job-postings', { params, paramsSerializer: { indexes: null } });
         return response.data as IPaginatedJobPostings;
     } catch (error) {
         rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
+}
+
+// ─── GET FILTER OPTIONS (public) ──────────────────────────────────────────────
+/** The skills the job board can be filtered by. Without them the search still works. */
+export async function getJobFilterOptionsAction(): Promise<IJobFilterOptions> {
+    try {
+        const response = await http.get('/job-postings/filter-options');
+        return response.data as IJobFilterOptions;
+    } catch (error) {
+        unstable_rethrow(error);
+        return { skills: [] };
     }
 }
 

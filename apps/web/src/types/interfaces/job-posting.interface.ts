@@ -67,8 +67,16 @@ export interface IFindJobPostingsQuery {
     departmentId?: string;
     categoryId?: string;
     search?: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    skillIds?: string[];
     page?: number;
     limit?: number;
+}
+
+/** What the public job board can be filtered by (GET /job-postings/filter-options). */
+export interface IJobFilterOptions {
+    skills: { skillId: string; name: string }[];
 }
 
 export type IPaginatedJobPostings = IPaginatedResponse<IJobPostingDto>;
