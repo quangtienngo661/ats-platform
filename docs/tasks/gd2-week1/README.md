@@ -1,5 +1,11 @@
 # GĐ2 tuần 1 — luồng ứng viên
 
+> **E2E bằng trình duyệt đã chạy (2026-10-04):** `TZ=UTC npm run test:e2e:web` trên test stack, Chrome Headless
+> Shell 153 — **30/30 pass** ([results/e2e-full.log](results/e2e-full.log)), trong đó 13 test GĐ2
+> ([results/e2e-gd2.log](results/e2e-gd2.log)) và A6 của GĐ1 sau khi sửa. Lần chạy đầu có 1 test fail do selector
+> `getByRole('alert')` khớp cả vùng route announcer của Next (lỗi của test, đã sửa). Các mục "chưa chạy" bên dưới
+> về E2E nay đã được chạy; phần "chưa xem giao diện bằng mắt" thì vẫn còn.
+
 Spec: [spec.md](spec.md) · quyết định: [decision.md](decision.md) · survey: [survey.md](survey.md) ·
 plan lát 1: [plan-slice1-schedules.md](plan-slice1-schedules.md) · plan lát 2:
 [plan-slice2-timeline.md](plan-slice2-timeline.md) · plan lát 3: [plan-slice3-job-filter.md](plan-slice3-job-filter.md).

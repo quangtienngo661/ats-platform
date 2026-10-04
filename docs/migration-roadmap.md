@@ -187,9 +187,9 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ### Candidate flows
 
 ```
-[x] Candidate view of their InterviewSchedule (route + UI)          ~2 days (GĐ2 slice 1, docs/tasks/gd2-week1/README.md — browser E2E written, not yet run)
-[x] Application timeline visualization (backed by ApplicationHistory) ~2 days (GĐ2 slice 2, docs/tasks/gd2-week1/README.md — browser E2E written, not yet run)
-[x] Job search: filter by category, location type, salary, skill    ~2 days (GĐ2 slice 3, docs/tasks/gd2-week1/README.md — browser E2E written, not yet run)
+[x] Candidate view of their InterviewSchedule (route + UI)          ~2 days (GĐ2 slice 1, docs/tasks/gd2-week1/README.md — browser E2E run, 30/30)
+[x] Application timeline visualization (backed by ApplicationHistory) ~2 days (GĐ2 slice 2, docs/tasks/gd2-week1/README.md — browser E2E run, 30/30)
+[x] Job search: filter by category, location type, salary, skill    ~2 days (GĐ2 slice 3, docs/tasks/gd2-week1/README.md — browser E2E run, 30/30)
 ```
 
 ### Recruiter flows

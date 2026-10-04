@@ -66,7 +66,8 @@ test.describe('GĐ2 tuần 1 — lọc tìm việc', () => {
     await page.getByRole('textbox', { name: 'Đến', exact: true }).fill('10.000.000');
     await page.getByRole('button', { name: 'Áp dụng', exact: true }).click();
 
-    await expect(page.getByRole('alert')).toHaveText('Mức lương tối thiểu không thể lớn hơn mức lương tối đa');
+    // Scoped to the salary group: Next's own route announcer is also a role=alert.
+    await expect(page.getByRole('group', { name: 'Mức lương (VNĐ)' }).getByRole('alert')).toHaveText('Mức lương tối thiểu không thể lớn hơn mức lương tối đa');
     await expect(page).not.toHaveURL(/salaryMin=/);
   });
 
