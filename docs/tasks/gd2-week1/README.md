@@ -147,14 +147,15 @@ component.
 Commits: `29079f9` (thiết kế + plan) · `2fc0b32` (API lọc lương và kỹ năng) · `1c20d22` (endpoint
 `filter-options`) · `2c3d355` (thăm dò trên DB thật) · `8bc464f` (action, kiểu dữ liệu, helper nhập lương) ·
 `4d34b65` (panel bộ lọc) · `7219901` (trang chủ chọn hình thức) · `456319c` → `7b941b9` (chip kỹ năng trên
-thẻ việc làm, test đỏ trước) · `a48b3a3` (hành trình E2E).
+thẻ việc làm, test đỏ trước) · `a48b3a3` (hành trình E2E) · `150eb7d` (ghi kết quả) · sau review cuối: `8aec8bc` →
+`187d511` (bộ lọc theo URL, báo lỗi khi panel đóng) và `3b9138b` (chặn chiều cao panel).
 
 ### Kết quả chạy
 
 | Lệnh | Kết quả | Log |
 |---|---|---|
 | `npx nx test api --runInBand` | 62 suites, 533/533 pass | [results/slice3-api-test.log](results/slice3-api-test.log) |
-| `npm run test:web` | 42 files, 294/294 pass | [results/slice3-web-test.log](results/slice3-web-test.log) |
+| `npm run test:web` | 42 files, 298/298 pass (sau đợt sửa của review cuối) | [results/slice3-web-test.log](results/slice3-web-test.log) |
 | `npm run typecheck:web` (gồm `e2e/**`) | exit 0 | [results/slice3-web-typecheck.log](results/slice3-web-typecheck.log) |
 | `npm run lint:web` | exit 0 | [results/slice3-web-lint.log](results/slice3-web-lint.log) |
 | `npx nx lint api` | exit 0, 300 warning (bằng baseline) | [results/slice3-api-lint.log](results/slice3-api-lint.log) |
@@ -185,6 +186,8 @@ thay đổi đó không nằm trong commit nào của lát này.
 
 1. **Chưa xem trang trên trình duyệt.** Cổng 3000 và thư mục `apps/web` vẫn bị một `next dev` của phiên khác
    giữ (PID 240324, trỏ vào API dev); mình không tắt nó. Panel lọc chỉ được chứng minh bằng component test.
+   Reviewer cuối nghi panel (nằm trong header `sticky`) có thể che gần hết màn hình 390px khi mở; mình đã
+   thêm `max-h-[60vh]` có cuộn nhưng **chưa nhìn thấy** kết quả — cần xem bằng mắt trước khi merge.
 2. **E2E bằng trình duyệt chưa chạy ở máy này** (không có trình duyệt Playwright). Phần API của cùng dữ liệu
    đã chạy trên DB thật (29/29). Hai điểm chỉ CI mới chứng minh: panel còn mở sau khi đổi URL, và không tràn ngang
    ở 390px khi panel đang mở.
@@ -195,3 +198,20 @@ thay đổi đó không nằm trong commit nào của lát này.
 5. **Nhãn hình thức làm việc không thống nhất** ("On-site" ở trang chi tiết, "Tại văn phòng (Onsite)" ở thẻ,
    "Văn phòng" ở bộ lọc và trang chủ): có từ trước, không sửa.
 6. **Chưa push, chưa có PR, chưa deploy.**
+
+### Review cuối lát 3 (reviewer mới, `b53779b..150eb7d`)
+
+Kết luận *With fixes*, không có Critical. Hai lỗi Important đã sửa, test đỏ commit trước (`8aec8bc` →
+`187d511`):
+- Next giữ state của trang khi chỉ query đổi (đã đọc trong `layout-router.js`), nên sau Back hoặc link "Tìm việc
+  làm" ở header, chip và ô lương vẫn hiện bộ lọc của URL cũ và lần lọc kế tiếp áp lại chúng. Giờ các ô theo URL
+  mới nhất.
+- Lương sai lúc panel đang đóng thì bấm "Tìm" hay "Tiếp" không có phản hồi nào, vì câu lỗi nằm trong panel. Giờ
+  panel tự mở để hiện lỗi.
+
+Một mục nghi vấn đã giảm nhẹ nhưng chưa xác minh (panel quá cao trên điện thoại, xem rủi ro 1).
+
+Để lại (nhỏ): regex UUID phía web lỏng hơn của API (một chuỗi dạng UUID giả vẫn làm trang văng — đã chạy thử
+`isUUID`); gõ "15tr" thành ngưỡng 15 VND không báo gì; câu lỗi chưa gắn `aria-describedby`; `jobSkillsOf` không
+có guard nếu `skill` biến mất khỏi payload (task sửa lỗ hổng tin công khai phải giữ `skill`); kỹ năng đã chọn
+nhưng không còn trong danh sách vẫn tính vào giới hạn 20; script thăm dò chỉ commit log.
