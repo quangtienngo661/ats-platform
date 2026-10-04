@@ -22,6 +22,7 @@ import {
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { randomUUID } from 'crypto';
 import { sanitizeJobDescription, sanitizeJobPosting } from './sanitize-job-description';
+import { jobPostingFilters } from './job-posting-filters';
 
 /** Staff browse their organization's postings in every status; nobody else does. */
 const isStaffViewer = (viewer?: TenantCaller): viewer is TenantCaller =>
@@ -190,6 +191,17 @@ export class JobPostingsService {
       throw new BadRequestException('Trang và giới hạn phải là số nguyên dương');
     }
 
+    if (
+      query.salaryMin !== undefined &&
+      query.salaryMax !== undefined &&
+      query.salaryMin > query.salaryMax
+    ) {
+      throw new BadRequestException(
+        'Mức lương tối thiểu không thể lớn hơn mức lương tối đa',
+      );
+    }
+    const filters = jobPostingFilters(query);
+
     const where: Prisma.JobPostingWhereInput = {
       // Staff see every status, but only inside their own organization (a platform
       // admin: every organization). Everyone else — anonymous visitors AND
@@ -213,6 +225,7 @@ export class JobPostingsService {
             },
           }
         : {}),
+      ...(filters.length ? { AND: filters } : {}),
     };
 
     const [items, total] = await this.prisma.$transaction([

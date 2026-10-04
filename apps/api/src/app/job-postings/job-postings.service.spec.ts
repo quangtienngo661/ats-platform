@@ -162,6 +162,62 @@ describe('JobPostingsService', () => {
     expect(prisma.jobPosting.findMany).not.toHaveBeenCalled();
   });
 
+  describe('salary and skill filters (C10, R4, R5, R6)', () => {
+    beforeEach(() => {
+      prisma.jobPosting.findMany.mockResolvedValue([]);
+      prisma.jobPosting.count.mockResolvedValue(0);
+    });
+    const whereOfFirstQuery = () => prisma.jobPosting.findMany.mock.calls[0][0].where;
+
+    it('filters by the lowest salary the candidate accepts', async () => {
+      await service.findAll({ salaryMin: 12_000_000 });
+
+      expect(whereOfFirstQuery().AND).toEqual([
+        { OR: [{ salaryMax: { gte: 12_000_000 } }, { salaryMax: null, salaryMin: { gte: 12_000_000 } }] },
+      ]);
+      expect(prisma.jobPosting.count).toHaveBeenCalledWith({ where: whereOfFirstQuery() });
+    });
+
+    it('filters by any of the chosen skills', async () => {
+      await service.findAll({ skillIds: ['skill-a', 'skill-b'] });
+
+      expect(whereOfFirstQuery().AND).toEqual([
+        { jobPostingSkills: { some: { skillId: { in: ['skill-a', 'skill-b'] } } } },
+      ]);
+    });
+
+    it('sends no AND condition when no new filter is given', async () => {
+      await service.findAll({ locationType: 'remote' });
+
+      expect(whereOfFirstQuery()).not.toHaveProperty('AND');
+    });
+
+    it('never lets a salary or skill filter surface a draft to a visitor (R6)', async () => {
+      await service.findAll({ status: JobStatus.draft, salaryMin: 1, skillIds: ['skill-a'] });
+
+      expect(whereOfFirstQuery().status).toBe(JobStatus.active);
+    });
+
+    it('keeps staff inside their organization while filtering', async () => {
+      await service.findAll({ salaryMax: 20_000_000 }, callerOf(UserRole.recruiter));
+
+      expect(whereOfFirstQuery()).toEqual(expect.objectContaining({ organizationId: 'org-1' }));
+      expect(whereOfFirstQuery().AND).toHaveLength(1);
+    });
+
+    it('accepts a salary range that is a single value (E15)', async () => {
+      await expect(service.findAll({ salaryMin: 15_000_000, salaryMax: 15_000_000 })).resolves.toBeDefined();
+      expect(whereOfFirstQuery().AND).toHaveLength(2);
+    });
+
+    it('refuses a minimum above the maximum before querying', async () => {
+      await expect(service.findAll({ salaryMin: 20_000_000, salaryMax: 10_000_000 })).rejects.toThrow(
+        'Mức lương tối thiểu không thể lớn hơn mức lương tối đa',
+      );
+      expect(prisma.jobPosting.findMany).not.toHaveBeenCalled();
+    });
+  });
+
   it('sanitizes legacy description HTML when returning a posting', async () => {
     prisma.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',

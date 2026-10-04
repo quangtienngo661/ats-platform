@@ -2,6 +2,8 @@ import { JobStatus, LocationType } from '@ats-platform/database';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IJobPostingSkills, ISkill } from '@ats-platform/types'
 import {
+	ArrayMaxSize,
+	IsArray,
 	IsDateString,
 	IsEnum,
 	IsInt,
@@ -13,6 +15,16 @@ import {
 	Min,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+
+// Nest hands controllers classToPlain(entity) (main.ts sets no `transform`), so every
+// @Transform runs twice: each one below must give the same result on its own output.
+// An empty salary means "no filter": Number('') would silently be 0.
+const toOptionalNumber = ({ value }: { value: unknown }) =>
+	typeof value === 'string' ? (value.trim() === '' ? undefined : Number(value)) : value;
+
+// `?skillIds=a` arrives as a string and `?skillIds=a&skillIds=b` as an array.
+const toSkillIdList = ({ value }: { value: unknown }) =>
+	value === undefined || Array.isArray(value) ? value : [value];
 
 export class FindJobPostingsQueryDto {
 	@ApiPropertyOptional({ enum: JobStatus })
@@ -53,6 +65,28 @@ export class FindJobPostingsQueryDto {
 	@IsInt()
 	@Min(1)
 	limit?: number;
+
+	@ApiPropertyOptional({ description: 'Lowest salary the candidate accepts (VND)' })
+	@IsOptional()
+	@Transform(toOptionalNumber)
+	@IsNumber()
+	@Min(0)
+	salaryMin?: number;
+
+	@ApiPropertyOptional({ description: 'Highest salary the candidate asks for (VND)' })
+	@IsOptional()
+	@Transform(toOptionalNumber)
+	@IsNumber()
+	@Min(0)
+	salaryMax?: number;
+
+	@ApiPropertyOptional({ type: [String], description: 'Match a posting that requires any of these skills' })
+	@IsOptional()
+	@Transform(toSkillIdList)
+	@IsArray()
+	@ArrayMaxSize(20)
+	@IsUUID(undefined, { each: true })
+	skillIds?: string[];
 }
 
 export class ParseJdPreviewDto {
