@@ -30,6 +30,7 @@ export async function createGd2ScheduleFixtures(apiUrl) {
     candidate: { userId: randomUUID(), candidateId: randomUUID(), cvId: randomUUID(), email: `gd2-candidate-${runId}@ats.test` },
     job: { id: randomUUID(), title: `GĐ2 tin ${suffix}` },
     applicationId: randomUUID(),
+    internalNote: `GĐ2 ghi chú nội bộ ${runId}`,
   };
 
   await withDatabase(async (client) => {
@@ -73,6 +74,20 @@ export async function createGd2ScheduleFixtures(apiUrl) {
          VALUES ($1,$2,$3,$4,$5,'interview')`,
         [fixture.applicationId, fixture.org.id, fixture.job.id, fixture.candidate.candidateId, fixture.candidate.cvId],
       );
+      // The steps that led to `interview`, one carrying a staff-only note (slice 2).
+      // Times go to a column without a timezone: the journey runs under TZ=UTC.
+      const daysAgo = (days) => new Date(Date.now() - days * 86_400_000);
+      for (const [fromStatus, toStatus, when, notes] of [
+        [null, 'applied', daysAgo(3), null],
+        ['applied', 'screening', daysAgo(2), fixture.internalNote],
+        ['screening', 'interview', daysAgo(1), null],
+      ]) {
+        await client.query(
+          `INSERT INTO application_history (id,organization_id,application_id,from_status,to_status,changed_by,notes,changed_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          [randomUUID(), fixture.org.id, fixture.applicationId, fromStatus, toStatus, fixture.recruiter.userId, notes, when],
+        );
+      }
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');

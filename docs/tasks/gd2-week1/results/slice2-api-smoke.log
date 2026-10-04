@@ -1,0 +1,17 @@
+# Task 4 API smoke — slice 2 history, real test stack (Nest + PostgreSQL ats_test), 2026-10-04T01:01Z
+# Stand-in for the browser journey's timeline step, which was not run (no Playwright browser here).
+# Proves the API half only: not the page.
+PASS  both log in
+PASS  recruiter rejects with a reason — HTTP 200
+PASS  candidate reads 4 steps oldest first — applied,screening,interview,rejected
+PASS  earlier steps carry only id, fromStatus, toStatus, changedAt
+PASS  the rejection carries its reason and nothing internal — {"id":"53109f1c-9597-4d30-882c-c1f77691882f","fromStatus":"interview","toStatus":"rejected","changedAt":"2026-10-04T01:00:27.900Z","rejectionReason":"Chưa đủ kinh nghiệm NestJS"}
+PASS  no staff note anywhere in the history response
+PASS  the application page payload has the same minimal history
+PASS  the application list carries no history
+PASS  control: staff still read the full history with notes
+PASS  C20: after a revert no step carries a reason — revert HTTP 200
+PASS  R2: another candidate is refused this history — HTTP 403
+PASS  fixture cleaned up — {"organizationsRemaining":0,"usersRemaining":0}
+
+12/12 checks passed

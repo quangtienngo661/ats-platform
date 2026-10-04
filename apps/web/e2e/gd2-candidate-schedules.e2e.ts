@@ -10,6 +10,7 @@ import { cleanupGd2Fixtures, createGd2ScheduleFixtures, schedulesOf } from './su
 
 const BROWSER_TIMEZONE = 'Asia/Ho_Chi_Minh';
 const ONSITE_ADDRESS = 'Tầng 5, 123 Lê Lợi, Q.1';
+const REJECTION_REASON = 'Chưa đủ kinh nghiệm NestJS';
 
 /** A Vietnam calendar date `days` after today, whatever the runner's timezone. */
 function vietnamDate(days: number): string {
@@ -160,7 +161,7 @@ test.describe('GĐ2 tuần 1 — lịch phỏng vấn của ứng viên', () => 
   test('C16: rejecting the application cancels both interviews and the candidate sees them cancelled', async () => {
     const reject = await recruiterContext.request.patch(`${apiBaseUrl()}/applications/${fixture.applicationId}/status`, {
       headers: { Authorization: `Bearer ${await cookieValue(recruiterContext, 'accessToken')}` },
-      data: { status: 'rejected' },
+      data: { status: 'rejected', rejectionReason: REJECTION_REASON },
     });
     expect(reject.status()).toBe(200);
 
@@ -172,5 +173,33 @@ test.describe('GĐ2 tuần 1 — lịch phỏng vấn của ứng viên', () => 
     await expect(candidatePage.getByRole('link', { name: 'Tham gia phòng họp' })).toHaveCount(0);
     expect((await schedulesOf(fixture.applicationId)).map((schedule: { status: string }) => schedule.status))
       .toEqual(['cancelled', 'cancelled']);
+  });
+
+  test('C8/C15: the candidate reads the timeline of the rejected application, without staff notes', async () => {
+    await candidatePage.goto(`/my-applications/${fixture.applicationId}`);
+    await expect(candidatePage.getByRole('heading', { level: 1, name: fixture.job.title })).toBeVisible();
+    const steps = candidatePage.getByRole('list', { name: 'Tiến trình đơn ứng tuyển' }).getByRole('listitem');
+    await expect(steps).toHaveCount(4);
+    for (const [index, label] of ['Đã nộp đơn', 'Đang sàng lọc', 'Vòng phỏng vấn', 'Bị từ chối'].entries()) {
+      await expect(steps.nth(index)).toContainText(label);
+    }
+    await expect(steps.nth(3)).toHaveAttribute('aria-current', 'step');
+    await expect(steps.nth(3)).toContainText(REJECTION_REASON);
+    const html = await candidatePage.content();
+    expect(html).toContain(REJECTION_REASON);
+    expect(html).not.toContain(fixture.internalNote);
+
+    const response = await candidateContext.request.get(`${apiBaseUrl()}/applications/${fixture.applicationId}/history`, {
+      headers: { Authorization: `Bearer ${candidateToken}` },
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.text();
+    expect(body).not.toContain(fixture.internalNote);
+    const rows = JSON.parse(body).data as Record<string, unknown>[];
+    expect(rows.map((row) => row.toStatus)).toEqual(['applied', 'screening', 'interview', 'rejected']);
+    for (const row of rows.slice(0, 3)) expect(Object.keys(row).sort()).toEqual(['changedAt', 'fromStatus', 'id', 'toStatus']);
+    expect(rows[3]).toMatchObject({ toStatus: 'rejected', rejectionReason: REJECTION_REASON });
+    expect(rows[3]).not.toHaveProperty('notes');
+    expect(rows[3]).not.toHaveProperty('changedBy');
   });
 });
