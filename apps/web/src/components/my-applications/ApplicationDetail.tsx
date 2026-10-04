@@ -4,12 +4,24 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
-import type { IApplicationDto } from '@/types/interfaces/application.interface';
+import type { IApplicationHistoryItem } from '@/types/interfaces/application.interface';
 import { STATUS_CONFIG } from './status-config';
 import { ApplicationTimeline } from './timeline/ApplicationTimeline';
 
+/**
+ * Only what the page shows. Props of a client component are serialized into the page,
+ * so the full application (AI screening, CV, candidate row) must not be passed here.
+ */
+export interface ApplicationView {
+    title?: string;
+    departmentName?: string;
+    status: string;
+    appliedAt?: string;
+    history: IApplicationHistoryItem[];
+}
+
 /** One application of the candidate: the job it is for, its status and its timeline (D9). */
-export function ApplicationDetail({ application }: { application: IApplicationDto }) {
+export function ApplicationDetail({ application }: { application: ApplicationView }) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
     const status = STATUS_CONFIG[application.status] ?? { label: application.status, color: '#6E6E73', bg: '#F5F5F7' };
@@ -35,10 +47,10 @@ export function ApplicationDetail({ application }: { application: IApplicationDt
                             className="text-[20px] text-[#1D1D1F] tracking-[-0.01em] break-words"
                             style={{ fontFamily: SF, fontWeight: 700 }}
                         >
-                            {application.jobPosting?.title ?? 'Đơn ứng tuyển'}
+                            {application.title ?? 'Đơn ứng tuyển'}
                         </h1>
-                        {application.jobPosting?.department?.name && (
-                            <p className="text-[13px] text-[#6E6E73] mt-0.5">{application.jobPosting.department.name}</p>
+                        {application.departmentName && (
+                            <p className="text-[13px] text-[#6E6E73] mt-0.5">{application.departmentName}</p>
                         )}
                         {appliedOn && <p className="text-[12px] text-[#AEAEB2] mt-1.5">Nộp ngày {appliedOn}</p>}
                     </div>
@@ -53,7 +65,7 @@ export function ApplicationDetail({ application }: { application: IApplicationDt
             </div>
 
             <ApplicationTimeline
-                history={application.history ?? []}
+                history={application.history}
                 status={application.status}
                 appliedAt={application.appliedAt}
             />

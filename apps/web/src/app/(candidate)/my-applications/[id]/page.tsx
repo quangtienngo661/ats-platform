@@ -7,5 +7,15 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
     const { id } = await params;
     const application = await getApplicationByIdAction(id);
 
-    return <ApplicationDetail application={application} />;
+    return (
+        <ApplicationDetail
+            application={{
+                title: application.jobPosting?.title,
+                departmentName: application.jobPosting?.department?.name,
+                status: application.status,
+                appliedAt: application.appliedAt,
+                history: application.history ?? [],
+            }}
+        />
+    );
 }
