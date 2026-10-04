@@ -246,6 +246,24 @@ export class JobPostingsService {
     };
   }
 
+  /**
+   * What the public job board can filter by. Skills are global (no organization), so
+   * only those attached to an active posting are offered — a filter that always finds
+   * nothing is not an option.
+   */
+  async getFilterOptions() {
+    const skills = await this.prisma.skill.findMany({
+      where: {
+        jobPostingSkills: {
+          some: { jobPosting: { status: JobStatus.active } },
+        },
+      },
+      select: { skillId: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+    return { skills };
+  }
+
   async findOne(id: string, viewer?: TenantCaller) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },

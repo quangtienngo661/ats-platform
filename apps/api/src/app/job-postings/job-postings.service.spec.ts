@@ -218,6 +218,28 @@ describe('JobPostingsService', () => {
     });
   });
 
+  describe('getFilterOptions (C12, E6)', () => {
+    it('lists the skills of active postings, once each, by name', async () => {
+      prisma.skill.findMany.mockResolvedValue([{ skillId: 'skill-1', name: 'NestJS' }]);
+
+      await expect(service.getFilterOptions()).resolves.toEqual({
+        skills: [{ skillId: 'skill-1', name: 'NestJS' }],
+      });
+
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: { jobPostingSkills: { some: { jobPosting: { status: JobStatus.active } } } },
+        select: { skillId: true, name: true },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('is empty when no active posting has a skill', async () => {
+      prisma.skill.findMany.mockResolvedValue([]);
+
+      await expect(service.getFilterOptions()).resolves.toEqual({ skills: [] });
+    });
+  });
+
   it('sanitizes legacy description HTML when returning a posting', async () => {
     prisma.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',
