@@ -28,6 +28,7 @@
 - [🛠️ Tech Stack & Versions](#️-tech-stack--versions)
 - [🚀 Getting Started](#-getting-started)
 - [🌐 Production Deployment](#-production-deployment)
+- [🧭 Engineering Process & Project Docs](#-engineering-process--project-docs)
 - [🤝 Contributing & License](#-contributing--license)
 
 ---
@@ -325,6 +326,8 @@ npx nx serve web
 
 ## 🌐 Production Deployment
 
+> **Note:** The public demo at `talentinterviewer.app` is currently offline. The setup below documents how it was deployed and can be reproduced on any VPS.
+
 The project ships with a fully containerized setup for deployment to any cloud provider (AWS, GCP, DigitalOcean, Azure).
 
 ### 1. Docker Compose Deployment
@@ -399,6 +402,22 @@ To auto-renew SSL certificates, add the following cron job to the server:
 ```bash
 0 12 * * * /usr/bin/certbot renew --quiet && docker kill -s HUP nginx-proxy
 ```
+
+---
+
+## 🧭 Engineering Process & Project Docs
+
+The engineering record lives next to the code, so the reasoning behind each change can be reviewed:
+
+| Path | What it holds |
+|---|---|
+| [`docs/architecture-decisions/`](./docs/architecture-decisions/) | Architecture Decision Records (ADRs): options weighed, the decision, and its trade-offs |
+| [`docs/architecture/`](./docs/architecture/) | System, database and infrastructure snapshots |
+| [`docs/audit/`](./docs/audit/) | Dated self-audits of each service against the schema (findings with `file:line` evidence), plus runtime verification of the fixes |
+| [`docs/current-state.md`](./docs/current-state.md) | A candid baseline assessment of the codebase that drives the roadmap |
+| [`docs/migration-roadmap.md`](./docs/migration-roadmap.md) | The phased plan: production hardening first, then closing workflow gaps, then evolving toward services |
+
+Audit documents record findings as of their date; fixes made since are tracked in the roadmap.
 
 ---
 
