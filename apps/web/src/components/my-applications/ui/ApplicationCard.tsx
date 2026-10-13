@@ -4,17 +4,12 @@ import { SF } from '@/types/fonts/fonts';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
 import { WithdrawApplicationForm } from './WithdrawApplicationForm';
 import { STATUS_CONFIG } from '../status-config';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 interface ApplicationCardProps {
     application: IApplicationCard;
     onWithdrawSuccess: (applicationId: string) => void;
 }
-
-const LOCATION_LABELS: Record<string, string> = {
-    onsite: 'Tại văn phòng',
-    remote: 'Từ xa',
-    hybrid: 'Hybrid',
-};
 
 const PIPELINE_STEPS = ['applied', 'screening', 'interview', 'offer', 'hired'] as const;
 const ACTIVE_STATUSES = new Set(PIPELINE_STEPS as readonly string[]);
@@ -92,7 +87,7 @@ export function ApplicationCard({ application: app, onWithdrawSuccess }: Applica
                         {app.locationType && (
                             <span className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
-                                {LOCATION_LABELS[app.locationType] || app.locationType}
+                                {WORK_TYPE_LABELS[app.locationType as WorkType] || app.locationType}
                             </span>
                         )}
                         <span>Nộp {formatDate(app.appliedAt)}</span>

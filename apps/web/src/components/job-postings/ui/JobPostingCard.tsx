@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Briefcase, MapPin, Clock, Users, Edit3, Trash2, CheckCircle, XCircle, List, LayoutGrid } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -33,12 +34,6 @@ interface JobPostingCardProps {
     onEdit: (job: IJobPostingDto) => void;
     onDelete: (job: IJobPostingDto) => void;
 }
-
-const locationLabel: Record<string, string> = {
-    remote: 'Remote',
-    onsite: 'Onsite',
-    hybrid: 'Hybrid',
-};
 
 const statusConfig: Record<string, { label: string; bg: string; text: string; Icon: typeof CheckCircle }> = {
     active: { label: 'Đang tuyển', bg: '#F0FDF4', text: '#16A34A', Icon: CheckCircle },
@@ -88,7 +83,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
                                 </span>
                                 <div className="flex items-center gap-1 text-[#AEAEB2]">
                                     <MapPin className="w-3 h-3" />
-                                    <span className="text-[12px]">{locationLabel[job.locationType] || job.locationType}</span>
+                                    <span className="text-[12px]">{WORK_TYPE_LABELS[job.locationType as WorkType] || job.locationType}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-[#AEAEB2]">
                                     <Clock className="w-3 h-3" />

@@ -18,3 +18,16 @@ describe('JobDetailSidebar — the skills of the posting', () => {
     expect(screen.queryByText('Kỹ năng yêu cầu')).toBeNull();
   });
 });
+
+describe('JobDetailSidebar — shared work-type labels and fallbacks', () => {
+  it.each([
+    ['onsite', 'Văn phòng'],
+    ['remote', 'Remote'],
+    ['hybrid', 'Hybrid'],
+    ['unknown-location', 'unknown-location'],
+    ['toString', 'toString'],
+  ])('shows %s as %s', (locationType, label) => {
+    render(<JobDetailSidebar job={{ ...jobPosting(), locationType }} />);
+    expect(screen.getByText(label)).toBeInTheDocument();
+  });
+});

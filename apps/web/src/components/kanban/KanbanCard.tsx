@@ -5,6 +5,7 @@ import { MoreHorizontal, Star, Clock, MapPin, ExternalLink } from 'lucide-react'
 import Link from 'next/link';
 import { Candidate } from '@/types/interfaces/kanban.interface';
 import { DRAG_TYPE, SF, SFT } from '../../types/constants/kanban.constants';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 interface KanbanCardProps {
   candidate: Candidate;
@@ -12,12 +13,6 @@ interface KanbanCardProps {
   onMenu: (id: string, x: number, y: number) => void;
   onDrop: (dragId: string, dropId: string) => void;
 }
-
-const LOCATION_LABELS: Record<string, string> = {
-  onsite: 'Tại văn phòng',
-  remote: 'Từ xa',
-  hybrid: 'Hybrid',
-};
 
 export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanCardProps) {
   const [{ isDragging }, drag] = useDrag({
@@ -105,7 +100,7 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 text-[#AEAEB2]">
             <MapPin className="w-2.5 h-2.5" />
-            <span className="text-[11px]">{LOCATION_LABELS[candidate.location]}</span>
+            <span className="text-[11px]">{WORK_TYPE_LABELS[candidate.location as WorkType]}</span>
           </div>
           <div className="flex items-center gap-1 text-[#AEAEB2]">
             <Clock className="w-2.5 h-2.5" />

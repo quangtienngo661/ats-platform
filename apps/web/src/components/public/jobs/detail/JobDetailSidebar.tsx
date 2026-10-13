@@ -2,6 +2,7 @@ import { DollarSign, Briefcase, Building2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { jobSkillsOf } from '@/lib/job-skills';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
@@ -11,14 +12,6 @@ function formatSalary(min?: number | null, max?: number | null): string {
     return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
 
-function formatLocation(locationType?: string): string {
-    if (locationType === 'remote') return 'Remote';
-    if (locationType === 'hybrid') return 'Hybrid';
-    if (locationType === 'onsite') return 'On-site';
-    return locationType ?? '';
-}
-
-
 interface JobDetailSidebarProps {
     job: IJobPostingDto;
 }
@@ -27,10 +20,13 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
     const dept = job.department;
     const category = job.category;
     const skills = jobSkillsOf(job);
+    const location = Object.hasOwn(WORK_TYPE_LABELS, job.locationType)
+        ? WORK_TYPE_LABELS[job.locationType as WorkType]
+        : job.locationType ?? '';
 
     const infoItems = [
         { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: DollarSign },
-        { label: 'Hình thức', value: formatLocation(job.locationType), icon: Briefcase },
+        { label: 'Hình thức', value: location, icon: Briefcase },
         ...(category ? [{ label: 'Lĩnh vực', value: category.name, icon: Building2 }] : []),
     ];
 

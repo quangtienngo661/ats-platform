@@ -3,6 +3,7 @@ import { Clock, MapPin, Building2, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { jobSkillsOf } from '@/lib/job-skills';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -38,12 +39,6 @@ function timeAgo(dateStr?: string | null): string {
     const weeks = Math.floor(days / 7);
     return weeks === 1 ? '1 tuần trước' : `${weeks} tuần trước`;
 }
-
-const locationLabel: Record<string, string> = {
-    remote: 'Làm việc từ xa (Remote)',
-    onsite: 'Tại văn phòng (Onsite)',
-    hybrid: 'Linh hoạt (Hybrid)',
-};
 
 interface JobCardProps {
     job: IJobPostingDto;
@@ -87,7 +82,7 @@ export function JobCard({ job }: JobCardProps) {
                 <div className="flex flex-col gap-2.5 mb-5 mt-auto">
                     <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
                         <MapPin className="w-3.5 h-3.5 text-[#AEAEB2]" />
-                        <span className="truncate">{locationLabel[job.locationType || 'onsite'] || job.locationType}</span>
+                        <span className="truncate">{WORK_TYPE_LABELS[(job.locationType || 'onsite') as WorkType] || job.locationType}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
                         <Clock className="w-3.5 h-3.5 text-[#AEAEB2]" />

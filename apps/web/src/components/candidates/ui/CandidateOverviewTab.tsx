@@ -1,6 +1,7 @@
 import { Briefcase, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 function stringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
@@ -9,12 +10,6 @@ function stringArray(value: unknown): string[] {
 interface CandidateOverviewTabProps {
   application: IApplicationDto;
 }
-
-const LOCATION_LABELS: Record<string, string> = {
-  onsite: 'Tại văn phòng',
-  remote: 'Từ xa',
-  hybrid: 'Hybrid',
-};
 
 function getScoreColor(score: number): string {
   if (score >= 90) return '#34C759';
@@ -98,8 +93,8 @@ export function CandidateOverviewTab({
               icon={MapPin}
               label="Hình thức"
               value={
-                LOCATION_LABELS[
-                  application.jobPosting?.locationType || 'N/A'
+                WORK_TYPE_LABELS[
+                  (application.jobPosting?.locationType || 'N/A') as WorkType
                 ] || 'N/A'
               }
             />

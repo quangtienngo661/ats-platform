@@ -19,3 +19,16 @@ describe('JobDetailHero — the skills of the posting', () => {
     expect(screen.getByRole('heading', { name: 'Backend Engineer' })).toBeInTheDocument();
   });
 });
+
+describe('JobDetailHero — shared work-type labels and fallbacks', () => {
+  it.each([
+    ['onsite', 'Văn phòng'],
+    ['remote', 'Remote'],
+    ['hybrid', 'Hybrid'],
+    ['unknown-location', 'unknown-location'],
+    ['toString', 'toString'],
+  ])('shows %s as %s', (locationType, label) => {
+    render(<JobDetailHero job={{ ...jobPosting(), locationType }} isLoggedIn={false} available />);
+    expect(screen.getByText(label)).toBeInTheDocument();
+  });
+});

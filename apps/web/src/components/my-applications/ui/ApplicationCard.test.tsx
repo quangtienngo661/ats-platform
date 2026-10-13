@@ -5,13 +5,14 @@ import { ApplicationCard } from './ApplicationCard';
 
 vi.mock('./WithdrawApplicationForm', () => ({ WithdrawApplicationForm: () => null }));
 
-function renderCard(status: string) {
+function renderCard(status: string, locationType?: string) {
   const application = {
     applicationId: 'app-1',
     status,
     jobTitle: 'Backend Engineer',
     departmentName: 'Kỹ thuật',
     appliedAt: '2026-09-20T02:00:00.000Z',
+    locationType,
   } as IApplicationCard;
   return render(<ApplicationCard application={application} onWithdrawSuccess={vi.fn()} />);
 }
@@ -25,6 +26,18 @@ describe('ApplicationCard — the way to the interview schedule', () => {
   it.each(['applied', 'screening', 'rejected'])('shows no schedule link for a %s application', (status) => {
     renderCard(status);
     expect(screen.queryByRole('link', { name: 'Xem lịch phỏng vấn' })).toBeNull();
+  });
+});
+
+describe('ApplicationCard — shared work-type labels and fallbacks', () => {
+  it.each([
+    ['onsite', 'Văn phòng'],
+    ['remote', 'Remote'],
+    ['hybrid', 'Hybrid'],
+    ['unknown-location', 'unknown-location'],
+  ])('shows %s as %s', (locationType, label) => {
+    renderCard('applied', locationType);
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 });
 

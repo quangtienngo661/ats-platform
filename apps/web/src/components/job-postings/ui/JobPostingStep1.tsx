@@ -1,4 +1,5 @@
 import { RichTextEditor } from '@/components/common/RichTextEditor';
+import { WORK_TYPE_LABELS } from '@/lib/work-types';
 
 interface JobPostingStep1Props {
     formData: {
@@ -51,9 +52,9 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
                         onChange={e => updateField('locationType', e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     >
-                        <option value="onsite">Onsite</option>
-                        <option value="remote">Remote</option>
-                        <option value="hybrid">Hybrid</option>
+                        <option value="onsite">{WORK_TYPE_LABELS.onsite}</option>
+                        <option value="remote">{WORK_TYPE_LABELS.remote}</option>
+                        <option value="hybrid">{WORK_TYPE_LABELS.hybrid}</option>
                     </select>
                 </div>
             </div>

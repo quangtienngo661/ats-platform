@@ -21,3 +21,16 @@ describe('JobCard — the skills of the posting', () => {
     expect(screen.getByText('Backend Engineer')).toBeInTheDocument();
   });
 });
+
+describe('JobCard — shared work-type labels and fallbacks', () => {
+  it.each([
+    ['onsite', 'Văn phòng'],
+    ['remote', 'Remote'],
+    ['hybrid', 'Hybrid'],
+    ['unknown-location', 'unknown-location'],
+    ['', 'Văn phòng'],
+  ])('shows %s as %s', (locationType, label) => {
+    render(<JobCard job={{ ...jobPosting(), locationType }} />);
+    expect(screen.getByText(label)).toBeInTheDocument();
+  });
+});
