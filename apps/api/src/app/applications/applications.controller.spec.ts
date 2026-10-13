@@ -1,13 +1,10 @@
 import { UserRole } from '@ats-platform/database';
 import { GUARDS_METADATA, HTTP_CODE_METADATA } from '@nestjs/common/constants';
-import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ApplicationsController,
   bulkScreeningTracker,
 } from './applications.controller';
-import { ApplicationsService } from './applications.service';
-import { BulkScreeningService } from './bulk-screening.service';
 import { BulkScreeningDto } from './dtos/bulk-screening.dto';
 import { ROLES_KEY } from '../../common/decorators/roles.decorator';
 import { callerOf, mockRequest } from '../../test-utils/unit-test-helpers';
@@ -56,17 +53,8 @@ describe('ApplicationsController', () => {
 
 describe('ApplicationsController bulk screening', () => {
   it('bulkScreening delegates to the service with caller, jobId and body', async () => {
-    const module = await Test.createTestingModule({
-      providers: [
-        ApplicationsController,
-        { provide: ApplicationsService, useValue: {} },
-        { provide: BulkScreeningService, useValue: { bulkScreen: jest.fn() } },
-      ],
-    }).compile();
-    const controller = module.get(ApplicationsController);
-    const bulkScreeningService = module.get<{ bulkScreen: jest.Mock }>(
-      BulkScreeningService,
-    );
+    const bulkScreeningService = { bulkScreen: jest.fn() };
+    const controller = new ApplicationsController({} as any, bulkScreeningService as any);
     const caller = callerOf(UserRole.recruiter);
     const jobId = 'job-1';
     const dto: BulkScreeningDto = {
@@ -85,7 +73,6 @@ describe('ApplicationsController bulk screening', () => {
 
     expect(bulkScreeningService.bulkScreen).toHaveBeenCalledTimes(1);
     expect(bulkScreeningService.bulkScreen).toHaveBeenCalledWith(caller, jobId, dto);
-    await module.close();
   });
 
   it('the bulk route answers 200, allows recruiter and admin, and is throttled 3 per 60000 ms', () => {
