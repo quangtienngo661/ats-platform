@@ -100,6 +100,7 @@ export class CvScreeningsService {
     applicationId: string,
     cvId: string,
     configId?: string,
+    options: { notify?: boolean } = {},
   ): Promise<
     Prisma.CVScreeningGetPayload<{
       include: typeof cvScreeningIncludeOptions;
@@ -162,6 +163,7 @@ export class CvScreeningsService {
       cvId: cv.cvId,
       applicationId: application.applicationId,
       configId: config.configId,
+      ...(options.notify === false ? { notify: false } : {}),
     });
 
     return screening;
