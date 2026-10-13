@@ -1,5 +1,4 @@
-import { Plus, ClipboardList } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Plus } from 'lucide-react';
 
 interface InterviewTopicHeaderProps {
     onAdd: () => void;
@@ -7,18 +6,8 @@ interface InterviewTopicHeaderProps {
 
 export function InterviewTopicHeader({ onAdd }: InterviewTopicHeaderProps) {
     return (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#EBF3FD] flex items-center justify-center">
-                    <ClipboardList className="w-5 h-5 text-[#0071E3]" />
-                </div>
-                <div>
-                    <h1 className="text-[22px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        Chủ đề phỏng vấn
-                    </h1>
-                    <p className="text-[13px] text-[#6E6E73]">Quản lý bộ chủ đề dùng cho phỏng vấn AI</p>
-                </div>
-            </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end mb-6">
+            <h1 className="sr-only">Chủ đề phỏng vấn</h1>
 
             <button
                 type="button"

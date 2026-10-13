@@ -66,20 +66,8 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
         <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
             {/* ── Page header ── */}
             <div className="mb-6">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#0071E3] flex items-center justify-center">
-                            <Cpu className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-[24px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                                Cấu hình AI Screening
-                            </h1>
-                            <p className="text-[13px] text-[#6E6E73]">
-                                Quản lý các bộ tiêu chí đánh giá CV — {profiles.length} cấu hình
-                            </p>
-                        </div>
-                    </div>
+                <div className="flex items-center justify-end gap-4 flex-wrap">
+                    <h1 className="sr-only">Cấu hình AI Screening</h1>
 
                     <button
                         onClick={() => setShowModal(true)}

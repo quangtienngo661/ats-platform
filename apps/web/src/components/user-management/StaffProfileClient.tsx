@@ -10,7 +10,7 @@ export default function StaffProfileClient({ user, organizationName }: {
   const [state, action, pending] = useActionState(updateMeAction, { success: false, message: '' } as UserActionState);
   return (
     <main className="p-6 lg:p-8 max-w-3xl">
-      <h1 className="text-2xl font-semibold mb-2">Hồ sơ cá nhân</h1>
+      <h1 className="sr-only">Hồ sơ cá nhân</h1>
       <p className="mb-6 text-gray-600">{user.role === 'org_admin' ? 'Quản trị tổ chức' : 'Quản trị hệ thống'} · {organizationName ?? 'Toàn hệ thống'}</p>
       <form action={action} className="bg-white rounded-2xl p-6 space-y-4">
         <p>Email: {user.email}</p>

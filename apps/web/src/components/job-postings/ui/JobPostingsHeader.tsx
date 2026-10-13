@@ -1,5 +1,4 @@
-import { Briefcase, Plus } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Plus } from 'lucide-react';
 
 interface JobPostingsHeaderProps {
     onAdd: () => void;
@@ -8,23 +7,8 @@ interface JobPostingsHeaderProps {
 export function JobPostingsHeader({ onAdd }: JobPostingsHeaderProps) {
     return (
         <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0071E3] flex items-center justify-center">
-                        <Briefcase className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                        <h1
-                            className="text-[24px] text-[#1D1D1F] tracking-[-0.02em]"
-                            style={{ fontFamily: SF, fontWeight: 700 }}
-                        >
-                            Tin tuyển dụng
-                        </h1>
-                        <p className="text-[13px] text-[#6E6E73]" style={{ fontFamily: SFT }}>
-                            Quản lý các vị trí đang tuyển dụng
-                        </p>
-                    </div>
-                </div>
+            <div className="flex items-center justify-end">
+                <h1 className="sr-only">Tin tuyển dụng</h1>
 
                 <button
                     onClick={onAdd}

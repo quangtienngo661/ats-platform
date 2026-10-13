@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarDays } from 'lucide-react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
@@ -111,19 +110,11 @@ export default function InterviewScheduleClient({
 
     return (
         <div className="flex h-full flex-col bg-[#F5F5F7]" style={{ fontFamily: SFT }}>
-            <div className="border-b border-[#F2F2F7] bg-white px-4 py-4 lg:px-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EBF3FD]">
-                            <CalendarDays className="h-5 w-5 text-[#0071E3]" />
-                        </div>
-                        <div>
-                            <h1 className="text-[18px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>Lịch phỏng vấn</h1>
-                            <p className="text-[13px] text-[#6E6E73]">Tuần {weekTitle}</p>
-                        </div>
-                    </div>
-
+            <div className="border-b border-[#F2F2F7] bg-white px-4 py-3 lg:px-6">
+                <h1 className="sr-only">Lịch phỏng vấn</h1>
+                <div className="flex">
                     <ScheduleToolbar
+                        weekLabel={weekTitle}
                         canGoPrevious={canGoPrevious}
                         onPrevious={() => goToWeek('previous')}
                         onNext={() => goToWeek('next')}
