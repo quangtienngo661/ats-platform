@@ -161,3 +161,16 @@ export { UserRole as Role };
 export { JobStatus as JobPostingStatus };
 export { ParsingStatus as CVParsingStatus };
 export { InterviewStatus as InterviewSessionStatus };
+
+export const ScreeningSkipReason = {
+  NOT_IN_JOB: 'NOT_IN_JOB',
+  APPLIED_NOT_MOVED: 'APPLIED_NOT_MOVED',
+  FINAL_STATUS: 'FINAL_STATUS',
+  IN_QUEUE: 'IN_QUEUE',
+  ALREADY_SCREENED: 'ALREADY_SCREENED',
+  RETRY_LIMIT: 'RETRY_LIMIT',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  ENQUEUE_FAILED: 'ENQUEUE_FAILED',
+} as const;
+export type ScreeningSkipReason =
+  (typeof ScreeningSkipReason)[keyof typeof ScreeningSkipReason];
