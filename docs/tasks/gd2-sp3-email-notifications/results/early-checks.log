@@ -1,0 +1,88 @@
+Task 1: Early checks for Mailpit auth and search API (GĐ2 SP3)
+Date: 2026-10-14
+Worktree: E:\wt\ats-sp3, branch feat/gd2-sp3-email-notifications
+Image: axllent/mailpit:v1.30.0
+Who ran what: Step 1 and probe-mailpit.mjs by Codex. Codex's sandbox cannot reach the Docker engine
+(see "Codex attempt" below), so the Docker steps and the probe runs were run by the stage-2-sp3-impl
+session with the plan's commands, per the coordinator's protocol of 2026-10-14.
+
+== Step 1 (Codex) ==
+$ grep -c updateManyAndReturn libs/backend/database/src/generated/prisma/models/InterviewSchedule.ts
+4
+[exit code: 0]
+Result: PASS (>= 1).
+
+== Codex attempt at Step 2 (sandbox, not a plan failure) ==
+$ docker pull axllent/mailpit:v1.30.0
+WARNING: Error loading config file: open C:\Users\Tien Ngo\.docker\config.json: Access is denied.
+error during connect: in the default daemon configuration on Windows, the docker client must be run with elevated privileges to connect: Post "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.51/images/create?fromImage=docker.io%2Faxllent%2Fmailpit&tag=v1.30.0": open //./pipe/docker_engine: Access is denied.
+[exit code: 1]
+No container was started by Codex.
+
+== Step 2 (impl session) ==
+$ docker pull axllent/mailpit:v1.30.0
+v1.30.0: Pulling from axllent/mailpit
+Digest: sha256:0059ef81e492a7192af3816281eed6859eb078bd7bdc58b76757c13e10e53a7d
+Status: Downloaded newer image for axllent/mailpit:v1.30.0
+docker.io/axllent/mailpit:v1.30.0
+[exit code: 0]
+
+== Step 4a: probe container (with the two MP_SMTP_AUTH variables) ==
+$ docker run -d --rm --name ats-sp3-mailpit-probe -p 127.0.0.1:51125:1025 -p 127.0.0.1:58125:8025 -e MP_SMTP_AUTH_ACCEPT_ANY=1 -e MP_SMTP_AUTH_ALLOW_INSECURE=1 axllent/mailpit:v1.30.0
+dda14f92e9b327d6b4523ee30063dafe88dd895969b64a99cbdc7bf109c86256
+[exit code: 0]
+
+$ docker exec ats-sp3-mailpit-probe /mailpit readyz
+OCI runtime exec failed: exec failed: unable to start container process: exec: "C:/Program Files/Git/mailpit": stat C:/Program Files/Git/mailpit: no such file or directory: unknown
+[exit code: 127]
+Note: Git Bash (MSYS) rewrote /mailpit into a Windows path. Same command with path conversion off:
+$ MSYS_NO_PATHCONV=1 docker exec ats-sp3-mailpit-probe /mailpit readyz
+[exit code: 0, no output]
+
+$ node docs/tasks/gd2-sp3-email-notifications/results/probe-mailpit.mjs --smtp-port 51125 --api-port 58125 --expect ok
+PASS SMTP sendMail resolved with AUTH; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS to: search returned exactly one message (found 1); address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS Search Subject equals the sent subject; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS Search message has an ID; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS Message HTML contains the marker; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS Message Text contains the marker; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+PASS Message To[0].Address equals the probe address; address=probe-38f76883-4902-43c6-b99d-29a70720fc10@ats.test; marker=8fbfdca7-fc85-4a69-9d39-e583fae8d1eb
+[exit code: 0]
+Result: PASS. The to:"<address>" search syntax works and returns exactly the one message; HTML, Text and To[0].Address are as documented.
+
+== Step 4b: control container (WITHOUT the two MP_SMTP_AUTH variables) ==
+$ docker run -d --rm --name ats-sp3-mailpit-control -p 127.0.0.1:51126:1025 -p 127.0.0.1:58126:8025 axllent/mailpit:v1.30.0
+5fc088839232cbb61b0f0dcab3ee63b2e6f56f98d698005b2760d8904c6dcbff
+[exit code: 0]
+$ MSYS_NO_PATHCONV=1 docker exec ats-sp3-mailpit-control /mailpit readyz
+[exit code: 0, no output]
+
+$ node docs/tasks/gd2-sp3-email-notifications/results/probe-mailpit.mjs --smtp-port 51126 --api-port 58126 --expect auth-refused
+FAIL SMTP sendMail resolved; expected AUTH rejection; address=probe-31c17f64-2423-4e90-8765-95e9ca86bdf6@ats.test; marker=5ac5e6c7-aa98-4cd7-9453-7890aba7c5db
+[exit code: 1]
+
+hai bien khong can
+
+Why the control could send: the probe transport mirrors apps/api/src/common/mail/mail.service.ts
+(host, port, secure, auth; no forceAuth), and nodemailer sends AUTH only when the server advertises
+it (node_modules/nodemailer/lib/smtp-transport/index.js:260, connection.allowsAuth || options.forceAuth).
+The container logs show the difference:
+$ docker logs ats-sp3-mailpit-probe
+  ... level=info msg="[smtpd] enabling any authentication (insecure)"
+  ... level=info msg="[smtpd] starting on [::]:1025 (no encryption)"
+$ docker logs ats-sp3-mailpit-control
+  ... level=info msg="[smtpd] starting on [::]:1025 (no encryption)"   (no authentication line)
+So without the variables Mailpit does not advertise AUTH and the API transport skips AUTH and sends.
+Per the plan this is not a stop condition; the two variables stay in docker-compose.test.yml (Task 9).
+Not observed directly: that AUTH was actually exchanged in the Step 4a run (Mailpit's log does not
+record per-session AUTH); only that the AUTH-enabled server accepted the API-shaped transport.
+
+== Step 4c: cleanup ==
+$ docker rm -f ats-sp3-mailpit-probe ats-sp3-mailpit-control
+ats-sp3-mailpit-probe
+ats-sp3-mailpit-control
+[exit code: 0]
+
+== Verdict ==
+All Task 1 gates hold: updateManyAndReturn present (4), image pulled, probe ok exit 0.
+Control: the two MP_SMTP_AUTH variables are not needed for the API-shaped transport (kept anyway, per plan).
