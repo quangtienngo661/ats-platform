@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Cpu, Sparkles, History, ArrowRight } from 'lucide-react';
+import { Sparkles, History, ArrowRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IInterviewTopic, ISessionSummary } from '@/types/interfaces/interview.interface';
 import { TopicSelector } from './ui/TopicSelector';
@@ -95,22 +95,7 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     return (
         <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
 
-            {/* ─── Header ─────────────────────────────────────────────────── */}
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center shadow-lg shadow-[#0071E3]/20">
-                        <Cpu className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-[20px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                            Phỏng vấn AI
-                        </h1>
-                        <p className="text-[13px] text-[#6E6E73]">
-                            Luyện tập phỏng vấn kỹ thuật với AI — nhận phản hồi chi tiết ngay lập tức
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <h1 className="sr-only">Phỏng vấn AI</h1>
 
             {/* ─── Setup Section ──────────────────────────────────────────── */}
             <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 mb-6 shadow-sm">

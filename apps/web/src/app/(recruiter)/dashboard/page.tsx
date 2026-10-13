@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SFT } from '@/types/fonts/fonts';
 import { getDashboardStatsAction } from '@/servers/applications/dashboard.action';
 import { buildApplicationsTrend, buildPipelineData } from '@/lib/dashboard.utils';
 import DashboardKpiCards from '@/components/dashboard/DashboardKpiCards';
@@ -28,7 +28,6 @@ export default async function HRDashboard() {
         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     }).length;
 
-    const monthLabel = now.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
 
     return (
         <div className="p-4 lg:p-6" style={{ fontFamily: SFT }}>
@@ -40,15 +39,8 @@ export default async function HRDashboard() {
             </div>
 
             {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-                <div>
-                    <h1 className="text-[22px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        Bảng điều khiển
-                    </h1>
-                    <p className="text-[13px] text-[#6E6E73] mt-0.5">
-                        Tổng quan tuyển dụng — {monthLabel}
-                    </p>
-                </div>
+            <div className="flex items-start justify-end mb-6">
+                <h1 className="sr-only">Bảng điều khiển</h1>
                 <Link
                     href="/jobs"
                     className="hidden sm:flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-4 py-2.5 text-[13px] transition-all shadow-sm shadow-[#0071E3]/20"

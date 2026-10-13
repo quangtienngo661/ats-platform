@@ -46,15 +46,7 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
 
     return (
         <div className="p-4 lg:p-8 max-w-5xl mx-auto w-full" style={{ fontFamily: SFT }}>
-            {/* Page Title */}
-            <div className="mb-8">
-                <h1 className="text-[24px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                    Hồ sơ cá nhân
-                </h1>
-                <p className="text-[14px] text-[#6E6E73] mt-1">
-                    Quản lý thông tin và tài khoản tuyển dụng của bạn
-                </p>
-            </div>
+            <h1 className="sr-only">Hồ sơ cá nhân</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 {/* Left Column: Avatar & Basic Identity */}

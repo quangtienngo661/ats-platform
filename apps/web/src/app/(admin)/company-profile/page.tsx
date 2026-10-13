@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Upload, Save, MapPin, Phone, Mail, Globe } from 'lucide-react';
+import { Upload, Save, MapPin, Phone, Mail, Globe } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 
 export default function CompanySettingsPage() {
@@ -14,20 +14,7 @@ export default function CompanySettingsPage() {
 
   return (
     <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[#0071E3] flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-[24px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-              Thông tin công ty
-            </h1>
-            <p className="text-[13px] text-[#6E6E73]">Quản lý thông tin và cài đặt chung của tổ chức</p>
-          </div>
-        </div>
-      </div>
+      <h1 className="sr-only">Thông tin công ty</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Form */}

@@ -1,5 +1,4 @@
-import { FileText, Upload } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Upload } from 'lucide-react';
 
 interface MyCvsHeaderProps {
     onUpload: () => void;
@@ -8,23 +7,8 @@ interface MyCvsHeaderProps {
 export function MyCvsHeader({ onUpload }: MyCvsHeaderProps) {
     return (
         <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0071E3] flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                        <h1
-                            className="text-[24px] text-[#1D1D1F] tracking-[-0.02em]"
-                            style={{ fontFamily: SF, fontWeight: 700 }}
-                        >
-                            CV của tôi
-                        </h1>
-                        <p className="text-[13px] text-[#6E6E73]" style={{ fontFamily: SFT }}>
-                            Quản lý CV và xem kết quả phân tích AI
-                        </p>
-                    </div>
-                </div>
+            <div className="flex items-center justify-end">
+                <h1 className="sr-only">CV của tôi</h1>
 
                 <button
                     onClick={onUpload}

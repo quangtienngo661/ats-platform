@@ -1,15 +1,16 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 
 interface ScheduleToolbarProps {
+    weekLabel: string;
     canGoPrevious: boolean;
     onPrevious: () => void;
     onNext: () => void;
     onCreate: () => void;
 }
 
-export function ScheduleToolbar({ canGoPrevious, onPrevious, onNext, onCreate }: ScheduleToolbarProps) {
+export function ScheduleToolbar({ weekLabel, canGoPrevious, onPrevious, onNext, onCreate }: ScheduleToolbarProps) {
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2">
             <button
                 type="button"
                 onClick={onPrevious}
@@ -19,6 +20,9 @@ export function ScheduleToolbar({ canGoPrevious, onPrevious, onNext, onCreate }:
             >
                 <ChevronLeft className="h-4 w-4" />
             </button>
+            <span className="min-w-[140px] text-center text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
+                Tuần {weekLabel}
+            </span>
             <button
                 type="button"
                 onClick={onNext}
@@ -30,7 +34,7 @@ export function ScheduleToolbar({ canGoPrevious, onPrevious, onNext, onCreate }:
             <button
                 type="button"
                 onClick={onCreate}
-                className="ml-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-2.5 text-[13px] text-white shadow-sm transition-colors hover:bg-[#0077ED]"
+                className="ml-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-2.5 text-[13px] text-white shadow-sm transition-colors hover:bg-[#0077ED]"
                 style={{ fontWeight: 700 }}
             >
                 <Plus className="h-4 w-4" />
