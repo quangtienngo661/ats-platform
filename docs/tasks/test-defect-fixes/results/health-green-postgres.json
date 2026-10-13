@@ -1,0 +1,1 @@
+{"phase":"after-fix","dependency":"postgres","status":503,"elapsedMs":3043,"body":{"success":true,"status":503,"data":{"status":"down","uptimeSeconds":67,"dependencies":{"database":"down","redis":"up"}}}}

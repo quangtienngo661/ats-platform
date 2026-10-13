@@ -20,10 +20,10 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
             <input type="hidden" name="departmentId" value={department?.departmentId ?? formData.departmentId} />
 
             <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Tiêu đề vị trí *</label>
+                <label htmlFor="job-title" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Tiêu đề vị trí *</label>
                 <input
                     type="text"
-                    name="title"
+                    id="job-title" name="title"
                     placeholder="Ví dụ: Senior Frontend Developer"
                     value={formData.title}
                     onChange={e => updateField('title', e.target.value)}
@@ -33,20 +33,20 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Khoa phụ trách *</label>
+                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Phòng ban phụ trách *</label>
                     <div className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] text-[14px] text-[#1D1D1F]">
-                        {department?.name ?? 'Tài khoản recruiter chưa được gán khoa'}
+                        {department?.name ?? 'Chưa chọn recruiter phụ trách'}
                     </div>
                     {!department && (
                         <p className="mt-2 text-[12px] text-red-600">
-                            Vui lòng liên hệ quản trị viên để gán khoa trước khi tạo tin tuyển dụng.
+                            Chọn recruiter có phòng ban để tạo tin tuyển dụng.
                         </p>
                     )}
                 </div>
                 <div>
                     <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Hình thức *</label>
                     <select
-                        name="locationType"
+                        name="locationType" aria-label="Hình thức"
                         value={formData.locationType}
                         onChange={e => updateField('locationType', e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
@@ -61,6 +61,7 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
             <div>
                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mô tả công việc *</label>
                 <RichTextEditor
+                    ariaLabel="Mô tả công việc"
                     placeholder="Nhập chi tiết mô tả công việc, quyền lợi, yêu cầu... để AI có thể phân tích chính xác nhất."
                     value={formData.description || ''}
                     onChange={val => updateField('description', val)}

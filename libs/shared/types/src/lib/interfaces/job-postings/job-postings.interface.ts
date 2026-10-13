@@ -1,6 +1,7 @@
 import { IJobPostingSkills } from '../skills/skills.interface';
 
 export interface IJobPosting {
+  organizationId?: string;
 	departmentId: string;
 	categoryId?: string;
 	createdBy?: string;

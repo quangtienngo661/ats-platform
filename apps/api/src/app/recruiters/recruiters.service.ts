@@ -1,15 +1,20 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import {
   CreateRecruiterDto,
+  CreateRecruiterAccountDto,
   UpdateMyRecruiterDto,
   UpdateRecruiterDto,
 } from './dtos/recruiters.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { recruiterIncludeOptions } from '../../common/utils/include-options.util';
+import { UserRole, UserStatus } from '@ats-platform/database';
+import * as bcrypt from 'bcrypt';
+import { SocketIoService } from '../../common/socket-io/socket-io.service';
 import {
   organizationScope,
   resolveWriteOrganization,
@@ -20,16 +25,19 @@ const RECRUITER_NOT_FOUND = 'Không tìm thấy nhà tuyển dụng';
 
 @Injectable()
 export class RecruitersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly sockets: SocketIoService) {}
 
   private async ensureUserExists(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { userId },
-      select: { userId: true },
+      select: { userId: true, role: true, status: true },
     });
 
     if (!user) {
       throw new NotFoundException('Không tìm thấy người dùng');
+    }
+    if (user.role !== UserRole.recruiter || user.status !== UserStatus.active) {
+      throw new BadRequestException('Chỉ gán hồ sơ cho tài khoản recruiter đang hoạt động');
     }
   }
 
@@ -69,6 +77,7 @@ export class RecruitersService {
   }
 
   async create(createRecruiterDto: CreateRecruiterDto, caller: TenantCaller) {
+    if (caller.role !== UserRole.admin) throw new ForbiddenException('Chỉ quản trị hệ thống được gán tài khoản có sẵn');
     await this.ensureUserExists(createRecruiterDto.userId);
     const organizationId = await this.resolveDepartmentOrganization(
       caller,
@@ -101,6 +110,29 @@ export class RecruitersService {
         departmentId: true,
       },
     });
+  }
+
+  async createAccount(dto: CreateRecruiterAccountDto, caller: TenantCaller) {
+    if (caller.role !== UserRole.admin && caller.role !== UserRole.org_admin) throw new ForbiddenException();
+    const organizationId = await this.resolveDepartmentOrganization(caller, dto.departmentId);
+    const email = dto.email.trim().toLowerCase();
+    if (await this.prisma.user.findUnique({ where: { email }, select: { userId: true } })) {
+      throw new BadRequestException('Email đã tồn tại');
+    }
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    try {
+      return await this.prisma.$transaction(async tx => {
+        const user = await tx.user.create({ data: { fullName: dto.fullName, email, passwordHash, role: UserRole.recruiter, status: UserStatus.active, emailVerified: true } });
+        return tx.recruiter.create({
+          data: { userId: user.userId, organizationId, departmentId: dto.departmentId, position: dto.position },
+          include: recruiterIncludeOptions,
+          omit: { userId: true, departmentId: true },
+        });
+      });
+    } catch (error: any) {
+      if (error?.code === 'P2002') throw new BadRequestException('Email đã tồn tại');
+      throw error;
+    }
   }
 
   async getMe(userId: string) {
@@ -171,12 +203,12 @@ export class RecruitersService {
     updateRecruiterDto: UpdateRecruiterDto,
     caller: TenantCaller,
   ) {
-    await this.findVisibleOrThrow(id, caller);
+    const current = await this.findVisibleOrThrow(id, caller);
 
     // `create()` validates these FKs; `update()` used to pass the DTO straight
     // through, so a bad departmentId/userId surfaced as a raw Prisma FK error.
     if (updateRecruiterDto.userId) {
-      await this.ensureUserExists(updateRecruiterDto.userId);
+      if (updateRecruiterDto.userId !== current.userId) throw new BadRequestException('Không thể đổi tài khoản của hồ sơ recruiter');
     }
 
     // Moving a recruiter to another department moves its organization with it.
@@ -189,7 +221,12 @@ export class RecruitersService {
         )
       : undefined;
 
-    return await this.prisma.recruiter.update({
+    const accessChanged = !!updateRecruiterDto.departmentId && updateRecruiterDto.departmentId !== current.departmentId;
+    if (accessChanged && current._count.jobPostings > 0) {
+      throw new BadRequestException('Không thể chuyển phòng ban khi recruiter đang phụ trách tin tuyển dụng');
+    }
+
+    const persist = (tx: Pick<PrismaService, 'recruiter'>) => tx.recruiter.update({
       where: {
         recruiterId: id,
       },
@@ -205,6 +242,13 @@ export class RecruitersService {
         departmentId: true,
       },
     });
+    const updated = accessChanged ? await this.prisma.$transaction(async tx => {
+      const result = await persist(tx);
+      await tx.refreshToken.updateMany({ where: { userId: current.userId, revoked: false }, data: { revoked: true } });
+      return result;
+    }) : await persist(this.prisma);
+    if (accessChanged) this.sockets.disconnectUser(current.userId);
+    return updated;
   }
 
   async remove(id: string, caller: TenantCaller) {
@@ -218,7 +262,8 @@ export class RecruitersService {
       );
     }
 
-    return await this.prisma.recruiter.delete({
+    const deleted = await this.prisma.$transaction(async tx => {
+      const result = await tx.recruiter.delete({
       where: {
         recruiterId: id,
       },
@@ -227,6 +272,11 @@ export class RecruitersService {
         departmentId: true,
       },
       include: { ...recruiterIncludeOptions },
+      });
+      await tx.refreshToken.updateMany({ where: { userId: recruiter.userId, revoked: false }, data: { revoked: true } });
+      return result;
     });
+    this.sockets.disconnectUser(recruiter.userId);
+    return deleted;
   }
 }

@@ -1,5 +1,12 @@
 # ATS Platform — Current State
 
+## Cập nhật có bằng chứng — 2026-09-29
+
+Nhánh `feat/org-admin-enforcement`, baseline `8ec4751`. GĐ1 đã có Organization, 9 bảng tenant, CandidateSkill, role org_admin, enforcement HTTP/socket và portal quản trị tổ chức. Gói tuần cuối nối login/menu, User organization binding, recruiter account tạo nguyên tử, job owner, interview/profile và nhãn tổ chức. Xem [spec](tasks/gd1-week3/spec.md), [BE 445 test](tasks/gd1-week3/results/be-test-review.md), [FE 81 test](tasks/gd1-week3/results/fe-test-coverage.md).
+
+Đây là code local cùng bằng chứng local, **PR merge và triển khai production chưa xác minh**. Các scorecard/nhận định June bên dưới là baseline lịch sử; mục đã có bản cập nhật phải đọc theo ngày mới. Roadmap July–January không đồng nghĩa lịch GĐ1/GĐ2 trong đề cương September–December.
+
+
 > Source code audit as of June 2026. Basis for the migration roadmap.
 
 ---
@@ -151,9 +158,9 @@
 
 - `Json?` field exists on the `Skill` model but CV screening ignores it for fuzzy skill matching
 
-**M6. `CandidateSkillSource` enum has no model**
+**M6. CandidateSkill — đã có schema/migration (GĐ1)**
 
-- `CandidateSkill` model was never implemented — the enum is orphaned
+- Model và migration đã có: [schema](../libs/backend/database/prisma/schema.prisma), [DB verification](tasks/organization-schema/results/migration-verification.md). Pipeline RAG/skill matching đầy đủ vẫn là việc sau; không suy từ việc có bảng.
 
 **M7. ~~`JobPosting` missing `createdAt`~~** ✅ Fixed 2026-07-06
 

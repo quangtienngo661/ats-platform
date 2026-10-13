@@ -1,4 +1,12 @@
-# GĐ1 Multi-tenant — bảng theo dõi Tuần 1 & Tuần 2
+# GĐ1 Multi-tenant — bảng theo dõi
+
+## Cập nhật 2026-09-29 — tuần cuối GĐ1 (21–27/09)
+
+Nhánh `feat/org-admin-enforcement`, HEAD baseline `8ec4751`. Git hiện có commit schema/enforcement/FE organization picker/AI default theo org; câu “chưa commit” trong snapshot 19/09 bên dưới đã cũ. PR #60 và merge/deploy hiện **chưa xác minh**; không dùng trạng thái PR ghi ngày 19/09 như trạng thái hôm nay.
+
+Gói tiếp theo đã được người dùng duyệt “OK triển khai đi bạn”: [spec + coverage](gd1-week3/spec.md). Code local mới nối portal org_admin, account binding, recruiter accounts nguyên tử, owner job, interview/profile, nhãn tổ chức và thu hồi socket/session. Bằng chứng mới: [BE](gd1-week3/results/be-test-review.md), [FE](gd1-week3/results/fe-test-coverage.md); browser/Docker/live probe được ghi trong README của gói sau khi chạy.
+
+## Snapshot lịch sử ngày 2026-09-19 — Tuần 1 & Tuần 2
 
 > Checklist để keep track. Tuần 1 xong, chờ merge. Tuần 2 **đã chạy thật trên DB + API + trình duyệt (19/09)**
 > — chỉ còn commit / push khi bạn bảo.

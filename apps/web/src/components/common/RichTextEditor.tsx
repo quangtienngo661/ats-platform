@@ -8,9 +8,10 @@ interface RichTextEditorProps {
     value: string;
     onChange: (val: string) => void;
     placeholder?: string;
+    ariaLabel?: string;
 }
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, ariaLabel }: RichTextEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
 
     // Sync external value changes (only if editor is empty or on mount)
@@ -87,6 +88,9 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
                 ref={editorRef}
                 className="rich-text-editor-content p-4 min-h-[200px] max-h-[400px] overflow-y-auto text-[14px] text-[#1D1D1F]"
                 style={{ fontFamily: SFT }}
+                role="textbox"
+                aria-label={ariaLabel ?? placeholder}
+                aria-multiline="true"
                 contentEditable
                 onInput={handleInput}
                 onBlur={handleInput}

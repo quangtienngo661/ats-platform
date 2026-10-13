@@ -15,7 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '@ats-platform/database';
-import { CreateRecruiterDto, RecruiterDto, UpdateMyRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
+import { CreateRecruiterAccountDto, CreateRecruiterDto, RecruiterDto, UpdateMyRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
 import { Request } from 'express';
 import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
@@ -27,7 +27,7 @@ import { TenantCaller } from '../../common/tenancy/tenant-caller';
 export class RecruitersController {
   constructor(private readonly recruitersService: RecruitersService) { }
 
-  @Roles(UserRole.admin, UserRole.org_admin)
+  @Roles(UserRole.admin)
   @Post()
   @ApiOperation({ summary: 'Tạo nhà tuyển dụng', description: 'Quản trị viên gán vai trò nhà tuyển dụng cho một user và liên kết với phòng ban. Quản trị tổ chức chỉ được dùng phòng ban thuộc tổ chức của mình.' })
   @ApiResponse({ status: 201, description: 'Tạo thành công' })
@@ -38,6 +38,13 @@ export class RecruitersController {
   ) {
     const recruiter = await this.recruitersService.create(createRecruiterDto, caller);
     return recruiter;
+  }
+
+  @Roles(UserRole.admin, UserRole.org_admin)
+  @Post('accounts')
+  @ApiOperation({ summary: 'Tạo tài khoản và hồ sơ recruiter trong tổ chức của phòng ban' })
+  createAccount(@Body() dto: CreateRecruiterAccountDto, @CurrentCaller() caller: TenantCaller) {
+    return this.recruitersService.createAccount(dto, caller);
   }
 
   @Roles(UserRole.recruiter)

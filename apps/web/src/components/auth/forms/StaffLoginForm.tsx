@@ -15,9 +15,10 @@ const initialState = { success: false, message: '' };
 const INPUT_CLS =
     'w-full pl-10 pr-4 py-3 bg-white border border-[#E5E5EA] rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition-all focus:border-[#7C3AED] focus:shadow-sm focus:shadow-[#7C3AED]/10';
 
-type StaffRole = 'admin' | 'recruiter';
+type StaffRole = 'admin' | 'org_admin' | 'recruiter';
 
 const ROLES: { id: StaffRole; label: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'org_admin', label: 'Quản trị tổ chức', icon: <Shield className="w-4 h-4" />, color: '#60A5FA' },
     {
         id: 'admin',
         label: 'Admin',
@@ -122,6 +123,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                     {/* Email */}
                     <div>
                         <label
+                            htmlFor="staff-login-email"
                             className="block text-[13px] text-white/70 mb-1.5 tracking-[-0.01em]"
                             style={{ fontWeight: 500 }}
                         >
@@ -130,6 +132,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                         <div className="relative">
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                             <input
+                                id="staff-login-email"
                                 type="email"
                                 name="email"
                                 placeholder="staff@talentai.vn"
@@ -144,6 +147,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
                             <label
+                                htmlFor="staff-login-password"
                                 className="text-[13px] text-white/70 tracking-[-0.01em]"
                                 style={{ fontWeight: 500 }}
                             >
@@ -160,6 +164,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                         <div className="relative">
                             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                             <input
+                                id="staff-login-password"
                                 type={showPw ? 'text' : 'password'}
                                 name="password"
                                 placeholder="••••••••"

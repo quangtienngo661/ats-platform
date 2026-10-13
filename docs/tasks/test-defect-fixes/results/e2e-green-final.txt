@@ -1,0 +1,25 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts
+
+[WebServer] (node:34236) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:21824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:28880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (3.5s)
+  ok 2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới (2.9s)
+  ok 3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (4.5s)
+  ok 4 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:173:5 › admin thiếu access cookie → refresh → đọc cấu hình ngay trong request hiện tại (2.3s)
+  ok 5 [chromium] › apps\web\e2e\session-policy.e2e.ts:4:5 › candidate refresh phiên thật → bị chặn trang admin → login trở về trang việc làm (2.0s)
+
+  5 passed (19.7s)

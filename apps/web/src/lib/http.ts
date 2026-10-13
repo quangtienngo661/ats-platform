@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 
 const http = axios.create({
-    baseURL: SERVER_URL,
+    baseURL: process.env.API_INTERNAL_URL ?? SERVER_URL,
     withCredentials: true,
 });
 

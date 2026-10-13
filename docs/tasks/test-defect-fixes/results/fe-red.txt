@@ -1,0 +1,5 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts --reporter=json --outputFile=../../docs/tasks/test-defect-fixes/results/fe-red.json
+
+JSON report written to E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/docs/tasks/test-defect-fixes/results/fe-red.json

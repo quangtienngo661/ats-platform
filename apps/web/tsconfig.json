@@ -42,7 +42,12 @@
     "jest.config.ts",
     "jest.config.cts",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "e2e",
+    "src/test",
+    "vitest.config.mts",
+    "playwright.config.ts"
   ],
   "references": [
     {

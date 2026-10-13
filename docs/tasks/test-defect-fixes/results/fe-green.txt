@@ -1,0 +1,33 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts --reporter=verbose --reporter=json --outputFile=../../docs/tasks/test-defect-fixes/results/fe-green.json
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in candidate from the login page to its own landing page 8ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in recruiter from the login page to its own landing page 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in admin from the login page to its own landing page 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > allows an admin with a valid token to open AI configuration 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > denies a candidate an admin route with a valid access token 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > applies the same candidate denial after refreshing an expired token 6ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards the refreshed access cookie to server components on the current request 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > sends a guest opening a private admin route to staff login 0ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards both rotated cookies and preserves unrelated browser preferences 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > keeps the refresh cookie if the API does not rotate it 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns to sign-in when refresh fails 1ms
+ ✓ src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > sends the refresh cookie required by AuthService.logout to revoke the token 6ms
+ ✓ src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > clears both browser cookies even when the API is unavailable 1ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Hủy closes a valid form without creating a configuration 1092ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Đóng cấu hình closes a valid form without creating a configuration 643ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > submits the selected organization and exact default weights/threshold 475ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks a blank or whitespace name 127ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks submission when the weights total is not 100 452ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > requires an explicit organization when a platform admin has multiple choices 321ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  11:22:08
+   Duration  8.37s (transform 296ms, setup 1.79s, import 1.38s, tests 3.14s, environment 2.45s)
+
+JSON report written to E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/docs/tasks/test-defect-fixes/results/fe-green.json

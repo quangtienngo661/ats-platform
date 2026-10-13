@@ -1,0 +1,120 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts
+
+[WebServer] (node:34484) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:31260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:19808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (6.4s)
+(node:8416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới (2.9s)
+(node:31108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (4.0s)
+
+
+  1) [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới 
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected value: not "e2e-audit-cancel-923690a9-7c94-4484-a679-7ea883af11e8"
+    Received array:     ["Default CV Screening Config", "Default CV Screening Config", "e2e-audit-cancel-923690a9-7c94-4484-a679-7ea883af11e8"]
+
+      108 |     expect(
+      109 |       (await response.json()).data.map((row: { name: string }) => row.name),
+    > 110 |     ).not.toContain(name);
+          |           ^
+      111 |   });
+      112 | }
+      113 |
+        at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\web\e2e\ai-configuration.e2e.ts:110:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-653e8--Hủy-→-không-có-bản-ghi-mới-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: apps\web\test-results\ai-configuration.e2e.ts-ad-653e8--Hủy-→-không-có-bản-ghi-mới-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-653e8--Hủy-→-không-có-bản-ghi-mới-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace apps\web\test-results\ai-configuration.e2e.ts-ad-653e8--Hủy-→-không-có-bản-ghi-mới-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới 
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected value: not "e2e-audit-cancel-6f666d68-2cbd-493c-8b27-b0b76c8f59c8"
+    Received array:     ["Default CV Screening Config", "Default CV Screening Config", "e2e-audit-cancel-6f666d68-2cbd-493c-8b27-b0b76c8f59c8"]
+
+      108 |     expect(
+      109 |       (await response.json()).data.map((row: { name: string }) => row.name),
+    > 110 |     ).not.toContain(name);
+          |           ^
+      111 |   });
+      112 | }
+      113 |
+        at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\web\e2e\ai-configuration.e2e.ts:110:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-324e7-hình-→-không-có-bản-ghi-mới-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: apps\web\test-results\ai-configuration.e2e.ts-ad-324e7-hình-→-không-có-bản-ghi-mới-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-324e7-hình-→-không-có-bản-ghi-mới-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace apps\web\test-results\ai-configuration.e2e.ts-ad-324e7-hình-→-không-có-bản-ghi-mới-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 201
+
+      168 |     headers: { Cookie: `refreshToken=${refreshToken}` },
+      169 |   });
+    > 170 |   expect(replay.status()).toBe(401);
+          |                           ^
+      171 | });
+      172 |
+        at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\web\e2e\ai-configuration.e2e.ts:170:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-3d6bc--đăng-xuất-và-thu-hồi-phiên-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: apps\web\test-results\ai-configuration.e2e.ts-ad-3d6bc--đăng-xuất-và-thu-hồi-phiên-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps\web\test-results\ai-configuration.e2e.ts-ad-3d6bc--đăng-xuất-và-thu-hồi-phiên-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace apps\web\test-results\ai-configuration.e2e.ts-ad-3d6bc--đăng-xuất-và-thu-hồi-phiên-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới 
+    [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới 
+    [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên 

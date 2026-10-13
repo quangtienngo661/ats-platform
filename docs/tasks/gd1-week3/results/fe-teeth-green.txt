@@ -1,0 +1,17 @@
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the selected organization with a new org_admin account 43ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > sends the changed organization when updating an org_admin 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "" before HTTP 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects creating org_admin with organization "   " before HTTP 0ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > rejects editing org_admin with an empty organization before HTTP 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing admin 4ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing candidate 1ms
+ ✓ src/servers/users/users.action.test.ts > User actions — organization binding (A3) > omits a stale organization field when creating or editing recruiter 1ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  22:45:54
+   Duration  2.34s (transform 90ms, setup 692ms, import 68ms, tests 56ms, environment 0ms)
+

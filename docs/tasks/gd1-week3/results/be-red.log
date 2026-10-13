@@ -1,0 +1,432 @@
+
+> nx run api:test --runInBand --testPathPatterns=gd1 --json --outputFile=docs/tasks/gd1-week3/results/be-red.json
+
+(node:4368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ FAIL   api  apps/api/src/app/users/users.gd1.spec.ts (7.32 s)
+  ● GĐ1 A8 — User session invalidation › revokes refresh tokens and disconnects sockets after changing organization
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "org-admin-1"}}
+    Number of calls: 0
+
+      46 |     await service.update(account.userId, update);
+      47 |
+    > 48 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      49 |       where: { userId: account.userId, revoked: false },
+      50 |       data: { revoked: true },
+      51 |     });
+
+      at src/app/users/users.gd1.spec.ts:48:44
+  ● GĐ1 A8 — User session invalidation › revokes refresh tokens and disconnects sockets after changing role
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "org-admin-1"}}
+    Number of calls: 0
+
+      46 |     await service.update(account.userId, update);
+      47 |
+    > 48 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      49 |       where: { userId: account.userId, revoked: false },
+      50 |       data: { revoked: true },
+      51 |     });
+
+      at src/app/users/users.gd1.spec.ts:48:44
+  ● GĐ1 A8 — User session invalidation › revokes refresh tokens and disconnects sockets after changing status
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "org-admin-1"}}
+    Number of calls: 0
+
+      46 |     await service.update(account.userId, update);
+      47 |
+    > 48 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      49 |       where: { userId: account.userId, revoked: false },
+      50 |       data: { revoked: true },
+      51 |     });
+
+      at src/app/users/users.gd1.spec.ts:48:44
+  ● GĐ1 A8 — User session invalidation › revokes refresh tokens and disconnects sockets after changing password
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "org-admin-1"}}
+    Number of calls: 0
+
+      46 |     await service.update(account.userId, update);
+      47 |
+    > 48 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      49 |       where: { userId: account.userId, revoked: false },
+      50 |       data: { revoked: true },
+      51 |     });
+
+      at src/app/users/users.gd1.spec.ts:48:44
+  ● GĐ1 A8 — User session invalidation › disconnects only after the mutation and revocation transaction commits
+    expect(received).toEqual(expected) // deep equality
+    - Expected  - 3
+    + Received  + 0
+      Array [
+        "write",
+    -   "revoke",
+    -   "commit",
+    -   "disconnect",
+      ]
+
+      74 |     await service.update(account.userId, { organizationId: 'org-2' });
+      75 |
+    > 76 |     expect(order).toEqual(['write', 'revoke', 'commit', 'disconnect']);
+         |                   ^
+      77 |   });
+      78 |
+      79 |   it.each([
+
+      at Object.<anonymous> (src/app/users/users.gd1.spec.ts:76:19)
+  ● GĐ1 A8 — User session invalidation › does not disconnect when revocation fails and the transaction rejects
+    expect(received).rejects.toThrow()
+    Received promise resolved instead of rejected
+    Resolved to value: {"email": "org-admin@test.local", "fullName": "Org Admin", "organizationId": "org-1", "passwordHash": "old-hash", "role": "org_admin", "status": "active", "userId": "org-admin-1"}
+
+      101 |     prisma.refreshToken.updateMany.mockRejectedValue(new Error('revoke failed'));
+      102 |
+    > 103 |     await expect(service.update(account.userId, { organizationId: 'org-2' }))
+          |           ^
+      104 |       .rejects.toThrow('revoke failed');
+      105 |     expect(socket.disconnectUser).not.toHaveBeenCalled();
+      106 |   });
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/users/users.gd1.spec.ts:103:11)
+  ● GĐ1 A8 — User session invalidation › revokes sessions after a correct self-service password change
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "org-admin-1"}}
+    Number of calls: 0
+
+      113 |
+      114 |     expect(bcrypt.hashSync).toHaveBeenCalledWith('new-password', 10);
+    > 115 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+          |                                            ^
+      116 |       where: { userId: account.userId, revoked: false },
+      117 |       data: { revoked: true },
+      118 |     });
+
+      at Object.<anonymous> (src/app/users/users.gd1.spec.ts:115:44)
+  ● GĐ1 A8 — User session invalidation › remove › disconnects a deleted User only after deletion succeeds
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: "org-admin-1"
+    Number of calls: 0
+
+      144 |     it('disconnects a deleted User only after deletion succeeds', async () => {
+      145 |       await expect(service.remove(account.userId)).resolves.toEqual({ userId: account.userId });
+    > 146 |       expect(socket.disconnectUser).toHaveBeenCalledWith(account.userId);
+          |                                     ^
+      147 |       expect(prisma.user.delete.mock.invocationCallOrder[0])
+      148 |         .toBeLessThan(socket.disconnectUser.mock.invocationCallOrder[0]);
+      149 |     });
+
+      at Object.<anonymous> (src/app/users/users.gd1.spec.ts:146:37)
+ FAIL   api  apps/api/src/app/recruiters/recruiters.gd1.spec.ts
+  ● GĐ1 A4/A8 — recruiter identity and authority › refuses org_admin attaching an arbitrary existing global User
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"recruiterId": "rec-new"}
+
+      35 |
+      36 |   it('refuses org_admin attaching an arbitrary existing global User', async () => {
+    > 37 |     await expect(service.create(dto, orgAdmin)).rejects.toBeInstanceOf(ForbiddenException);
+         |           ^
+      38 |     expect(prisma.recruiter.create).not.toHaveBeenCalled();
+      39 |   });
+      40 |
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/recruiters/recruiters.gd1.spec.ts:37:11)
+  ● GĐ1 A4/A8 — recruiter identity and authority › refuses a platform admin attaching a User with role candidate
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"recruiterId": "rec-new"}
+
+      43 |     async (role) => {
+      44 |       prisma.user.findUnique.mockResolvedValue({ userId: 'new-user', role });
+    > 45 |       await expect(service.create(dto, admin)).rejects.toBeInstanceOf(BadRequestException);
+         |             ^
+      46 |       expect(prisma.recruiter.create).not.toHaveBeenCalled();
+      47 |     },
+      48 |   );
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at src/app/recruiters/recruiters.gd1.spec.ts:45:13
+  ● GĐ1 A4/A8 — recruiter identity and authority › refuses a platform admin attaching a User with role admin
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"recruiterId": "rec-new"}
+
+      43 |     async (role) => {
+      44 |       prisma.user.findUnique.mockResolvedValue({ userId: 'new-user', role });
+    > 45 |       await expect(service.create(dto, admin)).rejects.toBeInstanceOf(BadRequestException);
+         |             ^
+      46 |       expect(prisma.recruiter.create).not.toHaveBeenCalled();
+      47 |     },
+      48 |   );
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at src/app/recruiters/recruiters.gd1.spec.ts:45:13
+  ● GĐ1 A4/A8 — recruiter identity and authority › refuses a platform admin attaching a User with role org_admin
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"recruiterId": "rec-new"}
+
+      43 |     async (role) => {
+      44 |       prisma.user.findUnique.mockResolvedValue({ userId: 'new-user', role });
+    > 45 |       await expect(service.create(dto, admin)).rejects.toBeInstanceOf(BadRequestException);
+         |             ^
+      46 |       expect(prisma.recruiter.create).not.toHaveBeenCalled();
+      47 |     },
+      48 |   );
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at src/app/recruiters/recruiters.gd1.spec.ts:45:13
+  ● GĐ1 A4/A8 — recruiter identity and authority › does not let PATCH change the owner of a recruiter profile
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"_count": {"jobPostings": 0}, "departmentId": "dep-1", "organizationId": "org-1", "recruiterId": "rec-1", "userId": "recruiter-user-1"}
+
+      49 |
+      50 |   it('does not let PATCH change the owner of a recruiter profile', async () => {
+    > 51 |     await expect(service.update('rec-1', { userId: 'new-user' }, admin))
+         |           ^
+      52 |       .rejects.toBeInstanceOf(BadRequestException);
+      53 |     expect(prisma.recruiter.update).not.toHaveBeenCalled();
+      54 |   });
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/recruiters/recruiters.gd1.spec.ts:51:11)
+  ● GĐ1 A4/A8 — recruiter identity and authority › refuses a department move when the recruiter owns a job posting
+    expect(received).rejects.toThrow()
+    Received promise resolved instead of rejected
+    Resolved to value: {"_count": {"jobPostings": 0}, "departmentId": "dep-1", "organizationId": "org-1", "recruiterId": "rec-1", "userId": "recruiter-user-1"}
+
+      56 |   it('refuses a department move when the recruiter owns a job posting', async () => {
+      57 |     prisma.recruiter.findFirst.mockResolvedValue({ ...profile, _count: { jobPostings: 1 } });
+    > 58 |     await expect(service.update('rec-1', { departmentId: 'dep-2' }, orgAdmin))
+         |           ^
+      59 |       .rejects.toThrow('tin tuyển dụng');
+      60 |     expect(prisma.recruiter.update).not.toHaveBeenCalled();
+      61 |     expect(prisma.refreshToken.updateMany).not.toHaveBeenCalled();
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/recruiters/recruiters.gd1.spec.ts:58:11)
+  ● GĐ1 A4/A8 — recruiter identity and authority › revokes refresh tokens and socket rights after a department move
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "recruiter-user-1"}}
+    Number of calls: 0
+
+      65 |   it('revokes refresh tokens and socket rights after a department move', async () => {
+      66 |     await service.update('rec-1', { departmentId: 'dep-2' }, orgAdmin);
+    > 67 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      68 |       where: { userId: profile.userId, revoked: false },
+      69 |       data: { revoked: true },
+      70 |     });
+
+      at Object.<anonymous> (src/app/recruiters/recruiters.gd1.spec.ts:67:44)
+  ● GĐ1 A4/A8 — recruiter identity and authority › revokes sessions and disconnects when a profile with no jobs is removed
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: {"data": {"revoked": true}, "where": {"revoked": false, "userId": "recruiter-user-1"}}
+    Number of calls: 0
+
+      92 |   it('revokes sessions and disconnects when a profile with no jobs is removed', async () => {
+      93 |     await service.remove('rec-1', orgAdmin);
+    > 94 |     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+         |                                            ^
+      95 |       where: { userId: profile.userId, revoked: false },
+      96 |       data: { revoked: true },
+      97 |     });
+
+      at Object.<anonymous> (src/app/recruiters/recruiters.gd1.spec.ts:94:44)
+ FAIL   api  apps/api/src/app/job-postings/job-postings.gd1.spec.ts (7.842 s)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › lets an org_admin create for a recruiter owner in its organization
+    expect(received).resolves.toEqual()
+    Received promise rejected instead of resolved
+    Rejected to value: [NotFoundException: Không tìm thấy nhà tuyển dụng]
+
+      40 |
+      41 |   it('lets an org_admin create for a recruiter owner in its organization', async () => {
+    > 42 |     await expect(service.create(callerOf(UserRole.org_admin) as any, dto))
+         |           ^
+      43 |       .resolves.toEqual({ jobId: 'job-1', title: 'Backend' });
+      44 |     expect(prisma.jobPosting.create).toHaveBeenCalledWith(expect.objectContaining({
+      45 |       data: expect.objectContaining({
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:42:11)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › lets a platform admin create for an owner in any organization
+    expect(received).resolves.toEqual()
+    Received promise rejected instead of resolved
+    Rejected to value: [NotFoundException: Không tìm thấy nhà tuyển dụng]
+
+      52 |
+      53 |   it('lets a platform admin create for an owner in any organization', async () => {
+    > 54 |     await expect(service.create(callerOf(UserRole.admin) as any, dto))
+         |           ^
+      55 |       .resolves.toEqual({ jobId: 'job-1', title: 'Backend' });
+      56 |   });
+      57 |
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:54:11)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › rejects a department differing from the selected recruiter owner
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"jobId": "job-1", "title": "Backend"}
+
+      58 |   it('rejects a department differing from the selected recruiter owner', async () => {
+      59 |     prisma.recruiter.findUnique.mockResolvedValue(owner);
+    > 60 |     await expect(service.create(callerOf(UserRole.org_admin) as any, {
+         |           ^
+      61 |       ...dto, departmentId: 'dep-other',
+      62 |     })).rejects.toBeInstanceOf(BadRequestException);
+      63 |     expect(prisma.jobPosting.create).not.toHaveBeenCalled();
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:60:11)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › refuses an org_admin selecting an owner outside its organization
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"jobId": "job-1", "title": "Backend"}
+
+      71 |       departmentId: 'dep-2', organizationId: 'org-2',
+      72 |     });
+    > 73 |     await expect(service.create(callerOf(UserRole.org_admin) as any, dto))
+         |           ^
+      74 |       .rejects.toBeInstanceOf(ForbiddenException);
+      75 |     expect(prisma.jobPosting.create).not.toHaveBeenCalled();
+      76 |   });
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:73:11)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › refuses a recruiter naming a different recruiter as owner
+    expect(received).rejects.toBeInstanceOf()
+    Received promise resolved instead of rejected
+    Resolved to value: {"jobId": "job-1", "title": "Backend"}
+
+      78 |   it('refuses a recruiter naming a different recruiter as owner', async () => {
+      79 |     prisma.recruiter.findUnique.mockResolvedValue(owner);
+    > 80 |     await expect(service.create(callerOf(UserRole.recruiter, {
+         |           ^
+      81 |       userId: owner.userId,
+      82 |     }) as any, { ...dto, createdBy: 'rec-other' }))
+      83 |       .rejects.toBeInstanceOf(ForbiddenException);
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:80:11)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › requires a selected recruiter owner for admin without a profile
+    expect(received).rejects.toBeInstanceOf(expected)
+    Expected constructor: BadRequestException
+    Received constructor: NotFoundException
+
+      88 |     await expect(service.create(callerOf(UserRole.org_admin) as any, {
+      89 |       ...dto, createdBy: undefined,
+    > 90 |     })).rejects.toBeInstanceOf(BadRequestException);
+         |                 ^
+      91 |     expect(prisma.jobPosting.create).not.toHaveBeenCalled();
+      92 |   });
+      93 | });
+
+      at Object.toBeInstanceOf (../../node_modules/expect/build/index.js:2155:20)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:90:17)
+[Nest] 4368  - 09/29/2026, 10:34:11 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 4368  - 09/29/2026, 10:34:11 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 4368  - 09/29/2026, 10:34:11 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 4368  - 09/29/2026, 10:34:11 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-1
+[Nest] 4368  - 09/29/2026, 10:34:11 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-2
+ FAIL   api  apps/api/src/common/socket-io/socket-io.gd1.spec.ts
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is moved to another organization
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is demoted to candidate
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is deactivated
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › rejects a previously authorized socket after its User is deleted
+    expect(jest.fn()).not.toHaveBeenCalled()
+    Expected number of calls: 0
+    Received number of calls: 1
+    1: "job_job-1"
+
+      39 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-1' });
+      40 |
+    > 41 |     expect(client.join).not.toHaveBeenCalled();
+         |                             ^
+      42 |     expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      43 |       where: { userId: 'u1' },
+      44 |     }));
+
+      at src/common/socket-io/socket-io.gd1.spec.ts:41:29
+  ● GĐ1 A8 — stale socket authority › uses a new database organization for the next join
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    Expected: "job_job-2"
+    Number of calls: 0
+
+      55 |     await service.handleJoinJobRoom(client as any, { jobId: 'job-2' });
+      56 |
+    > 57 |     expect(client.join).toHaveBeenCalledWith('job_job-2');
+         |                         ^
+      58 |   });
+      59 | });
+      60 |
+
+      at Object.<anonymous> (src/common/socket-io/socket-io.gd1.spec.ts:57:25)
+Test Suites: 4 failed, 4 total
+Tests:       27 failed, 11 passed, 38 total
+Snapshots:   0 total
+Time:        19.008 s
+Ran all test suites matching gd1.
+Test results written to: docs\tasks\gd1-week3\results\be-red.json
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+

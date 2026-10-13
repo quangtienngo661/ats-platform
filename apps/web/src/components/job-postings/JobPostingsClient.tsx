@@ -14,16 +14,17 @@ import { ISkillDto } from '@/types/interfaces/skill.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
 import { deleteJobPostingAction } from '@/servers/job-postings/job-postings.action';
-import { Role } from '@ats-platform/types';
 
 interface JobPostingsClientProps {
     jobs: IJobPostingDto[];
     skillsDb: ISkillDto[];
     categories: IJobCategoryDto[];
     currentRecruiter: IRecruiterDto | null;
+    recruiters?: IRecruiterDto[];
+    userRole?: string;
 }
 
-export default function JobPostingsClient({ jobs, skillsDb, categories, currentRecruiter }: JobPostingsClientProps) {
+export default function JobPostingsClient({ jobs, skillsDb, categories, currentRecruiter, recruiters = [], userRole }: JobPostingsClientProps) {
     const router = useRouter();
     const [filter, setFilter] = useState<'all' | 'active' | 'draft' | 'closed'>('all');
     const [showMutateModal, setShowMutateModal] = useState(false);
@@ -33,8 +34,8 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
 
     let filtered: IJobPostingDto[] = [];
 
-    if (!currentRecruiter || currentRecruiter.user?.role === Role.admin) {
-        filtered = jobs;
+    if (userRole === 'admin' || userRole === 'org_admin') {
+        filtered = filter === 'all' ? jobs : jobs.filter(job => job.status === filter);
     } else {
         filtered = filter === 'all' ? ownedJobs : ownedJobs.filter(j => j.status === filter);
     }
@@ -105,6 +106,8 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
                     skillsDb={skillsDb}
                     categories={categories}
                     currentRecruiter={currentRecruiter}
+                    recruiters={recruiters}
+                    userRole={userRole}
                 />
             )}
         </div>

@@ -62,6 +62,7 @@ export default function DepartmentClient({ departments, organizations }: Departm
                     <DepartmentCard
                         key={dept.departmentId}
                         department={dept}
+                        organizationName={organizations.find(org => org.organizationId === dept.organizationId)?.name}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onViewDetail={handleViewDetail}

@@ -85,12 +85,19 @@ export async function createRecruiterAction(
     const departmentId = (formData.get('departmentId') as string)?.trim();
     const position = (formData.get('position') as string)?.trim();
 
-    if (!userId) return { success: false, message: 'Thiếu ID người dùng' };
+    const newAccount = formData.get('accountMode') === 'new';
+    const fullName = (formData.get('fullName') as string)?.trim();
+    const email = (formData.get('email') as string)?.trim();
+    const password = formData.get('password') as string;
+    if (newAccount && (!fullName || !email || !password)) return { success: false, message: 'Vui lòng nhập họ tên, email và mật khẩu' };
+    if (!newAccount && !userId) return { success: false, message: 'Thiếu ID người dùng' };
     if (!departmentId) return { success: false, message: 'Thiếu ID phòng ban' };
     if (!position) return { success: false, message: 'Vui lòng nhập chức vụ' };
 
     try {
-        const response = await http.post('/recruiters', { userId, departmentId, position });
+        const response = newAccount
+            ? await http.post('/recruiters/accounts', { fullName, email, password, departmentId, position })
+            : await http.post('/recruiters', { userId, departmentId, position });
         revalidatePath('/recruiter-management');
         return { success: true, message: 'Tạo nhà tuyển dụng thành công', data: response.data as IRecruiterDto };
     } catch (err) {

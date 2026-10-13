@@ -13,9 +13,10 @@ function totalOf(p: ConfigProfile) {
 }
 
 export function ConfigCard({
-    profile, onUpdate, onDelete, onSetDefault, onDuplicate,
+    profile, organizationName, onUpdate, onDelete, onSetDefault, onDuplicate,
 }: {
     profile: ConfigProfile;
+    organizationName?: string;
     onUpdate: (p: ConfigProfile) => void | Promise<void>;
     onDelete: () => void | Promise<void>;
     onSetDefault: () => void | Promise<void>;
@@ -79,6 +80,7 @@ export function ConfigCard({
                 <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${profile.isDefault ? 'bg-[#34C759]' : 'bg-[#33CCFF]'}`} />
 
                 <div className="flex-1 min-w-0">
+                    {organizationName && <p className="text-[12px] text-blue-700 mb-1">Tổ chức: {organizationName}</p>}
                     {/* Title input */}
                     <div className="relative">
                         <input

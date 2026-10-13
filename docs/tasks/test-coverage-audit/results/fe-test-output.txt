@@ -1,0 +1,219 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts --reporter=verbose --reporter=json --outputFile=../../docs/tasks/test-coverage-audit/results/fe-tests.json
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ × src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in candidate from the login page to its own landing page 13ms
+   → expected 'http://localhost:3000/department-mana…' to be 'http://localhost:3000/job-postings' // Object.is equality
+ × src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in recruiter from the login page to its own landing page 2ms
+   → expected 'http://localhost:3000/department-mana…' to be 'http://localhost:3000/dashboard' // Object.is equality
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in admin from the login page to its own landing page 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > allows an admin with a valid token to open AI configuration 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > denies a candidate an admin route with a valid access token 1ms
+ × src/proxy.test.ts > proxy — route policy and refreshed sessions > applies the same candidate denial after refreshing an expired token 4ms
+   → expected null to be 'http://localhost:3000/' // Object.is equality
+ × src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards the refreshed access cookie to server components on the current request 2ms
+   → expected 'accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1…' to contain 'accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1…'
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > sends a guest opening a private admin route to staff login 1ms
+ ✓ src/proxy.test.ts > proxy — route policy and refreshed sessions > returns to sign-in when refresh fails 1ms
+ × src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > sends the refresh cookie required by AuthService.logout to revoke the token 8ms
+   → expected "vi.fn()" to be called with arguments: [ …(3) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -2,9 +2,8 @@
+    "http://127.0.0.1:5000/api/auth/logout",
+    {},
+    {
+      "headers": {
+        "Authorization": "Bearer access-test",
+-       "Cookie": "refreshToken=row-id.refresh-test",
+      },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ✓ src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > clears both browser cookies even when the API is unavailable 1ms
+ × src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Hủy closes a valid form without creating a configuration 666ms
+   → expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "message": "",
+        "success": false,
+      },
+      FormData {},
+    ]
+
+
+Number of calls: 1
+
+ × src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Đóng cấu hình closes a valid form without creating a configuration 539ms
+   → expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "message": "",
+        "success": false,
+      },
+      FormData {},
+    ]
+
+
+Number of calls: 1
+
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > submits the selected organization and exact default weights/threshold 389ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks a blank or whitespace name 156ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks submission when the weights total is not 100 466ms
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > requires an explicit organization when a platform admin has multiple choices 366ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in candidate from the login page to its own landing page
+AssertionError: expected 'http://localhost:3000/department-mana…' to be 'http://localhost:3000/job-postings' // Object.is equality
+
+Expected: "http://localhost:3000/job-postings"
+Received: "http://localhost:3000/department-management"
+
+ ❯ src/proxy.test.ts:61:48
+     59|     async (role, landing) => {
+     60|       const response = await proxy(requestFor('/sign-in', tokenFor(rol…
+     61|       expect(response.headers.get('location')).toBe(
+       |                                                ^
+     62|         `http://localhost:3000${landing}`,
+     63|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/proxy.test.ts > proxy — route policy and refreshed sessions > returns a signed-in recruiter from the login page to its own landing page
+AssertionError: expected 'http://localhost:3000/department-mana…' to be 'http://localhost:3000/dashboard' // Object.is equality
+
+Expected: "http://localhost:3000/dashboard"
+Received: "http://localhost:3000/department-management"
+
+ ❯ src/proxy.test.ts:61:48
+     59|     async (role, landing) => {
+     60|       const response = await proxy(requestFor('/sign-in', tokenFor(rol…
+     61|       expect(response.headers.get('location')).toBe(
+       |                                                ^
+     62|         `http://localhost:3000${landing}`,
+     63|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/proxy.test.ts > proxy — route policy and refreshed sessions > applies the same candidate denial after refreshing an expired token
+AssertionError: expected null to be 'http://localhost:3000/' // Object.is equality
+
+- Expected:
+"http://localhost:3000/"
+
++ Received:
+null
+
+ ❯ src/proxy.test.ts:90:46
+     88|       ),
+     89|     );
+     90|     expect(response.headers.get('location')).toBe('http://localhost:30…
+       |                                              ^
+     91|     expect(response.headers.get('x-middleware-next')).toBeNull();
+     92|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/proxy.test.ts > proxy — route policy and refreshed sessions > forwards the refreshed access cookie to server components on the current request
+AssertionError: expected 'accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1…' to contain 'accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1…'
+
+Expected: "accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ1c2VyLTEiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3OTA2NTc1NzF9.unit-test-signature"
+Received: "accessToken=eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ1c2VyLTEiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3OTA2NTM5MTF9.unit-test-signature; refreshToken=old-refresh"
+
+ ❯ src/proxy.test.ts:100:71
+     98|     );
+     99|     expect(response.cookies.get('accessToken')?.value).toBe(freshToken…
+    100|     expect(response.headers.get('x-middleware-request-cookie') ?? '').…
+       |                                                                       ^
+    101|       `accessToken=${freshToken}`,
+    102|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/servers/auth/auth.action.test.ts > logoutAction — revoke the server session > sends the refresh cookie required by AuthService.logout to revoke the token
+AssertionError: expected "vi.fn()" to be called with arguments: [ …(3) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -2,9 +2,8 @@
+    "http://127.0.0.1:5000/api/auth/logout",
+    {},
+    {
+      "headers": {
+        "Authorization": "Bearer access-test",
+-       "Cookie": "refreshToken=row-id.refresh-test",
+      },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/servers/auth/auth.action.test.ts:33:24
+     31|   it('sends the refresh cookie required by AuthService.logout to revok…
+     32|     await expect(logoutAction()).rejects.toThrow('redirect:/sign-in');
+     33|     expect(mocks.post).toHaveBeenCalledWith(
+       |                        ^
+     34|       'http://127.0.0.1:5000/api/auth/logout',
+     35|       {},
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Hủy closes a valid form without creating a configuration
+ FAIL  src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Đóng cấu hình closes a valid form without creating a configuration
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "message": "",
+        "success": false,
+      },
+      FormData {},
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/components/ai-configuration/ui/AddProfileModal.test.tsx:50:32
+     48|
+     49|       expect(onClose).toHaveBeenCalled();
+     50|       expect(mocks.create).not.toHaveBeenCalled();
+       |                                ^
+     51|     },
+     52|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  7 failed | 10 passed (17)
+   Start at  10:52:50
+   Duration  4.75s (transform 149ms, setup 803ms, import 476ms, tests 2.62s, environment 950ms)
+
+JSON report written to E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/docs/tasks/test-coverage-audit/results/fe-tests.json

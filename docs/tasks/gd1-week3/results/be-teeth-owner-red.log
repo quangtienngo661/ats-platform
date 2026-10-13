@@ -1,0 +1,38 @@
+
+> nx run api:test --runInBand --testPathPatterns=job-postings.gd1.spec.ts --testNamePattern=refuses an org_admin selecting an owner outside its organization --json --outputFile=docs/tasks/gd1-week3/results/be-teeth-owner-red.json
+
+(node:12496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ FAIL   api  apps/api/src/app/job-postings/job-postings.gd1.spec.ts (19.187 s)
+  ● GĐ1 A5 — scoped job creation without a caller Recruiter profile › refuses an org_admin selecting an owner outside its organization
+    expect(received).rejects.toThrow()
+    Received promise resolved instead of rejected
+    Resolved to value: {"jobId": "job-1", "title": "Backend"}
+
+      71 |       departmentId: 'dep-2', organizationId: 'org-2',
+      72 |     });
+    > 73 |     await expect(service.create(callerOf(UserRole.org_admin), dto))
+         |           ^
+      74 |       .rejects.toThrow(new NotFoundException('Không tìm thấy nhà tuyển dụng'));
+      75 |     expect(prisma.jobPosting.create).not.toHaveBeenCalled();
+      76 |   });
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/app/job-postings/job-postings.gd1.spec.ts:73:11)
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 10 skipped, 11 total
+Snapshots:   0 total
+Time:        20.192 s
+Ran all test suites matching job-postings.gd1.spec.ts with tests matching "refuses an org_admin selecting an owner outside its organization".
+Test results written to: docs\tasks\gd1-week3\results\be-teeth-owner-red.json
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+

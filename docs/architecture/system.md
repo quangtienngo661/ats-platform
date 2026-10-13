@@ -1,5 +1,33 @@
 # Kiến trúc hệ thống (System Architecture)
 
+## Hiện trạng ngày 2026-09-29
+
+Nhánh `feat/org-admin-enforcement`, baseline `8ec4751`, thay đổi GĐ1 tuần cuối đang ở working tree. Kiến trúc hiện tại vẫn là modular monolith; microservices, RAG và LiveKit là mục tiêu sau. Trạng thái kiểm chứng/merge/deploy xem [gói GĐ1 tuần cuối](../tasks/gd1-week3/spec.md) và kết quả trong thư mục đó.
+
+```mermaid
+flowchart LR
+  B["Trình duyệt"] --> W["Next.js web\nSSR, proxy, server actions"]
+  W -->|HTTP + JWT| A["NestJS API\n16 domain + health"]
+  B <-->|Socket.IO| S["Gateway trong API"]
+  A --> P["Prisma"]
+  P --> D[("PostgreSQL 18.4\nOrganization + 24 models")]
+  A --> Q[("Redis 8 / BullMQ")]
+  Q --> K["Workers trong API"]
+  K --> G["Gemini API"]
+  K --> P
+  K --> S
+```
+
+- [Role policy web](../../apps/web/src/lib/role-policy.ts) mở portal org_admin. [JWT resolver](../../apps/api/src/common/tenancy/resolve-tenant-caller.ts) đọc role/status/org từ DB mỗi request; JWT chỉ xác định danh tính. Sidebar đọc `GET /users/me`, hiển thị tổ chức từ `GET /organizations/me`.
+- [TenantCaller](../../apps/api/src/common/tenancy/tenant-caller.ts): platform admin toàn cục; org_admin một org; recruiter thêm giới hạn department; candidate/CV là pool chung. Xem [ERD hiện tại](database.md).
+- [Recruiter accounts](../../apps/api/src/app/recruiters/recruiters.service.ts): tạo User + Recruiter trong transaction, suy tổ chức từ department. Gán tài khoản global có sẵn chỉ platform admin. [Job create](../../apps/api/src/app/job-postings/job-postings.service.ts) chọn owner recruiter và xác minh org/department; org_admin không cần profile Recruiter.
+- [Socket](../../apps/api/src/common/socket-io/socket-io.service.ts) đọc lại quyền khi join; User/Recruiter thay quyền thu hồi refresh session và ngắt mọi socket của user, kể cả socket đã rời user-room. Cơ chế ngắt hiện dành cho **một API process**; cần adapter/invalidation chung trước khi chạy nhiều replica.
+- CV parsing/screening và mock interview dùng queue; preview JD là lời gọi HTTP đồng bộ có timeout. AI đưa ra gợi ý, người tuyển dụng quyết định chuyển trạng thái (ADR 0002).
+- Dashboard đang dùng mẫu tối đa 6 ứng tuyển/100 job từ server action, chưa phải báo cáo thống kê đầy đủ. Ghi rõ giới hạn khi demo.
+
+## Baseline kiến trúc và các chi tiết kế thừa
+
+
 > Snapshot: 2026-07-16. Dựa trên `README.md` (§System Architecture, §AI Mock Interview Flow, §Queues) đối chiếu trực tiếp với code — chỗ nào README lệch so với code thực tế đã ghi rõ bên dưới.
 
 ## 1. Mô hình tổng thể
@@ -13,16 +41,16 @@ Client (Next.js 16, App Router SSR + Zustand state)
 Nginx (SSL termination, reverse proxy)   Socket.IO Gateway
    │
    ▼
-NestJS API — 15 module theo domain — Prisma ORM ──► PostgreSQL 15
+NestJS API — 16 module theo domain — Prisma ORM ──► PostgreSQL 18.4
    │
    │ dispatch job (BullMQ)
    ▼
 Redis (broker) ──► 6 Worker (4 gọi Gemini, 1 gửi email, 1 quét bảo trì) ──► ghi kết quả vào DB ──► emit qua Socket.IO
 ```
 
-## 2. 15 module domain + 1 module hạ tầng (`apps/api/src/app/*`)
+## 2. 16 module domain + 1 module hạ tầng (`apps/api/src/app/*`)
 
-`auth`, `users`, `candidates`, `recruiters`, `departments`, `job-categories`, `skills`, `job-postings`, `applications`, `cvs`, `cv-screenings`, `ai-config`, `ai-usage-logs`, `interviews`, `notifications`. Cộng thêm `health` (thêm 2026-07-14, Phase 0.5) — không phải domain nghiệp vụ, chỉ `HealthController`/`HealthService` phục vụ `GET /health` (xem `infrastructure.md` §8).
+`auth`, `users`, `organizations`, `candidates`, `recruiters`, `departments`, `job-categories`, `skills`, `job-postings`, `applications`, `cvs`, `cv-screenings`, `ai-config`, `ai-usage-logs`, `interviews`, `notifications`. Cộng thêm `health` (thêm 2026-07-14, Phase 0.5) — không phải domain nghiệp vụ, chỉ `HealthController`/`HealthService` phục vụ `GET /health` (xem `infrastructure.md` §8).
 
 Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `dto(s)/*.dto.ts` (+ `*.spec.ts` cùng cặp). `interviews/` có thêm `session/` sub-feature (gateway + processor + service cho vòng lặp Q&A trực tiếp) — đầy đủ nhất, dùng làm mẫu hình module khi viết module mới.
 
@@ -31,7 +59,7 @@ Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `d
 ## 3. Ba kiểu luồng xử lý
 
 - **Đồng bộ (REST)**: request → controller → service → Prisma → response qua `TransformInterceptor` (envelope `{ success, status, data }`).
-- **Bất đồng bộ (BullMQ)**: service dispatch job → processor xử lý nền → ghi kết quả DB → emit Socket.IO. Dùng cho mọi việc gọi Gemini (CV parse, CV screening, sinh câu hỏi phỏng vấn, chấm điểm) để không block HTTP thread.
+- **Bất đồng bộ (BullMQ)**: service dispatch job → processor xử lý nền → ghi kết quả DB → emit Socket.IO. Dùng cho các pipeline gọi Gemini; preview JD là ngoại lệ đồng bộ (CV parse, CV screening, sinh câu hỏi phỏng vấn, chấm điểm) để không block HTTP thread.
 - **Real-time (Socket.IO)**: JWT xác thực lúc handshake, room scoped theo `job_{id}` (kanban) hoặc `interview_{sessionId}` (mock interview).
 
 ## 4. BullMQ — 6 queue thực tế

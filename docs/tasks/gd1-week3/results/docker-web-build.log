@@ -1,0 +1,373 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile:
+#1 transferring dockerfile: 2.02kB 0.0s done
+#1 DONE 1.5s
+
+#2 [internal] load metadata for docker.io/library/node:24-bookworm-slim
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context:
+#3 transferring context: 328B done
+#3 DONE 0.7s
+
+#4 [builder  1/10] FROM docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+#4 resolve docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf 0.1s done
+#4 DONE 0.1s
+
+#5 [builder  2/10] WORKDIR /app
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 619.27kB 0.4s done
+#6 DONE 0.5s
+
+#7 [builder  6/10] RUN npm ci
+#7 CACHED
+
+#8 [builder  5/10] COPY tsconfig.base.json ./
+#8 CACHED
+
+#9 [builder  6/10] RUN npm ci
+#9 CACHED
+
+#10 [builder  3/10] COPY package*.json ./
+#10 CACHED
+
+#11 [builder  4/10] COPY nx.json ./
+#11 CACHED
+
+#12 [builder  7/10] COPY . .
+#12 ...
+
+#13 [runner 3/7] RUN groupadd --system --gid 1001 nodejs
+#13 DONE 23.2s
+
+#12 [builder  7/10] COPY . .
+#12 ...
+
+#14 [runner 4/7] RUN useradd --system --uid 1001 --gid nodejs nextjs
+#14 24.60 useradd warning: nextjs's uid 1001 is greater than SYS_UID_MAX 999
+#14 DONE 55.2s
+
+#12 [builder  7/10] COPY . .
+#12 DONE 81.5s
+
+#15 [builder  8/10] RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+#15 0.953 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#15 1.685 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#15 1.848 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#15 2.047 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#15 6.436 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#15 6.436 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [342 kB]
+#15 9.060 Fetched 9381 kB in 8s (1136 kB/s)
+#15 9.060 Reading package lists...
+#15 10.98 Reading package lists...
+#15 13.19 Building dependency tree...
+#15 13.56 Reading state information...
+#15 14.00 The following additional packages will be installed:
+#15 14.00   libssl3
+#15 14.01 Suggested packages:
+#15 14.01   ca-certificates
+#15 14.04 The following NEW packages will be installed:
+#15 14.05   libssl3 openssl
+#15 14.23 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+#15 14.23 Need to get 3481 kB of archives.
+#15 14.23 After this operation, 8556 kB of additional disk space will be used.
+#15 14.23 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#15 14.75 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#15 15.31 debconf: delaying package configuration, since apt-utils is not installed
+#15 15.47 Fetched 3481 kB in 1s (4253 kB/s)
+#15 15.63 Selecting previously unselected package libssl3:amd64.
+#15 15.63 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#15 15.65 Preparing to unpack .../libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#15 15.73 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#15 16.23 Selecting previously unselected package openssl.
+#15 16.23 Preparing to unpack .../openssl_3.0.22-1~deb12u1_amd64.deb ...
+#15 16.33 Unpacking openssl (3.0.22-1~deb12u1) ...
+#15 16.77 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#15 16.87 Setting up openssl (3.0.22-1~deb12u1) ...
+#15 17.01 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#15 DONE 18.0s
+
+#16 [builder  9/10] RUN npx nx run database:prisma-generate
+#16 16.26 
+#16 16.26 > nx run database:prisma-generate
+#16 16.26 
+#16 16.27 > npx prisma generate
+#16 16.27 
+#16 21.12 Loaded Prisma config from prisma.config.ts.
+#16 21.12 
+#16 26.63 Prisma schema loaded from prisma/schema.prisma.
+#16 27.73 
+#16 27.73 ✔ Generated Prisma Client (7.8.0) to ./src/generated/prisma in 845ms
+#16 27.73 
+#16 27.87 
+#16 27.87 
+#16 27.87 
+#16 27.87  NX   Successfully ran target prisma-generate for project database
+#16 27.87 
+#16 27.87 
+#16 DONE 36.1s
+
+#17 [builder 10/10] RUN npx nx build web --prod
+#17 5.881 
+#17 5.883 > nx run web:build:production
+#17 5.883 
+#17 9.380 ▲ Next.js 16.3.3 (Turbopack)
+#17 11.01 ✓ Running next.config.js took 1631ms
+#17 11.21 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#17 11.21 This information is used to shape Next.js' roadmap and prioritize features.
+#17 11.21 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#17 11.21 https://nextjs.org/telemetry
+#17 11.47   Creating an optimized production build ...
+#17 48.45 ✓ Compiled successfully in 34.5s
+#17 48.47   Running TypeScript ...
+#17 78.89 src/app/(admin)/recruiter-management/page.tsx(20,13): error TS2322: Type 'Department[]' is not assignable to type 'DepartmentOption[]'.
+#17 78.89   Type 'Department' is missing the following properties from type 'DepartmentOption': name, color
+#17 78.89 src/app/(recruiter)/interviews/page.tsx(84,30): error TS7006: Parameter 'recruiter' implicitly has an 'any' type.
+#17 78.89 src/app/(recruiter)/interviews/page.tsx(85,29): error TS7006: Parameter 'recruiter' implicitly has an 'any' type.
+#17 78.89 src/app/(recruiter)/jobs/[jobId]/kanban/page.tsx(22,56): error TS7006: Parameter 'app' implicitly has an 'any' type.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(7,37): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(32,49): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(100,46): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(102,108): error TS2339: Property 'organizationId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(104,71): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(104,95): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(105,72): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(105,96): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(106,77): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/AIConfigClient.tsx(106,101): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/AddProfileModal.tsx(10,37): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(12,14): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(12,31): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(12,52): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(75,78): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(80,83): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(89,55): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(89,78): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(90,67): error TS2353: Object literal may only specify known properties, and 'name' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(95,110): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(95,127): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(103,55): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(103,85): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(104,67): error TS2353: Object literal may only specify known properties, and 'description' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(109,110): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(109,134): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(116,30): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(146,93): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(174,47): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(188,47): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(225,91): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(225,114): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(227,77): error TS2353: Object literal may only specify known properties, and 'skillsWeight' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(230,95): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(230,122): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(232,77): error TS2353: Object literal may only specify known properties, and 'experienceWeight' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(235,91): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(235,117): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(237,77): error TS2353: Object literal may only specify known properties, and 'educationWeight' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(253,70): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(253,102): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(254,83): error TS2353: Object literal may only specify known properties, and 'minimumScoreThreshold' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(264,62): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(264,94): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(265,75): error TS2353: Object literal may only specify known properties, and 'minimumScoreThreshold' does not exist in type 'SetStateAction<ConfigProfile>'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(286,75): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(286,98): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(287,79): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(287,106): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(288,78): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(288,104): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(299,78): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(299,101): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(300,82): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(300,109): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(301,78): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-configuration/ui/ConfigCard.tsx(301,104): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/ai-usage-logs/AiUsageLogsClient.tsx(6,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/ai-usage-logs/ui/AiUsageLogsTable.tsx(7,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/department-management/DepartmentClient.tsx(13,37): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/department-management/DepartmentClient.tsx(65,97): error TS2339: Property 'organizationId' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentCard.tsx(26,50): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentCard.tsx(28,73): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentCard.tsx(53,23): error TS2339: Property 'name' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentCard.tsx(55,82): error TS2339: Property 'description' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(4,26): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(65,33): error TS2339: Property 'position' does not exist on type 'DepartmentMember'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(130,72): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(132,95): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(139,53): error TS2339: Property 'name' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(142,53): error TS2339: Property 'description' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(157,95): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/DepartmentDetailModal.tsx(190,110): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/MutateDepartmentModal.tsx(11,37): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/department-management/ui/MutateDepartmentModal.tsx(29,65): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/MutateDepartmentModal.tsx(29,85): error TS2339: Property 'color' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/MutateDepartmentModal.tsx(132,76): error TS2339: Property 'name' does not exist on type 'Department'.
+#17 78.89 src/components/department-management/ui/MutateDepartmentModal.tsx(146,76): error TS2339: Property 'description' does not exist on type 'Department'.
+#17 78.89 src/components/interview-schedule/ui/ScheduleDetailDrawer.tsx(9,32): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/kanban/KanbanClient.tsx(21,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(30,51): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(111,67): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(111,96): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(114,62): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(123,68): error TS2339: Property 'configId' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(131,70): error TS2339: Property 'name' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(133,66): error TS2339: Property 'isDefault' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(139,62): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(140,122): error TS2339: Property 'description' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(145,78): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(148,82): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(151,78): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/kanban/ScreeningConfigModal.tsx(154,78): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/components/mock-interview/InterviewChatClient.tsx(7,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/mock-interview/MockInterviewClient.tsx(12,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/mock-interview/ui/DifficultySelector.tsx(6,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/mock-interview/ui/SessionSidebar.tsx(4,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/my-cvs/ui/CvCard.tsx(79,59): error TS7006: Parameter 'skill' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(12,31): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(112,53): error TS7006: Parameter 't' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(230,77): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(240,72): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(250,77): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(269,59): error TS7006: Parameter 'exp' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(269,64): error TS7006: Parameter 'i' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(285,57): error TS7006: Parameter 'proj' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(285,63): error TS7006: Parameter 'i' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(301,58): error TS7006: Parameter 'edu' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(301,63): error TS7006: Parameter 'i' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(322,61): error TS7006: Parameter 'cert' implicitly has an 'any' type.
+#17 78.89 src/components/my-cvs/ui/CvDetailModal.tsx(322,67): error TS7006: Parameter 'i' implicitly has an 'any' type.
+#17 78.89 src/components/profile/ProfileClient.tsx(22,50): error TS2339: Property 'profileData' does not exist on type 'ICandidateDto'.
+#17 78.89 src/components/profile/ui/ProfileEditModal.tsx(29,24): error TS2339: Property 'profileData' does not exist on type 'ICandidateDto'.
+#17 78.89 src/components/profile/ui/ProfileInfoCard.tsx(52,24): error TS2339: Property 'profileData' does not exist on type 'ICandidateDto'.
+#17 78.89 src/components/public/jobs/JobCard.tsx(99,53): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/public/jobs/detail/JobDetailHero.tsx(76,37): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/public/jobs/detail/JobDetailSidebar.tsx(63,45): error TS7006: Parameter 's' implicitly has an 'any' type.
+#17 78.89 src/components/recruiter-management/RecruiterClient.tsx(13,26): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/recruiter-management/ui/MutateRecruiterModal.tsx(6,26): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/skill-management/SkillClient.tsx(28,42): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/SkillClient.tsx(37,53): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/EditSkillModal.tsx(24,52): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/EditSkillModal.tsx(25,72): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/SkillRow.tsx(35,28): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/SkillRow.tsx(35,59): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/SkillRow.tsx(58,32): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/SkillStats.tsx(10,58): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/skill-management/ui/SkillStats.tsx(11,51): error TS2339: Property 'category' does not exist on type 'ISkillDto'.
+#17 78.89 src/components/user-management/StaffProfileClient.tsx(20,78): error TS2339: Property 'phoneNumber' does not exist on type 'IUserResponseDto'.
+#17 78.89 src/components/user-management/UserClient.tsx(13,59): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/AddUserModal.tsx(9,59): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/EditUserModal.tsx(9,59): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/EditUserModal.tsx(178,38): error TS2339: Property 'phoneNumber' does not exist on type 'IUserResponseDto'.
+#17 78.89 src/components/user-management/ui/EditUserModal.tsx(188,143): error TS2339: Property 'organizationId' does not exist on type 'IUserResponseDto'.
+#17 78.89 src/components/user-management/ui/UserFilterBar.tsx(6,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/UserRow.tsx(6,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/UserStats.tsx(3,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/UserTable.tsx(7,37): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/components/user-management/ui/UserTable.tsx(70,89): error TS2339: Property 'organizationId' does not exist on type 'IUserResponseDto'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(6,27): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(57,35): error TS2339: Property 'skillsWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(58,39): error TS2339: Property 'experienceWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(59,38): error TS2339: Property 'educationWeight' does not exist on type 'ConfigProfile'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(60,44): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'ConfigProfile'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(111,50): error TS2559: Type '{ name: string; description: string; isDefault: boolean; skillsWeight: number; experienceWeight: number; educationWeight: number; minimumScoreThreshold: number; }' has no properties in common with type 'ConfigProfile'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(127,27): error TS2339: Property 'name' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(128,34): error TS2339: Property 'description' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(129,32): error TS2339: Property 'isDefault' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(130,35): error TS2339: Property 'skillsWeight' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(131,39): error TS2339: Property 'experienceWeight' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(132,38): error TS2339: Property 'educationWeight' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(133,44): error TS2339: Property 'minimumScoreThreshold' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-config/ai-config.action.ts(136,60): error TS2339: Property 'configId' does not exist on type 'Omit<ConfigProfile, "collapsed">'.
+#17 78.89 src/servers/ai-usage-logs/ai-usage-logs.action.ts(5,36): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/applications/applications.action.ts(12,53): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/candidates/candidates.action.ts(10,26): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/cvs/cvs.action.ts(6,31): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/departments/departments.action.ts(31,9): error TS2353: Object literal may only specify known properties, and 'position' does not exist in type 'DepartmentMember'.
+#17 78.89 src/servers/departments/departments.action.ts(44,9): error TS2353: Object literal may only specify known properties, and 'organizationId' does not exist in type 'Department'.
+#17 78.89 src/servers/interviews/interviews.action.ts(16,83): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/organizations/organizations.action.ts(4,47): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/servers/users/users.action.ts(5,31): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/stores/useKanbanStore.ts(2,35): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/types/interfaces/application.interface.ts(1,83): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.89 src/types/interfaces/auth.interface.ts(1,23): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/candidate.interface.ts(1,60): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/configProfile.interface.ts(1,27): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/cv-screening.interface.ts(1,30): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/cv.interface.ts(1,31): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/departments.interface.ts(1,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/departments.interface.ts(2,41): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/interview.interface.ts(1,101): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/job-category.interface.ts(1,30): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/job-posting.interface.ts(1,68): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/kanban.interface.ts(1,33): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/notification.interface.ts(1,73): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/recruiter.interface.ts(1,41): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/recruiter.interface.ts(2,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/skill.interface.ts(1,24): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/user.interface.ts(1,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 78.90 src/types/interfaces/user.interface.ts(2,38): error TS6305: Output file '/app/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file '/app/libs/shared/types/src/index.ts'.
+#17 79.03 Failed to type check.
+#17 79.03 
+#17 79.10 Build process exited due to code 1  
+#17 79.16 
+#17 79.16 
+#17 79.16 
+#17 79.16  NX   Running target build for project web failed
+#17 79.16 
+#17 79.16 Failed tasks:
+#17 79.16 
+#17 79.16 - web:build:production
+#17 79.16 
+#17 79.16 Hint: run the command with --verbose for more details.
+#17 79.16 
+#17 ERROR: process "/bin/sh -c npx nx build web --prod" did not complete successfully: exit code: 1
+------
+ > [builder 10/10] RUN npx nx build web --prod:
+79.16 
+79.16 
+79.16  NX   Running target build for project web failed
+79.16 
+79.16 Failed tasks:
+79.16 
+79.16 - web:build:production
+79.16 
+79.16 Hint: run the command with --verbose for more details.
+79.16 
+------
+Dockerfile:28
+--------------------
+  26 |     # Tiến hành build ứng dụng Next.js thông qua Nx
+  27 |     RUN npx nx run database:prisma-generate
+  28 | >>> RUN npx nx build web --prod
+  29 |     
+  30 |     # ==========================================
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c npx nx build web --prod" did not complete successfully: exit code: 1
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/9tnyvzqe1h830c3s51brx3pt4

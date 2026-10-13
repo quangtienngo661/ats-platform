@@ -13,19 +13,20 @@ describe('RecruitersService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new RecruitersService(prisma as any);
+    service = new RecruitersService(prisma as any, { disconnectUser: jest.fn() } as any);
+    prisma.$transaction.mockImplementation((callback: any) => callback(prisma));
   });
 
   describe('create', () => {
     it('stamps the recruiter with its department\'s organization', async () => {
-      prisma.user.findUnique.mockResolvedValue({ userId: 'user-2' });
+      prisma.user.findUnique.mockResolvedValue({ userId: 'user-2', role: UserRole.recruiter, status: 'active' });
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-1' });
       prisma.recruiter.findUnique.mockResolvedValue(null);
       prisma.recruiter.create.mockResolvedValue({ recruiterId: 'rec-1' });
 
       await service.create(
         { userId: 'user-2', departmentId: 'dep-1', position: 'HR' },
-        orgAdmin,
+        platformAdmin,
       );
 
       // Asserted field by field: toEqual treats an `undefined` organizationId as
@@ -36,17 +37,20 @@ describe('RecruitersService', () => {
     });
 
     it('refuses an org_admin placing a recruiter in another organization\'s department', async () => {
-      prisma.user.findUnique.mockResolvedValue({ userId: 'user-2' });
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-2' });
 
       await expect(
-        service.create({ userId: 'user-2', departmentId: 'dep-of-org-2', position: 'HR' }, orgAdmin),
+        service.createAccount({
+          fullName: 'Recruiter', email: 'rec@test.local', password: 'Recruiter@123',
+          departmentId: 'dep-of-org-2', position: 'HR',
+        }, orgAdmin),
       ).rejects.toBeInstanceOf(ForbiddenException);
       expect(prisma.recruiter.create).not.toHaveBeenCalled();
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
     it('lets a platform admin place a recruiter in any organization\'s department', async () => {
-      prisma.user.findUnique.mockResolvedValue({ userId: 'user-2' });
+      prisma.user.findUnique.mockResolvedValue({ userId: 'user-2', role: UserRole.recruiter, status: 'active' });
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-2' });
       prisma.recruiter.findUnique.mockResolvedValue(null);
       prisma.recruiter.create.mockResolvedValue({ recruiterId: 'rec-9' });
@@ -62,19 +66,19 @@ describe('RecruitersService', () => {
     it('rejects missing user, missing department, and duplicate profile', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       await expect(
-        service.create({ userId: 'missing', departmentId: 'dep-1', position: 'HR' }, orgAdmin),
+        service.create({ userId: 'missing', departmentId: 'dep-1', position: 'HR' }, platformAdmin),
       ).rejects.toThrow('người dùng');
 
-      prisma.user.findUnique.mockResolvedValue({ userId: 'user-1' });
+      prisma.user.findUnique.mockResolvedValue({ userId: 'user-1', role: UserRole.recruiter, status: 'active' });
       prisma.department.findUnique.mockResolvedValue(null);
       await expect(
-        service.create({ userId: 'user-1', departmentId: 'missing', position: 'HR' }, orgAdmin),
+        service.create({ userId: 'user-1', departmentId: 'missing', position: 'HR' }, platformAdmin),
       ).rejects.toThrow('phòng ban');
 
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-1' });
       prisma.recruiter.findUnique.mockResolvedValue({ recruiterId: 'rec-1' });
       await expect(
-        service.create({ userId: 'user-1', departmentId: 'dep-1', position: 'HR' }, orgAdmin),
+        service.create({ userId: 'user-1', departmentId: 'dep-1', position: 'HR' }, platformAdmin),
       ).rejects.toThrow('đã tồn tại');
     });
   });
@@ -138,7 +142,10 @@ describe('RecruitersService', () => {
     // A recruiter moved to another department used to keep its old organizationId:
     // the DTO was written verbatim, and the denormalised column never followed.
     it('moves the organization together with the department', async () => {
-      prisma.recruiter.findFirst.mockResolvedValue({ recruiterId: 'rec-1' });
+      prisma.recruiter.findFirst.mockResolvedValue({
+        recruiterId: 'rec-1', userId: 'user-2', departmentId: 'dep-1',
+        organizationId: 'org-1', _count: { jobPostings: 0 },
+      });
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-2' });
       prisma.recruiter.update.mockResolvedValue({ recruiterId: 'rec-1' });
 
@@ -151,7 +158,10 @@ describe('RecruitersService', () => {
     });
 
     it('leaves the organization alone when the department is unchanged', async () => {
-      prisma.recruiter.findFirst.mockResolvedValue({ recruiterId: 'rec-1' });
+      prisma.recruiter.findFirst.mockResolvedValue({
+        recruiterId: 'rec-1', userId: 'user-2', departmentId: 'dep-1',
+        organizationId: 'org-1', _count: { jobPostings: 0 },
+      });
       prisma.recruiter.update.mockResolvedValue({ recruiterId: 'rec-1' });
 
       await service.update('rec-1', { position: 'Lead' }, orgAdmin);
@@ -161,7 +171,10 @@ describe('RecruitersService', () => {
     });
 
     it('refuses an org_admin moving a recruiter into another organization', async () => {
-      prisma.recruiter.findFirst.mockResolvedValue({ recruiterId: 'rec-1' });
+      prisma.recruiter.findFirst.mockResolvedValue({
+        recruiterId: 'rec-1', userId: 'user-2', departmentId: 'dep-1',
+        organizationId: 'org-1', _count: { jobPostings: 0 },
+      });
       prisma.department.findUnique.mockResolvedValue({ organizationId: 'org-2' });
 
       await expect(

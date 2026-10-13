@@ -619,7 +619,8 @@ export class ApplicationsService {
     }
     if (
       application.status === ApplicationStatus.hired ||
-      application.status === ApplicationStatus.rejected
+      application.status === ApplicationStatus.rejected ||
+      application.status === ApplicationStatus.cancelled
     ) {
       throw new BadRequestException(
         `Không thể chạy sàng lọc AI khi đơn ứng tuyển đang ở trạng thái '${application.status}'`,

@@ -33,7 +33,7 @@ Current phase (as of Jul 2026): **Phase 0 — Foundation Fixes** (`docs/migratio
 - **PostgreSQL 15 + Redis** via `docker-compose-dev.yml` locally; **BullMQ** (`@nestjs/bullmq`) for async queues; **Socket.IO** for real-time.
 - **Google Gemini** (`@google/genai`) for CV parsing/screening/mock-interview generation, always through `GeminiService` — see `apps/api/CLAUDE.md`.
 - **TypeScript ~5.9.2** everywhere; **ESLint 9** via `@nx/eslint-plugin`; **Jest ^30** via `@nx/jest` — only `apps/api` currently has a jest config (see §9).
-- **CI**: GitHub Actions (`.github/workflows/ci.yml`) runs `nx affected` lint/build plus `nx test api` on every PR into `dev`. `.github/workflows/cd.yml` exists but is **empty** — no deploy automation yet (that's Phase 5).
+- **CI**: GitHub Actions (`.github/workflows/ci.yml`) runs `nx affected` lint/build plus `nx test api` and `npm run test:web` on every PR into `dev`. `.github/workflows/cd.yml` exists but is **empty** — no deploy automation yet (that's Phase 5).
 
 ## 3. Directory Structure
 
@@ -85,7 +85,7 @@ npx nx dev web
 # Cross-project — this is what CI actually runs (.github/workflows/ci.yml)
 npx nx affected -t lint
 npx nx affected -t build
-npx nx test api --runInBand --silent                 # apps/web has no test target, see §9
+npx nx test api --runInBand --silent                 # BE unit tests (default: no services)
 
 # Everything, not just affected
 npx nx run-many --target=lint
@@ -110,7 +110,7 @@ Today: modular monolith (NestJS) + PostgreSQL + Redis + BullMQ + Socket.IO, one 
 
 ## 9. Testing
 
-Nx (`@nx/jest`) orchestrates Jest per project. Only `apps/api` has a jest config today (`apps/api/jest.config.ts`) — see `.claude/rules/apis/testing.md` for running a single test/file, the shared mock-factory helpers, and which specs are silently excluded from `nx test api`. `apps/web` has no test runner wired up at all (no jest config, no spec files) — `.claude/rules/web/testing.md`. No coverage threshold is enforced anywhere in the repo.
+Nx (`@nx/jest`) orchestrates Jest per project. Only `apps/api` has a jest config today (`apps/api/jest.config.ts`) — see `.claude/rules/apis/testing.md` for running a single test/file, the shared mock-factory helpers, and which specs are silently excluded from `nx test api`. `apps/web` uses Vitest/jsdom for unit/component behavior (`npm run test:web`) and Playwright/Chromium for real-browser E2E (`npm run test:e2e:web`). E2E requires the isolated `docker-compose.test.yml` stack and guarded local fixtures — `.claude/rules/web/testing.md`. No coverage threshold is enforced anywhere in the repo.
 
 ## 10. Other Notes
 

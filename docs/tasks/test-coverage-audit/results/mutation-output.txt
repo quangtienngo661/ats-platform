@@ -1,0 +1,42 @@
+FAIL api apps/api/src/app/applications/applications.service.spec.ts
+  ● ApplicationsService › status transitions — all 49 pairs › applied → screening
+
+    expect(received).resolves.toMatchObject()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [BadRequestException: Không thể chuyển trạng thái từ 'applied' sang 'screening'. Các trạng thái hợp lệ: [hired, rejected]]
+
+      112 |       });
+      113 |       if ((permitted[from] ?? []).includes(to)) {
+    > 114 |         await expect(result).resolves.toMatchObject({ status: to });
+          |               ^
+      115 |         expect(tx.applicationHistory.create).toHaveBeenCalledWith({
+      116 |           data: {
+      117 |             organizationId: 'org-1',
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at src/app/applications/applications.service.spec.ts:114:15
+
+  ● ApplicationsService › status transitions — all 49 pairs › applied → hired
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"applicationId": "app-1", "candidate": {"user": {"userId": "cand-user"}}, "organizationId": "org-1", "status": "hired"}
+
+      134 |         );
+      135 |       } else {
+    > 136 |         await expect(result).rejects.toThrow(
+          |               ^
+      137 |           `Không thể chuyển trạng thái từ '${from}' sang '${to}'`,
+      138 |         );
+      139 |         expect(prisma.$transaction).not.toHaveBeenCalled();
+
+      at expect (../../node_modules/expect/build/index.js:2116:15)
+      at src/app/applications/applications.service.spec.ts:136:15
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 18 skipped, 47 passed, 67 total
+Snapshots:   0 total
+Time:        4.103 s
+Test results written to: docs\tasks\test-coverage-audit\results\mutation-tests.json

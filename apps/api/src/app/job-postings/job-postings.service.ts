@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { JobStatus, Prisma } from '@ats-platform/database';
+import { JobStatus, Prisma, UserRole, UserStatus } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   CreateJobPostingDto,
@@ -64,7 +64,10 @@ export class JobPostingsService {
     return result;
   }
 
-  async create(userId: string, createJobPostingDto: CreateJobPostingDto) {
+  async create(caller: TenantCaller, createJobPostingDto: CreateJobPostingDto) {
+    if (!isStaffViewer(caller)) throw new ForbiddenException();
+    const manager = caller.role === UserRole.admin || caller.role === UserRole.org_admin;
+    if (manager && !createJobPostingDto.createdBy) throw new BadRequestException('Vui lòng chọn recruiter phụ trách');
     if (createJobPostingDto.categoryId) {
       const category = await this.prisma.jobCategory.findUnique({
         where: { categoryId: createJobPostingDto.categoryId },
@@ -79,13 +82,18 @@ export class JobPostingsService {
     }
 
     const recruiter = await this.prisma.recruiter.findUnique({
-      where: { userId: userId },
-      select: { recruiterId: true, departmentId: true },
+      where: manager ? { recruiterId: createJobPostingDto.createdBy } : { userId: caller.userId },
+      select: { recruiterId: true, departmentId: true, organizationId: true, user: { select: { role: true, status: true } } },
     });
 
     if (!recruiter) {
       throw new NotFoundException(`Không tìm thấy nhà tuyển dụng`);
     }
+
+    if (caller.role !== UserRole.admin && recruiter.organizationId !== caller.organizationId) throw new NotFoundException('Không tìm thấy nhà tuyển dụng');
+    if (recruiter.user.role !== UserRole.recruiter || recruiter.user.status !== UserStatus.active) throw new BadRequestException('Người phụ trách phải là recruiter đang hoạt động');
+    if (!manager && createJobPostingDto.createdBy && createJobPostingDto.createdBy !== recruiter.recruiterId) throw new ForbiddenException('Không thể tạo tin cho recruiter khác');
+    if (createJobPostingDto.departmentId && createJobPostingDto.departmentId !== recruiter.departmentId) throw new BadRequestException('Phòng ban phải khớp với recruiter phụ trách');
 
     if (!recruiter.departmentId) {
       throw new BadRequestException(
@@ -103,6 +111,7 @@ export class JobPostingsService {
         `Không tìm thấy phòng ban với ID ${recruiter.departmentId}`,
       );
     }
+    if (department.organizationId !== recruiter.organizationId) throw new BadRequestException('Tổ chức của recruiter và phòng ban không khớp');
 
     if (
       createJobPostingDto.salaryMin !== undefined &&

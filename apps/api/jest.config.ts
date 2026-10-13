@@ -19,6 +19,13 @@ export default {
   ],
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/api',
+  // Include untouched production files; imported files alone overstate coverage.
+  collectCoverageFrom: [
+    '<rootDir>/src/**/*.ts',
+    '!<rootDir>/src/**/*.spec.ts',
+    '!<rootDir>/src/test-utils/**',
+    '!<rootDir>/src/main.ts',
+  ],
   moduleNameMapper: {
     '^@ats-platform/database$':
       '<rootDir>/../../libs/backend/database/src/index.ts',

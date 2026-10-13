@@ -24,6 +24,8 @@ interface MutateJobPostingModalProps {
     editingJob: IJobPostingDto | null;
     categories: IJobCategoryDto[];
     currentRecruiter: IRecruiterDto | null;
+    recruiters?: IRecruiterDto[];
+    userRole?: string;
 }
 
 export function MutateJobPostingModal({
@@ -32,6 +34,8 @@ export function MutateJobPostingModal({
     skillsDb,
     categories,
     currentRecruiter,
+    recruiters = [],
+    userRole,
 }: MutateJobPostingModalProps) {
     const isEditing = !!editingJob;
     const [step, setStep] = useState<1 | 2>(isEditing ? 2 : 1);
@@ -44,7 +48,10 @@ export function MutateJobPostingModal({
     const parsedJobPosting = useJobPostingStore(state => state.parsedData);
     const setParsedData = useJobPostingStore(state => state.setParsedData);
 
-    const rawDepartment = editingJob?.department ?? currentRecruiter?.department ?? null;
+    const manager = userRole === 'admin' || userRole === 'org_admin';
+    const owners = recruiters.filter(recruiter => recruiter.user?.role === 'recruiter' && recruiter.user?.status === 'active');
+    const [ownerId, setOwnerId] = useState(editingJob?.recruiter?.recruiterId ?? currentRecruiter?.recruiterId ?? '');
+    const rawDepartment = editingJob?.department ?? (manager ? owners.find(owner => owner.recruiterId === ownerId)?.department : currentRecruiter?.department) ?? null;
     const lockedDepartment = rawDepartment?.departmentId && rawDepartment?.name
         ? { departmentId: rawDepartment.departmentId, name: rawDepartment.name }
         : null;
@@ -66,6 +73,7 @@ export function MutateJobPostingModal({
     );
 
     useEffect(() => {
+        if (!editingJob) setParsedData(null);
         if (editingJob?.parsedRequirements) {
             setParsedData(editingJob.parsedRequirements);
         }
@@ -90,7 +98,7 @@ export function MutateJobPostingModal({
 
     const validateStepOne = () => {
         if (!lockedDepartment) {
-            toast.error('Tài khoản recruiter chưa được gán khoa');
+            toast.error('Vui lòng chọn recruiter phụ trách có phòng ban');
             return false;
         }
 
@@ -134,7 +142,7 @@ export function MutateJobPostingModal({
     const handleSubmitClick = (event: MouseEvent<HTMLButtonElement>) => {
         if (!lockedDepartment) {
             event.preventDefault();
-            toast.error('Tài khoản recruiter chưa được gán khoa');
+            toast.error('Vui lòng chọn recruiter phụ trách có phòng ban');
         }
     };
 
@@ -180,6 +188,15 @@ export function MutateJobPostingModal({
                 </div>
 
                 <form action={formAction} className="flex flex-col overflow-hidden">
+                    {!isEditing && <input type="hidden" name="createdBy" value={ownerId} />}
+                    {manager && !isEditing && <div className="px-6 pt-4">
+                        <label htmlFor="job-owner" className="block text-[13px] mb-2">Người phụ trách *</label>
+                        <select id="job-owner" value={ownerId} onChange={event => setOwnerId(event.target.value)} required className="border rounded-xl p-3 w-full">
+                            <option value="">Chọn recruiter phụ trách</option>
+                            {owners.map(owner => <option key={owner.recruiterId} value={owner.recruiterId}>{owner.user?.fullName} · {owner.user?.email} · {owner.department?.name}</option>)}
+                        </select>
+                        {owners.length === 0 && <p role="status" className="text-sm text-gray-500 mt-2">Cần thêm recruiter vào phòng ban trước khi tạo tin.</p>}
+                    </div>}
                     {isEditing && <input type="hidden" name="jobId" value={editingJob.jobId} />}
 
                     <div className={step === 1 ? 'contents' : 'hidden'}>
@@ -230,6 +247,7 @@ export function MutateJobPostingModal({
                                 Hủy
                             </button>
 
+                            {step === 1 && <button type="button" disabled={isPending || isParsing || !lockedDepartment} onClick={() => { if (validateStepOne()) { setParsedData(null); setStep(2); } }} className="text-blue-700 text-sm disabled:text-gray-400">Tiếp tục không dùng AI</button>}
                             {step === 1 ? (
                                 <button
                                     type="button"

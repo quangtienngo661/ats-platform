@@ -1,0 +1,540 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "apps/web/playwright.config.ts",
+      "gd1-org-admin.e2e.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\playwright.config.ts",
+    "rootDir": "E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\support\\preflight.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "cwd": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform",
+      "command": "node apps/web/e2e/support/start-web.mjs",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "gd1-org-admin.e2e.ts",
+      "file": "gd1-org-admin.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T15:59:15.522Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9f126f2b2bb48f1c41c0-876119ee5b8cf72301f2",
+          "file": "gd1-org-admin.e2e.ts",
+          "line": 43,
+          "column": 5
+        }
+      ],
+      "suites": [
+        {
+          "title": "GĐ1 tuần cuối — portal org_admin với hai tổ chức thật",
+          "file": "gd1-org-admin.e2e.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10318,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:20.150Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-695757258bd49014400a",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 96,
+              "column": 7
+            },
+            {
+              "title": "A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13267,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:31.697Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-a0fda09ad6b86fe8deb0",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 134,
+              "column": 7
+            },
+            {
+              "title": "A4: org_admin không có Recruiter tạo account + profile cùng department qua UI",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1448,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:45.029Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-ce861242f3f048b2271b",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2337,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:46.510Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-7ee048f496329108bcf2",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 212,
+              "column": 7
+            },
+            {
+              "title": "A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1562,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:48.885Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-6f4b517e8bbdd0771df0",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 241,
+              "column": 7
+            },
+            {
+              "title": "A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 656,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m403\u001b[39m\nReceived: \u001b[31m404\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m403\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n    at E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts:319:37",
+                        "location": {
+                          "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                          "column": 37,
+                          "line": 319
+                        },
+                        "snippet": "  317 |       headers, data: { title: 'Không được tạo', locationType: 'onsite', createdBy: fixture.recruiterB.id, description: 'Boundary test' },\n  318 |     });\n> 319 |     expect(forbiddenOwner.status()).toBe(403);\n      |                                     ^\n  320 |     const forbiddenAssignment = await organizationContext.request.post(`${apiBaseUrl()}/recruiters`, {\n  321 |       headers, data: { userId: fixture.recruiterB.userId, departmentId: fixture.departmentA.id, position: 'No global user assignment' },\n  322 |     });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "column": 37,
+                            "line": 319
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m403\u001b[39m\nReceived: \u001b[31m404\u001b[39m\n\n  317 |       headers, data: { title: 'Không được tạo', locationType: 'onsite', createdBy: fixture.recruiterB.id, description: 'Boundary test' },\n  318 |     });\n> 319 |     expect(forbiddenOwner.status()).toBe(403);\n      |                                     ^\n  320 |     const forbiddenAssignment = await organizationContext.request.post(`${apiBaseUrl()}/recruiters`, {\n  321 |       headers, data: { userId: fixture.recruiterB.userId, departmentId: fixture.departmentA.id, position: 'No global user assignment' },\n  322 |     });\n    at E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts:319:37"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:50.480Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                            "line": 51,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\test-results\\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\test-results\\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\test-results\\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\test-results\\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\test-results\\gd1-org-admin.e2e.ts-GĐ1-t-e00cf-đọc-ghi-được-dữ-liệu-tenant-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "column": 37,
+                        "line": 319
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-4e754e0c76b64841c181",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 270,
+              "column": 7
+            },
+            {
+              "title": "A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "E:\\Learnings\\Learning Stuffs\\University\\HK6\\Do_an_1\\Main\\Project\\alsp-ai-harness\\projects\\ats-platform\\apps\\web\\e2e\\gd1-org-admin.e2e.ts",
+                        "line": 51,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-29T15:59:53.298Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9f126f2b2bb48f1c41c0-1ff3375dcecfe248c3a5",
+              "file": "gd1-org-admin.e2e.ts",
+              "line": 326,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-29T15:59:00.346Z",
+    "duration": 53544.672999999995,
+    "expected": 6,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

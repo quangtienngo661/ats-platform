@@ -1,0 +1,20 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts AddProfileModal.test.tsx -t submits the selected organization --reporter=verbose --reporter=json --outputFile=../../docs/tasks/test-coverage-audit/results/fe-restored-tests.json
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ↓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Hủy closes a valid form without creating a configuration
+ ↓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > Đóng cấu hình closes a valid form without creating a configuration
+ ✓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > submits the selected organization and exact default weights/threshold 421ms
+ ↓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks a blank or whitespace name
+ ↓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > blocks submission when the weights total is not 100
+ ↓ src/components/ai-configuration/ui/AddProfileModal.test.tsx > AddProfileModal > requires an explicit organization when a platform admin has multiple choices
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  11:00:04
+   Duration  2.67s (transform 130ms, setup 300ms, import 370ms, tests 422ms, environment 922ms)
+
+JSON report written to E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/docs/tasks/test-coverage-audit/results/fe-restored-tests.json

@@ -45,6 +45,8 @@ describe('JobPostingsService', () => {
     prisma.recruiter.findUnique.mockResolvedValue({
       recruiterId: 'rec-1',
       departmentId: 'dep-1',
+      organizationId: 'org-1',
+      user: { role: UserRole.recruiter, status: 'active' },
     });
     prisma.department.findUnique.mockResolvedValue({
       departmentId: 'dep-1',
@@ -61,7 +63,7 @@ describe('JobPostingsService', () => {
     prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
     await expect(
-      service.create('user-1', {
+      service.create(callerOf(UserRole.recruiter), {
         title: 'Backend',
         locationType: 'remote' as any,
         salaryMin: 1000,
@@ -95,17 +97,21 @@ describe('JobPostingsService', () => {
   it('validates create relations and salary range', async () => {
     prisma.jobCategory.findUnique.mockResolvedValue(null);
     await expect(
-      service.create('user-1', { categoryId: 'missing' } as any),
+      service.create(callerOf(UserRole.recruiter), { categoryId: 'missing' } as any),
     ).rejects.toThrow('danh');
 
     prisma.jobCategory.findUnique.mockResolvedValue({ categoryId: 'cat-1' });
     prisma.recruiter.findUnique.mockResolvedValue({
       recruiterId: 'rec-1',
       departmentId: 'dep-1',
+      organizationId: 'org-1',
+      user: { role: UserRole.recruiter, status: 'active' },
     });
-    prisma.department.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
+    prisma.department.findUnique.mockResolvedValue({
+      departmentId: 'dep-1', organizationId: 'org-1',
+    });
     await expect(
-      service.create('user-1', { salaryMin: 2000, salaryMax: 1000 } as any),
+      service.create(callerOf(UserRole.recruiter), { salaryMin: 2000, salaryMax: 1000 } as any),
     ).rejects.toThrow('l');
   });
 
@@ -180,11 +186,15 @@ describe('JobPostingsService', () => {
     prisma.recruiter.findUnique.mockResolvedValue({
       recruiterId: 'rec-1',
       departmentId: 'dep-1',
+      organizationId: 'org-1',
+      user: { role: UserRole.recruiter, status: 'active' },
     });
-    prisma.department.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
+    prisma.department.findUnique.mockResolvedValue({
+      departmentId: 'dep-1', organizationId: 'org-1',
+    });
 
     await expect(
-      service.create('user-1', { parsedRequirements: '[1,2]' } as any),
+      service.create(callerOf(UserRole.recruiter), { parsedRequirements: '[1,2]' } as any),
     ).rejects.toThrow('JSON');
   });
 

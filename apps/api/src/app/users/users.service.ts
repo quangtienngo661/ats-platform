@@ -13,10 +13,11 @@ import {
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@ats-platform/database';
 import * as bcrypt from 'bcrypt';
+import { SocketIoService } from '../../common/socket-io/socket-io.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly sockets: SocketIoService) {}
 
   /**
    * An org_admin is bound to exactly one existing organization, and no other role
@@ -73,6 +74,7 @@ export class UsersService {
           email: data.email,
           passwordHash,
           fullName: data.fullName,
+          phoneNumber: data.phoneNumber,
           status: data.status ?? UserStatus.active,
           role: data.role,
           organizationId,
@@ -154,11 +156,15 @@ export class UsersService {
     }
 
     const newPasswordHash = bcrypt.hashSync(dto.newPassword, 10);
-    return await this.prisma.user.update({
-      where: { userId },
-      data: { passwordHash: newPasswordHash },
-      omit: { passwordHash: true },
+    const updated = await this.prisma.$transaction(async tx => {
+      const result = await tx.user.update({
+        where: { userId }, data: { passwordHash: newPasswordHash }, omit: { passwordHash: true },
+      });
+      await tx.refreshToken.updateMany({ where: { userId, revoked: false }, data: { revoked: true } });
+      return result;
     });
+    this.sockets.disconnectUser(userId);
+    return updated;
   }
 
   async update(userId: string, updateUserDto: UpdateUserDto) {
@@ -166,6 +172,7 @@ export class UsersService {
       updateUserDto.email !== undefined ||
       updateUserDto.password !== undefined ||
       updateUserDto.fullName !== undefined ||
+      updateUserDto.phoneNumber !== undefined ||
       updateUserDto.status !== undefined ||
       updateUserDto.role !== undefined ||
       updateUserDto.organizationId !== undefined;
@@ -180,6 +187,7 @@ export class UsersService {
         userId: true,
         email: true,
         role: true,
+        status: true,
         organizationId: true,
       },
     });
@@ -221,19 +229,35 @@ export class UsersService {
       ? bcrypt.hashSync(updateUserDto.password, 10)
       : undefined;
 
+    const accessChanged =
+      (updateUserDto.role !== undefined && updateUserDto.role !== currentUser.role) ||
+      (organizationId !== undefined && organizationId !== currentUser.organizationId) ||
+      (updateUserDto.status !== undefined && updateUserDto.status !== currentUser.status) ||
+      passwordHash !== undefined;
+
     try {
-      return await this.prisma.user.update({
+      const persist = (tx: Prisma.TransactionClient) => tx.user.update({
         where: { userId },
         data: {
           email: updateUserDto.email,
           passwordHash,
           fullName: updateUserDto.fullName,
+          phoneNumber: updateUserDto.phoneNumber,
           status: updateUserDto.status,
           role: updateUserDto.role,
           organizationId,
         },
         omit: { passwordHash: true },
       });
+      const updated = accessChanged
+        ? await this.prisma.$transaction(async tx => {
+            const user = await persist(tx);
+            await tx.refreshToken.updateMany({ where: { userId, revoked: false }, data: { revoked: true } });
+            return user;
+          })
+        : await persist(this.prisma);
+      if (accessChanged) this.sockets.disconnectUser(userId);
+      return updated;
     } catch (error: any) {
       if (error?.code === 'P2025') {
         throw new NotFoundException('Không tìm thấy người dùng');
@@ -308,10 +332,12 @@ export class UsersService {
     }
 
     try {
-      return await this.prisma.user.delete({
+      const deleted = await this.prisma.user.delete({
         where: { userId },
         omit: { passwordHash: true },
       });
+      this.sockets.disconnectUser(userId);
+      return deleted;
     } catch (error: any) {
       if (error?.code === 'P2025') {
         throw new NotFoundException('Không tìm thấy người dùng');

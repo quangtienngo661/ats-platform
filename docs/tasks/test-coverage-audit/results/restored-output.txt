@@ -1,0 +1,6 @@
+
+Test Suites: 1 passed, 1 total
+Tests:       18 skipped, 49 passed, 67 total
+Snapshots:   0 total
+Time:        3.277 s, estimated 4 s
+Test results written to: docs\tasks\test-coverage-audit\results\restored-tests.json

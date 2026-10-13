@@ -1,0 +1,5 @@
+{
+  "api": "http://localhost:55000/api",
+  "organizationId": "210fa000-5dba-491b-adcd-715053267358",
+  "organizationSlug": "e2e-defect-verification"
+}

@@ -38,11 +38,12 @@ function formatDate(iso: string) {
 
 interface UserRowProps {
   user: IUserResponseDto;
+  organizationName?: string;
   onEdit: (user: IUserResponseDto) => void;
   onDelete: (userId: string) => void;
 }
 
-export function UserRow({ user, onEdit, onDelete }: UserRowProps) {
+export function UserRow({ user, organizationName, onEdit, onDelete }: UserRowProps) {
   const [confirming, setConfirming] = useState(false);
   const role = ROLE_CONFIG[user.role] ?? { label: user.role, cls: 'bg-[#F5F5F7] text-[#6E6E73]' };
   const color = avatarColor(user.userId);
@@ -86,6 +87,7 @@ export function UserRow({ user, onEdit, onDelete }: UserRowProps) {
         >
           {role.label}
         </span>
+        {organizationName && <p className="text-[11px] text-blue-700 mt-1">Tổ chức: {organizationName}</p>}
       </td>
 
       {/* Trạng thái */}

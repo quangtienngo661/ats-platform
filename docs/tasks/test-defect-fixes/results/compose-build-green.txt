@@ -1,0 +1,199 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 810B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.71kB 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:24-bookworm-slim
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 281B done
+#4 DONE 0.0s
+
+#5 [builder  1/10] FROM docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+#5 resolve docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 35.11MB 1.8s done
+#6 DONE 1.9s
+
+#7 [builder  4/10] COPY nx.json ./
+#7 CACHED
+
+#8 [builder  5/10] COPY tsconfig.base.json ./
+#8 CACHED
+
+#9 [builder  2/10] WORKDIR /app
+#9 CACHED
+
+#10 [builder  3/10] COPY package*.json ./
+#10 CACHED
+
+#11 [builder  6/10] RUN npm ci
+#11 CACHED
+
+#12 [builder  7/10] COPY . .
+#12 DONE 20.5s
+
+#13 [builder  8/10] RUN apt-get update -y && apt-get install -y openssl
+#13 0.582 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#13 0.772 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#13 0.840 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#13 0.908 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#13 1.522 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#13 1.586 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [342 kB]
+#13 2.179 Fetched 9380 kB in 2s (5206 kB/s)
+#13 2.179 Reading package lists...
+#13 2.548 Reading package lists...
+#13 2.926 Building dependency tree...
+#13 3.029 Reading state information...
+#13 3.163 The following additional packages will be installed:
+#13 3.163   libssl3
+#13 3.165 Suggested packages:
+#13 3.165   ca-certificates
+#13 3.216 The following NEW packages will be installed:
+#13 3.216   libssl3 openssl
+#13 3.357 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+#13 3.357 Need to get 3481 kB of archives.
+#13 3.357 After this operation, 8556 kB of additional disk space will be used.
+#13 3.357 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#13 3.792 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#13 4.082 debconf: delaying package configuration, since apt-utils is not installed
+#13 4.150 Fetched 3481 kB in 1s (5363 kB/s)
+#13 4.201 Selecting previously unselected package libssl3:amd64.
+#13 4.201 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#13 4.217 Preparing to unpack .../libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#13 4.236 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 4.382 Selecting previously unselected package openssl.
+#13 4.383 Preparing to unpack .../openssl_3.0.22-1~deb12u1_amd64.deb ...
+#13 4.387 Unpacking openssl (3.0.22-1~deb12u1) ...
+#13 4.548 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 4.587 Setting up openssl (3.0.22-1~deb12u1) ...
+#13 4.629 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#13 DONE 5.8s
+
+#14 [builder  9/10] RUN npx nx run database:prisma-generate
+#14 3.215 
+#14 3.215 > nx run database:prisma-generate
+#14 3.215 
+#14 3.216 > npx prisma generate
+#14 3.216 
+#14 4.723 [2mLoaded Prisma config from prisma.config.ts.
+#14 4.723 [22m
+#14 11.95 [2mPrisma schema loaded from prisma/schema.prisma.[22m
+#14 12.24 
+#14 12.24 ✔ Generated [1mPrisma Client[22m (7.8.0)[2m to ./src/generated/prisma[22m in 206ms
+#14 12.24 
+#14 12.27 
+#14 12.27 
+#14 12.27 
+#14 12.27  NX   Successfully ran target prisma-generate for project database
+#14 12.27 
+#14 12.27 
+#14 DONE 12.9s
+
+#15 [builder 10/10] RUN npx nx build api --prod
+#15 1.950 
+#15 1.950  NX   Running target build for project api and 2 tasks it depends on:
+#15 1.950 
+#15 1.950 
+#15 3.290 
+#15 3.290 > nx run database:build
+#15 3.290 
+#15 3.290 > tsc --build tsconfig.lib.json
+#15 3.290 
+#15 4.239 
+#15 4.239 > nx run types:build
+#15 4.239 
+#15 4.239 > tsc --build tsconfig.lib.json
+#15 4.239 
+#15 5.114 
+#15 5.114 > nx run api:build
+#15 5.114 
+#15 5.115 > webpack-cli build --node-env=production
+#15 5.115 
+#15 10.79 webpack compiled [1m[32msuccessfully[39m[22m (fd419f3b55035952)
+#15 10.85 
+#15 10.85 
+#15 10.85 
+#15 10.85  NX   Successfully ran target build for project api and 2 tasks it depends on
+#15 10.85 
+#15 10.85 
+#15 DONE 11.2s
+
+#16 [runner 5/9] RUN apt-get update -y && apt-get install -y openssl
+#16 CACHED
+
+#17 [runner 6/9] RUN npm install prisma@7.8.0 --save-prod
+#17 CACHED
+
+#18 [runner 3/9] COPY --from=builder /app/dist/apps/api/package*.json ./
+#18 CACHED
+
+#19 [runner 4/9] RUN npm ci --only=production
+#19 CACHED
+
+#20 [runner 7/9] RUN npm install @prisma/client
+#20 CACHED
+
+#21 [runner 8/9] COPY --from=builder /app/dist/apps/api ./
+#21 DONE 0.2s
+
+#22 [runner 9/9] COPY --from=builder /app/libs/backend/database ./libs/backend/database
+#22 DONE 0.3s
+
+#23 exporting to image
+#23 exporting layers
+#23 exporting layers 2.1s done
+#23 exporting manifest sha256:719d1c71b7c1a7624dd95a5bc0766bfb669e742bfdb29b198ea10a91358ee9d2
+#23 exporting manifest sha256:719d1c71b7c1a7624dd95a5bc0766bfb669e742bfdb29b198ea10a91358ee9d2 0.4s done
+#23 exporting config sha256:0b75d3ac6b586ef46dc0124cb919bf3f1a7000dc9b549f619fee9c10026c33d2
+#23 exporting config sha256:0b75d3ac6b586ef46dc0124cb919bf3f1a7000dc9b549f619fee9c10026c33d2 0.6s done
+#23 exporting attestation manifest sha256:64d2f7f135438c008e7f42981cd66264289847c692b002a857307e727bce98c6
+#23 exporting attestation manifest sha256:64d2f7f135438c008e7f42981cd66264289847c692b002a857307e727bce98c6 0.8s done
+#23 exporting manifest list sha256:4e3ddefaf17f844b42682fdc1eea233286e9f3be30215d00e4ea8e9c5afb9dba
+#23 exporting manifest list sha256:4e3ddefaf17f844b42682fdc1eea233286e9f3be30215d00e4ea8e9c5afb9dba 0.5s done
+#23 naming to docker.io/library/ats-platform-tests-api:latest
+#23 naming to docker.io/library/ats-platform-tests-api:latest 0.1s done
+#23 unpacking to docker.io/library/ats-platform-tests-api:latest
+#23 unpacking to docker.io/library/ats-platform-tests-api:latest 0.7s done
+#23 DONE 5.7s
+
+#24 resolving provenance for metadata file
+#24 DONE 0.0s
+ ats-platform-tests-api  Built
+ Container ats-platform-tests-postgres-1  Running
+ Container ats-platform-tests-redis-1  Running
+ Container ats-platform-tests-api-1  Recreate
+ Container ats-platform-tests-api-1  Recreated
+ Container ats-platform-tests-redis-1  Waiting
+ Container ats-platform-tests-postgres-1  Waiting
+ Container ats-platform-tests-postgres-1  Healthy
+ Container ats-platform-tests-redis-1  Healthy
+ Container ats-platform-tests-api-1  Starting
+ Container ats-platform-tests-api-1  Started

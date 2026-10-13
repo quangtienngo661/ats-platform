@@ -10,12 +10,13 @@ import { useState } from 'react';
 
 interface DepartmentCardProps {
     department: Department;
+    organizationName?: string;
     onEdit: (dept: Department) => void;
     onDelete: (dept: Department) => void;
     onViewDetail: (id: string) => void;
 }
 
-export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetail }: DepartmentCardProps) {
+export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetail, organizationName }: DepartmentCardProps) {
     // const [showAddModal, setShowAddModal] = useState(false);
     return (
         <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition-all">
@@ -44,6 +45,7 @@ export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetai
                 </div>
             </div>
 
+            {organizationName && <p className="text-[12px] text-blue-700 mb-2">Tổ chức: {organizationName}</p>}
             <h3
                 className="text-[17px] text-[#1D1D1F] mb-1 tracking-[-0.01em]"
                 style={{ fontFamily: SF, fontWeight: 600 }}

@@ -124,6 +124,7 @@ export async function createJobPostingAction(
     formData: FormData
 ): Promise<ActionState<IJobPostingDto>> {
     const departmentId = (formData.get('departmentId') as string)?.trim();
+    const createdBy = (formData.get('createdBy') as string)?.trim();
     const title = (formData.get('title') as string)?.trim();
     const locationType = (formData.get('locationType') as string)?.trim();
     const categoryId = (formData.get('categoryId') as string)?.trim() || undefined;
@@ -140,6 +141,7 @@ export async function createJobPostingAction(
 
     try {
         const payload: Record<string, unknown> = { departmentId, title, locationType };
+        if (createdBy) payload.createdBy = createdBy;
         if (categoryId) payload.categoryId = categoryId;
         if (salaryMinRaw) payload.salaryMin = parseFloat(salaryMinRaw as string);
         if (salaryMaxRaw) payload.salaryMax = parseFloat(salaryMaxRaw as string);
@@ -155,7 +157,7 @@ export async function createJobPostingAction(
         }
 
         const response = await http.post('/job-postings', payload);
-        revalidatePath('/job-management');
+        revalidatePath('/jobs');
         return { success: true, message: 'Tạo tin tuyển dụng thành công', data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Tạo tin tuyển dụng thất bại') };
@@ -174,7 +176,8 @@ export async function updateJobPostingAction(
     try {
         const payload: Record<string, unknown> = {};
 
-        const title = (formData.get('title') as string)?.trim();
+        const createdBy = (formData.get('createdBy') as string)?.trim();
+    const title = (formData.get('title') as string)?.trim();
         const locationType = (formData.get('locationType') as string)?.trim();
         const categoryId = (formData.get('categoryId') as string)?.trim() || undefined;
         const salaryMinRaw = formData.get('salaryMin');
@@ -200,7 +203,7 @@ export async function updateJobPostingAction(
         }
 
         const response = await http.patch(`/job-postings/${jobId}`, payload);
-        revalidatePath('/job-management');
+        revalidatePath('/jobs');
         return { success: true, message: 'Cập nhật tin tuyển dụng thành công', data: response.data ?? response };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Cập nhật tin tuyển dụng thất bại') };
@@ -213,7 +216,7 @@ export async function deleteJobPostingAction(jobId: string): Promise<ActionState
 
     try {
         await http.delete(`/job-postings/${jobId}`);
-        revalidatePath('/job-management');
+        revalidatePath('/jobs');
         return { success: true, message: 'Xóa tin tuyển dụng thành công' };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Xóa tin tuyển dụng thất bại') };

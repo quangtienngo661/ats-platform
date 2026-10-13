@@ -1,0 +1,24 @@
+
+> nx run api:test --runInBand --testPathPatterns=gd1 --json --outputFile=docs/tasks/gd1-week3/results/be-teeth-restored-green.json
+
+(node:11324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-1
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-1
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-1
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-1
+[Nest] 11324  - 09/29/2026, 10:46:16 PM     LOG [SocketIoService] Client stale-socket joined room: job_job-2
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client disconnected: inactive or unknown user - pending-auth
+[Nest] 11324  - 09/29/2026, 10:46:16 PM    WARN [SocketIoService] Client stale-socket attempted to join unauthorized job room: job_job-1
+Test Suites: 5 passed, 5 total
+Tests:       54 passed, 54 total
+Snapshots:   0 total
+Time:        18.134 s, estimated 35 s
+Ran all test suites matching gd1.
+Test results written to: docs\tasks\gd1-week3\results\be-teeth-restored-green.json
+
+
+
+ NX   Successfully ran target test for project api
+
+

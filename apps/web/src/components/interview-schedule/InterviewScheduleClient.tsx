@@ -25,6 +25,7 @@ interface InterviewScheduleClientProps {
     applications: IApplicationDto[];
     interviewers: IRecruiterDto[];
     currentRecruiter: IRecruiterDto | null;
+    userRole?: string;
     selectedWeekStart: string;
     minWeekStart: string;
     today: string;
@@ -58,6 +59,7 @@ export default function InterviewScheduleClient({
     applications,
     interviewers,
     currentRecruiter,
+    userRole,
     selectedWeekStart,
     minWeekStart,
     today,
@@ -156,6 +158,7 @@ export default function InterviewScheduleClient({
                     applications={applications}
                     interviewers={interviewers}
                     currentRecruiter={currentRecruiter}
+                    userRole={userRole}
                     defaultDate={weekDays.find((day) => day.dateKey >= today)?.dateKey ?? weekDays[0]?.dateKey ?? today}
                     minDate={today}
                     onClose={() => {
@@ -171,6 +174,7 @@ export default function InterviewScheduleClient({
                     applications={applications}
                     interviewers={interviewers}
                     currentRecruiter={currentRecruiter}
+                    userRole={userRole}
                     defaultDate={getScheduleDateKey(reschedulingSchedule)}
                     minDate={today}
                     onClose={() => {

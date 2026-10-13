@@ -1,17 +1,49 @@
 # Kiến trúc Database
 
+## Schema hiện hành — 2026-09-29
+
+Nhánh `feat/org-admin-enforcement`, baseline `8ec4751`. [Schema](../../libs/backend/database/prisma/schema.prisma) hiện có **24 model**, thêm Organization và CandidateSkill so với snapshot July. Compose pin PostgreSQL 18.4, Redis 8; đây là phiên bản cấu hình local, chưa xác nhận phiên bản production.
+
+```mermaid
+erDiagram
+  ORGANIZATION o|--o{ USER : binds_org_admin
+  USER ||--o| RECRUITER : profile
+  USER ||--o| CANDIDATE : profile
+  USER ||--o{ REFRESH_TOKEN : sessions
+  ORGANIZATION ||--o{ DEPARTMENT : owns
+  ORGANIZATION ||--o{ AI_CONFIG : configures
+  DEPARTMENT ||--o{ RECRUITER : employs
+  RECRUITER ||--o{ JOB_POSTING : responsible_for
+  DEPARTMENT ||--o{ JOB_POSTING : posts
+  JOB_POSTING ||--o{ APPLICATION : receives
+  CANDIDATE ||--o{ APPLICATION : applies
+  CANDIDATE ||--o{ CV : uploads
+  CANDIDATE ||--o{ CANDIDATE_SKILL : lists
+  APPLICATION ||--o| CV_SCREENING : scores
+  APPLICATION ||--o{ INTERVIEW_SCHEDULE : books
+```
+
+- Chín bảng có `organizationId` bắt buộc: Department, Recruiter, JobPosting, JobPostingSkill, Application, ApplicationHistory, CVScreening, AiConfig, InterviewSchedule. FK tới Organization và org-scoped query cùng bảo vệ phạm vi; FK riêng lẻ không tự bảo đảm tất cả org của cha/con khớp nhau.
+- User là danh tính toàn cục. `User.organizationId` chỉ bắt buộc với role org_admin, phải null với role khác (migration CHECK). Recruiter suy org từ profile/department. Org admin không cần Recruiter; Candidate/CV/skills/mock interview tiếp tục pool chung.
+- [Recruiter account](../../apps/api/src/app/recruiters/recruiters.service.ts) tạo User + profile nguyên tử. Job owner/department/org phải khớp; không chuyển department của owner còn job. [Session revocation](../../apps/api/src/app/users/users.service.ts) đổi quyền + revoke refresh trong transaction, ngắt socket sau commit.
+- [Migration AI default](../../libs/backend/database/prisma/migrations/) dùng partial unique index **mỗi organization**; không suy thành một mặc định toàn hệ thống từ schema Prisma.
+- [SRS/UC/ERD đầy đủ](../tasks/multi-tenant-isolation/module-spec-multi-tenant.md), [spec triển khai tuần cuối](../tasks/gd1-week3/spec.md), [DB migration evidence trước đó](../tasks/organization-schema/results/migration-verification.md).
+
+## Chi tiết nền được kế thừa
+
+
 > Snapshot: 2026-07-16. Nguồn: `libs/backend/database/prisma/schema.prisma` (565 dòng, 22 model, đọc trực tiếp toàn bộ) + migration SQL thực tế đã áp dụng (`libs/backend/database/prisma/migrations/`). File này tự chứa đủ ngữ cảnh để đọc độc lập ở session mới, không cần đọc lại schema.prisma từ đầu trừ khi cần verify số liệu mới hơn ngày snapshot. (Snapshot trước ghi nhầm "24 model/566 dòng" — đếm lại trực tiếp ra 22 model/565 dòng, khớp breakdown §2; sửa lại ở đây, không phải model bị xoá.)
 
 ## 1. Tổng quan
 
-PostgreSQL 15 + Prisma ORM (`^7.8`, generator `prisma-client`, adapter `@prisma/adapter-pg`). Schema/migration chỉ nằm ở `libs/backend/database/prisma/` — không có bản sao nào khác trong repo (`apps/api` không có `prisma/` riêng).
+PostgreSQL 18.4 + Prisma ORM (`^7.8`, generator `prisma-client`, adapter `@prisma/adapter-pg`). Schema/migration chỉ nằm ở `libs/backend/database/prisma/` — không có bản sao nào khác trong repo (`apps/api` không có `prisma/` riêng).
 
-## 2. 22 model, theo domain
+## 2. 24 model, theo domain
 
 ```
 Auth/User    → User (bảng gốc, class-table inheritance), RefreshToken
-Organization → Department
-Candidate    → Candidate, CV, CVParsedData
+Organization → Organization, Department
+Candidate    → Candidate, CandidateSkill, CV, CVParsedData
 Recruiter    → Recruiter
 Job          → JobCategory (tự tham chiếu, có cây cha-con), Skill, JobPosting, JobPostingSkill
 Application  → Application, ApplicationHistory (append-only audit trail)
@@ -20,7 +52,7 @@ Interview    → InterviewTopic, InterviewSession, InterviewQnA, InterviewResult
 Notification → Notification
 ```
 
-`User → Candidate?` / `User → Recruiter?` là class-table inheritance: 1 user chỉ có 1 trong 2 (hoặc không cái nào nếu là `admin`), tránh cột null tràn lan kiểu single-table.
+`User → Candidate?` / `User → Recruiter?` là profile tách bảng, unique theo user trong từng bảng. Schema không có CHECK cấm đồng thời cả hai profile; service kiểm tra role khi gán Recruiter. Admin/org_admin có thể không có profile.
 
 ## 3. Điểm thiết kế tốt (giữ nguyên, không cần sửa)
 

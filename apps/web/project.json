@@ -5,6 +5,12 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config apps/web/vitest.config.mts"
+      }
+    },
     "dev": {
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",

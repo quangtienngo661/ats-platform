@@ -1,0 +1,2 @@
+GĐ1: waiting 33s for the real local auth window.
+PASS: authenticated socket left user room, then org move disconnected it; old token scope follows DB; old refresh is 401.

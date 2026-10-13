@@ -7,6 +7,12 @@ Quyết định kiến trúc quan trọng (lý do, trade-off, lựa chọn đã 
 
 ---
 
+## Đối chiếu đề cương và hiện trạng (2026-09-29)
+
+Lịch đề cương ĐA2 là: GĐ1 07–27/09 (multi-tenant + ổn định + SRS/UC/ERD/architecture), GĐ2 28/09–25/10 (nghiệp vụ tuyển dụng/candidate/email), GĐ3 26/10–22/11 (RAG), GĐ4 23/11–13/12 (LiveKit). Roadmap July–January bên dưới giữ vai trò định hướng kỹ thuật, không dùng các số Phase đó thay cho GĐ trong đề cương.
+
+[GĐ1 tuần cuối](tasks/gd1-week3/spec.md) triển khai portal org_admin và khép các giả định Recruiter trong FE. Organization/CandidateSkill/enforcement đã nằm trong các commit `cdf1abc`–`8ec4751`; thay đổi mới vẫn chưa commit. PR/production chưa xác minh. [Kiến trúc đang chạy theo code](architecture/system.md) là monolith + queues; chưa có RAG/LiveKit/microservices được kiểm chứng ở gói này.
+
 ## Progress Log
 
 Mốc tiến độ quan trọng, cập nhật mỗi khi hoàn thành một phần đáng kể — không thay thế checklist từng phase bên dưới (vẫn dùng `[x]`/`[ ]` ở đó), chỉ tóm tắt theo thời gian để dễ nhìn lại khi viết báo cáo.
@@ -202,8 +208,8 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 [x] Refactor startSession() → async BullMQ job (remove sync Gemini call) ~2 days — done 2026-07, see Progress Log
 [x] File upload: magic byte validation                               ~1 day — %PDF- signature check done 2026-07; UUID-based safe rename not separately verified, confirm before fully closing
 [ ] Graceful shutdown: SIGTERM handler + BullMQ worker drain         ~3h
-[ ] Health check endpoint: GET /health (Postgres + Redis)            ~3h
-[ ] CandidateSkill model + migration (resolve orphan enum)           ~1 day — blocks Phase 2 skill-taxonomy/RAG matching, do early
+[x] Health check endpoint: GET /health (Postgres + Redis) — đã có code, deadline từng dependency 3s và runtime evidence docs/tasks/test-defect-fixes/results/runtime-probes.json.
+[x] CandidateSkill model + migration — GĐ1, migration 20260913042256; runtime evidence docs/tasks/organization-schema/results/migration-verification.md. RAG matching chưa làm.
 [ ] Minimal PostgreSQL backup (pg_dump cron, local disk)             ~2h — moved up from Phase 5 per Risk Register; full S3/R2 pipeline stays in Phase 5
 [ ] Add missing indexes on FK columns: applications.job_id/candidate_id, cv_screenings.cv_id/config_id, job_postings.department_id/category_id, interview_sessions.candidate_id ~1h
 ```
