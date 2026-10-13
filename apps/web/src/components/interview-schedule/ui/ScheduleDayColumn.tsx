@@ -12,28 +12,28 @@ interface ScheduleDayColumnProps {
 
 export function ScheduleDayColumn({ day, schedules, isPast, isToday, onSelectSchedule }: ScheduleDayColumnProps) {
     return (
-        <section className={`min-h-[560px] rounded-xl border bg-white ${isToday ? 'border-[#0071E3]' : 'border-[#E5E5EA]'} ${isPast ? 'opacity-55' : ''}`}>
-            <div className={`border-b px-4 py-3 ${isToday ? 'border-[#BBD7F8] bg-[#EBF3FD]' : 'border-[#F2F2F7] bg-white'}`}>
-                <div className="flex items-center justify-between gap-2">
-                    <div>
-                        <p className="text-[12px] uppercase tracking-[0.06em] text-[#6E6E73]" style={{ fontWeight: 800 }}>{day.label}</p>
-                        <p className="mt-0.5 text-[16px] text-[#1D1D1F]" style={{ fontWeight: 800 }}>{day.shortLabel}</p>
-                    </div>
-                    {isToday && (
-                        <span className="rounded-full bg-[#0071E3] px-2 py-1 text-[10px] text-white" style={{ fontWeight: 800 }}>
-                            Hôm nay
-                        </span>
-                    )}
+        <section
+            className={`min-h-[560px] rounded-2xl p-2 ${isToday ? 'bg-[#EBF3FD] ring-1 ring-[#BBD7F8]' : 'bg-[#F5F5F7]'} ${isPast ? 'opacity-55' : ''}`}
+        >
+            <div className="flex items-center justify-between gap-2 px-2 py-2">
+                <div>
+                    <p className={`text-[13px] ${isToday ? 'text-[#0071E3]' : 'text-[#1D1D1F]'}`} style={{ fontWeight: 600 }}>{day.label}</p>
+                    <p className="mt-0.5 text-[12px] text-[#AEAEB2]">{day.shortLabel}</p>
                 </div>
+                {isToday && (
+                    <span className="rounded-full bg-[#0071E3] px-2 py-0.5 text-[10px] text-white" style={{ fontWeight: 600 }}>
+                        Hôm nay
+                    </span>
+                )}
             </div>
 
-            <div className="space-y-2 p-3">
+            <div className="space-y-2">
                 {schedules.length > 0 ? schedules.map((schedule) => (
                     <ScheduleCard key={schedule.interviewId} schedule={schedule} onSelect={onSelectSchedule} />
                 )) : (
-                    <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-[#E5E5EA] px-3 text-center text-[12px] text-[#AEAEB2]">
+                    <p className="px-2 py-1 text-[12px] text-[#AEAEB2]">
                         {isPast ? 'Không hiển thị lịch đã qua' : 'Chưa có lịch phỏng vấn'}
-                    </div>
+                    </p>
                 )}
             </div>
         </section>
