@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { JobStatus, UserRole } from '@ats-platform/database';
 import { JobPostingsService } from './job-postings.service';
+import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import {
   callerOf,
   createPrismaMock,
@@ -139,6 +140,63 @@ describe('JobPostingsService', () => {
         where: expect.objectContaining({ status: JobStatus.active }),
       }),
     );
+  });
+
+  describe('viewer-specific job posting relations', () => {
+    const viewers = [
+      ['an anonymous visitor', undefined],
+      ['a candidate', callerOf(UserRole.candidate, { userId: 'candidate-1' })],
+      ['another candidate', callerOf(UserRole.candidate, { userId: 'candidate-2' })],
+    ] as const;
+
+    beforeEach(() => {
+      prisma.jobPosting.findMany.mockResolvedValue([]);
+      prisma.jobPosting.count.mockResolvedValue(0);
+      prisma.jobPosting.findUnique.mockResolvedValue({
+        jobId: 'job-1',
+        organizationId: 'org-1',
+        status: JobStatus.active,
+      });
+    });
+
+    describe.each(['findAll', 'findOne'] as const)('%s', (method) => {
+      it.each(viewers)('limits application data for %s and omits the recruiter', async (_who, viewer) => {
+        if (method === 'findAll') await service.findAll({}, viewer);
+        else await service.findOne('job-1', viewer);
+
+        const query = method === 'findAll'
+          ? prisma.jobPosting.findMany.mock.calls[0][0]
+          : prisma.jobPosting.findUnique.mock.calls[0][0];
+        expect(query.include).not.toHaveProperty('recruiter');
+        expect(query.include).toEqual({
+          category: jobPostingIncludeOptions.category,
+          department: jobPostingIncludeOptions.department,
+          jobPostingSkills: jobPostingIncludeOptions.jobPostingSkills,
+          applications: {
+            where: { candidate: { userId: viewer?.userId ?? { in: [] } } },
+            select: {
+              status: true,
+              candidate: { select: { userId: true } },
+            },
+          },
+        });
+        expect(query.include.applications.select).not.toHaveProperty('cvId');
+      });
+
+      it.each([UserRole.recruiter, UserRole.org_admin, UserRole.admin])(
+        'keeps the full staff include for %s',
+        async (role) => {
+          const viewer = callerOf(role);
+          if (method === 'findAll') await service.findAll({}, viewer);
+          else await service.findOne('job-1', viewer);
+
+          const query = method === 'findAll'
+            ? prisma.jobPosting.findMany.mock.calls[0][0]
+            : prisma.jobPosting.findUnique.mock.calls[0][0];
+          expect(query.include).toEqual(jobPostingIncludeOptions);
+        },
+      );
+    });
   });
 
   it.each(['onsite', 'remote', 'hybrid'] as const)(
