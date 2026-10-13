@@ -26,13 +26,14 @@
   };
 
   // Only the statement under test may satisfy an expected rejection, never its setup.
-  const reject = async (sql, params, expectedCode) => {
+  const reject = async (sql, params, expectedCode, expectedConstraint) => {
     try {
       await c.query(sql, params);
       return { ok: false, detail: `accepted; expected SQLSTATE ${expectedCode}` };
     } catch (e) {
       return {
-        ok: e.code === expectedCode,
+        ok: e.code === expectedCode &&
+          (expectedConstraint === undefined || e.constraint === expectedConstraint),
         detail: `rejected (${errorDetail(e)}); expected SQLSTATE ${expectedCode}`,
       };
     }
@@ -147,7 +148,8 @@
       await probe('FK RESTRICT rejects deleting an interview with a scorecard', async () => {
         await insertScorecard([3, 3, 3, 3]);
         return reject(
-          'DELETE FROM interview_schedules WHERE interview_id = $1', [interviewId], '23503',
+          'DELETE FROM interview_schedules WHERE interview_id = $1', [interviewId], '23001',
+          'interview_scorecards_interview_id_fkey',
         );
       });
 
