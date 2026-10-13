@@ -137,7 +137,7 @@ export class ApplicationsService {
    * admin, and an org_admin inside its organization, stop there); a recruiter then
    * also needs the job's department — the narrower, pre-existing boundary.
    */
-  private async assertCanAccessDepartment(
+  async assertCanAccessDepartment(
     caller: TenantCaller,
     resource: { organizationId: string; departmentId: string },
   ) {
