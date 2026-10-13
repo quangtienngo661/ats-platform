@@ -1,4 +1,9 @@
 import { Prisma } from "@ats-platform/database";
+import {
+  isOrganizationStaff,
+  isPlatformAdmin,
+  TenantCaller,
+} from '../tenancy/tenant-caller';
 
 export const recruiterIncludeOptions = {
   user: {
@@ -37,6 +42,27 @@ export const jobPostingIncludeOptions = {
     }
   }
 } satisfies Prisma.JobPostingInclude;
+
+/** Public viewers need only their own application status to decide whether they can apply. */
+export function jobPostingIncludeFor(viewer?: TenantCaller) {
+  if (viewer && (isPlatformAdmin(viewer.role) || isOrganizationStaff(viewer.role))) {
+    return jobPostingIncludeOptions;
+  }
+
+  return {
+    category: jobPostingIncludeOptions.category,
+    department: jobPostingIncludeOptions.department,
+    jobPostingSkills: jobPostingIncludeOptions.jobPostingSkills,
+    applications: {
+      // An empty IN filter matches no candidate for an anonymous visitor.
+      where: { candidate: { userId: viewer?.userId ?? { in: [] } } },
+      select: {
+        status: true,
+        candidate: { select: { userId: true } },
+      },
+    },
+  } satisfies Prisma.JobPostingInclude;
+}
 
 export const candidateIncludeOptions = {
   user: {

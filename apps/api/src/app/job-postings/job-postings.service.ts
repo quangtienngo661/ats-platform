@@ -11,7 +11,7 @@ import {
   UpdateJobPostingDto,
   FindJobPostingsQueryDto,
 } from './dto/job-posting.dto';
-import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
+import { jobPostingIncludeFor, jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
 import {
   isOrganizationStaff,
@@ -231,7 +231,7 @@ export class JobPostingsService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.jobPosting.findMany({
         where,
-        include: jobPostingIncludeOptions,
+        include: jobPostingIncludeFor(viewer),
         omit: { createdBy: true, departmentId: true, categoryId: true },
         orderBy: { publishedAt: 'desc' },
         skip: (page - 1) * limit,
@@ -267,7 +267,7 @@ export class JobPostingsService {
   async findOne(id: string, viewer?: TenantCaller) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },
-      include: jobPostingIncludeOptions,
+      include: jobPostingIncludeFor(viewer),
       omit: {
         createdBy: true,
         departmentId: true,
