@@ -1,0 +1,10 @@
+RED run: up --wait, then curl immediately (21:04:43)
+ Container ats-platform-tests-api-1  Waiting
+ Container ats-platform-tests-redis-1  Healthy
+ Container ats-platform-tests-api-1  Healthy
+ Container ats-platform-tests-postgres-1  Healthy
+health right after --wait: HTTP 000
+curl: (52) Empty reply from server
+curl-exit=52
+health 20s later: HTTP 000
+curl: (52) Empty reply from server

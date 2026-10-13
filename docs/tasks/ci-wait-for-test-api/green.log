@@ -1,0 +1,6 @@
+GREEN run (21:05:38)
+ Container ats-platform-tests-api-1  Waiting
+ Container ats-platform-tests-redis-1  Healthy
+ Container ats-platform-tests-postgres-1  Healthy
+ Container ats-platform-tests-api-1  Healthy
+health right after --wait: HTTP 200
