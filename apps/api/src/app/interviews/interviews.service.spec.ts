@@ -5,7 +5,11 @@ import {
   ScheduleStatus,
   UserRole,
 } from '@ats-platform/database';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InterviewsService } from './interviews.service';
 import { callerOf, createPrismaMock } from '../../test-utils/unit-test-helpers';
 import {
@@ -402,6 +406,59 @@ describe('InterviewsService', () => {
           data: expect.objectContaining({ status: ScheduleStatus.completed }),
         }),
       );
+    });
+  });
+
+  describe('removeSchedule', () => {
+    const interviewId = 'int-1';
+
+    beforeEach(() => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue({
+        interviewId,
+        organizationId: 'org-1',
+        scheduledBy: 'user-1',
+        interviewerId: 'user-2',
+        startAt: new Date('2026-08-01T09:00:00Z'),
+        durationMinutes: 60,
+        status: ScheduleStatus.completed,
+        application: { jobPosting: { departmentId: 'dep-1' } },
+      });
+      prisma.interviewSchedule.delete.mockResolvedValue({ interviewId });
+    });
+
+    it('refuses to delete a schedule that has a scorecard', async () => {
+      prisma.interviewScorecard.count.mockResolvedValue(1);
+
+      const call = service.removeSchedule(interviewId, orgAdmin);
+
+      await expect(call).rejects.toBeInstanceOf(ConflictException);
+      await expect(call).rejects.toHaveProperty(
+        'message',
+        'Buổi phỏng vấn đã có đánh giá, không thể xoá',
+      );
+      expect(prisma.interviewSchedule.delete).not.toHaveBeenCalled();
+      expect(prisma.interviewScorecard.count).toHaveBeenCalledWith({
+        where: { interviewId },
+      });
+    });
+
+    it('still deletes a schedule without one', async () => {
+      prisma.interviewScorecard.count.mockResolvedValue(0);
+
+      await service.removeSchedule(interviewId, orgAdmin);
+
+      expect(prisma.interviewSchedule.delete).toHaveBeenCalledWith({
+        where: { interviewId },
+      });
+    });
+
+    it('still answers 404 for an unknown schedule', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.removeSchedule(interviewId, orgAdmin),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.interviewSchedule.delete).not.toHaveBeenCalled();
     });
   });
 
