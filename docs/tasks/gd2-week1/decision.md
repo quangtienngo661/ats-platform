@@ -179,3 +179,39 @@ Lỗi có sẵn: `JobCard`, `JobDetailHero`, `JobDetailSidebar` đọc `job.skil
 |---|---|
 | **Authorised by** | lựa chọn của người dùng 2026-10-04 |
 | **The answer, out loud** | Thẻ việc làm hiện đúng kỹ năng của tin, để ứng viên thấy thứ mình vừa lọc. |
+
+---
+
+## D11 — Câu báo lỗi 400 của API giữ dạng chung
+
+| Option | Pros | Cons |
+|---|---|---|
+| A — Giữ `exceptionFactory` dùng chung | Câu báo lỗi nhất quán giữa các endpoint; UI vẫn kiểm trước và hiện câu cụ thể | API không trả nguyên câu cố định của DTO lịch phỏng vấn |
+| B — Đổi câu báo lỗi cho mọi endpoint | API có thể giữ câu cụ thể của DTO | Thay đổi hợp đồng báo lỗi trên toàn API |
+
+**Chosen:** A — người dùng chọn ngày 2026-10-12. Giữ câu báo lỗi 400 dạng chung; khép lại rủi ro 2 của lát 1.
+**Mechanism:** giữ `ValidationPipe.exceptionFactory` dùng chung và bước kiểm dữ liệu lịch trong server action.
+**File:** `apps/api/src/main.ts` (`exceptionFactory`), `apps/web/src/servers/interviews/interviews.action.ts` (`normalizeSchedulePayload`). Chỉ ghi quyết định, không sửa hai file này trong follow-up.
+
+| | |
+|---|---|
+| **Authorised by** | lựa chọn của người dùng 2026-10-12, ghi trong brief follow-up |
+| **The answer, out loud** | API giữ một dạng báo lỗi chung; recruiter vẫn nhận câu cụ thể khi nhập lịch qua UI. |
+
+---
+
+## D12 — Đổi giờ lịch onsite cũ chưa có địa điểm vẫn bắt nhập địa chỉ
+
+| Option | Pros | Cons |
+|---|---|---|
+| A — Giữ bắt nhập địa chỉ | Ứng viên có địa chỉ để đến phỏng vấn | Recruiter phải bổ sung địa chỉ khi chỉ muốn đổi giờ lịch cũ |
+| B — Cho phép bỏ trống khi chỉ đổi giờ | Đổi giờ lịch cũ nhanh hơn | Ứng viên vẫn không biết nơi phỏng vấn |
+
+**Chosen:** A — người dùng chọn ngày 2026-10-12, vì ứng viên cần địa chỉ. Khép lại rủi ro 6 của lát 1; UI vẫn yêu cầu địa chỉ khi sửa lịch onsite cũ.
+**Mechanism:** giữ form gửi hình thức cùng địa điểm và bước kiểm bắt buộc địa chỉ; API vẫn giữ cách xử lý cập nhật chỉ đổi giờ như hiện có.
+**File:** `apps/web/src/components/interview-schedule/ui/MutateInterviewScheduleModal.tsx`, `apps/web/src/servers/interviews/interviews.action.ts` (`normalizeSchedulePayload`), `apps/api/src/app/interviews/interview-schedule.rules.ts` (`resolveInterviewPlace`). Chỉ ghi quyết định, không sửa các file này trong follow-up.
+
+| | |
+|---|---|
+| **Authorised by** | lựa chọn của người dùng 2026-10-12, ghi trong brief follow-up |
+| **The answer, out loud** | Khi sửa lịch phỏng vấn trực tiếp cũ, recruiter bổ sung địa chỉ để ứng viên biết phải đến đâu. |

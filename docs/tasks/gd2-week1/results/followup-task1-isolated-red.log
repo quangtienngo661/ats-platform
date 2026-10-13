@@ -1,0 +1,109 @@
+(node:28412) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+> nx run api:test --runInBand --silent --testPathPatterns=job-postings
+
+(node:45228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ FAIL   api  apps/api/src/app/job-postings/job-postings.service.spec.ts
+  ● JobPostingsService › viewer-specific job posting relations › findAll › limits application data for an anonymous visitor and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+  ● JobPostingsService › viewer-specific job posting relations › findAll › limits application data for a candidate and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+  ● JobPostingsService › viewer-specific job posting relations › findAll › limits application data for another candidate and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+  ● JobPostingsService › viewer-specific job posting relations › findOne › limits application data for an anonymous visitor and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+  ● JobPostingsService › viewer-specific job posting relations › findOne › limits application data for a candidate and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+  ● JobPostingsService › viewer-specific job posting relations › findOne › limits application data for another candidate and omits the recruiter
+    expect(received).not.toHaveProperty(path)
+    Expected path: not "recruiter"
+    Received value: {"include": {"department": true, "user": {"omit": {"passwordHash": true}}}, "omit": {"userId": true}}
+
+      168 |           ? prisma.jobPosting.findMany.mock.calls[0][0]
+      169 |           : prisma.jobPosting.findUnique.mock.calls[0][0];
+    > 170 |         expect(query.include).not.toHaveProperty('recruiter');
+          |                                   ^
+      171 |         expect(query.include).toEqual({
+      172 |           category: jobPostingIncludeOptions.category,
+      173 |           department: jobPostingIncludeOptions.department,
+
+      at src/app/job-postings/job-postings.service.spec.ts:170:35
+Test Suites: 1 failed, 6 passed, 7 total
+Tests:       6 failed, 89 passed, 95 total
+Snapshots:   0 total
+Time:        5.15 s, estimated 10 s
+
+
+
+ NX   Running target test for project api failed
+
+Failed tasks:
+
+- api:test
+
+Hint: run the command with --verbose for more details.
+
+
+Exit code: 1

@@ -1,0 +1,57 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/public/layout/PublicHeader.test.tsx
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ❯ src/components/public/layout/PublicHeader.test.tsx (4 tests | 2 failed) 231ms
+     × keeps all five candidate navigation labels on one line at every width 35ms
+     × gives the desktop navigation the free width without an empty flex spacer 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/public/layout/PublicHeader.test.tsx > PublicHeader — desktop navigation at tablet widths > keeps all five candidate navigation labels on one line at every width
+Error: expect(element).toHaveClass("whitespace-nowrap")
+
+Expected the element to have class:
+  whitespace-nowrap
+Received:
+  px-3 py-1.5 rounded-lg text-[13px] lg:whitespace-nowrap transition-all text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]
+ ❯ src/components/public/layout/PublicHeader.test.tsx:30:44
+     28|     const links = within(screen.getByRole('navigation')).getAllByRole(…
+     29|     expect(links).toHaveLength(5);
+     30|     for (const link of links) expect(link).toHaveClass('whitespace-now…
+       |                                            ^
+     31|   });
+     32|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/components/public/layout/PublicHeader.test.tsx > PublicHeader — desktop navigation at tablet widths > gives the desktop navigation the free width without an empty flex spacer
+AssertionError: expected [ <div …(1)></div> ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/components/public/layout/PublicHeader.test.tsx:39:26
+     37|       sibling => sibling !== navigation && sibling.classList.contains(…
+     38|     );
+     39|     expect(emptySpacers).toHaveLength(0);
+       |                          ^
+     40|   });
+     41| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  09:30:52
+   Duration  1.95s (transform 106ms, setup 343ms, import 149ms, tests 231ms, environment 1.06s)
+
+
+Exit code: 1

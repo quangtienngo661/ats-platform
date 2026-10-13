@@ -63,19 +63,20 @@ liệu đã nhập khi submit bị từ chối) và `f6ef933` → `ce43509` (dra
    của C15/C16, và test A6 của GĐ1 sau khi thêm bước điền địa điểm. Cách chạy:
    `TZ=UTC npm run test:e2e:web -- --grep "GĐ2"` (cần biến `WEB_E2E_*`, xem
    `docs/tasks/test-defect-fixes/README.md`).
-2. **Câu báo lỗi 400 của API không phải câu cố định của R3.** `exceptionFactory` dùng chung
+2. **Đã quyết định 2026-10-12 — [D11](decision.md#d11--câu-báo-lỗi-400-của-api-giữ-dạng-chung): giữ câu báo lỗi 400 của API dạng chung.** `exceptionFactory` dùng chung
    (`apps/api/src/main.ts:79-86`) dịch theo tên constraint và bỏ message riêng của DTO, nên API trả về
    `Dữ liệu không hợp lệ: location không được để trống`. Recruiter dùng UI vẫn thấy câu cố định, vì
-   server action kiểm trước. Muốn đổi thì phải đổi câu báo lỗi của mọi endpoint, nên để người dùng quyết.
+   server action kiểm trước. Người dùng chọn giữ `exceptionFactory` hiện có.
 3. **DB dev (`ats-postgres`) chưa có cột `location`.** Migration
    `20261005000000_add_interview_schedule_location` chưa áp. Container `ats-api` dev vẫn chạy code cũ.
    Cần áp migration và build lại API trước khi dùng môi trường dev.
 4. **Header từ 768 đến 1023px:** menu vẫn xuống dòng (lỗi có từ trước, do khối spacer rỗng chia đôi
    chiều rộng). Từ 1024px trở lên đã nằm trên 1 dòng.
+   Đã sửa trong follow-up 2026-10-12: bỏ spacer, giữ nhãn một dòng và thu gọn khoảng cách ở md; bằng chứng [đỏ](results/followup-task4-red.txt), [xanh](results/followup-task4-green.txt).
 5. **Chưa push, chưa có PR, chưa deploy.**
-6. **Đổi giờ một lịch onsite cũ chưa có địa điểm qua UI thì phải nhập địa chỉ.** R3 ghi lịch cũ thiếu địa
+6. **Đã quyết định 2026-10-12 — [D12](decision.md#d12--đổi-giờ-lịch-onsite-cũ-chưa-có-địa-điểm-vẫn-bắt-nhập-địa-chỉ): đổi giờ lịch onsite cũ qua UI vẫn phải nhập địa chỉ.** R3 ghi lịch cũ thiếu địa
    điểm "vẫn đổi giờ được" — đúng ở API, nhưng form luôn gửi hình thức kèm địa điểm nên đòi nhập. Giữ
-   nguyên vì ứng viên cần địa chỉ; cần người dùng xác nhận.
+   nguyên vì ứng viên cần địa chỉ; người dùng đã chọn giữ yêu cầu này.
 
 ### Review cuối (một reviewer mới, xem cả nhánh `98ee357..701b2ed`)
 
@@ -199,10 +200,13 @@ thay đổi đó không nằm trong commit nào của lát này.
    ở 390px khi panel đang mở.
 3. **Đơn vị lương không thống nhất.** Form recruiter không ghi đơn vị (`placeholder` 2000/4000) còn phần hiển
    thị coi là VNĐ đầy đủ. Bộ lọc coi số đã lưu là VNĐ (D3); tin do recruiter nhập theo đơn vị khác sẽ không khớp.
+   Đã sửa trong follow-up 2026-10-12: nhãn/placeholder/hướng dẫn nhập VNĐ đầy đủ, `min=0`, `step=500000`; [log test](results/followup-salary-labels.log). Không sửa dữ liệu cũ.
 4. **Tin công khai còn lộ danh sách ứng viên và liên hệ recruiter** (`jobPostingIncludeOptions`, đọc từ code, chưa
    chạy thử) — đã tạo task riêng; lát này cố ý không đụng phần `include`.
+   Đã sửa trong follow-up 2026-10-12: include theo viewer, staff giữ nguyên, candidate chỉ thấy trạng thái đơn của mình và `candidate.userId`, guest nhận `applications: []`, không có recruiter; bằng chứng [đỏ](results/followup-task1-red.txt), [xanh](results/followup-task1-green.txt).
 5. **Nhãn hình thức làm việc không thống nhất** ("On-site" ở trang chi tiết, "Tại văn phòng (Onsite)" ở thẻ,
    "Văn phòng" ở bộ lọc và trang chủ): có từ trước, không sửa.
+   Đã sửa trong follow-up 2026-10-12: chín component dùng `WORK_TYPE_LABELS` (Remote / Văn phòng / Hybrid), giữ fallback cũ; đây là thay đổi hợp đồng nhãn hiển thị, [log test](results/followup-salary-labels.log).
 6. **Chưa push, chưa có PR, chưa deploy.**
 
 ### Review cuối lát 3 (reviewer mới, `b53779b..150eb7d`)
@@ -221,3 +225,53 @@ Một mục nghi vấn đã giảm nhẹ nhưng chưa xác minh (panel quá cao 
 `isUUID`); gõ "15tr" thành ngưỡng 15 VND không báo gì; câu lỗi chưa gắn `aria-describedby`; `jobSkillsOf` không
 có guard nếu `skill` biến mất khỏi payload (task sửa lỗ hổng tin công khai phải giữ `skill`); kỹ năng đã chọn
 nhưng không còn trong danh sách vẫn tính vào giới hạn 20; script thăm dò chỉ commit log.
+
+## Việc tiếp sau tuần 1 (2026-10-12)
+
+Đã thực hiện bốn sửa đổi ngày 12/10 và commit ngày 13/10 (test đỏ trước, sửa sau): `6e1883d` → `64e933c` (include theo viewer) · `b27e921` → `bafcfd7` (header) · `cec76c8` → `260387e` (nhãn lương) · `fd5a14e` (nhãn hình thức làm việc, một commit vì là đổi hợp đồng nhãn hiển thị; chưa kiểm test nào trong đó đỏ trên HEAD cũ). Chưa push, chưa có PR:
+
+- Tin công khai dùng include theo viewer: không có recruiter; candidate chỉ nhận `{ status, candidate: { userId } }` của chính mình, không có `cvId`; guest không nhận đơn nào. Staff giữ nguyên include; category, department, `jobPostingSkills[].skill` và bước sanitize vẫn còn.
+- Form recruiter ghi rõ VNĐ đầy đủ: ví dụ 15000000/25000000, `min=0` và hướng dẫn dưới hai ô lương. Không sửa dữ liệu cũ.
+  Follow-up sửa defect `step=500000` (brief ban đầu sai): native validation chặn 15200000 VNĐ; đã bỏ `step` ở cả hai ô, giữ `min=0`, nhãn/placeholder/hướng dẫn và kiểm `checkValidity()` bằng test [đỏ](results/followup-salary-step-red.txt) → [xanh](results/followup-salary-step-green.txt).
+- Chín component dùng `WORK_TYPE_LABELS`: Remote / Văn phòng / Hybrid, giữ fallback cũ. Đây là thay đổi hợp đồng nhãn hiển thị. Không tìm thấy assertion cũ với "On-site", "Onsite", "Tại văn phòng" trong `*.test.tsx`; đã thêm coverage cho nhãn, fallback và giá trị option.
+- Public header bỏ spacer rỗng, dùng `whitespace-nowrap` ở mọi độ rộng và giữ `min-w-0`. Follow-up sửa clipping thu gọn container thành `px-4 lg:px-6`, nav `gap-0.5 lg:gap-1`, link `px-1.5 lg:px-3`; bỏ `overflow-hidden` để không che link.
+
+[D11](decision.md#d11--câu-báo-lỗi-400-của-api-giữ-dạng-chung) và [D12](decision.md#d12--đổi-giờ-lịch-onsite-cũ-chưa-có-địa-điểm-vẫn-bắt-nhập-địa-chỉ) ghi hai lựa chọn của người dùng ngày 2026-10-12.
+
+Reviewer đã xác minh các điểm sau; không chạy lại probe, migration hoặc container trong follow-up sửa clipping:
+
+- Public payload probe trên PostgreSQL test stack: **14/14 pass**, [followup-leak-probe.log](results/followup-leak-probe.log). Anonymous không có recruiter, `applications: []`; candidate chỉ nhận đơn của mình, không có `cvId`; đối chứng recruiter vẫn thấy cả hai đơn và object recruiter.
+- DB dev đã áp migration `20261005000000_add_interview_schedule_location` ngày 2026-10-12; cột `location` hiện có. Container dev `ats-api` không khởi động được vì cổng host 6379 đang do Redis container `distributedcache` của project khác giữ; đã để nguyên.
+- Header bản sửa đầu bị clip link "Phỏng vấn AI" ở viewport 768px (753px sử dụng được do scrollbar): reviewer đo nav rộng 482px, cạnh phải x=613, content rộng 503px và link cuối kết thúc ở x=633. Sau khi sửa spacing và bỏ clipping, reviewer đã đo lại bằng trình duyệt thật: tại 768px, nav content 513px = nav width 513px, link cuối kết thúc x=597 trước cạnh nav x=636, mọi link cao 32px; tại 1024px, không overflow và tất cả link trên một dòng.
+
+| Lệnh | Kết quả cuối | Log |
+|---|---|---|
+| `npx nx test api --runInBand --silent` | 62 suites, 545 pass / 0 fail, exit 0 | [followup-api-test.log](results/followup-api-test.log) |
+| `npm run test:web` | 44 files, **324 pass** / 0 fail, exit 0 — chạy lại 2026-10-13 trên working tree có cả thay đổi chưa commit của phiên khác. Số 322 ghi trước đó không có log chống lưng: file log cùng tên của lần chạy 12/10 là một lần bị crash worker (9 file, 53 test, 35 lỗi) và đã được thay bằng lần chạy này theo yêu cầu của chủ dự án | [followup-web-test.log](results/followup-web-test.log) |
+| `npm run typecheck:web` | **exit 0** (2026-10-13), sau khi sinh lại file `.next/dev/types/routes.d.ts` bị cắt hỏng bằng `next typegen` rồi chép đè (file gitignored, đã sao lưu bản hỏng). Trước đó exit 2 ở cả hai lần: 3 lỗi cú pháp trong chính file đó, dòng 107/110 — tsc dừng ở lỗi cú pháp nên các lần đó không nói gì về kiểu của mã nguồn | xanh: [followup-web-typecheck-green.log](results/followup-web-typecheck-green.log) · đỏ trước đó: [followup-web-typecheck.log](results/followup-web-typecheck.log) |
+| `TZ=UTC npm run test:e2e:web` | **30/30 pass**, exit 0, không retry/skip (2026-10-13, 3,6 phút), trong đó 13 test GĐ2 và test panel lọc không tràn ngang ở màn hình điện thoại. Test stack `docker-compose.test.yml` build lại từ working tree (có cả thay đổi chưa commit của phiên khác); web do Playwright dựng từ cùng working tree | [followup-e2e.log](results/followup-e2e.log) |
+| `npm run lint:web` | 0 error / 0 warning, exit 0 | [followup-web-lint.log](results/followup-web-lint.log) |
+| `npx nx lint api` | 0 error / 300 warning, không vượt giới hạn 300, exit 0 | [followup-api-lint.log](results/followup-api-lint.log) |
+| `npx nx build api` | API và 2 dependency target pass, exit 0 | [followup-api-build.log](results/followup-api-build.log) |
+
+Test tái hiện được viết và chạy đỏ, lưu log **trước** khi sửa production code; test và fix nằm trong file riêng:
+
+| Lệnh | Đỏ → xanh | Log |
+|---|---|---|
+| `npx nx test api --runInBand --silent --testPathPatterns="job-postings"` | 6 fail / 89 pass → 95 pass / 0 fail, 7 suites | [task1-red](results/followup-task1-red.txt), [task1-green](results/followup-task1-green.txt) |
+| `npm run test:web -- src/components/public/layout/PublicHeader.test.tsx` | 2 fail / 2 pass → 4 pass / 0 fail, 1 file | [task4-red](results/followup-task4-red.txt), [task4-green](results/followup-task4-green.txt) |
+| `npm run test:web -- src/components/public/layout/PublicHeader.test.tsx` (follow-up sửa clipping) | 2 fail / 3 pass → 5 pass / 0 fail, 1 file | [task4-clipping-red](results/followup-task4-clipping-red.txt), [task4-clipping-green](results/followup-task4-clipping-green.txt) |
+| `npm run test:web -- src/components/job-postings/ui/JobPostingStep2.test.tsx` (follow-up sửa step) | 2 fail / 1 pass → 3 pass / 0 fail, 1 file | [salary-step-red](results/followup-salary-step-red.txt), [salary-step-green](results/followup-salary-step-green.txt) |
+| `npm run test:web -- src/components/job-postings/ui/JobPostingStep1.test.tsx src/components/job-postings/ui/JobPostingStep2.test.tsx src/components/public/jobs/JobCard.test.tsx src/components/public/jobs/detail/JobDetailHero.test.tsx src/components/public/jobs/detail/JobDetailSidebar.test.tsx src/components/my-applications/ui/ApplicationCard.test.tsx` | 6 files, 33 pass / 0 fail ở lần chạy chọn file; suite cuối ở trên có thêm 2 test fallback | [followup-salary-labels.log](results/followup-salary-labels.log) |
+
+Lần chạy Nx đầu không khởi động được test do `Access is denied` ở lock của project graph ([chẩn đoán](results/followup-task1-nx-diagnostic.log)). Đã chạy `npx jest --config apps/api/jest.config.ts --runInBand --silent --testPathPatterns="job-postings"` trực tiếp: 6 fail / 89 pass (trong task1-red), rồi chạy được lệnh Nx yêu cầu với `NX_WORKSPACE_DATA_DIRECTORY` và `NX_CACHE_DIRECTORY` trỏ tới thư mục tạm riêng `ats-platform-followup-20261012`; `NX_DAEMON=false`, `NX_ISOLATE_PLUGINS=false`, `NX_SKIP_NX_CACHE=true`, `NX_TASKS_RUNNER_DYNAMIC_OUTPUT=false`. Mọi lệnh Nx thành công ở trên dùng cấu hình môi trường đó, không sửa cấu hình repo. Web lint lần đầu fail do 1 warning non-null assertion trong test mới ([log đầu](results/followup-web-lint-initial.log)); đã sửa và chạy xanh.
+
+Đã đối chiếu SHA-256/trạng thái tồn tại: cả 57 đường dẫn dirty có từ đầu phiên vẫn nguyên vẹn; chỉ thay đổi file được brief cho phép ([kiểm working tree](results/followup-worktree-check.log)). Không thêm dependency, không sửa schema/migration, không commit/push/merge/stash/reset/checkout.
+
+Follow-up sửa clipping kiểm class contract trong jsdom; reviewer sau đó đã đo kết quả bằng trình duyệt thật tại 768px (nav content 513px = nav width 513px, link cuối x=597 trước cạnh nav x=636, mọi link cao 32px) và 1024px (không overflow, tất cả link trên một dòng). Không chạy lại phép đo hoặc E2E trong follow-up sửa step. Bốn lệnh web của follow-up sửa clipping được ghi ở các log test/typecheck/lint và task4-clipping-green; kết quả API trong bảng là lần chạy trước.
+
+Typecheck của follow-up sửa clipping bị chặn bởi file Next dev sinh ra `.next/dev/types/routes.d.ts`: sau khai báo đóng còn đoạn thừa `HandlerRoute extends AppRouteHandlerRoutes>`, gây TS1434/TS1128. Đã đọc để kiểm và chạy lại lệnh, không sửa file sinh ra hay tác động phiên dev vì ngoài phạm vi file được phép sửa. Test header 5/5, suite web 322/322 và lint 0 error / 0 warning đều pass; chưa có kết quả typecheck xanh cho follow-up sửa clipping. *Cập nhật 2026-10-13: đã xanh, xem bảng.*
+
+Follow-up sửa step không chạy typecheck và không tác động `.next/`; reviewer sẽ chạy typecheck sau khi dừng dev server đang viết lại types. *Cập nhật 2026-10-13: lúc đó không còn tiến trình Next nào chạy; typecheck đã chạy xanh sau khi sinh lại types, xem bảng.*
+
+**Quan sát khi chạy lại E2E ngày 2026-10-13 (chưa sửa, ngoài phạm vi follow-up):** web server in một cảnh báo `Hydration failed` ở `CvCard` (`apps/web/src/components/my-cvs/ui/CvCard.tsx:63`, trang `/my-cvs`): giờ tạo CV render ở server (`TZ=UTC`) là `09:52 13/10/2026`, ở trình duyệt (múi giờ VN) là `16:52 13/10/2026`. Test vẫn pass. Cảnh báo cũng có đúng 1 lần trong [e2e-full.log](results/e2e-full.log) ngày 04/10, nên có từ trước. Cùng họ với defect múi giờ đã sửa ở lát 1. `apps/web/next-env.d.ts` và `apps/web/tsconfig.tsbuildinfo` (đã dirty sẵn, không thuộc follow-up) bị `next typegen` ghi lại lúc 16:44 ngày 13/10 và không được commit.

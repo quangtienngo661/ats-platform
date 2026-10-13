@@ -1,0 +1,5 @@
+
+> @ats-platform/source@0.0.0 typecheck:web
+> tsc --build libs/shared/types && tsc --project apps/web/tsconfig.json --noEmit --incremental false && tsc --project apps/web/tsconfig.spec.json --noEmit --incremental false
+
+exit=0

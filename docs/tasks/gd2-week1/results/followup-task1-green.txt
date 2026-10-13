@@ -1,0 +1,19 @@
+(node:47240) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+> nx run api:test --runInBand --silent --testPathPatterns=job-postings
+
+(node:33012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Test Suites: 7 passed, 7 total
+Tests:       95 passed, 95 total
+Snapshots:   0 total
+Time:        8.566 s
+
+
+
+ NX   Successfully ran target test for project api
+
+
+
+Exit code: 0

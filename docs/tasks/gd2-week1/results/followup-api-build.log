@@ -1,0 +1,36 @@
+(node:33976) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ NX   Running target build for project api and 2 tasks it depends on:
+
+
+
+> nx run database:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run types:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+(node:19244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+webpack compiled [1m[32msuccessfully[39m[22m (c64dd633f00f24bb)
+
+
+
+ NX   Successfully ran target build for project api and 2 tasks it depends on
+
+
+
+Exit code: 0

@@ -1,0 +1,52 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/job-postings/ui/JobPostingStep2.test.tsx
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ❯ src/components/job-postings/ui/JobPostingStep2.test.tsx (3 tests | 2 failed) 636ms
+     × allows whole-VNĐ amounts without a step restriction larger than one 92ms
+     × accepts 15200000 VNĐ in both salary fields through native form validation 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/job-postings/ui/JobPostingStep2.test.tsx > JobPostingStep2 — salary in VNĐ > allows whole-VNĐ amounts without a step restriction larger than one
+AssertionError: expected [ null, '1' ] to include '500000'
+ ❯ src/components/job-postings/ui/JobPostingStep2.test.tsx:45:27
+     43|     expect(inputs).toHaveLength(2);
+     44|     for (const input of inputs) {
+     45|       expect([null, '1']).toContain(input.getAttribute('step'));
+       |                           ^
+     46|     }
+     47|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/components/job-postings/ui/JobPostingStep2.test.tsx > JobPostingStep2 — salary in VNĐ > accepts 15200000 VNĐ in both salary fields through native form validation
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/components/job-postings/ui/JobPostingStep2.test.tsx:55:37
+     53|     for (const input of inputs) {
+     54|       expect(input).toHaveValue(15200000);
+     55|       expect(input.checkValidity()).toBe(true);
+       |                                     ^
+     56|       expect(input.validity.stepMismatch).toBe(false);
+     57|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  10:06:29
+   Duration  3.82s (transform 116ms, setup 592ms, import 183ms, tests 636ms, environment 2.03s)
+
+
+Exit code: 1
