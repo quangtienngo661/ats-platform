@@ -51,6 +51,12 @@ services:
       ADMIN_PASSWORD: Admin@123
     volumes:
       - test_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
