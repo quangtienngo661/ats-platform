@@ -1,0 +1,17 @@
+FAIL — CHECK technical_skills rejects 0: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK technical_skills rejects 6: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK problem_solving rejects 0: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK problem_solving rejects 6: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK communication rejects 0: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK communication rejects 6: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK culture_fit rejects 0: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CHECK culture_fit rejects 6: rejected (42P01 relation "interview_scorecards" does not exist); expected SQLSTATE 23514
+FAIL — CONTROL all four scores accept 1: 42P01 relation "interview_scorecards" does not exist
+FAIL — CONTROL all four scores accept 5: 42P01 relation "interview_scorecards" does not exist
+FAIL — UNIQUE rejects a second scorecard for the same interview_id: 42P01 relation "interview_scorecards" does not exist
+FAIL — FK RESTRICT rejects deleting an interview with a scorecard: 42P01 relation "interview_scorecards" does not exist
+FAIL — CASCADE deleting an application removes its notes: 42P01 relation "application_notes" does not exist
+FAIL — ENUM scorecard_recommendation has exactly the four specified values: 42704 type "scorecard_recommendation" does not exist
+FAIL — probe rows left behind (interview_scorecards): 42P01 relation "interview_scorecards" does not exist
+FAIL — probe rows left behind (application_notes): 42P01 relation "application_notes" does not exist
+RESULT: 16 failure(s)
