@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { IApplicationDto, IApplicationHistoryItem, IGetApplicationsByJobQuery, IPaginatedApplications, IApplicationCard } from '@/types/interfaces/application.interface';
 
 import { IKanbanDto } from '@/types/interfaces/kanban.interface';
+import type { IComparisonItem } from '@/types/interfaces/evaluation.interface';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -111,6 +112,17 @@ export async function getApplicationsByJobAction(
 
         const response = await http.get(`/applications/job/${jobId}`, { params });
         return response.data as IPaginatedApplications;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
+}
+
+export async function compareApplicationsAction(jobId: string, applicationIds: string[]): Promise<IComparisonItem[]> {
+    try {
+        const response = await http.get(`/applications/job/${jobId}/compare`, {
+            params: { applicationIds: applicationIds.join(',') },
+        });
+        return response.data as IComparisonItem[];
     } catch (error) {
         rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
