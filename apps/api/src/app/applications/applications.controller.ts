@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -10,8 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request } from 'express';
 import { ApplicationsService } from './applications.service';
+import { BulkScreeningService } from './bulk-screening.service';
+import { BulkScreeningDto } from './dtos/bulk-screening.dto';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -22,12 +26,18 @@ import { Resources } from '../../common/decorators/resources.decorator';
 import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
+export const bulkScreeningTracker = (req: { user?: { userId?: string }; ip?: string }) =>
+  req.user?.userId ?? req.ip ?? '';
+
 @ApiTags('Đơn ứng tuyển')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(
+    private readonly applicationsService: ApplicationsService,
+    private readonly bulkScreeningService: BulkScreeningService,
+  ) { }
 
   @Roles(UserRole.candidate)
   @Post()
@@ -80,6 +90,20 @@ export class ApplicationsController {
     @CurrentCaller() caller: TenantCaller,
   ) {
     return this.applicationsService.getApplicationsByJob(caller, jobId, query);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Post('job/:jobId/bulk-screening')
+  @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 3, ttl: 60000, getTracker: bulkScreeningTracker } })
+  @ApiOperation({ summary: 'Sàng lọc CV hàng loạt bằng AI' })
+  bulkScreening(
+    @Param('jobId') jobId: string,
+    @CurrentCaller() caller: TenantCaller,
+    @Body() dto: BulkScreeningDto,
+  ) {
+    return this.bulkScreeningService.bulkScreen(caller, jobId, dto);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
