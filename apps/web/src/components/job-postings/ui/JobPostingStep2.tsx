@@ -144,28 +144,33 @@ export function JobPostingStep2({
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="jobpostingstep2-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương từ</label>
+                    <label htmlFor="jobpostingstep2-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương từ (VNĐ)</label>
                     <input id="jobpostingstep2-field-3"
                         type="number"
                         name="salaryMin"
-                        placeholder="2000"
+                        placeholder="15000000"
+                        min={0}
                         value={formData.salaryMin}
                         onChange={event => updateField('salaryMin', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     />
                 </div>
                 <div>
-                    <label htmlFor="jobpostingstep2-field-4" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương đến</label>
+                    <label htmlFor="jobpostingstep2-field-4" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mức lương đến (VNĐ)</label>
                     <input id="jobpostingstep2-field-4"
                         type="number"
                         name="salaryMax"
-                        placeholder="4000"
+                        placeholder="25000000"
+                        min={0}
                         value={formData.salaryMax}
                         onChange={event => updateField('salaryMax', event.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
                     />
                 </div>
             </div>
+            <p className="text-[12px] text-[#6E6E73]">
+                Nhập số tiền đầy đủ theo VNĐ, ví dụ 15000000 cho 15 triệu.
+            </p>
         </div>
     );
 }
