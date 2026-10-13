@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRole } from '@ats-platform/database';
 
 /**
@@ -90,6 +94,27 @@ export function assertOrganizationAccess(
     throw new ForbiddenException(OUTSIDE_ORGANIZATION);
   }
   return isOrgAdmin(caller.role);
+}
+
+/**
+ * The 404 variant of the organization boundary for the new evaluation endpoints.
+ * Staff targeting another organization receive the supplied not-found message,
+ * so the response does not reveal that a row exists in another organization.
+ * Platform admins pass; other roles and staff without an organization are refused.
+ */
+export function assertInCallerOrganizationOr404(
+  caller: TenantCaller,
+  resourceOrganizationId: string,
+  message: string,
+): void {
+  if (isPlatformAdmin(caller.role)) return;
+  if (isOrganizationStaff(caller.role)) {
+    if (requireCallerOrganization(caller) !== resourceOrganizationId) {
+      throw new NotFoundException(message);
+    }
+    return;
+  }
+  throw new ForbiddenException(NOT_ALLOWED);
 }
 
 /**

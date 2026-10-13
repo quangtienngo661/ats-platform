@@ -209,7 +209,7 @@ export class InterviewsService {
     }
   }
 
-  private async assertCanViewSchedule(
+  async assertCanViewSchedule(
     caller: TenantCaller,
     interviewId: string,
   ) {
