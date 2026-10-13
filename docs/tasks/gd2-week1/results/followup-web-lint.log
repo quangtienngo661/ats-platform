@@ -1,0 +1,6 @@
+
+> @ats-platform/source@0.0.0 lint:web
+> eslint --config apps/web/eslint.config.mjs apps/web/src --max-warnings 0
+
+
+Exit code: 0

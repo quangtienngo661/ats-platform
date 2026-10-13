@@ -1,0 +1,15 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/public/layout/PublicHeader.test.tsx
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:38:11
+   Duration  1.56s (transform 66ms, setup 211ms, import 147ms, tests 241ms, environment 779ms)
+
+
+Exit code: 0

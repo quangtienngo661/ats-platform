@@ -1,0 +1,34 @@
+# Task 3 probe — job board filters, real test stack (Nest + PostgreSQL ats_test), 2026-10-04T01:57Z
+# Salary NULL handling needs a real database; this is the C11/C12 evidence. Run with TZ=UTC.
+# Postings: one 10–20tr · two 15tr (min only) · three 8tr (max only) · four no salary · draft 10–20tr. Skills: A (one, three) · B (draft) · C (two).
+PASS  control: no filter lists the four active postings and not the draft — (no filter) → [four,one,three,two]
+PASS  R6: a visitor asking for status=draft still sees only active postings — status=draft → [four,one,three,two]
+PASS  C11: salaryMin=12tr → one, two — salaryMin=12000000 → [one,two]
+PASS  C11: salaryMax=9tr → three only — salaryMax=9000000 → [three]
+PASS  C11: [12tr, 16tr] → one, two — salaryMin=12000000&salaryMax=16000000 → [one,two]
+PASS  R4 bound included: salaryMin=20tr (top of one) → one — salaryMin=20000000 → [one]
+PASS  R4 bound included: salaryMin=15tr (the single value of two) → one, two — salaryMin=15000000 → [one,two]
+PASS  R4 bound included: salaryMax=10tr (bottom of one) → one, three — salaryMax=10000000 → [one,three]
+PASS  R4: any salary filter leaves out the posting with no salary (min 0) — salaryMin=0 → [one,three,two]
+PASS  R4: a ceiling of 0 matches nothing — salaryMax=0 → []
+PASS  RF3: an empty salaryMin= means no filter — salaryMin= → [four,one,three,two]
+PASS  C12: skillIds=A → one, three — skillIds=4fc873c5-a8e8-4260-84b0-aad774e19df6 → [one,three]
+PASS  C12: skillIds=A&skillIds=C (repeated key, any of) → one, two, three — skillIds=4fc873c5-a8e8-4260-84b0-aad774e19df6&skillIds=259a7899-caea-4d90-b0b7-05c8c7f55535 → [one,three,two]
+PASS  R6: a skill that only the draft has → nothing — skillIds=aae49983-be81-4cb1-b2a3-277b2d4f0aca → []
+PASS  R5: skillIds=A and salaryMin=12tr combine → one — skillIds=4fc873c5-a8e8-4260-84b0-aad774e19df6&salaryMin=12000000 → [one]
+PASS  E16: an unknown skill id → 0 results, not 400 — skillIds=361a5cde-a485-4347-9f03-9d2b839e4540 → []
+PASS  RF6: filter-options answers 200, not a 404 from :id — HTTP 200
+PASS  C12: it has A and C of active postings, not B of the draft — gd2f16f1e325 A | gd2f16f1e325 C
+PASS  C12: A comes before C (by name)
+PASS  C12: no skill twice
+PASS  C12: only skillId and name are sent
+PASS  C10: salaryMin=abc → 400 — HTTP 400 Dữ liệu không hợp lệ: salaryMin nhỏ hơn giá trị tối thiểu cho phép; salaryMin phải là số
+PASS  C10: salaryMin=-1 → 400 — HTTP 400 Dữ liệu không hợp lệ: salaryMin nhỏ hơn giá trị tối thiểu cho phép
+PASS  C10: min > max → 400 — HTTP 400 Mức lương tối thiểu không thể lớn hơn mức lương tối đa
+PASS  C10: skillIds=not-a-uuid → 400 — HTTP 400 Dữ liệu không hợp lệ: skillIds không hợp lệ
+PASS  E16: 21 skillIds → 400 — HTTP 400 Dữ liệu không hợp lệ: skillIds không hợp lệ
+PASS  E16: 20 skillIds → 200 — HTTP 200
+PASS  note: the bracket form skillIds[]= is an unknown key → 400 — HTTP 400 Dữ liệu không hợp lệ: skillIds[] không được phép gửi lên
+PASS  fixture cleaned up — {"organizationsRemaining":0,"skillsRemaining":0,"usersRemaining":0}
+
+29/29 checks passed

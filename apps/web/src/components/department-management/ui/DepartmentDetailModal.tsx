@@ -1,4 +1,5 @@
-import { X, Users, Briefcase, Mail, Phone, Shield, CheckCircle, XCircle, Building2, UserPlus } from 'lucide-react';
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+import { X, Users, Briefcase, Mail, Phone, CheckCircle, XCircle, Building2, UserPlus } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserRole } from '@ats-platform/types';
@@ -103,23 +104,23 @@ export function DepartmentDetailModal({ department, onClose }: DepartmentDetailM
     const inactiveMembers = department.members.filter((m) => m.status === 'inactive');
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Chi tiết phòng ban"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     {/* Header */}
                     <div className="p-6 border-b border-[#F2F2F7]">
@@ -143,7 +144,7 @@ export function DepartmentDetailModal({ department, onClose }: DepartmentDetailM
                                     </p>
                                 </div>
                             </div>
-                            <button
+                            <button type="button" aria-label="Đóng"
                                 onClick={onClose}
                                 className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors flex-shrink-0"
                             >
@@ -218,8 +219,8 @@ export function DepartmentDetailModal({ department, onClose }: DepartmentDetailM
                             Thêm thành viên
                         </button>
                     </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

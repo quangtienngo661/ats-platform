@@ -6,7 +6,7 @@ import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import Link from 'next/link';
 import { registerAction } from '@/servers/auth/auth.action';
-import { OAuthButtons } from '../ui/OAuthButtons';
+
 
 const initialState = { success: false, message: '' };
 
@@ -54,10 +54,10 @@ export default function RegisterForm() {
             <form action={formAction} className="flex flex-col gap-4">
                 {/* Full name */}
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Họ và tên</label>
+                    <label htmlFor="registerform-field-1" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Họ và tên</label>
                     <div className="relative">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input
+                        <input id="registerform-field-1"
                             type="text"
                             name="fullName"
                             placeholder="Nguyễn Văn A"
@@ -70,10 +70,10 @@ export default function RegisterForm() {
 
                 {/* Email */}
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Email</label>
+                    <label htmlFor="registerform-field-2" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Email</label>
                     <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input
+                        <input id="registerform-field-2"
                             type="email"
                             name="email"
                             placeholder="your@email.com"
@@ -86,10 +86,10 @@ export default function RegisterForm() {
 
                 {/* Password */}
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Mật khẩu</label>
+                    <label htmlFor="registerform-field-3" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Mật khẩu</label>
                     <div className="relative">
                         <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input
+                        <input id="registerform-field-3"
                             type={showPw ? 'text' : 'password'}
                             name="password"
                             placeholder="••••••••"
@@ -101,6 +101,8 @@ export default function RegisterForm() {
                         />
                         <button
                             type="button"
+                            aria-label={showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                            aria-pressed={showPw}
                             onClick={() => setShowPw(!showPw)}
                             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                         >
@@ -121,20 +123,20 @@ export default function RegisterForm() {
 
                 {/* Terms */}
                 <label className="flex items-start gap-3 cursor-pointer">
-                    <div
-                        onClick={() => setAgreed(!agreed)}
-                        className={`w-5 h-5 rounded-[6px] border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all cursor-pointer ${agreed ? 'bg-[#0071E3] border-[#0071E3]' : 'border-[#D2D2D7]'}`}
+                    <input type="checkbox" className="sr-only peer" checked={agreed} onChange={(event) => setAgreed(event.target.checked)} />
+                    <span aria-hidden="true"
+                        className={`w-5 h-5 rounded-[6px] border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-[#0071E3] ${agreed ? 'bg-[#0071E3] border-[#0071E3]' : 'border-[#D2D2D7]'}`}
                     >
                         {agreed && (
                             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         )}
-                    </div>
+                    </span>
                     <span className="text-[13px] text-[#6E6E73] leading-[1.5]" style={{ fontFamily: SFT }}>
                         Tôi đồng ý với{' '}
-                        <a href="#" className="text-[#0071E3] hover:underline">Điều khoản dịch vụ</a> và{' '}
-                        <a href="#" className="text-[#0071E3] hover:underline">Chính sách bảo mật</a>
+                        <span aria-disabled="true" className="text-[#0071E3] hover:underline">Điều khoản dịch vụ</span> và{' '}
+                        <span aria-disabled="true" className="text-[#0071E3] hover:underline">Chính sách bảo mật</span>
                     </span>
                 </label>
 

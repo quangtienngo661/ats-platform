@@ -1,0 +1,331 @@
+
+[2m> [22m[2mnx run[22m api:test --runInBand --silent
+
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:20 AM [33m   WARN[39m [38;5;3m[CVsService] [39m[33mRejected upload for candidate cand-1: invalid PDF signature at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\uploads\fake.pdf[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:21 AM [32m    LOG[39m [38;5;3m[InterviewAbandonProcessor] [39m[32mSwept 1 stale interview session(s): session-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewProcessor] [39m[32mEvaluating QnA: qna-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewProcessor] [39m[32mQnA qna-1 evaluated — Score: 80/100[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewProcessor] [39m[32mEvaluating QnA: qna-1[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [31m  ERROR[39m [38;5;3m[InterviewProcessor] [39m[31mFailed to evaluate QnA qna-1 (attempt 1/3): Gemini timeout[39m
+Error: Gemini timeout
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview.processor.spec.ts:64:65)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewProcessor] [39m[32mEvaluating QnA: qna-1[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [31m  ERROR[39m [38;5;3m[InterviewProcessor] [39m[31mFailed to evaluate QnA qna-1 (attempt 3/3): Gemini down[39m
+Error: Gemini down
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview.processor.spec.ts:76:65)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mSession session-1 created (generating), question generation queued for topic: Backend[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mGenerating final result for session session-1 — weightedScore: 80[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mSession session-1 completed with overallScore: 80[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mSession session-1 abandoned by user user-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mSession session-1 abandoned by user user-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:22 AM [32m    LOG[39m [38;5;3m[InterviewSessionService] [39m[32mSession session-1 abandoned after inactivity[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[CvParsingProcessor] [39m[32mCV parsing completed for CV ID: cv-1[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [33m   WARN[39m [38;5;3m[CvParsingProcessor] [39m[33mCV parsing will retry for CV ID: cv-1 (attempt 1/3): Temporary Gemini timeout[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [31m  ERROR[39m [38;5;3m[CvParsingProcessor] [39m[31mCV parsing failed for CV ID: cv-1[39m
+Error: Gemini unavailable
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\cvs\processors\cv-parsing.processor.spec.ts:81:19)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [31m  ERROR[39m [38;5;3m[CvParsingProcessor] [39m[31mCV parsing failed for CV ID: cv-1[39m
+Error: Invalid CV
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\cvs\processors\cv-parsing.processor.spec.ts:112:19)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [33m   WARN[39m [38;5;3m[CvParsingProcessor] [39m[33mCV parsing will retry for CV ID: cv-1 (attempt 1/3): temporary[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[CvParsingProcessor] [39m[32mCV parsing completed for CV ID: cv-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[InterviewGenerationProcessor] [39m[32mGenerating 10 questions for session session-1 (topic: Backend, difficulty: medium)[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[InterviewGenerationProcessor] [39m[32mSession session-1 ready with 10 questions[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[InterviewGenerationProcessor] [39m[32mGenerating 10 questions for session session-1 (topic: Backend, difficulty: medium)[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [31m  ERROR[39m [38;5;3m[InterviewGenerationProcessor] [39m[31mFailed to generate questions for session session-1 (attempt 1/3): Gemini timeout[39m
+Error: Gemini timeout
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:69:68)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[InterviewGenerationProcessor] [39m[32mGenerating 10 questions for session session-1 (topic: Backend, difficulty: medium)[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [31m  ERROR[39m [38;5;3m[InterviewGenerationProcessor] [39m[31mFailed to generate questions for session session-1 (attempt 3/3): Gemini down[39m
+Error: Gemini down
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:78:68)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [32m    LOG[39m [38;5;3m[InterviewGenerationProcessor] [39m[32mGenerating 10 questions for session session-1 (topic: Backend, difficulty: medium)[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:23 AM [31m  ERROR[39m [38;5;3m[InterviewGenerationProcessor] [39m[31mFailed to generate questions for session session-1 (attempt 1/3): AI chỉ tạo được 3 câu hỏi thay vì 10 câu[39m
+Error: AI chỉ tạo được 3 câu hỏi thay vì 10 câu
+    at InterviewGenerationProcessor.process (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview-generation.processor.ts:50:23)
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:97:9)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[CvScreeningProcessor] [39m[31mCV screening scr-1 failed (attempt 1/3): Gemini timeout[39m
+Error: Gemini timeout
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\cv-screenings\processors\cv-screenings.processor.spec.ts:74:49)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[CvScreeningProcessor] [39m[31mCV screening scr-1 failed (attempt 3/3): Gemini timeout[39m
+Error: Gemini timeout
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\cv-screenings\processors\cv-screenings.processor.spec.ts:90:49)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API ERROR. BullMQ will retry this job...[39m
+SyntaxError: Unexpected token 'o', "not JSON" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at GeminiService.generateContent (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.ts:163:31)
+    at GeminiService.parseCV (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.ts:27:24)
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.spec.ts:139:5)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API call failed — action: cv_parsing, refId: cv-1[39m
+SyntaxError: Unexpected token 'o', "not JSON" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at GeminiService.generateContent (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.ts:163:31)
+    at GeminiService.parseCV (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.ts:27:24)
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.spec.ts:139:5)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API ERROR. BullMQ will retry this job...[39m
+Error: 429 quota exceeded
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.spec.ts:150:19)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API call failed — action: cv_scoring, refId: scr-1[39m
+Error: 429 quota exceeded
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.spec.ts:150:19)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:17:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API TIMEOUT after 120s. BullMQ will retry this job...[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:17:24 AM [31m  ERROR[39m [38;5;3m[GeminiService] [39m[31mGemini API call failed — action: cv_parsing, refId: cv-1[39m
+AbortError: aborted
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\common\external-apis\gemini\gemini.service.spec.ts:167:33)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient stale-socket attempted to join unauthorized job room: job_job-1[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient stale-socket attempted to join unauthorized job room: job_job-1[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient stale-socket attempted to join unauthorized job room: job_job-1[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient stale-socket attempted to join unauthorized job room: job_job-1[39m
+[32m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [32m    LOG[39m [38;5;3m[SocketIoService] [39m[32mClient stale-socket joined room: job_job-2[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient disconnected: inactive or unknown user - pending-auth[39m
+[33m[Nest] 226524  - [39m10/04/2026, 9:15:26 AM [33m   WARN[39m [38;5;3m[SocketIoService] [39m[33mClient stale-socket attempted to join unauthorized job room: job_job-1[39m
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:30 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: database unreachable — Dependency did not respond within 3 seconds[39m
+Error: Dependency did not respond within 3 seconds
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.ts:77:26
+    at callTimer (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:825:24)
+    at doTickInner (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1504:29)
+    at doTick (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1585:20)
+    at Immediate.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1606:33)
+    at processImmediate (node:internal/timers:505:21)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:30 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: redis unreachable — Dependency did not respond within 3 seconds[39m
+Error: Dependency did not respond within 3 seconds
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.ts:77:26
+    at callTimer (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:825:24)
+    at doTickInner (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1504:29)
+    at doTick (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1585:20)
+    at Immediate.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1606:33)
+    at processImmediate (node:internal/timers:505:21)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:30 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: database unreachable — Dependency did not respond within 3 seconds[39m
+Error: Dependency did not respond within 3 seconds
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.ts:77:26
+    at callTimer (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:825:24)
+    at doTickInner (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1504:29)
+    at doTick (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1585:20)
+    at Immediate.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1606:33)
+    at processImmediate (node:internal/timers:505:21)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:30 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: redis unreachable — Dependency did not respond within 3 seconds[39m
+Error: Dependency did not respond within 3 seconds
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.ts:77:26
+    at callTimer (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:825:24)
+    at doTickInner (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1504:29)
+    at Immediate.nextPromiseTick (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\@sinonjs\fake-timers\src\fake-timers-src.js:1565:25)
+    at processImmediate (node:internal/timers:505:21)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:27 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: database unreachable — connection refused[39m
+Error: connection refused
+    at buildService (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:72:39)
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:92:26)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:27 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: redis unreachable — ECONNREFUSED[39m
+Error: ECONNREFUSED
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:100:45)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:27 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: database unreachable — connection refused[39m
+Error: connection refused
+    at buildService (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:72:39)
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:108:7)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[31m[Nest] 226524  - [39m10/04/2026, 9:15:27 AM [31m  ERROR[39m [38;5;3m[HealthService] [39m[31mHealth check: redis unreachable — ECONNREFUSED[39m
+Error: ECONNREFUSED
+    at Object.<anonymous> (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\apps\api\src\app\health\health.service.spec.ts:108:27)
+    at Promise.finally.completed (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\jest-runner\build\index.js:343:7)
+[1mTest Suites: [22m[1m[32m62 passed[39m[22m, 62 total
+[1mTests:       [22m[1m[32m533 passed[39m[22m, 533 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m17.152 s[39m[22m
+
+[2m[32m[39m[22m
+
+[7m[1m[32m NX [39m[22m[27m  [32mSuccessfully ran target [1mtest[22m for project api[39m
+
+

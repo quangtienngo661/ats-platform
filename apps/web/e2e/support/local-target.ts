@@ -11,5 +11,10 @@ export function localTestUrl(value: string): string {
   return url.toString().replace(/\/$/, '');
 }
 
-export const apiBaseUrl = () =>
-  localTestUrl(process.env.WEB_E2E_API_URL ?? 'http://localhost:5000/api');
+export function apiBaseUrl(): string {
+  const target = localTestUrl(process.env.WEB_E2E_API_URL ?? 'http://localhost:55000/api');
+  if (new URL(target).port !== '55000') {
+    throw new Error('E2E phải dùng API của docker-compose.test.yml ở cổng 55000.');
+  }
+  return target;
+}

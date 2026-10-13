@@ -1,0 +1,30 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts --grep GĐ2
+
+[WebServer] (node:247616) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Warning: Next.js ignored pnpm-lock.yaml in E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness because it is outside the current Git repository (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform).
+[WebServer]  To use this directory, set `turbopack.root` in your Next.js config.
+[WebServer] 
+
+Running 13 tests using 1 worker
+
+GĐ1: waiting 18s for the real local auth window.
+  ok  1 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:84:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C17: recruiter books an online interview at 09:00 Vietnam time and the API stores 02:00Z (4.8s)
+  ok  2 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:107:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › R3: recruiter books an onsite interview at 14:00 with its address (868ms)
+  ok  3 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:122:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C5: the candidate sees both upcoming interviews in Vietnam time (1.6s)
+  ok  4 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:142:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C1/C15: neither the page nor the API gives the candidate the recruiter's contact details (51ms)
+  ok  5 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:161:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C16: rejecting the application cancels both interviews and the candidate sees them cancelled (770ms)
+  ok  6 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:178:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C8/C15: the candidate reads the timeline of the rejected application, without staff notes (2.8s)
+  ok  7 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:43:7 › GĐ2 tuần 1 — lọc tìm việc › C11/C13: the salary range in the URL and on the page, bounds included, draft never shown (2.3s)
+  ok  8 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:62:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E15: a minimum above the maximum stays on the page with a message (1.8s)
+  ok  9 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:74:7 › GĐ2 tuần 1 — lọc tìm việc › C12/C13: skills match any, the options come from active postings only (2.1s)
+  ok 10 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:91:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E17: a link with a bad filter still opens, and "Xóa bộ lọc" clears the new filters (1.8s)
+  ok 11 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:103:7 › GĐ2 tuần 1 — lọc tìm việc › C12: the public filter options list active skills by name and never the draft's (34ms)
+  ok 12 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:114:7 › GĐ2 tuần 1 — lọc tìm việc › C14: the home page picks a work type and the job search receives it (2.1s)
+  ok 13 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:126:7 › GĐ2 tuần 1 — lọc tìm việc › the filter panel does not overflow a phone screen (852ms)
+
+  13 passed (50.6s)

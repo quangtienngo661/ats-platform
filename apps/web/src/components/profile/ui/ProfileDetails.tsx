@@ -236,7 +236,7 @@ export function ProfileDetails({ profileData }: ProfileDetailsProps) {
                             <div>
                                 <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Kỹ thuật</p>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {skills!.technical.map((s) => (
+                                    {skills?.technical.map((s) => (
                                         <SkillBadge key={s} label={s} color="#6366F1" bg="#F5F3FF" />
                                     ))}
                                 </div>
@@ -246,7 +246,7 @@ export function ProfileDetails({ profileData }: ProfileDetailsProps) {
                             <div>
                                 <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Kỹ năng mềm</p>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {skills!.soft.map((s) => (
+                                    {skills?.soft.map((s) => (
                                         <SkillBadge key={s} label={s} color="#0071E3" bg="#EBF3FD" />
                                     ))}
                                 </div>
@@ -256,7 +256,7 @@ export function ProfileDetails({ profileData }: ProfileDetailsProps) {
                             <div>
                                 <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Ngoại ngữ</p>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {skills!.languages.map((s) => (
+                                    {skills?.languages.map((s) => (
                                         <SkillBadge key={s} label={s} color="#059669" bg="#ECFDF5" />
                                     ))}
                                 </div>

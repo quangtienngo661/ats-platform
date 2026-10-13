@@ -21,7 +21,7 @@ interface UserClientProps {
 export default function UserClient({ initialUsers, organizations }: UserClientProps) {
   const [users, setUsers] = useState<IUserResponseDto[]>(initialUsers);
   const [optimisticUsers, setOptimisticUsers] = useOptimistic(users);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | ''>('');

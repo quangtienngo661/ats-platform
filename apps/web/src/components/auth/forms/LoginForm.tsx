@@ -7,9 +7,9 @@ import { SF, SFT } from '@/types/fonts/fonts';
 import Link from 'next/link';
 import { signInAction } from '@/servers/auth/auth.action';
 import SubmitButton from '@/components/common/SubmitButton';
-import { OAuthButtons } from '../ui/OAuthButtons';
+
 import { useSearchParams } from 'next/navigation';
-import { toast } from '@/lib/toast';
+
 
 const initialState = { success: false, message: '' };
 
@@ -21,9 +21,7 @@ export default function LoginForm() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '';
 
-    const oauthError = searchParams.get('error') === 'oauth_failed'
-        ? 'Đăng nhập bằng OAuth thất bại. Vui lòng thử lại.'
-        : null;
+    
     const resetSuccess = searchParams.get('reset') === 'success';
 
     // const handleLoginError = (message: string) => {
@@ -58,12 +56,12 @@ export default function LoginForm() {
             <form action={formAction} className="flex flex-col gap-4">
                 {/* Email */}
                 <div>
-                    <label className="block text-[13px] text-[#1D1D1F] mb-1.5 tracking-[-0.01em]" style={{ fontWeight: 500 }}>
+                    <label htmlFor="loginform-field-1" className="block text-[13px] text-[#1D1D1F] mb-1.5 tracking-[-0.01em]" style={{ fontWeight: 500 }}>
                         Email
                     </label>
                     <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input
+                        <input id="loginform-field-1"
                             type="email"
                             name="email"
                             placeholder="your@email.com"
@@ -77,7 +75,7 @@ export default function LoginForm() {
                 {/* Password */}
                 <div>
                     <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[13px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontWeight: 500 }}>Mật khẩu</label>
+                        <label htmlFor="candidate-login-password" className="text-[13px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontWeight: 500 }}>Mật khẩu</label>
                         <Link href="/forgot-password" className="text-[12px] text-[#0071E3] hover:underline">
                             Quên mật khẩu?
                         </Link>
@@ -85,6 +83,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                         <input
+                            id="candidate-login-password"
                             type={showPw ? 'text' : 'password'}
                             name="password"
                             placeholder="••••••••"
@@ -94,6 +93,8 @@ export default function LoginForm() {
                         />
                         <button
                             type="button"
+                            aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                            aria-pressed={showPw}
                             onClick={() => setShowPw(!showPw)}
                             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                         >

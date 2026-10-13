@@ -1,8 +1,12 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
+import { cookies } from 'next/headers';
+import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -14,23 +18,23 @@ export type JobCategoryActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET ALL JOB CATEGORIES ───────────────────────────────────────────────────
+/** The category API is staff-only. Public pages must not issue an unauthorized read. */
+export async function getViewerJobCategoriesAction(): Promise<IJobCategoryDto[]> {
+    const token = (await cookies()).get('accessToken')?.value;
+    const role = token ? decodeTokenPayload(token)?.role : undefined;
+    if (!role || !['admin', 'recruiter', 'org_admin'].includes(role)) return [];
+    return getJobCategoriesAction();
+}
+
 export async function getJobCategoriesAction(): Promise<IJobCategoryDto[]> {
     try {
         const response = await http.get('/job-categories');
         return response.data as IJobCategoryDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -40,8 +44,9 @@ export async function getJobCategoryByIdAction(id: string): Promise<IJobCategory
     try {
         const response = await http.get(`/job-categories/${id}`);
         return response.data as IJobCategoryDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 

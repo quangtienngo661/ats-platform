@@ -1,6 +1,12 @@
 'use server';
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
+import { isAbsoluteIso } from '@/lib/interview-time';
+import { isHttpUrl } from '@/lib/meeting-link';
 import { revalidatePath } from 'next/cache';
 import {
     IInterviewTopic,
@@ -10,6 +16,7 @@ import {
     IResumeSession,
     IInterviewScheduleQuery,
     IPaginatedInterviewSchedules,
+    IPaginatedCandidateInterviewSchedules,
     IInterviewSchedule,
 } from '@/types/interfaces/interview.interface';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
@@ -33,37 +40,27 @@ export type InterviewTopicActionState = {
     data?: IInterviewTopic;
 };
 
+// Only the field that belongs to the interview type is sent (the API stores no other).
+type SchedulePlace = { onlineMeetingLink: string } | { location: string };
+
 type SchedulePayload = {
     applicationId: string;
     interviewerId: string;
     interviewType: InterviewType;
     startAt: string;
     durationMinutes: number;
-};
+} & SchedulePlace;
+
+const LOCATION_MAX_LENGTH = 255;
 
 type NormalizedSchedulePayload =
     | { ok: false; error: string }
     | { ok: true; payload: SchedulePayload };
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 function getString(formData: FormData, key: string) {
     return (formData.get(key) as string | null)?.trim() ?? '';
-}
-
-function toLocalDateTimeIso(date: string, time: string) {
-    const source = time.includes('T') ? time : `${date}T${time}:00`;
-    const parsed = new Date(source);
-    if (Number.isNaN(parsed.getTime())) return null;
-    return parsed.toISOString();
 }
 
 function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload {
@@ -78,8 +75,10 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
     if (!scheduledDate) return { ok: false, error: 'Vui lòng chọn ngày phỏng vấn' };
     if (!scheduledTime) return { ok: false, error: 'Vui lòng chọn giờ phỏng vấn' };
 
-    const startAtIso = toLocalDateTimeIso(scheduledDate, scheduledTime);
-    if (!startAtIso) {
+    // The browser converts the picked date and time (it knows the person's timezone);
+    // this server may run in any timezone, so it never rebuilds the instant itself.
+    const startAtIso = getString(formData, 'startAt');
+    if (!isAbsoluteIso(startAtIso)) {
         return { ok: false, error: 'Ngày hoặc giờ phỏng vấn không hợp lệ' };
     }
 
@@ -88,14 +87,31 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
         return { ok: false, error: 'Thời lượng phỏng vấn phải từ 15 đến 480 phút' };
     }
 
+    const interviewType =
+        getString(formData, 'interviewType') === InterviewType.online ? InterviewType.online : InterviewType.onsite;
+    let place: SchedulePlace;
+    if (interviewType === InterviewType.online) {
+        const onlineMeetingLink = getString(formData, 'onlineMeetingLink');
+        if (!isHttpUrl(onlineMeetingLink)) {
+            return { ok: false, error: 'Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ' };
+        }
+        place = { onlineMeetingLink };
+    } else {
+        const location = getString(formData, 'location');
+        if (!location) return { ok: false, error: 'Phỏng vấn trực tiếp cần địa điểm' };
+        if (location.length > LOCATION_MAX_LENGTH) return { ok: false, error: 'Địa điểm tối đa 255 ký tự' };
+        place = { location };
+    }
+
     return {
         ok: true,
         payload: {
             applicationId,
             interviewerId,
-            interviewType: InterviewType.onsite,
+            interviewType,
             startAt: startAtIso,
             durationMinutes,
+            ...place,
         },
     };
 }
@@ -105,8 +121,8 @@ export async function getInterviewTopicsAction(): Promise<IInterviewTopic[]> {
     try {
         const response = await http.get('/interviews/topics');
         return response.data as unknown as IInterviewTopic[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -175,22 +191,38 @@ export async function deleteInterviewTopicAction(
 
 
 
+function scheduleQueryParams(query?: IInterviewScheduleQuery) {
+    const params: Record<string, string | number> = {};
+    if (query?.applicationId) params.applicationId = query.applicationId;
+    if (query?.status) params.status = query.status;
+    if (query?.fromDate) params.fromDate = query.fromDate;
+    if (query?.toDate) params.toDate = query.toDate;
+    if (query?.page) params.page = query.page;
+    if (query?.limit) params.limit = query.limit;
+    if (query?.order) params.order = query.order;
+    return params;
+}
+
 export async function getMyInterviewSchedulesAction(
     query?: IInterviewScheduleQuery,
 ): Promise<IPaginatedInterviewSchedules> {
     try {
-        const params: Record<string, string | number> = {};
-        if (query?.applicationId) params.applicationId = query.applicationId;
-        if (query?.status) params.status = query.status;
-        if (query?.fromDate) params.fromDate = query.fromDate;
-        if (query?.toDate) params.toDate = query.toDate;
-        if (query?.page) params.page = query.page;
-        if (query?.limit) params.limit = query.limit;
-
-        const response = await http.get('/interviews/schedules/my', { params });
+        const response = await http.get('/interviews/schedules/my', { params: scheduleQueryParams(query) });
         return response.data as IPaginatedInterviewSchedules;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
+}
+
+/** The same endpoint as the staff list; for a candidate the API returns the minimal shape. */
+export async function getCandidateInterviewSchedulesAction(
+    query?: IInterviewScheduleQuery,
+): Promise<IPaginatedCandidateInterviewSchedules> {
+    try {
+        const response = await http.get('/interviews/schedules/my', { params: scheduleQueryParams(query) });
+        return response.data as IPaginatedCandidateInterviewSchedules;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải lịch phỏng vấn. Vui lòng thử lại.');
     }
 }
 
@@ -271,8 +303,8 @@ export async function getSchedulableInterviewApplicationsAction(): Promise<IAppl
         const response = await http.get('/applications/board/all');
         const board = response.data ?? response;
         return (board?.[ApplicationStatus.interview] ?? []) as IApplicationDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -298,8 +330,9 @@ export async function resumeInterviewSessionAction(): Promise<IResumeSession | n
     try {
         const response = await http.get('/interviews/sessions/resume');
         return response.data as unknown as IResumeSession;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -307,8 +340,9 @@ export async function getInterviewResultAction(sessionId: string): Promise<IInte
     try {
         const response = await http.get(`/interviews/sessions/${sessionId}/result`);
         return response.data;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -316,8 +350,9 @@ export async function getInterviewById(sessionId: string): Promise<IInterviewSes
     try {
         const response = await http.get(`/interviews/sessions/${sessionId}`);
         return response.data;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -325,7 +360,8 @@ export async function abandonInterviewSessionAction(sessionId: string): Promise<
     try {
         await http.patch(`/interviews/sessions/${sessionId}/abandon`);
         return true;
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return false;
     }
 }
@@ -334,7 +370,7 @@ export async function getMySessionsAction(): Promise<ISessionSummary[]> {
     try {
         const response = await http.get('/interviews/sessions/my');
         return response.data as unknown as ISessionSummary[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

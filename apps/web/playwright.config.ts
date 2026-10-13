@@ -18,7 +18,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: localTestUrl(
-      process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3000',
+      process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3001',
     ),
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -26,7 +26,7 @@ export default defineConfig({
   webServer: {
     cwd: resolve(__dirname, '../..'),
     command: 'node apps/web/e2e/support/start-web.mjs',
-    url: localTestUrl(process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3000'),
+    url: localTestUrl(process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3001'),
     reuseExistingServer: process.env.WEB_E2E_REUSE_EXISTING_SERVER === '1',
     timeout: 120_000,
   },

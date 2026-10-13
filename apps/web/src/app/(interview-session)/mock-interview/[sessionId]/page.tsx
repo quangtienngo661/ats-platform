@@ -1,4 +1,4 @@
-import { InterviewChatHydrator } from '@/components/hydrators/InterviewChatHydrator';
+import { InterviewChatStoreProvider } from '@/stores/useInterviewChatStore';
 import InterviewChatClient from '@/components/mock-interview/InterviewChatClient';
 import InterviewGeneratingClient from '@/components/mock-interview/InterviewGeneratingClient';
 import { getInterviewById, resumeInterviewSessionAction } from '@/servers/interviews/interviews.action';
@@ -30,9 +30,7 @@ export default async function InterviewChatPage({ params }: { params: Promise<{ 
     const { session, currentQuestion } = result;
 
     return (
-        <>
-            {/* [Lỗi #1 Fix] Truyền currentQuestion (câu đang dở đúng thật) thay vì qnas[0] */}
-            <InterviewChatHydrator initialQuestion={currentQuestion} />
+        <InterviewChatStoreProvider key={`${sessionId}:${currentQuestion.qnaId}`} initialState={currentQuestion}>
             <InterviewChatClient
                 sessionId={session.sessionId}
                 topicName={session.topic.name ?? ''}
@@ -42,6 +40,6 @@ export default async function InterviewChatPage({ params }: { params: Promise<{ 
                 initialQuestion={currentQuestion}
                 historyQnAs={session.qnas ?? []}
             />
-        </>
+        </InterviewChatStoreProvider>
     );
 }

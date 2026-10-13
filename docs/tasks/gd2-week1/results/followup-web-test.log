@@ -1,0 +1,27 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+ Test Files  44 passed (44)
+      Tests  324 passed (324)
+   Start at  16:25:22
+   Duration  43.11s (transform 1.53s, setup 11.77s, import 8.78s, tests 23.89s, environment 30.55s)
+

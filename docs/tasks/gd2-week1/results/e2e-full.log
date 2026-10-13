@@ -1,0 +1,97 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts
+
+[WebServer] (node:245948) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Warning: Next.js ignored pnpm-lock.yaml in E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness because it is outside the current Git repository (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform).
+[WebServer]  To use this directory, set `turbopack.root` in your Next.js config.
+[WebServer] 
+
+Running 30 tests using 1 worker
+
+  ok  1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (7.5s)
+  ok  2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới (4.6s)
+  ok  3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (4.3s)
+  ok  4 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:173:5 › admin thiếu access cookie → refresh → đọc cấu hình ngay trong request hiện tại (3.0s)
+GĐ1: waiting 58s for the real local auth window.
+  ok  5 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:33:7 › FE best practices with real isolated API data › public location filters reach the API; legacy rich text is sanitized (5.4s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <MeasureLayout>
+[WebServer]     <div className="flex flex-..." style={{}} ref={function useMotionRef.useCallback}>
+[WebServer]       <AnimatePresence mode="popLayout">
+[WebServer]         <PresenceChild isPresent={true} initial={undefined} custom={undefined} presenceAffectsLayout={true} ...>
+[WebServer]           <PopChild pop={true} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
+[WebServer]             <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={true}>
+[WebServer]               <motion.div layout={true} initial={{opacity:0, ...}} animate={{opacity:1,scale:1,y:0}} ...>
+[WebServer]                 <MeasureLayout>
+[WebServer]                 <div style={{opacity:0, ...}} ref={function useMotionRef.useCallback}>
+[WebServer]                   <CvCard cv={{cvId:"15d2...", ...}} onView={function onView} onDelete={function onDelete}>
+[WebServer]                     <div className="group bg-w...">
+[WebServer]                       <div className="flex items...">
+[WebServer]                         <div>
+[WebServer]                         <div className="flex-1 min...">
+[WebServer]                           <div>
+[WebServer]                           <p className="text-[12px...">
+[WebServer] +                           09:52 04/10/2026
+[WebServer] -                           02:52 04/10/2026
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CvCard (apps/web/src/components/my-cvs/ui/CvCard.tsx:63:21)
+[WebServer]     at <unknown> (apps/web/src/components/my-cvs/MyCvsClient.tsx:71:29)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at MyCvsClient (apps/web/src/components/my-cvs/MyCvsClient.tsx:62:31)
+[WebServer]     at MyCvsPage (src\app\(candidate)\my-cvs\page.tsx:10:13)
+[WebServer]   61 |                     </div>
+[WebServer]   62 |
+[WebServer] > 63 |                     <p className="text-[12px] text-[#AEAEB2] mb-2">
+[WebServer]      |                     ^
+[WebServer]   64 |                         Tải lên {formatDate(cv.uploadedAt)}
+[WebServer]   65 |                         {expCount > 0 && ` · ${expCount} kinh nghiệm`}
+[WebServer]   66 |                         {projCount > 0 && ` · ${projCount} dự án`}
+  ok  6 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:57:7 › FE best practices with real isolated API data › candidate callback keeps its query; CV data and dialog focus survive reload (4.0s)
+  ok  7 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:78:7 › FE best practices with real isolated API data › resumed interview renders history and current question after refresh (2.0s)
+  ok  8 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:87:7 › FE best practices with real isolated API data › recruiter Kanban initializes the correct board; mobile navigation restores focus (5.9s)
+  ok  9 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (1.0s)
+GĐ1: waiting 48s for the real local auth window.
+  ok 10 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (5.1s)
+  ok 11 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (7.3s)
+  ok 12 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (1.3s)
+  ok 13 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (1.7s)
+  ok 14 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:241:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (1.7s)
+  ok 15 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:273:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (404ms)
+  ok 16 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:329:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi (1.5s)
+GĐ1: waiting 42s for the real local auth window.
+  ok 17 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:84:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C17: recruiter books an online interview at 09:00 Vietnam time and the API stores 02:00Z (3.1s)
+  ok 18 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:107:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › R3: recruiter books an onsite interview at 14:00 with its address (760ms)
+  ok 19 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:122:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C5: the candidate sees both upcoming interviews in Vietnam time (693ms)
+  ok 20 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:142:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C1/C15: neither the page nor the API gives the candidate the recruiter's contact details (31ms)
+  ok 21 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:161:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C16: rejecting the application cancels both interviews and the candidate sees them cancelled (559ms)
+  ok 22 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:178:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C8/C15: the candidate reads the timeline of the rejected application, without staff notes (1.9s)
+  ok 23 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:43:7 › GĐ2 tuần 1 — lọc tìm việc › C11/C13: the salary range in the URL and on the page, bounds included, draft never shown (1.5s)
+  ok 24 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:62:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E15: a minimum above the maximum stays on the page with a message (1.2s)
+  ok 25 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:74:7 › GĐ2 tuần 1 — lọc tìm việc › C12/C13: skills match any, the options come from active postings only (1.2s)
+  ok 26 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:91:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E17: a link with a bad filter still opens, and "Xóa bộ lọc" clears the new filters (1.6s)
+  ok 27 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:103:7 › GĐ2 tuần 1 — lọc tìm việc › C12: the public filter options list active skills by name and never the draft's (14ms)
+  ok 28 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:114:7 › GĐ2 tuần 1 — lọc tìm việc › C14: the home page picks a work type and the job search receives it (2.1s)
+  ok 29 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:126:7 › GĐ2 tuần 1 — lọc tìm việc › the filter panel does not overflow a phone screen (570ms)
+  ok 30 [chromium] › apps\web\e2e\session-policy.e2e.ts:4:5 › candidate refresh phiên thật → bị chặn trang admin → login trở về trang việc làm (1.1s)
+
+  30 passed (3.9m)

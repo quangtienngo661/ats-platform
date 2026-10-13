@@ -1,5 +1,8 @@
+'use client';
+
 import { ICvDto } from "@/types/interfaces/cv.interface";
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { createRouteStore } from "./createRouteStore";
 
 interface CvState {
     cvs: ICvDto[];
@@ -12,8 +15,8 @@ interface CvState {
     removeCv: (cvId: string) => void;
 }
 
-export const useCvStore = create<CvState>((set, get) => ({
-    cvs: [],
+export const createCvStore = (initial: ICvDto[]) => createStore<CvState>((set, get) => ({
+    cvs: initial,
     cv: {} as ICvDto,
     cvId: "",
 
@@ -48,3 +51,5 @@ export const useCvStore = create<CvState>((set, get) => ({
         set({ cvs: cvs.filter((cv) => cv.cvId !== cvId) });
     },
 }));
+
+export const { Provider: CvStoreProvider, useRouteStore: useCvStore } = createRouteStore(createCvStore, "CvStore");

@@ -60,7 +60,7 @@ try {
     transports: ['websocket'],
     reconnection: false,
     auth: { token: staff.accessToken },
-    extraHeaders: { Origin: 'http://localhost:3000' },
+    extraHeaders: { Origin: process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3001' },
   });
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Socket connection timed out')), 10_000);

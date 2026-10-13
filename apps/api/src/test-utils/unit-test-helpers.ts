@@ -71,6 +71,7 @@ export const createPrismaMock = () => ({
     'findMany',
     'findUnique',
     'update',
+    'updateMany',
   ]),
   interviewSession: model([
     'create',

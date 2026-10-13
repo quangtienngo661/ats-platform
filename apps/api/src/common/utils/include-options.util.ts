@@ -1,4 +1,9 @@
 import { Prisma } from "@ats-platform/database";
+import {
+  isOrganizationStaff,
+  isPlatformAdmin,
+  TenantCaller,
+} from '../tenancy/tenant-caller';
 
 export const recruiterIncludeOptions = {
   user: {
@@ -37,6 +42,27 @@ export const jobPostingIncludeOptions = {
     }
   }
 } satisfies Prisma.JobPostingInclude;
+
+/** Public viewers need only their own application status to decide whether they can apply. */
+export function jobPostingIncludeFor(viewer?: TenantCaller) {
+  if (viewer && (isPlatformAdmin(viewer.role) || isOrganizationStaff(viewer.role))) {
+    return jobPostingIncludeOptions;
+  }
+
+  return {
+    category: jobPostingIncludeOptions.category,
+    department: jobPostingIncludeOptions.department,
+    jobPostingSkills: jobPostingIncludeOptions.jobPostingSkills,
+    applications: {
+      // An empty IN filter matches no candidate for an anonymous visitor.
+      where: { candidate: { userId: viewer?.userId ?? { in: [] } } },
+      select: {
+        status: true,
+        candidate: { select: { userId: true } },
+      },
+    },
+  } satisfies Prisma.JobPostingInclude;
+}
 
 export const candidateIncludeOptions = {
   user: {
@@ -141,6 +167,47 @@ export const scheduleIncludeOptions = {
   scheduler: { omit: { passwordHash: true } },
 
 } satisfies Prisma.InterviewScheduleInclude;
+
+/**
+ * What a candidate may see of an interview schedule — and nothing more: no staff
+ * e-mail, phone, role or status, no scheduler, no candidate user row. Staff keep
+ * `scheduleIncludeOptions`.
+ */
+export const candidateScheduleSelect = {
+  interviewId: true,
+  startAt: true,
+  durationMinutes: true,
+  interviewType: true,
+  onlineMeetingLink: true,
+  location: true,
+  status: true,
+  interviewer: { select: { fullName: true } },
+  application: {
+    select: {
+      applicationId: true,
+      jobPosting: {
+        select: {
+          jobId: true,
+          title: true,
+          organization: { select: { name: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.InterviewScheduleSelect;
+
+/**
+ * The application-history columns read for a candidate. `rejectionReason` is read only
+ * so `toCandidateHistory` can decide whether to pass it on — never sent as-is.
+ * No `notes`, `changedBy` or staff `user`.
+ */
+export const candidateHistorySelect = {
+  id: true,
+  fromStatus: true,
+  toStatus: true,
+  changedAt: true,
+  rejectionReason: true,
+} satisfies Prisma.ApplicationHistorySelect;
 
 export const sessionIncludeOptions = {
   topic: {

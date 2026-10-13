@@ -54,6 +54,7 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
             <div className="max-w-[720px] mx-auto flex items-end gap-3">
                 <div className="flex-1">
                     <textarea
+                        aria-label="Câu trả lời"
                         ref={textareaRef}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
@@ -79,7 +80,7 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
                         Enter để gửi · Shift+Enter để xuống dòng
                     </p>
                 </div>
-                <button
+                <button type="button" aria-label="Gửi"
                     onClick={handleSubmit}
                     disabled={!text.trim() || disabled}
                     className="flex-shrink-0 mb-[25.5px] w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed bg-[#0071E3] hover:bg-[#0077ED] active:scale-95 text-white shadow-sm shadow-[#0071E3]/20"

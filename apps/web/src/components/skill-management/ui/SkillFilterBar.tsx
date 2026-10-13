@@ -27,7 +27,7 @@ export function SkillFilterBar({ categories, onSearch, onCategoryChange }: Skill
             {/* Search */}
             <div className="relative flex-1 min-w-[220px]">
                 <Search className="w-4 h-4 text-[#AEAEB2] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
+                <input aria-label="Tìm kỹ năng"
                     type="text"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
@@ -39,7 +39,7 @@ export function SkillFilterBar({ categories, onSearch, onCategoryChange }: Skill
 
             {/* Category filter */}
             <div className="relative">
-                <select
+                <select aria-label="Lọc danh mục kỹ năng"
                     onChange={(e) => onCategoryChange(e.target.value)}
                     className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition-all bg-white cursor-pointer"
                     style={{ fontFamily: SF }}

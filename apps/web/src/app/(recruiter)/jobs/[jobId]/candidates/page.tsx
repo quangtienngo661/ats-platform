@@ -2,7 +2,7 @@ import { CandidatesHeader } from '@/components/candidates/ui/CandidatesHeader';
 import { CandidatesStats } from '@/components/candidates/ui/CandidatesStats';
 import { CandidatesFilters } from '@/components/candidates/ui/CandidatesFilters';
 import { getApplicationsByJobAction } from '@/servers/applications/applications.action';
-import { getJobPostingByIdAction } from '@/servers/job-postings/job-postings.action';
+
 
 interface JobCandidateListPageProps {
     params: Promise<{ jobId: string }>;

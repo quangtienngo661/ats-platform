@@ -5,7 +5,7 @@ import { apiBaseUrl, localTestUrl } from './local-target.ts';
 
 const apiUrl = apiBaseUrl();
 const webUrl = new URL(
-  localTestUrl(process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3000'),
+  localTestUrl(process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3001'),
 );
 if (webUrl.protocol !== 'http:' || webUrl.pathname !== '/') {
   throw new Error('Web E2E cần HTTP localhost tại đường dẫn gốc.');
@@ -53,6 +53,7 @@ const child = spawn(
       ...process.env,
       NODE_ENV: 'development',
       NEXT_PUBLIC_API_BASE_URL: apiUrl,
+      API_INTERNAL_URL: apiUrl,
       NEXT_PUBLIC_SOCKET_URL: new URL(apiUrl).origin,
     },
   },

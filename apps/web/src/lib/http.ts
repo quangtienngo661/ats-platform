@@ -23,8 +23,8 @@ http.interceptors.response.use(
     (response) => response.data,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+        if (error.response?.status === 401 && !originalRequest?._retry) {
+            if (originalRequest) originalRequest._retry = true;
             redirect('/sign-in?session_expired=true');
         }
         return Promise.reject(error);

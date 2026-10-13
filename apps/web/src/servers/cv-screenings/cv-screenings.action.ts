@@ -1,23 +1,13 @@
 'use server';
 
+import { rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
-import {
-    IScreeningResultDto,
-    IScreeningStats,
-    ICandidateScreeningResult,
-} from '@/types/interfaces/cv-screening.interface';
+import { IScreeningResultDto, IScreeningStats, ICandidateScreeningResult } from '@/types/interfaces/cv-screening.interface';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET SCREENING STATS ──────────────────────────────────────────────────────
 export async function getScreeningStatsAction(jobId: string): Promise<IScreeningStats | null> {
@@ -25,8 +15,9 @@ export async function getScreeningStatsAction(jobId: string): Promise<IScreening
     try {
         const response = await http.get('/screening/stats', { params: { jobId } });
         return response.data as IScreeningStats;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -36,8 +27,9 @@ export async function getMyScreeningResultAction(applicationId: string): Promise
     try {
         const response = await http.get(`/screening/me/${applicationId}`);
         return response.data as ICandidateScreeningResult;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -47,7 +39,8 @@ export async function getScreeningResultAction(applicationId: string): Promise<I
     try {
         const response = await http.get(`/screening/${applicationId}`);
         return response.data as IScreeningResultDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

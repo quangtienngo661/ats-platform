@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { motion } from 'motion/react';
 import { AlertTriangle } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
@@ -28,8 +30,8 @@ export function ConfirmModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div
+        <AccessibleDialog onClose={onCancel} dismissible={!isConfirming}><DialogOverlay asChild><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <DialogContent title={title}><motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -68,7 +70,7 @@ export function ConfirmModal({
                         </button>
                     </div>
                 </div>
-            </motion.div>
-        </div>
+            </motion.div></DialogContent>
+        </div></DialogOverlay></AccessibleDialog>
     );
 }

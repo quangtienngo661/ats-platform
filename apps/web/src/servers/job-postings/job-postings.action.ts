@@ -1,12 +1,12 @@
 'use server';
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
-import {
-    IJobPostingDto,
-    IFindJobPostingsQuery,
-    IPaginatedJobPostings,
-} from '@/types/interfaces/job-posting.interface';
+import { IJobPostingDto, IFindJobPostingsQuery, IJobFilterOptions, IPaginatedJobPostings } from '@/types/interfaces/job-posting.interface';
 import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
 import { cookies } from 'next/headers';
 
@@ -49,15 +49,7 @@ async function isAvailable(jobData: IJobPostingDto, token: string): Promise<bool
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET ALL JOB POSTINGS ─────────────────────────────────────────────────────
 
@@ -89,18 +81,36 @@ export async function parseJdPreviewAction(
 }
 export async function getJobPostingsAction(query?: IFindJobPostingsQuery): Promise<IPaginatedJobPostings> {
     try {
-        const params: Record<string, string | number> = {};
+        const params: Record<string, string | number | string[]> = {};
         if (query?.status) params.status = query.status;
+        if (query?.locationType) params.locationType = query.locationType;
         if (query?.departmentId) params.departmentId = query.departmentId;
         if (query?.categoryId) params.categoryId = query.categoryId;
         if (query?.search) params.search = query.search;
+        if (query?.salaryMin !== undefined) params.salaryMin = query.salaryMin;
+        if (query?.salaryMax !== undefined) params.salaryMax = query.salaryMax;
+        if (query?.skillIds?.length) params.skillIds = query.skillIds;
         if (query?.page) params.page = query.page;
         if (query?.limit) params.limit = query.limit;
 
-        const response = await http.get('/job-postings', { params });
+        // axios writes an array as `skillIds[]=a&skillIds[]=b`, which the API refuses
+        // (forbidNonWhitelisted); `indexes: null` sends `skillIds=a&skillIds=b`.
+        const response = await http.get('/job-postings', { params, paramsSerializer: { indexes: null } });
         return response.data as IPaginatedJobPostings;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: query?.limit ?? 20, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
+}
+
+// ─── GET FILTER OPTIONS (public) ──────────────────────────────────────────────
+/** The skills the job board can be filtered by. Without them the search still works. */
+export async function getJobFilterOptionsAction(): Promise<IJobFilterOptions> {
+    try {
+        const response = await http.get('/job-postings/filter-options');
+        return response.data as IJobFilterOptions;
+    } catch (error) {
+        unstable_rethrow(error);
+        return { skills: [] };
     }
 }
 
@@ -113,8 +123,9 @@ export async function getJobPostingByIdAction(id: string): Promise<{ job: IJobPo
         const response = await http.get(`/job-postings/${id}`);
         const available = await isAvailable(response.data, token ?? "");
         return { job: response.data, available };
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -124,6 +135,7 @@ export async function createJobPostingAction(
     formData: FormData
 ): Promise<ActionState<IJobPostingDto>> {
     const departmentId = (formData.get('departmentId') as string)?.trim();
+    
     const createdBy = (formData.get('createdBy') as string)?.trim();
     const title = (formData.get('title') as string)?.trim();
     const locationType = (formData.get('locationType') as string)?.trim();
@@ -153,7 +165,8 @@ export async function createJobPostingAction(
         // Skills được xử lý riêng (JSON string từ hidden input)
         const skillsRaw = formData.get('skills') as string | null;
         if (skillsRaw) {
-            try { payload.skills = JSON.parse(skillsRaw); } catch { /* bỏ qua */ }
+            try { payload.skills = JSON.parse(skillsRaw); } catch (error) {
+        unstable_rethrow(error); /* bỏ qua */ }
         }
 
         const response = await http.post('/job-postings', payload);
@@ -176,7 +189,7 @@ export async function updateJobPostingAction(
     try {
         const payload: Record<string, unknown> = {};
 
-        const createdBy = (formData.get('createdBy') as string)?.trim();
+        
     const title = (formData.get('title') as string)?.trim();
         const locationType = (formData.get('locationType') as string)?.trim();
         const categoryId = (formData.get('categoryId') as string)?.trim() || undefined;
@@ -199,7 +212,8 @@ export async function updateJobPostingAction(
 
         const skillsRaw = formData.get('skills') as string | null;
         if (skillsRaw) {
-            try { payload.skills = JSON.parse(skillsRaw); } catch { /* bỏ qua */ }
+            try { payload.skills = JSON.parse(skillsRaw); } catch (error) {
+        unstable_rethrow(error); /* bỏ qua */ }
         }
 
         const response = await http.patch(`/job-postings/${jobId}`, payload);

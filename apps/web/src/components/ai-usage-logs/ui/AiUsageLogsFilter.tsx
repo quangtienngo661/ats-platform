@@ -40,7 +40,7 @@ export function AiUsageLogsFilter({
                 <span className="text-[12px]" style={{ fontWeight: 500 }}>Bộ lọc</span>
             </div>
 
-            <select
+            <select aria-label="Lọc loại thao tác AI"
                 value={actionFilter}
                 onChange={(e) => onActionFilterChange(e.target.value as ActionTypeFilter)}
                 className="px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] bg-white outline-none focus:border-[#0EA5E9] transition-colors appearance-none pr-8"
@@ -51,7 +51,7 @@ export function AiUsageLogsFilter({
                 ))}
             </select>
 
-            <select
+            <select aria-label="Lọc trạng thái AI"
                 value={statusFilter}
                 onChange={(e) => onStatusFilterChange(e.target.value as StatusFilter)}
                 className="px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] bg-white outline-none focus:border-[#0EA5E9] transition-colors appearance-none pr-8"

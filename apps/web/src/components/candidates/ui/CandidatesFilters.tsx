@@ -40,7 +40,7 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 <div className="flex flex-col lg:flex-row gap-4">
                     {/* Search */}
                     <div className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border border-[#E5E5EA] bg-[#F5F5F7] flex-1">
-                        <input
+                        <input aria-label="Tìm ứng viên"
                             type="text"
                             placeholder="Tìm theo tên, vị trí..."
                             value={searchQuery}

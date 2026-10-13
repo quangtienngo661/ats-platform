@@ -1,18 +1,13 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { IPaginatedNotifications } from '@/types/interfaces/notification.interface';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    return fallback;
-}
+
 
 // ─── Server Actions ───────────────────────────────────────────────────────────
 
@@ -27,8 +22,8 @@ export async function getNotificationsAction(
 
         const response = await http.get(`/notifications?${params.toString()}`);
         return response.data as IPaginatedNotifications;
-    } catch {
-        return { items: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -37,8 +32,8 @@ export async function getUnreadCountAction(): Promise<number> {
         const response = await http.get('/notifications/unread-count');
         const data = response.data as { unreadCount: number };
         return data.unreadCount;
-    } catch {
-        return 0;
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 export async function markAsReadAction(notificationId: string): Promise<{ success: boolean; message: string }> {

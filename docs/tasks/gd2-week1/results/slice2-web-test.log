@@ -1,0 +1,13 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+
+ Test Files  34 passed (34)
+      Tests  223 passed (223)
+   Start at  08:15:27
+   Duration  31.49s (transform 1.08s, setup 9.04s, import 6.11s, tests 14.72s, environment 23.97s)
+

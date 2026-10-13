@@ -1,0 +1,15 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/job-postings/ui/JobPostingStep1.test.tsx src/components/job-postings/ui/JobPostingStep2.test.tsx src/components/public/jobs/JobCard.test.tsx src/components/public/jobs/detail/JobDetailHero.test.tsx src/components/public/jobs/detail/JobDetailSidebar.test.tsx src/components/my-applications/ui/ApplicationCard.test.tsx
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+
+ Test Files  6 passed (6)
+      Tests  33 passed (33)
+   Start at  09:35:40
+   Duration  4.61s (transform 213ms, setup 1.29s, import 690ms, tests 1.01s, environment 4.82s)
+
+
+Exit code: 0

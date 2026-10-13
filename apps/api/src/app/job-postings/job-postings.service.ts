@@ -11,7 +11,7 @@ import {
   UpdateJobPostingDto,
   FindJobPostingsQueryDto,
 } from './dto/job-posting.dto';
-import { jobPostingIncludeOptions } from '../../common/utils/include-options.util';
+import { jobPostingIncludeFor, jobPostingIncludeOptions } from '../../common/utils/include-options.util';
 import { JobPostingSkillsService } from './job-posting-skills/job-posting-skills.service';
 import {
   isOrganizationStaff,
@@ -21,6 +21,8 @@ import {
 } from '../../common/tenancy/tenant-caller';
 import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
 import { randomUUID } from 'crypto';
+import { sanitizeJobDescription, sanitizeJobPosting } from './sanitize-job-description';
+import { jobPostingFilters } from './job-posting-filters';
 
 /** Staff browse their organization's postings in every status; nobody else does. */
 const isStaffViewer = (viewer?: TenantCaller): viewer is TenantCaller =>
@@ -138,7 +140,9 @@ export class JobPostingsService {
           locationType: createJobPostingDto.locationType,
           salaryMin: createJobPostingDto.salaryMin,
           salaryMax: createJobPostingDto.salaryMax,
-          description: createJobPostingDto.description,
+          description: createJobPostingDto.description === undefined
+            ? undefined
+            : sanitizeJobDescription(createJobPostingDto.description),
           parsedRequirements,
           status: createJobPostingDto.status,
           publishedAt:
@@ -168,7 +172,7 @@ export class JobPostingsService {
         );
       }
 
-      return await tx.jobPosting.findUnique({
+      return sanitizeJobPosting(await tx.jobPosting.findUnique({
         where: { jobId: newJobPosting.jobId },
         include: jobPostingIncludeOptions,
         omit: {
@@ -176,13 +180,27 @@ export class JobPostingsService {
           departmentId: true,
           categoryId: true,
         },
-      });
+      }));
     });
   }
 
   async findAll(query: FindJobPostingsQueryDto = {}, viewer?: TenantCaller) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
+    if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(limit) || limit < 1) {
+      throw new BadRequestException('Trang và giới hạn phải là số nguyên dương');
+    }
+
+    if (
+      query.salaryMin !== undefined &&
+      query.salaryMax !== undefined &&
+      query.salaryMin > query.salaryMax
+    ) {
+      throw new BadRequestException(
+        'Mức lương tối thiểu không thể lớn hơn mức lương tối đa',
+      );
+    }
+    const filters = jobPostingFilters(query);
 
     const where: Prisma.JobPostingWhereInput = {
       // Staff see every status, but only inside their own organization (a platform
@@ -198,6 +216,7 @@ export class JobPostingsService {
         : { status: JobStatus.active }),
       ...(query.departmentId ? { departmentId: query.departmentId } : {}),
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
+      ...(query.locationType ? { locationType: query.locationType } : {}),
       ...(query.search
         ? {
             title: {
@@ -206,12 +225,13 @@ export class JobPostingsService {
             },
           }
         : {}),
+      ...(filters.length ? { AND: filters } : {}),
     };
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.jobPosting.findMany({
         where,
-        include: jobPostingIncludeOptions,
+        include: jobPostingIncludeFor(viewer),
         omit: { createdBy: true, departmentId: true, categoryId: true },
         orderBy: { publishedAt: 'desc' },
         skip: (page - 1) * limit,
@@ -221,15 +241,33 @@ export class JobPostingsService {
     ]);
 
     return {
-      items,
+      items: items.map(sanitizeJobPosting),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  /**
+   * What the public job board can filter by. Skills are global (no organization), so
+   * only those attached to an active posting are offered — a filter that always finds
+   * nothing is not an option.
+   */
+  async getFilterOptions() {
+    const skills = await this.prisma.skill.findMany({
+      where: {
+        jobPostingSkills: {
+          some: { jobPosting: { status: JobStatus.active } },
+        },
+      },
+      select: { skillId: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+    return { skills };
   }
 
   async findOne(id: string, viewer?: TenantCaller) {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { jobId: id },
-      include: jobPostingIncludeOptions,
+      include: jobPostingIncludeFor(viewer),
       omit: {
         createdBy: true,
         departmentId: true,
@@ -254,7 +292,7 @@ export class JobPostingsService {
       throw new NotFoundException(`Không tìm thấy tin tuyển dụng với ID ${id}`);
     }
 
-    return jobPosting;
+    return sanitizeJobPosting(jobPosting);
   }
 
   async update(id: string, updateJobPostingDto: UpdateJobPostingDto) {
@@ -299,7 +337,9 @@ export class JobPostingsService {
           locationType: updateJobPostingDto.locationType,
           salaryMin: updateJobPostingDto.salaryMin,
           salaryMax: updateJobPostingDto.salaryMax,
-          description: updateJobPostingDto.description,
+          description: updateJobPostingDto.description === undefined
+            ? undefined
+            : sanitizeJobDescription(updateJobPostingDto.description),
           parsedRequirements,
           status: updateJobPostingDto.status,
           // Stamp the publish date once, on the first transition to `active`.
@@ -335,7 +375,7 @@ export class JobPostingsService {
           );
         }
       }
-      return await tx.jobPosting.findUnique({
+      return sanitizeJobPosting(await tx.jobPosting.findUnique({
         where: { jobId: updatedJobPosting.jobId },
         include: jobPostingIncludeOptions,
         omit: {
@@ -343,7 +383,7 @@ export class JobPostingsService {
           departmentId: true,
           categoryId: true,
         },
-      });
+      }));
     });
   }
 

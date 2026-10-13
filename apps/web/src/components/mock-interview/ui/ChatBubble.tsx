@@ -1,5 +1,5 @@
 import { Cpu, MessageCircle } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SFT } from '@/types/fonts/fonts';
 
 interface ChatMessage {
     id: string;

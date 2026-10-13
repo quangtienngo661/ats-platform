@@ -1,6 +1,6 @@
 // Fixtures for docker-compose.test.yml only. No development credentials or data.
 import assert from 'node:assert/strict';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
@@ -38,6 +38,7 @@ try {
   assert.equal(candidate.email_verified, true);
   await client.query('INSERT INTO candidates (candidate_id, user_id) VALUES ($1,$2) ON CONFLICT (user_id) DO NOTHING', [randomUUID(), candidate.user_id]);
   await client.query('COMMIT');
+  await mkdir('docs/tasks/test-defect-fixes/results', { recursive: true });
   await writeFile('docs/tasks/test-defect-fixes/results/local-fixture.json', JSON.stringify({
     api, organizationId: org.organization_id, organizationSlug: 'e2e-defect-verification',
   }, null, 2) + '\n');

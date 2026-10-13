@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CalendarPlus, X } from 'lucide-react';
@@ -13,8 +15,15 @@ import {
 } from '@/servers/interviews/interviews.action';
 import { SF } from '@/types/fonts/fonts';
 import { toast } from '@/lib/toast';
+import { localDateTimeToIso } from '@/lib/interview-time';
 
 const initialState: InterviewScheduleActionState = { success: false, message: '' };
+
+type InterviewTypeValue = 'onsite' | 'online';
+const INTERVIEW_TYPES: { value: InterviewTypeValue; label: string }[] = [
+    { value: 'onsite', label: 'Trực tiếp' },
+    { value: 'online', label: 'Trực tuyến' },
+];
 
 interface MutateInterviewScheduleModalProps {
     schedule?: IInterviewSchedule;
@@ -68,6 +77,17 @@ export function MutateInterviewScheduleModal({
     const [interviewerId, setInterviewerId] = useState(schedule?.interviewerId ?? currentRecruiter?.user?.userId ?? '');
     const effectiveInterviewerId = eligible.some(recruiter => recruiter.user?.userId === interviewerId) ? interviewerId : eligible[0]?.user?.userId ?? '';
     const disabled = isPending || (!schedule && applications.length === 0) || eligible.length === 0;
+    // Converted here, in the browser, because only the browser knows the timezone the
+    // recruiter typed the time in; the server action runs wherever it is deployed.
+    const [scheduledDate, setScheduledDate] = useState(schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate);
+    const [scheduledTime, setScheduledTime] = useState(formatInputTime(schedule?.startAt));
+    const [interviewType, setInterviewType] = useState<InterviewTypeValue>(
+        schedule?.interviewType === 'online' ? 'online' : 'onsite',
+    );
+    // Controlled: React resets uncontrolled fields after every form action, a refused one included.
+    const [durationMinutes, setDurationMinutes] = useState(String(schedule?.durationMinutes ?? 60));
+    const [location, setLocation] = useState(schedule?.location ?? '');
+    const [onlineMeetingLink, setOnlineMeetingLink] = useState(schedule?.onlineMeetingLink ?? '');
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -84,23 +104,23 @@ export function MutateInterviewScheduleModal({
     }, [state]);
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose} dismissible={!isPending}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-[2px]"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Lịch phỏng vấn"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="w-full max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-2xl"
-                    onClick={(event) => event.stopPropagation()}
+                    
                 >
                     <div className="flex items-center justify-between border-b border-[#F2F2F7] px-6 py-4">
                         <div className="flex items-center gap-2.5">
@@ -111,7 +131,7 @@ export function MutateInterviewScheduleModal({
                                 {schedule ? 'Đổi lịch phỏng vấn' : 'Đặt phỏng vấn'}
                             </h2>
                         </div>
-                        <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
+                        <button aria-label="Đóng" type="button" onClick={onClose} className="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
@@ -127,7 +147,7 @@ export function MutateInterviewScheduleModal({
                             {schedule && <input type="hidden" name="interviewId" value={schedule.interviewId} />}
 
                             <div>
-                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                <label htmlFor="mutateinterviewschedulemodal-field-1" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
                                     Ứng viên
                                 </label>
                                 {schedule && selectedApplication ? (
@@ -138,7 +158,7 @@ export function MutateInterviewScheduleModal({
                                         </div>
                                     </>
                                 ) : (
-                                    <select
+                                    <select id="mutateinterviewschedulemodal-field-1"
                                         name="applicationId" aria-label="Ứng viên"
                                         value={applicationId}
                                         onChange={event => { setApplicationId(event.target.value); setInterviewerId(''); }}
@@ -157,10 +177,10 @@ export function MutateInterviewScheduleModal({
                             </div>
 
                             <div>
-                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                <label htmlFor="mutateinterviewschedulemodal-field-2" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
                                     Người phỏng vấn
                                 </label>
-                                <select
+                                <select id="mutateinterviewschedulemodal-field-2"
                                     name="interviewerId"
                                     aria-label="Người phỏng vấn"
                                     value={effectiveInterviewerId}
@@ -180,40 +200,44 @@ export function MutateInterviewScheduleModal({
 
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div>
-                                    <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-3" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
                                         Ngày phỏng vấn
                                     </label>
-                                    <input
+                                    <input id="mutateinterviewschedulemodal-field-3"
                                         type="date"
                                         name="scheduledDate" aria-label="Ngày phỏng vấn"
-                                        defaultValue={schedule?.startAt ? formatInputDate(schedule.startAt) : defaultDate}
+                                        value={scheduledDate}
+                                        onChange={event => setScheduledDate(event.target.value)}
                                         min={minDate}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-4" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
                                         Giờ phỏng vấn
                                     </label>
-                                    <input
+                                    <input id="mutateinterviewschedulemodal-field-4"
                                         type="time"
                                         name="scheduledTime" aria-label="Giờ phỏng vấn"
-                                        defaultValue={formatInputTime(schedule?.startAt)}
+                                        value={scheduledTime}
+                                        onChange={event => setScheduledTime(event.target.value)}
                                         required
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                             </div>
+                            <input type="hidden" name="startAt" value={localDateTimeToIso(scheduledDate, scheduledTime) ?? ''} />
 
                             <div>
-                                <label className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                <label htmlFor="mutateinterviewschedulemodal-field-5" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
                                     Thời lượng (phút)
                                 </label>
-                                <input
+                                <input id="mutateinterviewschedulemodal-field-5"
                                     type="number"
                                     name="durationMinutes" aria-label="Thời lượng (phút)"
-                                    defaultValue={schedule?.durationMinutes ?? 60}
+                                    value={durationMinutes}
+                                    onChange={event => setDurationMinutes(event.target.value)}
                                     min={15}
                                     max={480}
                                     step={15}
@@ -222,10 +246,63 @@ export function MutateInterviewScheduleModal({
                                 />
                             </div>
 
-                            <div className="rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] px-4 py-3">
-                                <p className="text-[11px] uppercase tracking-[0.06em] text-[#6E6E73]" style={{ fontWeight: 800 }}>Hình thức</p>
-                                <p className="mt-1 text-[14px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>Phỏng vấn trực tiếp</p>
-                            </div>
+                            <fieldset>
+                                <legend className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                    Hình thức
+                                </legend>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {INTERVIEW_TYPES.map(option => (
+                                        <label
+                                            key={option.value}
+                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-3 text-[14px] transition-colors ${interviewType === option.value ? 'border-[#0071E3] bg-[#EBF3FD] text-[#0071E3]' : 'border-[#E5E5EA] text-[#1D1D1F] hover:bg-[#F5F5F7]'}`}
+                                            style={{ fontWeight: 700 }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="interviewType"
+                                                value={option.value}
+                                                checked={interviewType === option.value}
+                                                onChange={() => setInterviewType(option.value)}
+                                                className="accent-[#0071E3]"
+                                            />
+                                            {option.label}
+                                        </label>
+                                    ))}
+                                </div>
+                            </fieldset>
+
+                            {interviewType === 'onsite' ? (
+                                <div>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-6" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                        Địa điểm
+                                    </label>
+                                    <input id="mutateinterviewschedulemodal-field-6"
+                                        type="text"
+                                        name="location" aria-label="Địa điểm"
+                                        value={location}
+                                        onChange={event => setLocation(event.target.value)}
+                                        maxLength={255}
+                                        placeholder="Ví dụ: Tầng 5, 123 Lê Lợi, Quận 1"
+                                        required
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    <label htmlFor="mutateinterviewschedulemodal-field-7" className="mb-2 block text-[13px] text-[#1D1D1F]" style={{ fontWeight: 700 }}>
+                                        Đường dẫn phòng họp
+                                    </label>
+                                    <input id="mutateinterviewschedulemodal-field-7"
+                                        type="url"
+                                        name="onlineMeetingLink" aria-label="Đường dẫn phòng họp"
+                                        value={onlineMeetingLink}
+                                        onChange={event => setOnlineMeetingLink(event.target.value)}
+                                        placeholder="https://meet.google.com/..."
+                                        required
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-3 border-t border-[#F2F2F7] px-6 py-4">
@@ -248,8 +325,8 @@ export function MutateInterviewScheduleModal({
                             </motion.button>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

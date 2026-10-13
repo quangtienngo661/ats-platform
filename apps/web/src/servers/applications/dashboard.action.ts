@@ -1,5 +1,7 @@
 'use server';
 
+import { rethrowReadError } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
@@ -19,8 +21,8 @@ export interface IDashboardStats {
 export async function getDashboardStatsAction(): Promise<IDashboardStats> {
     try {
         const [allAppsRes, jobPostingsRes] = await Promise.all([
-            http.get('/applications/board/all').catch(() => null),
-            http.get('/job-postings', { params: { status: 'active', limit: 100 } }).catch(() => null),
+            http.get('/applications/board/all'),
+            http.get('/job-postings', { params: { status: 'active', limit: 100 } }),
         ]);
 
         // Flatten board columns → flat array
@@ -41,7 +43,7 @@ export async function getDashboardStatsAction(): Promise<IDashboardStats> {
             recentApplications,
             jobPostings,
         };
-    } catch {
-        return { totalApplications: 0, openJobs: 0, recentApplications: [], jobPostings: [] };
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }

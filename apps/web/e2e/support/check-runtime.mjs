@@ -53,7 +53,7 @@ async function expectedConstraint(sql, args, errorCode) {
 async function connectAndJoin(session) {
   const socket = io('http://localhost:55000', {
     autoConnect: false, transports: ['websocket'], reconnection: false,
-    auth: { token: session.token }, extraHeaders: { Origin: 'http://localhost:3000' },
+    auth: { token: session.token }, extraHeaders: { Origin: process.env.WEB_E2E_BASE_URL ?? 'http://localhost:3001' },
   });
   sockets.push(socket);
   await new Promise((resolve, reject) => {

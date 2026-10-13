@@ -1,5 +1,7 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import type { IUserDto } from '@ats-platform/types';
@@ -14,23 +16,16 @@ export type UserActionState = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function extractMessage(error: unknown): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return 'Đã xảy ra lỗi không xác định';
-}
+
 
 // ─── GET ME (current logged-in user) ─────────────────────────────────────────
 export async function getMeAction(): Promise<IUserResponseDto | null> {
     try {
         const response = await http.get('/users/me');
         return response.data as IUserResponseDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -81,8 +76,8 @@ export async function getUsersAction(): Promise<IUserResponseDto[]> {
     try {
         const response = await http.get('/users');
         return response.data;
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -106,7 +101,7 @@ export async function createUserAction(
 
     const payload: IUserDto = { fullName, email, password, role, status };
     if (role === 'org_admin') payload.organizationId = organizationId;
-    if (phoneNumber) (payload as any).phoneNumber = phoneNumber;
+    if (phoneNumber) payload.phoneNumber = phoneNumber;
 
     try {
         // API returns the created user object directly

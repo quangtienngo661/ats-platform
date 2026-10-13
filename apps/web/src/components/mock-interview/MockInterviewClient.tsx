@@ -50,8 +50,9 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     const canStart = selectedTopic && selectedDifficulty && !isStarting && !isAbandoning;
 
     const createNewSession = async () => {
+        if (!selectedTopic || !selectedDifficulty) return;
         setIsStarting(true);
-        const result = await startInterviewSessionAction(selectedTopic!, selectedDifficulty!);
+        const result = await startInterviewSessionAction(selectedTopic, selectedDifficulty);
         if (result.success) {
             router.push(`/mock-interview/${result.sessionId}`);
         } else {

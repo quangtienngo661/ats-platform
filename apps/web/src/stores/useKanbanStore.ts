@@ -1,6 +1,9 @@
+'use client';
+
 import { IApplicationDto } from "@/types/interfaces/application.interface";
 import { ApplicationStatus } from "@ats-platform/types";
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { createRouteStore } from "./createRouteStore";
 
 interface KanbanState {
     kanbanBoard: Record<string, IApplicationDto[]>,
@@ -11,9 +14,9 @@ interface KanbanState {
     setInitialCancelledApplications: (cancelledApplications: IApplicationDto[]) => void
 }
 
-export const useKanBanStore = create<KanbanState>((set, get) => ({
-    kanbanBoard: {},
-    initialCancelledApplications: [],
+export const createKanbanStore = (initial: { board: Record<string, IApplicationDto[]>; cancelled: IApplicationDto[] }) => createStore<KanbanState>((set, get) => ({
+    kanbanBoard: initial.board,
+    initialCancelledApplications: initial.cancelled,
 
     setKanbanBoard: (kanbanBoard) => set({ kanbanBoard }),
 
@@ -66,3 +69,5 @@ export const useKanBanStore = create<KanbanState>((set, get) => ({
         set({ initialCancelledApplications: cancelledApplications })
     }
 }))
+
+export const { Provider: KanbanStoreProvider, useRouteStore: useKanBanStore } = createRouteStore(createKanbanStore, "KanbanStore");

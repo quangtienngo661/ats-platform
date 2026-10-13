@@ -42,8 +42,8 @@ export function AuthShell({ children, showTerms = true }: AuthShellProps) {
                 {showTerms && (
                     <p className="text-center text-[11px] text-[#AEAEB2] mt-6 px-4" style={{ fontFamily: SFT }}>
                         Bằng cách sử dụng dịch vụ, bạn đồng ý với{' '}
-                        <a href="#" className="text-[#0071E3] hover:underline">Điều khoản dịch vụ</a> và{' '}
-                        <a href="#" className="text-[#0071E3] hover:underline">Chính sách bảo mật</a>.
+                        <span aria-disabled="true" className="text-[#0071E3] hover:underline">Điều khoản dịch vụ</span> và{' '}
+                        <span aria-disabled="true" className="text-[#0071E3] hover:underline">Chính sách bảo mật</span>.
                     </p>
                 )}
             </div>

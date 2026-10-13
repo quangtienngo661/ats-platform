@@ -1,10 +1,12 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
-import { cookies } from 'next/headers';
-import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
+
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,15 +18,7 @@ export type RecruiterActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 
 // ─── GET MY RECRUITER PROFILE ─────────────────────────────────────────────────
@@ -32,8 +26,9 @@ export async function getMyRecruiterProfileAction(): Promise<IRecruiterDto | nul
     try {
         const response = await http.get('/recruiters/me');
         return response.data as IRecruiterDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -60,8 +55,8 @@ export async function getRecruitersAction(): Promise<IRecruiterDto[]> {
     try {
         const response = await http.get('/recruiters');
         return response.data as IRecruiterDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -71,8 +66,9 @@ export async function getRecruiterByIdAction(id: string): Promise<IRecruiterDto 
     try {
         const response = await http.get(`/recruiters/${id}`);
         return response.data as IRecruiterDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 

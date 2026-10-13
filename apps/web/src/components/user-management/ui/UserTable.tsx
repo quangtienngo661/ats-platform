@@ -84,7 +84,7 @@ export function UserTable({ users, onEdit, onDelete, organizations = [] }: UserT
             {users.length} người dùng
           </p>
           <div className="flex items-center gap-1">
-            <button
+            <button type="button" aria-label="Trước"
               disabled={safe === 1}
               onClick={() => setPage((p) => p - 1)}
               className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -115,7 +115,7 @@ export function UserTable({ users, onEdit, onDelete, organizations = [] }: UserT
                   </button>
                 )
               )}
-            <button
+            <button type="button" aria-label="Tiếp"
               disabled={safe === totalPages}
               onClick={() => setPage((p) => p + 1)}
               className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

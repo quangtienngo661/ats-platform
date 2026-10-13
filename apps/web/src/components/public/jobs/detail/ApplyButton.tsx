@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useState, useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
@@ -26,19 +28,27 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
     const [cvs, setCvs] = useState<ICvDto[]>([]);
     const [selectedCvId, setSelectedCvId] = useState('');
     const [loadingCvs, setLoadingCvs] = useState(false);
+    const [cvsError, setCvsError] = useState(false);
+    const [cvRetry, setCvRetry] = useState(0);
 
     const [state, dispatch, isPending] = useActionState(applyForJobAction, initialState);
 
     // Load CVs when modal opens
     useEffect(() => {
         if (!showModal || !isLoggedIn) return;
+        let active = true;
         setLoadingCvs(true);
+        setCvsError(false);
+        setSelectedCvId('');
         getMyCvsAction().then(data => {
-            setCvs(data);
-            if (data.length > 0) setSelectedCvId(data[0].cvId);
-            setLoadingCvs(false);
-        });
-    }, [showModal, isLoggedIn]);
+            if (!active) return;
+            const confirmed = data.filter(cv => cv.parsedData?.isConfirmed);
+            setCvs(confirmed);
+            if (confirmed.length > 0) setSelectedCvId(confirmed[0].cvId);
+        }).catch(() => { if (active) setCvsError(true); })
+          .finally(() => { if (active) setLoadingCvs(false); });
+        return () => { active = false; };
+    }, [showModal, isLoggedIn, cvRetry]);
 
     // Handle action result
     useEffect(() => {
@@ -49,12 +59,12 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
         } else if (state.message) {
             toast.error('Ứng tuyển thất bại', state.message);
         }
-    }, [state]);
+    }, [state, router]);
 
     if (!isLoggedIn) {
         return (
             <Link
-                href={`/sign-in?callbackUrl=/job-postings/${job.jobId}`}
+                href={`/sign-in?${new URLSearchParams({ callbackUrl: `/job-postings/${job.jobId}` })}`}
                 className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[15px]"
                 style={{ fontFamily: SFT, fontWeight: 600 }}
             >
@@ -77,20 +87,20 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
         {/* Apply Modal */}
         <AnimatePresence>
             {showModal && (
-                <motion.div
+                <AccessibleDialog onClose={() => setShowModal(false)} dismissible={!isPending}><DialogOverlay asChild><motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                    onClick={() => setShowModal(false)}
+                    
                 >
-                    <motion.div
+                    <DialogContent title="Ứng tuyển công việc"><motion.div
                         initial={{ opacity: 0, scale: 0.96, y: 16 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.96, y: 16 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                         className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
-                        onClick={e => e.stopPropagation()}
+                        
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
@@ -100,7 +110,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                 </h2>
                                 <p className="text-[13px] text-[#6E6E73] mt-0.5">{job.title}</p>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
+                            <button type="button" aria-label="Đóng" onClick={() => setShowModal(false)} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
@@ -117,12 +127,16 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                             )}
 
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Chọn CV để ứng tuyển <span className="text-[#FF3B30]">*</span>
-                                </label>
+                                </span>
 
                                 {loadingCvs ? (
                                     <div className="text-[13px] text-[#AEAEB2] py-4 text-center">Đang tải CV...</div>
+                                ) : cvsError ? (
+                                    <div role="alert" className="text-[13px] py-4 text-center text-[#FF3B30]">
+                                        Không thể tải CV. <button type="button" onClick={() => setCvRetry(value => value + 1)} className="text-[#0071E3] hover:underline">Thử lại</button>
+                                    </div>
                                 ) : cvs.length === 0 ? (
                                     <div className="border-2 border-dashed border-[#E5E5EA] rounded-xl p-6 text-center">
                                         <FileText className="w-8 h-8 text-[#AEAEB2] mx-auto mb-2" />
@@ -183,7 +197,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                 </button>
                                 <motion.button
                                     type="submit"
-                                    disabled={isPending || cvs.length === 0 || !selectedCvId}
+                                    disabled={isPending || loadingCvs || cvsError || cvs.length === 0 || !selectedCvId}
                                     whileTap={{ scale: 0.97 }}
                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
                                     style={{ fontWeight: 600 }}
@@ -193,8 +207,8 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                 </motion.button>
                             </div>
                         </form>
-                    </motion.div>
-                </motion.div>
+                    </motion.div></DialogContent>
+                </motion.div></DialogOverlay></AccessibleDialog>
             )}
         </AnimatePresence>
     </>) : (

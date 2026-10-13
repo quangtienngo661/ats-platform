@@ -39,7 +39,7 @@ export default function CompanySettingsPage() {
             </h2>
             {/* Logo Upload */}
             <div className="mb-6">
-              <label className="block text-[13px] text-[#1D1D1F] mb-3" style={{ fontWeight: 500 }}>Logo công ty</label>
+              <span className="block text-[13px] text-[#1D1D1F] mb-3" style={{ fontWeight: 500 }}>Logo công ty</span>
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-2xl bg-[#0071E3] flex items-center justify-center text-white text-[24px] flex-shrink-0" style={{ fontFamily: SF, fontWeight: 700 }}>
                   A
@@ -57,17 +57,17 @@ export default function CompanySettingsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Tên công ty</label>
-                  <input type="text" defaultValue="Acme Corporation" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <label htmlFor="page-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Tên công ty</label>
+                  <input id="page-field-1" type="text" defaultValue="Acme Corporation" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
                 </div>
                 <div>
-                  <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mã số thuế</label>
-                  <input type="text" defaultValue="0123456789" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <label htmlFor="page-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mã số thuế</label>
+                  <input id="page-field-2" type="text" defaultValue="0123456789" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
                 </div>
               </div>
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Lĩnh vực hoạt động</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]">
+                <label htmlFor="page-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Lĩnh vực hoạt động</label>
+                <select id="page-field-3" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]">
                   <option>Công nghệ thông tin</option>
                   <option>Tài chính - Ngân hàng</option>
                   <option>Y tế - Chăm sóc sức khỏe</option>
@@ -77,8 +77,8 @@ export default function CompanySettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Về công ty</label>
-                <textarea
+                <label htmlFor="page-field-4" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Về công ty</label>
+                <textarea id="page-field-4"
                   rows={4}
                   defaultValue="Acme Corporation là công ty công nghệ hàng đầu chuyên về phát triển giải pháp AI cho doanh nghiệp. Với đội ngũ hơn 500 nhân viên tài năng, chúng tôi cam kết mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng."
                   className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] resize-none"
@@ -92,30 +92,30 @@ export default function CompanySettingsPage() {
             <h2 className="text-[17px] text-[#1D1D1F] mb-5 tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>Thông tin liên hệ</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                <label htmlFor="page-field-5" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                   <MapPin className="w-4 h-4 inline mr-1.5" />Địa chỉ
                 </label>
-                <input type="text" defaultValue="123 Nguyễn Huệ, Quận 1, TP.HCM" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-5" type="text" defaultValue="123 Nguyễn Huệ, Quận 1, TP.HCM" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                  <label htmlFor="page-field-6" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                     <Phone className="w-4 h-4 inline mr-1.5" />Số điện thoại
                   </label>
-                  <input type="tel" defaultValue="+84 28 1234 5678" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-6" type="tel" defaultValue="+84 28 1234 5678" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
                 </div>
                 <div>
-                  <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                  <label htmlFor="page-field-7" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                     <Mail className="w-4 h-4 inline mr-1.5" />Email
                   </label>
-                  <input type="email" defaultValue="contact@acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-7" type="email" defaultValue="contact@acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
                 </div>
               </div>
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                <label htmlFor="page-field-8" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                   <Globe className="w-4 h-4 inline mr-1.5" />Website
                 </label>
-                <input type="url" defaultValue="https://acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-8" type="url" defaultValue="https://acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
               </div>
             </div>
           </div>
@@ -125,12 +125,12 @@ export default function CompanySettingsPage() {
             <h2 className="text-[17px] text-[#1D1D1F] mb-5 tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>Mạng xã hội</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>LinkedIn</label>
-                <input type="url" placeholder="https://linkedin.com/company/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <label htmlFor="page-field-9" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>LinkedIn</label>
+                <input id="page-field-9" type="url" placeholder="https://linkedin.com/company/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
               </div>
               <div>
-                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Facebook</label>
-                <input type="url" placeholder="https://facebook.com/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <label htmlFor="page-field-10" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Facebook</label>
+                <input id="page-field-10" type="url" placeholder="https://facebook.com/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
               </div>
             </div>
           </div>

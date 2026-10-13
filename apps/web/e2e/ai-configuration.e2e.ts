@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
   await page
     .getByRole('button', { name: 'Đăng nhập với tư cách Admin', exact: true })
     .click();
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/\/ai-configuration$/);
   accessToken = (await page.context().cookies()).find(
     (cookie) => cookie.name === 'accessToken',
   )!.value;

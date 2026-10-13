@@ -1,28 +1,15 @@
-import { MapPin, Briefcase, Star } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import Link from 'next/link';
+import { MapPin, Briefcase, Star, CalendarClock, ListChecks } from 'lucide-react';
+import { SF } from '@/types/fonts/fonts';
 import { IApplicationCard } from '@/types/interfaces/application.interface';
 import { WithdrawApplicationForm } from './WithdrawApplicationForm';
+import { STATUS_CONFIG } from '../status-config';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 interface ApplicationCardProps {
     application: IApplicationCard;
     onWithdrawSuccess: (applicationId: string) => void;
 }
-
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-    applied: { label: 'Đã nộp', color: '#0071E3', bg: '#EBF3FD' },
-    screening: { label: 'Sàng lọc AI', color: '#0EA5E9', bg: '#F0F9FF' },
-    interview: { label: 'Phỏng vấn', color: '#6366F1', bg: '#F5F3FF' },
-    offer: { label: 'Offer', color: '#34C759', bg: '#E8F5E9' },
-    hired: { label: 'Được tuyển', color: '#16A34A', bg: '#DCFCE7' },
-    rejected: { label: 'Từ chối', color: '#DC2626', bg: '#FEF2F2' },
-    cancelled: { label: 'Đã rút', color: '#6E6E73', bg: '#F5F5F7' },
-};
-
-const LOCATION_LABELS: Record<string, string> = {
-    onsite: 'Tại văn phòng',
-    remote: 'Từ xa',
-    hybrid: 'Hybrid',
-};
 
 const PIPELINE_STEPS = ['applied', 'screening', 'interview', 'offer', 'hired'] as const;
 const ACTIVE_STATUSES = new Set(PIPELINE_STEPS as readonly string[]);
@@ -100,7 +87,7 @@ export function ApplicationCard({ application: app, onWithdrawSuccess }: Applica
                         {app.locationType && (
                             <span className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
-                                {LOCATION_LABELS[app.locationType] || app.locationType}
+                                {WORK_TYPE_LABELS[app.locationType as WorkType] || app.locationType}
                             </span>
                         )}
                         <span>Nộp {formatDate(app.appliedAt)}</span>
@@ -113,6 +100,27 @@ export function ApplicationCard({ application: app, onWithdrawSuccess }: Applica
                     </div>
 
                     <PipelineProgress status={app.status} />
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
+                        <Link
+                            href={`/my-applications/${app.applicationId}`}
+                            className="inline-flex items-center gap-1 text-[12px] text-[#0071E3] hover:underline"
+                            style={{ fontWeight: 500 }}
+                        >
+                            <ListChecks className="w-3.5 h-3.5" aria-hidden="true" />
+                            Xem tiến trình
+                        </Link>
+                        {app.status === 'interview' && (
+                            <Link
+                                href="/my-interviews"
+                                className="inline-flex items-center gap-1 text-[12px] text-[#6366F1] hover:underline"
+                                style={{ fontWeight: 500 }}
+                            >
+                                <CalendarClock className="w-3.5 h-3.5" aria-hidden="true" />
+                                Xem lịch phỏng vấn
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <div className="w-8 flex-shrink-0">

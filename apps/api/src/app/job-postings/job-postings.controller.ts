@@ -102,6 +102,20 @@ export class JobPostingsController {
     return this.jobPostingsService.findAll(query, viewerOf(req.user));
   }
 
+  // Declared before `:id`: that route has no UUID pipe and would answer 404 for
+  // "filter-options" as if it were a job id.
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get('filter-options')
+  @ApiOperation({
+    summary: 'Lấy các lựa chọn lọc tin tuyển dụng',
+    description:
+      'Danh sách kỹ năng gắn với tin đang mở, không trùng, sắp theo tên. Công khai.',
+  })
+  @ApiResponse({ status: 200, description: 'Thành công' })
+  filterOptions() {
+    return this.jobPostingsService.getFilterOptions();
+  }
+
   @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Xem chi tiết tin tuyển dụng' })

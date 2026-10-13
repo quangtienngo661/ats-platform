@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { Clock, Briefcase, MapPin, Building2, ChevronRight } from 'lucide-react';
+import { Clock, MapPin, Building2, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -21,7 +23,7 @@ const formatAmount = (value: number): string => {
 
 const salaryFormat = (min: number | null | undefined, max: number | null | undefined): string => {
     if (!min && !max) return 'Mức lương thỏa thuận';
-    if (!min) return `Lên đến ${formatAmount(max!)}`;
+    if (!min) return `Lên đến ${formatAmount(max ?? 0)}`;
     if (!max) return `Từ ${formatAmount(min)}`;
     if (min === max) return `${formatAmount(min)}`;
     return `${formatAmount(min)} - ${formatAmount(max)}`;
@@ -38,21 +40,16 @@ function timeAgo(dateStr?: string | null): string {
     return weeks === 1 ? '1 tuần trước' : `${weeks} tuần trước`;
 }
 
-const locationLabel: Record<string, string> = {
-    remote: 'Làm việc từ xa (Remote)',
-    onsite: 'Tại văn phòng (Onsite)',
-    hybrid: 'Linh hoạt (Hybrid)',
-};
-
 interface JobCardProps {
     job: IJobPostingDto;
 }
 
 export function JobCard({ job }: JobCardProps) {
-    const dept = (job as any).department;
+    const dept = job.department;
+    const skills = jobSkillsOf(job);
     const deptColor = dept?.color || '#0071E3';
     const deptBg = `${deptColor}15`;
-    const initial = job.title?.[0]?.toUpperCase() ?? 'J';
+    
 
     return (
         <Link
@@ -85,7 +82,7 @@ export function JobCard({ job }: JobCardProps) {
                 <div className="flex flex-col gap-2.5 mb-5 mt-auto">
                     <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
                         <MapPin className="w-3.5 h-3.5 text-[#AEAEB2]" />
-                        <span className="truncate">{locationLabel[job.locationType || 'onsite'] || job.locationType}</span>
+                        <span className="truncate">{WORK_TYPE_LABELS[(job.locationType || 'onsite') as WorkType] || job.locationType}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
                         <Clock className="w-3.5 h-3.5 text-[#AEAEB2]" />
@@ -94,16 +91,16 @@ export function JobCard({ job }: JobCardProps) {
                 </div>
 
                 {/* Skills/Tags */}
-                {job.skills && job.skills.length > 0 && (
+                {skills.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                        {job.skills.slice(0, 3).map(s => (
+                        {skills.slice(0, 3).map(s => (
                             <span key={s.skillId} className="text-[11px] bg-[#F5F5F7] text-[#6E6E73] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
                                 {s.name ?? s.skillId}
                             </span>
                         ))}
-                        {job.skills.length > 3 && (
+                        {skills.length > 3 && (
                             <span className="text-[11px] bg-[#F5F5F7] text-[#AEAEB2] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
-                                +{job.skills.length - 3}
+                                +{skills.length - 3}
                             </span>
                         )}
                     </div>

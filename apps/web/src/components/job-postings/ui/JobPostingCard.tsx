@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Briefcase, MapPin, Clock, Users, Edit3, Trash2, CheckCircle, XCircle, List, LayoutGrid } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -21,7 +22,7 @@ const formatAmount = (value: number): string => {
 
 const salaryFormat = (min: number | null, max: number | null): string => {
     if (min === null && max === null) return 'Thỏa thuận';
-    if (min === null) return `Đến ${formatAmount(max!)} VNĐ`;
+    if (min === null) return `Đến ${formatAmount(max ?? 0)} VNĐ`;
     if (max === null) return `Từ ${formatAmount(min)} VNĐ`;
     if (min === max) return `${formatAmount(min)} VNĐ`;
     return `${formatAmount(min)} - ${formatAmount(max)} VNĐ`;
@@ -33,12 +34,6 @@ interface JobPostingCardProps {
     onEdit: (job: IJobPostingDto) => void;
     onDelete: (job: IJobPostingDto) => void;
 }
-
-const locationLabel: Record<string, string> = {
-    remote: 'Remote',
-    onsite: 'Onsite',
-    hybrid: 'Hybrid',
-};
 
 const statusConfig: Record<string, { label: string; bg: string; text: string; Icon: typeof CheckCircle }> = {
     active: { label: 'Đang tuyển', bg: '#F0FDF4', text: '#16A34A', Icon: CheckCircle },
@@ -88,7 +83,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
                                 </span>
                                 <div className="flex items-center gap-1 text-[#AEAEB2]">
                                     <MapPin className="w-3 h-3" />
-                                    <span className="text-[12px]">{locationLabel[job.locationType] || job.locationType}</span>
+                                    <span className="text-[12px]">{WORK_TYPE_LABELS[job.locationType as WorkType] || job.locationType}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-[#AEAEB2]">
                                     <Clock className="w-3 h-3" />
@@ -153,7 +148,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
                     <button onClick={() => onEdit(job)} className="p-2 rounded-xl text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                         <Edit3 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
+                    <button type="button" aria-label="Xóa" onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                     </button>
                 </div>

@@ -25,6 +25,7 @@ export function WeightRow({
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                     <input
+                        aria-label={`Trọng số ${label} (%)`}
                         type="number" min="0" max="100" value={weight}
                         disabled={disabled}
                         onChange={(e) => onWeightChange(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
@@ -37,6 +38,7 @@ export function WeightRow({
 
             {/* Slider */}
             <input
+                aria-label={`Trọng số ${label} (%)`}
                 type="range" min="0" max="100" value={weight}
                 disabled={disabled}
                 onChange={(e) => onWeightChange(parseInt(e.target.value))}

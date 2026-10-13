@@ -1,14 +1,13 @@
 import MyCvsClient from '@/components/my-cvs/MyCvsClient';
 import { getMyCvsAction } from '@/servers/cvs/cvs.action';
-import { CvsHydrator } from '@/components/hydrators/CvsHydrator';
+import { CvStoreProvider } from '@/stores/useCvStore';
 
 export default async function MyCvsPage() {
     const cvs = await getMyCvsAction();
 
     return (
-        <>
-            <CvsHydrator initialCvs={cvs} />
+        <CvStoreProvider key={JSON.stringify(cvs)} initialState={cvs}>
             <MyCvsClient />
-        </>
+        </CvStoreProvider>
     );
 }

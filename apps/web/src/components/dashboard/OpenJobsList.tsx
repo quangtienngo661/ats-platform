@@ -1,17 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, ChevronRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ChevronRight } from 'lucide-react';
+import { SF } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 interface OpenJobsListProps {
     jobs: IJobPostingDto[];
 }
-
-const LOCATION_LABELS: Record<string, string> = {
-    onsite: 'Văn phòng',
-    remote: 'Từ xa',
-    hybrid: 'Hybrid',
-};
 
 export default function OpenJobsList({ jobs }: OpenJobsListProps) {
     const displayed = jobs.slice(0, 5);
@@ -35,7 +30,7 @@ export default function OpenJobsList({ jobs }: OpenJobsListProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#F2F2F7]">
                     {displayed.map(job => {
                         const appCount = job.applications?.length ?? 0;
-                        const location = LOCATION_LABELS[job.locationType ?? ''] ?? job.locationType ?? 'N/A';
+                        const location = WORK_TYPE_LABELS[(job.locationType ?? '') as WorkType] ?? job.locationType ?? 'N/A';
                         return (
                             <Link
                                 key={job.jobId}

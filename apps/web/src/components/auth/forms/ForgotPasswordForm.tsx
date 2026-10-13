@@ -66,10 +66,10 @@ export default function ForgotPasswordForm() {
 
                     <form action={formAction} className="flex flex-col gap-4">
                         <div>
-                            <label className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Email</label>
+                            <label htmlFor="forgotpasswordform-field-1" className="block text-[13px] text-[#1D1D1F] mb-1.5" style={{ fontWeight: 500 }}>Email</label>
                             <div className="relative">
                                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                                <input
+                                <input id="forgotpasswordform-field-1"
                                     type="email"
                                     name="email"
                                     placeholder="your@email.com"

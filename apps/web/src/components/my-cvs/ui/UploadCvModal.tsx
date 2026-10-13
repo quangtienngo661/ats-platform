@@ -1,5 +1,7 @@
 'use client';
 
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
+
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { X, FileUp, FileText, Trash2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
@@ -62,23 +64,23 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
     const defaultFileName = file ? file.name.replace(/\.pdf$/i, '') : '';
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Tải CV lên"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     {/* ── Header ── */}
                     <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
@@ -88,7 +90,7 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
                         >
                             Tải CV lên
                         </h2>
-                        <button onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors" type="button">
+                        <button aria-label="Đóng" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors" type="button">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
@@ -108,9 +110,9 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
                         {file === null ? (
                             /* ── Step 1: File selection (drag-drop area) ── */
                             <div className="p-6">
-                                <label className="block text-[13px] text-[#1D1D1F] mb-3" style={{ fontWeight: 500 }}>
+                                <span className="block text-[13px] text-[#1D1D1F] mb-3" style={{ fontWeight: 500 }}>
                                     Chọn file CV <span className="text-[#FF3B30]">*</span>
-                                </label>
+                                </span>
 
                                 <label
                                     htmlFor="cv-upload-input"
@@ -156,9 +158,9 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
 
                                 {/* File Preview Card */}
                                 <div>
-                                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                    <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                         File đã chọn
-                                    </label>
+                                    </span>
                                     <div className="flex items-center gap-3 p-3 rounded-xl border border-[#E5E5EA] bg-[#FAFAFA]">
                                         {/* PDF Icon */}
                                         <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#FF3B30]/10 flex items-center justify-center">
@@ -214,8 +216,8 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
                             </div>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence >
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence ></AccessibleDialog>
     );
 }

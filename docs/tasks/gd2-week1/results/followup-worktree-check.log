@@ -1,0 +1,44 @@
+Final working-tree verification (2026-10-12)
+Pre-existing dirty paths: 57; changed: 0
+Follow-up files: 38; outside allowed scope: 0
+apps/api/src/app/job-postings/job-postings.service.spec.ts
+apps/api/src/app/job-postings/job-postings.service.ts
+apps/api/src/common/utils/include-options.util.ts
+apps/web/src/components/candidates/ui/CandidateOverviewTab.tsx
+apps/web/src/components/dashboard/OpenJobsList.tsx
+apps/web/src/components/job-postings/ui/JobPostingCard.tsx
+apps/web/src/components/job-postings/ui/JobPostingStep1.test.tsx
+apps/web/src/components/job-postings/ui/JobPostingStep1.tsx
+apps/web/src/components/job-postings/ui/JobPostingStep2.test.tsx
+apps/web/src/components/job-postings/ui/JobPostingStep2.tsx
+apps/web/src/components/kanban/KanbanCard.tsx
+apps/web/src/components/my-applications/ui/ApplicationCard.test.tsx
+apps/web/src/components/my-applications/ui/ApplicationCard.tsx
+apps/web/src/components/public/jobs/detail/JobDetailHero.test.tsx
+apps/web/src/components/public/jobs/detail/JobDetailHero.tsx
+apps/web/src/components/public/jobs/detail/JobDetailSidebar.test.tsx
+apps/web/src/components/public/jobs/detail/JobDetailSidebar.tsx
+apps/web/src/components/public/jobs/JobCard.test.tsx
+apps/web/src/components/public/jobs/JobCard.tsx
+apps/web/src/components/public/layout/PublicHeader.test.tsx
+apps/web/src/components/public/layout/PublicHeader.tsx
+docs/tasks/gd2-week1/decision.md
+docs/tasks/gd2-week1/README.md
+docs/tasks/gd2-week1/results/followup-api-build.log
+docs/tasks/gd2-week1/results/followup-api-lint.log
+docs/tasks/gd2-week1/results/followup-api-test.log
+docs/tasks/gd2-week1/results/followup-salary-labels.log
+docs/tasks/gd2-week1/results/followup-task1-green.txt
+docs/tasks/gd2-week1/results/followup-task1-isolated-red.log
+docs/tasks/gd2-week1/results/followup-task1-nx-diagnostic.log
+docs/tasks/gd2-week1/results/followup-task1-red.txt
+docs/tasks/gd2-week1/results/followup-task4-green.txt
+docs/tasks/gd2-week1/results/followup-task4-red.txt
+docs/tasks/gd2-week1/results/followup-web-lint-initial.log
+docs/tasks/gd2-week1/results/followup-web-lint.log
+docs/tasks/gd2-week1/results/followup-web-test.log
+docs/tasks/gd2-week1/results/followup-web-typecheck.log
+docs/tasks/gd2-week1/results/followup-worktree-check.log
+git diff --check exit code: 0
+Branch: feat/gd2-candidate-flows
+Verification exit code: 0

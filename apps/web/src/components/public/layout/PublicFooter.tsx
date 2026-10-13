@@ -38,15 +38,15 @@ export function PublicFooter() {
                 <div className="border-t border-[#F2F2F7] mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-[12px] text-[#AEAEB2]">© 2026 TalentAI. All rights reserved.</p>
                     <div className="flex items-center gap-3">
-                        <a href="#" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
+                        <span aria-disabled="true" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                             {/* <Github className="w-4 h-4" /> */}
-                        </a>
-                        <a href="#" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
+                        </span>
+                        <span aria-disabled="true" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                             {/* <Linkedin className="w-4 h-4" /> */}
-                        </a>
-                        <a href="#" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
+                        </span>
+                        <span aria-disabled="true" className="p-2 rounded-lg text-[#AEAEB2] hover:text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                             <Mail className="w-4 h-4" />
-                        </a>
+                        </span>
                     </div>
                 </div>
             </div>

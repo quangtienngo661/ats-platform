@@ -1,0 +1,16 @@
+PASS anon findOne 200 — 200
+PASS anon findOne: no recruiter
+PASS anon findOne: applications empty — []
+PASS anon findOne: no recruiter email/phone anywhere
+PASS anon findOne: control — department + title present
+PASS anon list: item found (control)
+PASS anon list: no recruiter, no applications — []
+PASS candidate login
+PASS candidate: only own application — [{"status":"interview","candidate":{"userId":"7e437bef-87c4-46fd-8d0c-a6449753c385"}}]
+PASS candidate: no cvId, no other candidate
+PASS candidate: no recruiter
+PASS recruiter login
+PASS staff: sees both applications — 2
+PASS staff: recruiter included
+cleanup {"organizationsRemaining":0,"usersRemaining":0}
+14/14 passed

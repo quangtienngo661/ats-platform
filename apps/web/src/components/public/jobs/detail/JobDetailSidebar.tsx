@@ -1,34 +1,32 @@
 import { DollarSign, Briefcase, Building2 } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
     const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(0)}M` : `${(n / 1_000).toFixed(0)}K`;
     if (min && max) return `${fmt(min)} – ${fmt(max)} VNĐ`;
     if (min) return `Từ ${fmt(min)} VNĐ`;
-    return `Đến ${fmt(max!)} VNĐ`;
+    return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
-
-function formatLocation(locationType?: string): string {
-    if (locationType === 'remote') return 'Remote';
-    if (locationType === 'hybrid') return 'Hybrid';
-    if (locationType === 'onsite') return 'On-site';
-    return locationType ?? '';
-}
-
 
 interface JobDetailSidebarProps {
     job: IJobPostingDto;
 }
 
 export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
-    const dept = (job as any).department;
-    const category = (job as any).category;
+    const dept = job.department;
+    const category = job.category;
+    const skills = jobSkillsOf(job);
+    const location = Object.hasOwn(WORK_TYPE_LABELS, job.locationType)
+        ? WORK_TYPE_LABELS[job.locationType as WorkType]
+        : job.locationType ?? '';
 
     const infoItems = [
         { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: DollarSign },
-        { label: 'Hình thức', value: formatLocation(job.locationType), icon: Briefcase },
+        { label: 'Hình thức', value: location, icon: Briefcase },
         ...(category ? [{ label: 'Lĩnh vực', value: category.name, icon: Building2 }] : []),
     ];
 
@@ -54,13 +52,13 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
                 </div>
 
                 {/* Skills */}
-                {job.skills && job.skills.length > 0 && (
+                {skills.length > 0 && (
                     <div className="mt-5 pt-5 border-t border-[#F2F2F7]">
                         <p className="text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2] mb-3" style={{ fontWeight: 600 }}>
                             Kỹ năng yêu cầu
                         </p>
                         <div className="flex flex-wrap gap-1.5">
-                            {job.skills.map(s => (
+                            {skills.map(s => (
                                 <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-2.5 py-1" style={{ fontWeight: 500 }}>
                                     {s.name ?? s.skillId}
                                 </span>

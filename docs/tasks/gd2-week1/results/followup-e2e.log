@@ -1,0 +1,283 @@
+[1] compose up --build (16:46:04)
+#1 [internal] load local bake definitions
+#1 reading from stdin 810B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.71kB 0.0s done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/node:24-bookworm-slim
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 328B done
+#4 DONE 0.0s
+
+#5 [builder  1/10] FROM docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+#5 resolve docker.io/library/node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 37.86MB 4.9s
+#6 transferring context: 45.60MB 6.2s done
+#6 DONE 6.3s
+
+#7 [builder  2/10] WORKDIR /app
+#7 CACHED
+
+#8 [builder  3/10] COPY package*.json ./
+#8 CACHED
+
+#9 [builder  4/10] COPY nx.json ./
+#9 CACHED
+
+#10 [builder  5/10] COPY tsconfig.base.json ./
+#10 CACHED
+
+#11 [builder  6/10] RUN npm ci
+#11 CACHED
+
+#12 [builder  7/10] COPY . .
+#12 DONE 85.4s
+
+#13 [builder  8/10] RUN apt-get update -y && apt-get install -y openssl
+#13 0.866 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#13 0.964 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#13 1.170 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#13 1.239 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#13 6.737 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#13 6.772 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [349 kB]
+#13 7.721 Fetched 9388 kB in 7s (1335 kB/s)
+#13 7.721 Reading package lists...
+#13 8.149 Reading package lists...
+#13 8.534 Building dependency tree...
+#13 8.624 Reading state information...
+#13 8.719 The following additional packages will be installed:
+#13 8.719   libssl3
+#13 8.720 Suggested packages:
+#13 8.720   ca-certificates
+#13 8.747 The following NEW packages will be installed:
+#13 8.747   libssl3 openssl
+#13 8.866 0 upgraded, 2 newly installed, 0 to remove and 7 not upgraded.
+#13 8.866 Need to get 3481 kB of archives.
+#13 8.866 After this operation, 8556 kB of additional disk space will be used.
+#13 8.866 Get:1 http://deb.debian.org/debian-security bookworm-security/main amd64 libssl3 amd64 3.0.22-1~deb12u1 [2039 kB]
+#13 9.145 Get:2 http://deb.debian.org/debian-security bookworm-security/main amd64 openssl amd64 3.0.22-1~deb12u1 [1442 kB]
+#13 9.477 debconf: delaying package configuration, since apt-utils is not installed
+#13 9.505 Fetched 3481 kB in 0s (7493 kB/s)
+#13 9.550 Selecting previously unselected package libssl3:amd64.
+#13 9.550 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6096 files and directories currently installed.)
+#13 9.644 Preparing to unpack .../libssl3_3.0.22-1~deb12u1_amd64.deb ...
+#13 9.654 Unpacking libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 9.774 Selecting previously unselected package openssl.
+#13 9.774 Preparing to unpack .../openssl_3.0.22-1~deb12u1_amd64.deb ...
+#13 9.778 Unpacking openssl (3.0.22-1~deb12u1) ...
+#13 9.889 Setting up libssl3:amd64 (3.0.22-1~deb12u1) ...
+#13 9.900 Setting up openssl (3.0.22-1~deb12u1) ...
+#13 9.914 Processing triggers for libc-bin (2.36-9+deb12u14) ...
+#13 DONE 10.1s
+
+#14 [builder  9/10] RUN npx nx run database:prisma-generate
+#14 15.93 
+#14 15.93 > nx run database:prisma-generate
+#14 15.93 
+#14 15.93 > npx prisma generate
+#14 15.93 
+#14 19.44 [2mLoaded Prisma config from prisma.config.ts.
+#14 19.44 [22m
+#14 21.79 [2mPrisma schema loaded from prisma/schema.prisma.[22m
+#14 22.13 
+#14 22.13 ✔ Generated [1mPrisma Client[22m (7.8.0)[2m to ./src/generated/prisma[22m in 241ms
+#14 22.13 
+#14 22.17 
+#14 22.17 
+#14 22.17 
+#14 22.17  NX   Successfully ran target prisma-generate for project database
+#14 22.17 
+#14 22.17 
+#14 22.35 npm notice
+#14 22.35 npm notice New major version of npm available! 11.13.0 -> 12.2.0
+#14 22.35 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+#14 22.35 npm notice To update run: npm install -g npm@12.2.0
+#14 22.35 npm notice
+#14 DONE 28.7s
+
+#15 [builder 10/10] RUN npx nx build api --prod
+#15 21.53 
+#15 21.53  NX   Running target build for project api and 2 tasks it depends on:
+#15 21.53 
+#15 21.53 
+#15 24.77 
+#15 24.77 > nx run database:build
+#15 24.77 
+#15 24.77 > tsc --build tsconfig.lib.json
+#15 24.77 
+#15 26.12 
+#15 26.12 > nx run types:build
+#15 26.12 
+#15 26.12 > tsc --build tsconfig.lib.json
+#15 26.12 
+#15 26.41 
+#15 26.41 > nx run api:build
+#15 26.41 
+#15 26.42 > webpack-cli build --node-env=production
+#15 26.42 
+#15 38.62 webpack compiled [1m[32msuccessfully[39m[22m (c64dd633f00f24bb)
+#15 38.68 
+#15 38.68 
+#15 38.68 
+#15 38.68  NX   Successfully ran target build for project api and 2 tasks it depends on
+#15 38.68 
+#15 38.68 
+#15 DONE 38.8s
+
+#16 [runner 3/9] COPY --from=builder /app/dist/apps/api/package*.json ./
+#16 CACHED
+
+#17 [runner 4/9] RUN npm ci --only=production
+#17 CACHED
+
+#18 [runner 5/9] RUN apt-get update -y && apt-get install -y openssl
+#18 CACHED
+
+#19 [runner 6/9] RUN npm install prisma@7.8.0 --save-prod
+#19 CACHED
+
+#20 [runner 7/9] RUN npm install @prisma/client
+#20 CACHED
+
+#21 [runner 8/9] COPY --from=builder /app/dist/apps/api ./
+#21 CACHED
+
+#22 [runner 9/9] COPY --from=builder /app/libs/backend/database ./libs/backend/database
+#22 CACHED
+
+#23 exporting to image
+#23 exporting layers done
+#23 exporting manifest sha256:5806f0ca6e8ef81b3a1423573a246e176ab965ca261bdc5ee7b4e53f94f8d361 done
+#23 exporting config sha256:7e37dc7ad38c0a65d636fce13f4632d01e9d32fd9a35b28f49cad78206bbf26e done
+#23 exporting attestation manifest sha256:c26748746ecc391441b456dff9714b92604a68d8920ea1bffd915d97a2c21446 0.0s done
+#23 exporting manifest list sha256:c28808738eeb394835c31cd09c46e84596eca33ec12ce5ffe3f25d1a922a05ee 0.0s done
+#23 naming to docker.io/library/ats-platform-tests-api:latest done
+#23 unpacking to docker.io/library/ats-platform-tests-api:latest 0.0s done
+#23 DONE 0.1s
+
+#24 resolving provenance for metadata file
+#24 DONE 0.0s
+ ats-platform-tests-api  Built
+ Container ats-platform-tests-api-1  Recreate
+ Container ats-platform-tests-api-1  Recreated
+ Container ats-platform-tests-redis-1  Starting
+ Container ats-platform-tests-postgres-1  Starting
+ Container ats-platform-tests-redis-1  Started
+ Container ats-platform-tests-postgres-1  Started
+ Container ats-platform-tests-postgres-1  Waiting
+ Container ats-platform-tests-redis-1  Waiting
+ Container ats-platform-tests-redis-1  Healthy
+ Container ats-platform-tests-postgres-1  Healthy
+ Container ats-platform-tests-api-1  Starting
+ Container ats-platform-tests-api-1  Started
+[2] wait for API health (16:50:33)
+{"success":true,"status":200,"data":{"status":"up","uptimeSeconds":7,"dependencies":{"database":"up","redis":"up"}}}
+[3] prepare-local fixtures (16:50:49)
+Organization and verified candidate fixtures ready in ats_test. No tokens recorded.
+[4] playwright (09:50:50)
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts
+
+[WebServer] (node:125628) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Learnings/Learning%20Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Warning: Next.js ignored pnpm-lock.yaml in E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness because it is outside the current Git repository (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform).
+[WebServer]  To use this directory, set `turbopack.root` in your Next.js config.
+[WebServer] 
+
+Running 30 tests using 1 worker
+
+  ok  1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (3.2s)
+  ok  2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:83:7 › admin đăng nhập → điền cấu hình → Đóng cấu hình → không có bản ghi mới (2.5s)
+  ok  3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:114:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (5.6s)
+  ok  4 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:173:5 › admin thiếu access cookie → refresh → đọc cấu hình ngay trong request hiện tại (2.3s)
+GĐ1: waiting 48s for the real local auth window.
+  ok  5 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:33:7 › FE best practices with real isolated API data › public location filters reach the API; legacy rich text is sanitized (2.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <MeasureLayout>
+[WebServer]     <div className="flex flex-..." style={{}} ref={function useMotionRef.useCallback}>
+[WebServer]       <AnimatePresence mode="popLayout">
+[WebServer]         <PresenceChild isPresent={true} initial={undefined} custom={undefined} presenceAffectsLayout={true} ...>
+[WebServer]           <PopChild pop={true} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
+[WebServer]             <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={true}>
+[WebServer]               <motion.div layout={true} initial={{opacity:0, ...}} animate={{opacity:1,scale:1,y:0}} ...>
+[WebServer]                 <MeasureLayout>
+[WebServer]                 <div style={{opacity:0, ...}} ref={function useMotionRef.useCallback}>
+[WebServer]                   <CvCard cv={{cvId:"a2ef...", ...}} onView={function onView} onDelete={function onDelete}>
+[WebServer]                     <div className="group bg-w...">
+[WebServer]                       <div className="flex items...">
+[WebServer]                         <div>
+[WebServer]                         <div className="flex-1 min...">
+[WebServer]                           <div>
+[WebServer]                           <p className="text-[12px...">
+[WebServer] +                           16:52 13/10/2026
+[WebServer] -                           09:52 13/10/2026
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CvCard (apps/web/src/components/my-cvs/ui/CvCard.tsx:63:21)
+[WebServer]     at <unknown> (apps/web/src/components/my-cvs/MyCvsClient.tsx:71:29)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at MyCvsClient (apps/web/src/components/my-cvs/MyCvsClient.tsx:62:31)
+[WebServer]     at MyCvsPage (src\app\(candidate)\my-cvs\page.tsx:10:13)
+[WebServer]   61 |                     </div>
+[WebServer]   62 |
+[WebServer] > 63 |                     <p className="text-[12px] text-[#AEAEB2] mb-2">
+[WebServer]      |                     ^
+[WebServer]   64 |                         Tải lên {formatDate(cv.uploadedAt)}
+[WebServer]   65 |                         {expCount > 0 && ` · ${expCount} kinh nghiệm`}
+[WebServer]   66 |                         {projCount > 0 && ` · ${projCount} dự án`}
+  ok  6 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:57:7 › FE best practices with real isolated API data › candidate callback keeps its query; CV data and dialog focus survive reload (1.8s)
+  ok  7 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:78:7 › FE best practices with real isolated API data › resumed interview renders history and current question after refresh (1.5s)
+  ok  8 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:87:7 › FE best practices with real isolated API data › recruiter Kanban initializes the correct board; mobile navigation restores focus (3.9s)
+  ok  9 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (789ms)
+GĐ1: waiting 53s for the real local auth window.
+  ok 10 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (3.2s)
+  ok 11 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (6.3s)
+  ok 12 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (1.3s)
+  ok 13 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (1.3s)
+  ok 14 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:241:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (1.5s)
+  ok 15 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:273:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (236ms)
+  ok 16 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:329:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi (1.6s)
+GĐ1: waiting 45s for the real local auth window.
+  ok 17 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:84:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C17: recruiter books an online interview at 09:00 Vietnam time and the API stores 02:00Z (2.8s)
+  ok 18 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:107:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › R3: recruiter books an onsite interview at 14:00 with its address (607ms)
+  ok 19 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:122:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C5: the candidate sees both upcoming interviews in Vietnam time (648ms)
+  ok 20 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:142:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C1/C15: neither the page nor the API gives the candidate the recruiter's contact details (29ms)
+  ok 21 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:161:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C16: rejecting the application cancels both interviews and the candidate sees them cancelled (361ms)
+  ok 22 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:178:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C8/C15: the candidate reads the timeline of the rejected application, without staff notes (2.5s)
+  ok 23 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:43:7 › GĐ2 tuần 1 — lọc tìm việc › C11/C13: the salary range in the URL and on the page, bounds included, draft never shown (1.5s)
+  ok 24 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:62:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E15: a minimum above the maximum stays on the page with a message (970ms)
+  ok 25 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:74:7 › GĐ2 tuần 1 — lọc tìm việc › C12/C13: skills match any, the options come from active postings only (1.2s)
+  ok 26 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:91:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E17: a link with a bad filter still opens, and "Xóa bộ lọc" clears the new filters (997ms)
+  ok 27 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:103:7 › GĐ2 tuần 1 — lọc tìm việc › C12: the public filter options list active skills by name and never the draft's (13ms)
+  ok 28 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:114:7 › GĐ2 tuần 1 — lọc tìm việc › C14: the home page picks a work type and the job search receives it (1.9s)
+  ok 29 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:126:7 › GĐ2 tuần 1 — lọc tìm việc › the filter panel does not overflow a phone screen (589ms)
+  ok 30 [chromium] › apps\web\e2e\session-policy.e2e.ts:4:5 › candidate refresh phiên thật → bị chặn trang admin → login trở về trang việc làm (1.4s)
+
+  30 passed (3.6m)
+E2E-EXIT=0 (09:54:26)

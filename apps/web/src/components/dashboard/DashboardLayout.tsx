@@ -1,14 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  LayoutDashboard, Briefcase, CalendarCheck,
-  Settings, LogOut, Sparkles,
-  Menu, X, UserCircle, Cpu,
-  Building2, Zap, FolderTree, Activity, Users2,
-} from 'lucide-react';
+import { LayoutDashboard, Briefcase, CalendarCheck, Settings, LogOut, Sparkles, Menu, X, UserCircle, Cpu, Building2, Zap, FolderTree, Activity, Users2 } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
@@ -41,6 +37,7 @@ const bottomItems = [
 function SidebarContent({ onClose, userRole, userName, userEmail, organizationName }: { onClose?: () => void, userRole?: string, userName?: string, userEmail?: string, organizationName?: string }) {
   const pathname = usePathname();
   const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
+  
 
   const formattedRole = userRole === 'org_admin' ? 'Quản trị tổ chức' : userRole === 'admin' ? 'Quản trị hệ thống' : 'Nhà tuyển dụng';
 
@@ -57,7 +54,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail, organizationNa
           </span>
         </Link>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-1 text-[#6E6E73]">
+          <button type="button" aria-label="Đóng" onClick={onClose} className="lg:hidden p-1 text-[#6E6E73]">
             <X className="w-4 h-4" />
           </button>
         )}
@@ -202,7 +199,7 @@ function DashboardHeader({
 }) {
   return (
     <header className="h-[64px] bg-white border-b border-[#F2F2F7] flex items-center px-4 lg:px-6 gap-4 sticky top-0 z-20" style={{ fontFamily: SFT }}>
-      <button onClick={onMenuOpen} className="lg:hidden p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors">
+      <button type="button" aria-label="Mở menu" onClick={onMenuOpen} className="lg:hidden p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors">
         <Menu className="w-5 h-5" />
       </button>
 
@@ -236,7 +233,13 @@ export function DashboardLayout({
   initialUnreadCount?: number,
 }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const initials = userName ? userName.trim().split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join('') : 'HR';
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => { if (desktop.matches) setMobileSidebarOpen(false); };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
+  
 
   return (
     <div className="flex h-screen bg-[#F5F5F7] overflow-hidden" style={{ fontFamily: SFT }}>
@@ -248,14 +251,17 @@ export function DashboardLayout({
       {/* Mobile Sidebar — slide-in with Framer Motion */}
       <AnimatePresence>
         {mobileSidebarOpen && (
+          <AccessibleDialog onClose={() => setMobileSidebarOpen(false)}>
           <div className="lg:hidden fixed inset-0 z-40 flex">
+            <DialogOverlay asChild>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/30"
-              onClick={() => setMobileSidebarOpen(false)}
             />
+            </DialogOverlay>
+            <DialogContent title="Điều hướng">
             <motion.aside
               initial={{ x: -240 }}
               animate={{ x: 0 }}
@@ -265,7 +271,9 @@ export function DashboardLayout({
             >
               <SidebarContent onClose={() => setMobileSidebarOpen(false)} userRole={userRole} userName={userName} userEmail={userEmail} organizationName={organizationName} />
             </motion.aside>
+            </DialogContent>
           </div>
+          </AccessibleDialog>
         )}
       </AnimatePresence>
 

@@ -1,5 +1,9 @@
 'use server';
 
+import { unstable_rethrow } from 'next/navigation';
+
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { ISkillDto } from '@/types/interfaces/skill.interface';
@@ -14,23 +18,15 @@ export type SkillActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── GET ALL SKILLS ───────────────────────────────────────────────────────────
 export async function getSkillsAction(): Promise<ISkillDto[]> {
     try {
         const response = await http.get('/skills');
         return response.data as ISkillDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -43,7 +39,8 @@ export async function searchSkillsAction(name?: string, category?: string): Prom
 
         const response = await http.get('/skills/search', { params });
         return response.data as ISkillDto[];
-    } catch {
+    } catch (error) {
+        unstable_rethrow(error);
         return [];
     }
 }
@@ -54,8 +51,9 @@ export async function getSkillByIdAction(id: string): Promise<ISkillDto | null> 
     try {
         const response = await http.get(`/skills/${id}`);
         return response.data as ISkillDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 

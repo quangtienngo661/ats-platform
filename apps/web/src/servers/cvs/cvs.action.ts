@@ -1,10 +1,12 @@
 'use server';
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
 import { ICvDto } from '@/types/interfaces/cv.interface';
 import { ICvParsedData } from '@ats-platform/types';
-import { SERVER_URL } from '@/types/constants/urls';
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,15 +18,7 @@ export type CvActionState = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string | string[] } } };
-        const msg = axiosErr.response?.data?.message;
-        if (msg) return Array.isArray(msg) ? msg[0] : msg;
-    }
-    if (error instanceof Error) return error.message;
-    return fallback;
-}
+
 
 // ─── UPLOAD CV ────────────────────────────────────────────────────────────────
 export async function uploadCvAction(
@@ -54,8 +48,8 @@ export async function getMyCvsAction(): Promise<ICvDto[]> {
     try {
         const response = await http.get('/cvs/me');
         return response.data as ICvDto[];
-    } catch {
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -65,8 +59,9 @@ export async function getCvByIdAction(cvId: string): Promise<ICvDto | null> {
     try {
         const response = await http.get(`/cvs/${cvId}`);
         return response.data as ICvDto;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -76,8 +71,9 @@ export async function getCvParsedDataAction(cvId: string): Promise<ICvParsedData
     try {
         const response = await http.get(`/cvs/${cvId}/parsed-data`);
         return response.data as ICvParsedData;
-    } catch {
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 

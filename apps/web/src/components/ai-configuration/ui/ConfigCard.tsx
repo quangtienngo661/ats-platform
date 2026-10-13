@@ -83,7 +83,7 @@ export function ConfigCard({
                     {organizationName && <p className="text-[12px] text-blue-700 mb-1">Tổ chức: {organizationName}</p>}
                     {/* Title input */}
                     <div className="relative">
-                        <input
+                        <input aria-label="Tên cấu hình"
                             type="text"
                             disabled={!isEditing}
                             value={isEditing ? (draft.name || '') : (profile.name || '')}
@@ -97,7 +97,7 @@ export function ConfigCard({
                     </div>
                     {/* Description input */}
                     <div className="relative">
-                        <input
+                        <input aria-label="Mô tả cấu hình"
                             type="text"
                             disabled={!isEditing}
                             value={isEditing ? (draft.description || '') : (profile.description || '')}
@@ -154,7 +154,7 @@ export function ConfigCard({
 
                     {/* Kebab menu */}
                     <div className="relative">
-                        <button
+                        <button type="button" aria-label="Tùy chọn"
                             onClick={() => setMenuOpen(!menuOpen)}
                             className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
                         >
@@ -162,7 +162,7 @@ export function ConfigCard({
                         </button>
                         {menuOpen && (
                             <>
-                                <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
+                                <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
                                 <div className="absolute right-0 top-full mt-1 w-[190px] bg-white rounded-xl shadow-xl border border-[#E5E5EA] z-40 overflow-hidden">
                                     {/* Edit option */}
                                     <button
@@ -247,7 +247,7 @@ export function ConfigCard({
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                                        <input
+                                        <input aria-label="Ngưỡng điểm tối thiểu"
                                             type="number" min="0" max="100"
                                             disabled={!isEditing}
                                             value={isEditing ? draft.minimumScoreThreshold : profile.minimumScoreThreshold}
@@ -258,7 +258,7 @@ export function ConfigCard({
                                         <span className="text-[12px] text-[#AEAEB2]">pts</span>
                                     </div>
                                 </div>
-                                <input
+                                <input aria-label="Ngưỡng điểm tối thiểu"
                                     type="range" min="0" max="100"
                                     disabled={!isEditing}
                                     value={isEditing ? draft.minimumScoreThreshold : profile.minimumScoreThreshold}

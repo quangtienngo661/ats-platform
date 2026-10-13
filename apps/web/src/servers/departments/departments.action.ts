@@ -1,7 +1,11 @@
 "use server";
 
+import { actionErrorMessage as extractMessage, rethrowReadError, isMissingResource } from '@/lib/action-error';
+
 import { revalidatePath } from "next/cache";
 import http from "@/lib/http";
+import { IRecruiter } from "@ats-platform/types";
+import { IUserResponseDto } from "@/types/interfaces/user.interface";
 import { Department as DepartmentDto, DepartmentMember } from "@/types/interfaces/departments.interface";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -13,14 +17,14 @@ export type DepartmentState = {
 
 // Re-export IDepartmentDto từ @ats-platform/types để các component có thể import trực tiếp từ đây
 
-function extractMessage(error: any, fallback: string): string {
-    const msg = error?.response?.data?.message || fallback;
-    return Array.isArray(msg) ? msg[0] : msg;
-}
+
 
 // ─── Mapper ─────────────────────────────────────────────────────────────────
 
-function mapSingleRecruiter(recruiter: any): DepartmentMember {
+type RecruiterApi = IRecruiter & { recruiterId: string; userId: string; user: IUserResponseDto };
+type DepartmentApi = Omit<DepartmentDto, "members" | "membersCount" | "jobPostingsCount"> & { recruiters?: RecruiterApi[]; jobPostings?: unknown[] };
+
+function mapSingleRecruiter(recruiter: RecruiterApi): DepartmentMember {
     return {
         recruiterId: recruiter.recruiterId,
         userId: recruiter.userId,
@@ -33,12 +37,12 @@ function mapSingleRecruiter(recruiter: any): DepartmentMember {
     };
 }
 
-function mapRecruiters(recruiters: any[]): DepartmentMember[] {
+function mapRecruiters(recruiters: RecruiterApi[] | undefined): DepartmentMember[] {
     if (!Array.isArray(recruiters)) return [];
     return recruiters.map(mapSingleRecruiter);
 }
 
-function mapSingleDepartment(department: any): DepartmentDto {
+function mapSingleDepartment(department: DepartmentApi): DepartmentDto {
     return {
         departmentId: department.departmentId,
         organizationId: department.organizationId,
@@ -51,7 +55,7 @@ function mapSingleDepartment(department: any): DepartmentDto {
     };
 }
 
-function mapDepartment(departments: any): DepartmentDto[] {
+function mapDepartment(departments: DepartmentApi[]): DepartmentDto[] {
     if (!Array.isArray(departments)) return [];
     return departments.map(mapSingleDepartment);
 }
@@ -77,7 +81,7 @@ export async function createDepartmentAction(
 
         revalidatePath("/department-management");
         return { success: true, message: "Tạo phòng ban thành công" };
-    } catch (error: any) {
+    } catch (error: unknown) {
         return { success: false, message: extractMessage(error, "Tạo phòng ban thất bại") };
     }
 }
@@ -86,9 +90,8 @@ export async function getDepartmentsAction(): Promise<DepartmentDto[]> {
     try {
         const response = await http.get(`/departments`);
         return mapDepartment(response.data);
-    } catch (error: any) {
-        console.error("[getDepartmentsAction]", extractMessage(error, "Không thể tải danh sách phòng ban"));
-        return [];
+    } catch (error) {
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 
@@ -96,11 +99,11 @@ export async function getDepartmentByIdAction(id: string): Promise<DepartmentDto
     if (!id) return null;
     try {
         const data = await http.get(`/departments/${id}`);
-        const raw = (data as any)?.data ?? data;
+        const raw = data.data ?? data;
         return raw ? mapSingleDepartment(raw) : null;
-    } catch (error: any) {
-        console.error("[getDepartmentByIdAction]", extractMessage(error, "Không thể tải phòng ban"));
-        return null;
+    } catch (error) {
+        if (isMissingResource(error)) return null;
+        rethrowReadError(error, 'Không thể tải dữ liệu. Vui lòng thử lại.');
     }
 }
 export async function updateDepartmentAction(
@@ -126,7 +129,7 @@ export async function updateDepartmentAction(
 
         revalidatePath("/department-management");
         return { success: true, message: "Cập nhật phòng ban thành công" };
-    } catch (error: any) {
+    } catch (error: unknown) {
         return { success: false, message: extractMessage(error, "Cập nhật phòng ban thất bại") };
     }
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Clock, Star, ChevronRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 
 interface RecentCandidatesProps {

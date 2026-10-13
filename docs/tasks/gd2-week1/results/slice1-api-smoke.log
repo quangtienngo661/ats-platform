@@ -1,0 +1,24 @@
+# Task 7 API smoke — real test stack (Nest + PostgreSQL ats_test), 2026-10-03T13:04Z
+# Stand-in for the browser journey, which was not run (no Playwright browser; download declined).
+# Proves the API half only: not the UI and not C17.
+GĐ1: waiting 4s for the real local auth window.
+PASS  fixture created — dc8081c1-5d36-4289-921f-51b032962bff
+PASS  recruiter logs in — HTTP 201
+PASS  R3: onsite with a blank address is refused (generic app-wide 400 text) — Dữ liệu không hợp lệ: location không được để trống
+PASS  R3: online with a javascript: link is refused (generic app-wide 400 text) — Dữ liệu không hợp lệ: onlineMeetingLink không hợp lệ
+PASS  online interview booked — HTTP 201
+PASS  onsite interview booked — HTTP 201
+PASS  stored instants and places (trimmed, only the type's field kept) — [{"startAt":"2026-10-05T02:00:00.000Z","interviewType":"online","onlineMeetingLink":"https://meet.example.com/gd2-dc8081c1-5d36-4289-921f-51b032962bff","location":null,"status":"scheduled"},{"startAt":"2026-10-06T07:00:00.000Z","interviewType":"onsite","onlineMeetingLink":null,"location":"Tầng 5, 123 Lê Lợi, Q.1","status":"scheduled"}]
+PASS  candidate logs in — HTTP 201
+PASS  candidate receives both schedules — HTTP 200, 2 items
+PASS  control: payload carries the interviewer name and organization
+PASS  C1: no recruiter email or phone in the payload
+PASS  C1: no scheduler key — interviewId,startAt,durationMinutes,interviewType,onlineMeetingLink,location,status,interviewer,application
+PASS  C19: order=desc lists the latest first
+PASS  control: staff payload still carries the scheduler
+PASS  recruiter rejects the application — HTTP 200
+PASS  C16: both upcoming interviews cancelled in the database — cancelled,cancelled
+PASS  C16: the candidate sees them cancelled
+PASS  fixture cleaned up — {"organizationsRemaining":0,"usersRemaining":0}
+
+18/18 checks passed

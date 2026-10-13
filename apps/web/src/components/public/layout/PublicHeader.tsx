@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles, Search, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText, Cpu } from 'lucide-react';
+import { Sparkles, Briefcase, User, LogOut, ChevronDown, Menu, X, FileText, Cpu } from 'lucide-react';
 import { logoutAction } from '@/servers/auth/auth.action';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { useSocketStore } from '@/stores/useSocketStore';
@@ -32,6 +32,7 @@ export function PublicHeader({
         { href: '/job-postings', label: 'Tìm việc làm' },
         ...(userInfo ? [
             { href: '/my-applications', label: 'Đơn ứng tuyển' },
+            { href: '/my-interviews', label: 'Lịch phỏng vấn' },
             { href: '/mock-interview', label: 'Phỏng vấn AI' },
         ] : []),
     ];
@@ -67,7 +68,7 @@ export function PublicHeader({
             className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-[#E5E5EA] z-50 flex items-center"
             style={{ fontFamily: SFT }}
         >
-            <div className="max-w-[1200px] mx-auto px-6 w-full flex items-center gap-6">
+            <div className="max-w-[1200px] mx-auto px-4 lg:px-6 w-full flex items-center gap-3 lg:gap-6">
                 {/* Brand */}
                 <Link href="/" className="flex items-center gap-2 flex-shrink-0">
                     <div className="w-7 h-7 rounded-[8px] bg-[#0071E3] flex items-center justify-center shadow-sm">
@@ -79,14 +80,14 @@ export function PublicHeader({
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="hidden md:flex items-center gap-1 flex-1">
+                <nav className="hidden md:flex items-center gap-0.5 lg:gap-1 flex-1 min-w-0">
                     {navLinks.map(({ href, label }) => {
                         const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
                         return (
                             <Link
                                 key={href}
                                 href={href}
-                                className={`px-3 py-1.5 rounded-lg text-[13px] transition-all ${isActive
+                                className={`px-1.5 lg:px-3 py-1.5 rounded-lg text-[13px] whitespace-nowrap transition-all ${isActive
                                     ? 'bg-[#EBF3FD] text-[#0071E3]'
                                     : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]'
                                     }`}
@@ -97,9 +98,6 @@ export function PublicHeader({
                         );
                     })}
                 </nav>
-
-                <div className="flex-1 hidden md:block" />
-
 
                 {/* Right side */}
                 {userInfo ? (

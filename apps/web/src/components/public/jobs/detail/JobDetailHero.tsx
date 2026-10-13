@@ -1,6 +1,8 @@
-import { Briefcase, DollarSign, Clock, MapPin } from 'lucide-react';
+import { Briefcase, DollarSign, Clock } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { jobSkillsOf } from '@/lib/job-skills';
+import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 import { ApplyButton } from './ApplyButton';
 
 function formatSalary(min?: number | null, max?: number | null): string {
@@ -8,7 +10,7 @@ function formatSalary(min?: number | null, max?: number | null): string {
     const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(0)}M` : `${(n / 1_000).toFixed(0)}K`;
     if (min && max) return `${fmt(min)} – ${fmt(max)} VNĐ`;
     if (min) return `Từ ${fmt(min)} VNĐ`;
-    return `Đến ${fmt(max!)} VNĐ`;
+    return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
 
 function timeAgo(dateStr?: string): string {
@@ -27,17 +29,13 @@ interface JobDetailHeroProps {
     available: boolean;
 }
 
-function formatLocation(locationType?: string): string {
-    if (locationType === 'remote') return 'Remote';
-    if (locationType === 'hybrid') return 'Hybrid';
-    if (locationType === 'onsite') return 'On-site';
-    return locationType ?? '';
-}
-
-
 export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps) {
     const initial = job.title?.[0]?.toUpperCase() ?? 'J';
-    const deptName = (job as any).department?.name;
+    const deptName = job.department?.name;
+    const skills = jobSkillsOf(job);
+    const location = Object.hasOwn(WORK_TYPE_LABELS, job.locationType)
+        ? WORK_TYPE_LABELS[job.locationType as WorkType]
+        : job.locationType ?? '';
 
     return (
         <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
@@ -61,7 +59,7 @@ export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps
 
             {/* Meta */}
             <div className="flex flex-wrap gap-4 text-[14px] text-[#6E6E73] mb-6" style={{ fontFamily: SFT }}>
-                <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4" />{formatLocation(job.locationType)}</span>
+                <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4" />{location}</span>
                 {(job.salaryMin || job.salaryMax) && (
                     <span className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" />{formatSalary(job.salaryMin, job.salaryMax)}</span>
                 )}
@@ -71,9 +69,9 @@ export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps
             </div>
 
             {/* Skill tags */}
-            {job.skills && job.skills.length > 0 && (
+            {skills.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6">
-                    {job.skills.map(s => (
+                    {skills.map(s => (
                         <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-3 py-1" style={{ fontWeight: 500 }}>
                             {s.name ?? s.skillId}
                         </span>

@@ -1,5 +1,7 @@
-import { getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
-import { getJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
+import { positivePage } from '@/lib/pagination';
+import { parseJobFilterParams } from '@/lib/job-filter-params';
+import { getJobFilterOptionsAction, getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
+import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { JobSearchClient } from '@/components/public/jobs/JobSearchClient';
 
@@ -9,6 +11,9 @@ interface JobsPageProps {
         categoryId?: string;
         locationType?: string;
         page?: string;
+        salaryMin?: string | string[];
+        salaryMax?: string | string[];
+        skillIds?: string | string[];
     }>;
 }
 
@@ -19,17 +24,21 @@ export const metadata = {
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
     const params = await searchParams;
-    const page = parseInt(params.page ?? '1', 10);
+    const page = positivePage(params.page);
+    const filters = parseJobFilterParams(params);
 
-    const [jobs, categories] = await Promise.all([
+    const [jobs, categories, filterOptions] = await Promise.all([
         getJobPostingsAction({
             status: 'active',
             search: params.q,
             categoryId: params.categoryId,
+            locationType: params.locationType,
+            ...filters,
             page,
             limit: 12,
         }),
-        getJobCategoriesAction(),
+        getViewerJobCategoriesAction(),
+        getJobFilterOptionsAction(),
     ]);
 
     return (
@@ -38,11 +47,13 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 initialJobs={jobs.items}
                 total={jobs.pagination.total}
                 categories={categories}
+                skills={filterOptions.skills}
                 currentPage={page}
                 initialQuery={{
                     q: params.q,
                     categoryId: params.categoryId,
                     locationType: params.locationType,
+                    ...filters,
                 }}
             />
             <PublicFooter />

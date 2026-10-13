@@ -1,0 +1,55 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/public/layout/PublicHeader.test.tsx
+
+
+ RUN  v4.1.6 E:/Learnings/Learning Stuffs/University/HK6/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web
+
+ ❯ src/components/public/layout/PublicHeader.test.tsx (5 tests | 2 failed) 305ms
+     × keeps all five candidate navigation labels on one line at every width 37ms
+     × uses compact tablet spacing without hiding overflowing navigation links 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/public/layout/PublicHeader.test.tsx > PublicHeader — desktop navigation at tablet widths > keeps all five candidate navigation labels on one line at every width
+Error: expect(element).toHaveClass("whitespace-nowrap px-1.5 lg:px-3")
+
+Expected the element to have class:
+  whitespace-nowrap px-1.5 lg:px-3
+Received:
+  px-2 lg:px-3 py-1.5 rounded-lg text-[13px] whitespace-nowrap transition-all text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]
+ ❯ src/components/public/layout/PublicHeader.test.tsx:31:20
+     29|     expect(links).toHaveLength(5);
+     30|     for (const link of links) {
+     31|       expect(link).toHaveClass('whitespace-nowrap', 'px-1.5', 'lg:px-3…
+       |                    ^
+     32|     }
+     33|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/components/public/layout/PublicHeader.test.tsx > PublicHeader — desktop navigation at tablet widths > uses compact tablet spacing without hiding overflowing navigation links
+Error: expect(element).not.toHaveClass("overflow-hidden")
+
+Expected the element not to have class:
+  overflow-hidden
+Received:
+  hidden md:flex items-center gap-1 flex-1 min-w-0 overflow-hidden
+ ❯ src/components/public/layout/PublicHeader.test.tsx:38:28
+     36|     render(<PublicHeader userInfo={{ fullName: 'Nguyễn Văn A', role: '…
+     37|     const navigation = screen.getByRole('navigation');
+     38|     expect(navigation).not.toHaveClass('overflow-hidden');
+       |                            ^
+     39|     expect(navigation).toHaveClass('min-w-0', 'gap-0.5', 'lg:gap-1');
+     40|     expect(navigation.parentElement).toHaveClass('px-4', 'lg:px-6', 'g…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  10:00:10
+   Duration  3.45s (transform 81ms, setup 398ms, import 187ms, tests 305ms, environment 2.34s)
+
+
+Exit code: 1

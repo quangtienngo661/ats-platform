@@ -14,7 +14,8 @@ interface InterviewResultClientProps {
 }
 
 export default function InterviewResultClient({ result }: InterviewResultClientProps) {
-    const session = result.session!;
+    const session = result.session;
+    if (!session) throw new Error("Thiếu dữ liệu phiên phỏng vấn");
 
     return (
         // Layout cha có overflow-hidden (cần thiết cho trang chat)

@@ -18,6 +18,7 @@ export interface IInterviewSchedule {
     startAt: string;
     durationMinutes: number;
     onlineMeetingLink?: string | null;
+    location?: string | null;
     status: ScheduleStatus;
     application: IApplicationDto;
     interviewer: IInterviewUserBrief;
@@ -31,9 +32,28 @@ export interface IInterviewScheduleQuery {
     toDate?: string;
     page?: number;
     limit?: number;
+    order?: 'asc' | 'desc';
 }
 
 export type IPaginatedInterviewSchedules = IPaginatedResponse<IInterviewSchedule>;
+
+/** Mirrors the API's `candidateScheduleSelect`: all a candidate receives about an interview. */
+export interface ICandidateInterviewSchedule {
+    interviewId: string;
+    startAt: string;
+    durationMinutes: number;
+    interviewType: InterviewType;
+    onlineMeetingLink: string | null;
+    location: string | null;
+    status: ScheduleStatus;
+    interviewer: { fullName: string };
+    application: {
+        applicationId: string;
+        jobPosting: { jobId: string; title: string; organization: { name: string } };
+    };
+}
+
+export type IPaginatedCandidateInterviewSchedules = IPaginatedResponse<ICandidateInterviewSchedule>;
 
 export interface IInterviewTopic {
     topicId: string;

@@ -1,7 +1,10 @@
 'use client';
+import { useLatestCallback } from '@/lib/useLatestCallback';
+
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 
 import { useActionState, useEffect } from 'react';
-import { X, Sparkles, SlidersHorizontal, Star } from 'lucide-react';
+import { X, SlidersHorizontal, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SF, SFT } from '@/types/constants/kanban.constants';
 import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
@@ -29,35 +32,37 @@ export default function ScreeningConfigModal({
 }: ScreeningConfigModalProps) {
     const defaultProfile = aiProfiles.find(p => p.isDefault) ?? aiProfiles[0] ?? null;
 
+    const onCloseLatest = useLatestCallback(onClose);
+    const onSuccessLatest = useLatestCallback(onSuccess);
     const [state, formAction] = useActionState(triggerCvScreeningAction, initialState);
 
     // Lắng nghe kết quả từ server
     useEffect(() => {
         if (state.success) {
-            onSuccess();
-            const timer = setTimeout(() => onClose(), 300);
+            onSuccessLatest();
+            const timer = setTimeout(() => onCloseLatest(), 300);
             return () => clearTimeout(timer);
         }
-    }, [state]);
+    }, [state, onCloseLatest, onSuccessLatest]);
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Cấu hình sàng lọc"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
-                    onClick={e => e.stopPropagation()}
+                    
                     style={{ fontFamily: SFT }}
                 >
                     {/* Header */}
@@ -75,7 +80,7 @@ export default function ScreeningConfigModal({
                                 </p>
                             </div>
                         </div>
-                        <button
+                        <button aria-label="Đóng"
                             type="button"
                             onClick={onClose}
                             className="p-2 hover:bg-[#F5F5F7] rounded-full transition-colors"
@@ -188,8 +193,8 @@ export default function ScreeningConfigModal({
                             )}
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

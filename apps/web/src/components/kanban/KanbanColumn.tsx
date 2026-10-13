@@ -49,7 +49,7 @@ export default function KanbanColumn({
       </div>
 
       {/* Drop zone */}
-      <div ref={drop as any} className={`flex-1 rounded-2xl transition-all min-h-[80px] ${isOver && canDrop ? 'ring-2 ring-[#0071E3] ring-offset-0 bg-[#EBF3FD]/50' : ''}`}>
+      <div ref={(element) => { drop(element); }} className={`flex-1 rounded-2xl transition-all min-h-[80px] ${isOver && canDrop ? 'ring-2 ring-[#0071E3] ring-offset-0 bg-[#EBF3FD]/50' : ''}`}>
         <div className="flex flex-col gap-2.5">
           <AnimatePresence initial={false}>
             {candidates.map((c) => (

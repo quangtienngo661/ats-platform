@@ -1,4 +1,6 @@
 'use client';
+    
+import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 
 import { useState, useActionState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
@@ -41,7 +43,7 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
             toast.success(state.message)
             return () => clearTimeout(timer);
         }
-    }, [state.success]);
+    }, [state.success, state.message]);
 
     // Determine modal title
     let title = 'Thêm danh mục mới';
@@ -52,23 +54,23 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
     }
 
     return (
-        <AnimatePresence>
-            <motion.div
+        <AccessibleDialog onClose={onClose}><AnimatePresence>
+            <DialogOverlay asChild><motion.div
                 key="backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                onClick={onClose}
+                
             >
-                <motion.div
+                <DialogContent title="Danh mục công việc"><motion.div
                     key="modal"
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 12 }}
                     transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
+                    
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
@@ -78,7 +80,7 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                         >
                             {title}
                         </h2>
-                        <button
+                        <button aria-label="Đóng"
                             onClick={onClose}
                             className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
                             type="button"
@@ -98,10 +100,10 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                         <div className="p-6 space-y-4">
                             {/* Category name */}
                             <div>
-                                <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                <label htmlFor="mutatejobcategorymodal-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                     Tên danh mục <span className="text-[#FF3B30]">*</span>
                                 </label>
-                                <input
+                                <input id="mutatejobcategorymodal-field-1"
                                     type="text"
                                     name="name"
                                     required
@@ -114,10 +116,10 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                             {/* Parent category selector */}
                             {!isAddingChild && (
                                 <div>
-                                    <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
+                                    <label htmlFor="mutatejobcategorymodal-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                                         Danh mục cha
                                     </label>
-                                    <select
+                                    <select id="mutatejobcategorymodal-field-2"
                                         value={parentId}
                                         onChange={(e) => setParentId(e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px] bg-white appearance-none"
@@ -164,8 +166,8 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                             </div>
                         </div>
                     </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                </motion.div></DialogContent>
+            </motion.div></DialogOverlay>
+        </AnimatePresence></AccessibleDialog>
     );
 }

@@ -12,7 +12,7 @@ export function decodeTokenPayload(token: string): CustomJwtPayload | null {
     try {
         const payload = jwtDecode<CustomJwtPayload>(token);
         return payload;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Token không hợp lệ:", error);
         return null;
     }

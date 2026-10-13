@@ -1,5 +1,5 @@
 import { Edit2, FileText, Send, Calendar } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { ICandidateDto } from '@/types/interfaces/candidate.interface';
 
 interface ProfileHeaderProps {

@@ -5,17 +5,18 @@ import { useState } from 'react';
 import { Search, MapPin, ArrowRight, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SF, SFT } from '@/types/fonts/fonts';
+import { WORK_TYPES, WORK_TYPE_LABELS } from '@/lib/work-types';
 
 export function HomeHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
-    const [location, setLocation] = useState('');
+    const [workType, setWorkType] = useState('');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         const params = new URLSearchParams();
         if (query) params.set('q', query);
-        if (location) params.set('location', location);
+        if (workType) params.set('locationType', workType);
         router.push(`/job-postings?${params.toString()}`);
     };
 
@@ -50,23 +51,28 @@ export function HomeHero() {
                                 <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                                 <input
                                     type="text"
+                                    aria-label="Tìm việc theo từ khóa"
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
                                     placeholder="Tên vị trí, kỹ năng, công ty..."
-                                    className="bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
+                                    className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                                     style={{ fontFamily: SFT }}
                                 />
                             </div>
                             <div className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3 sm:w-[180px] shadow-sm">
                                 <MapPin className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
-                                <input
-                                    type="text"
-                                    value={location}
-                                    onChange={e => setLocation(e.target.value)}
-                                    placeholder="Địa điểm..."
-                                    className="bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
+                                <select
+                                    aria-label="Hình thức làm việc"
+                                    value={workType}
+                                    onChange={e => setWorkType(e.target.value)}
+                                    className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] outline-none flex-1"
                                     style={{ fontFamily: SFT }}
-                                />
+                                >
+                                    <option value="">Tất cả</option>
+                                    {WORK_TYPES.map(type => (
+                                        <option key={type} value={type}>{WORK_TYPE_LABELS[type]}</option>
+                                    ))}
+                                </select>
                             </div>
                             <button
                                 type="submit"

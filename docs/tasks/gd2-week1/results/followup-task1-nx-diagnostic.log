@@ -1,0 +1,12 @@
+
+ NX   Access is denied. (os error 5)
+
+Error: Access is denied. (os error 5)
+    at createProjectGraphAndSourceMapsAsync (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\project-graph\project-graph.js:257:15)
+    at createProjectGraphAsync (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\project-graph\project-graph.js:225:45)
+    at Object.runOne (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\command-line\run\run-one.js:24:76)
+    at E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\command-line\run\command-object.js:39:89
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async handleErrors (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\utils\handle-errors.js:9:24)
+    at async Object.handler (E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\node_modules\nx\dist\src\command-line\run\command-object.js:33:26)
+

@@ -10,7 +10,7 @@ export function JobPostingsStats({ jobs }: JobPostingsStatsProps) {
     const active = jobs.filter(j => j.status === 'active').length;
     const draft = jobs.filter(j => j.status === 'draft').length;
     const closed = jobs.filter(j => j.status === 'closed').length;
-    const totalApplicants = jobs.reduce((sum, j) => sum + (j.applications?.length || 0), 0);
+    
 
     const stats = [
         { icon: Briefcase, label: 'Tổng tin', value: jobs.length, color: '#0071E3', bg: '#EBF3FD' },

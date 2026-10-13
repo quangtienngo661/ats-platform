@@ -182,7 +182,7 @@ export function AiUsageLogsTable({ logs, pagination }: AiUsageLogsTableProps) {
                         {startItem}–{endItem} / {total} bản ghi
                     </p>
                     <div className="flex items-center gap-1">
-                        <button
+                        <button type="button" aria-label="Trước"
                             disabled={page === 1}
                             onClick={() => goToPage(page - 1)}
                             className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -210,7 +210,7 @@ export function AiUsageLogsTable({ logs, pagination }: AiUsageLogsTableProps) {
                                     </button>
                                 )
                             )}
-                        <button
+                        <button type="button" aria-label="Tiếp"
                             disabled={page === totalPages}
                             onClick={() => goToPage(page + 1)}
                             className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

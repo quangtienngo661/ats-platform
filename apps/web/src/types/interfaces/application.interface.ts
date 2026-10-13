@@ -1,6 +1,6 @@
 import { IApplication, IApplicationCard, IKanbanColumn, IPaginatedResponse } from "@ats-platform/types";
 import { ICandidateDto } from "./candidate.interface";
-import { IJobPostingDto } from "./job-posting.interface";
+
 import { IScreeningResultDto } from "./cv-screening.interface";
 
 export interface IApplicationDto extends IApplication {
@@ -26,14 +26,16 @@ export interface IApplicationDto extends IApplication {
     };
     candidate?: ICandidateDto;
     screening?: IScreeningResultDto | null;
+    history?: IApplicationHistoryItem[];
 }
 
+/** One step of an application, as the API sends it to a candidate (R1). */
 export interface IApplicationHistoryItem {
-    historyId: string;
-    applicationId: string;
-    status: string;
-    notes?: string;
+    id: string;
+    fromStatus: string | null;
+    toStatus: string;
     changedAt: string;
+    rejectionReason?: string;
 }
 
 export interface IGetApplicationsByJobQuery {

@@ -7,9 +7,9 @@ export const roleProtectedPaths: Record<string, string[]> = {
   recruiter: recruiting,
   org_admin: [...recruiting, ...organizationAdmin],
   admin: [...recruiting, ...organizationAdmin, ...platformAdmin],
-  candidate: ['/job-postings', '/my-applications', '/my-cvs', '/profile'],
+  candidate: ['/job-postings', '/my-applications', '/my-interviews', '/my-cvs', '/profile'],
 };
-export const privatePaths = [...new Set([...recruiting, ...organizationAdmin, ...platformAdmin, '/my-applications', '/my-cvs', '/profile'])];
+export const privatePaths = [...new Set([...recruiting, ...organizationAdmin, ...platformAdmin, '/my-applications', '/my-interviews', '/my-cvs', '/profile'])];
 
 export function landingForRole(role?: string): string {
   if (role === 'admin' || role === 'org_admin') return '/department-management';

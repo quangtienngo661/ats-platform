@@ -13,6 +13,7 @@ import {
   ParsingStatus,
   Prisma,
   RelatedEntityType,
+  ScheduleStatus,
   ScreeningStatus,
   UserRole,
 } from '@ats-platform/database';
@@ -22,7 +23,11 @@ import {
   GetApplicationsByJobQueryDto,
   UpdateApplicationStatusDto,
 } from './dtos/application.dto';
-import { applicationIncludeOptions } from '../../common/utils/include-options.util';
+import {
+  applicationIncludeOptions,
+  candidateHistorySelect,
+} from '../../common/utils/include-options.util';
+import { toCandidateHistory } from './candidate-history';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 import {
   assertOrganizationAccess,
@@ -155,6 +160,26 @@ export class ApplicationsService {
     }
   }
 
+  /**
+   * An application that is withdrawn or rejected keeps no interview to go to: its
+   * schedules that have not started yet are cancelled in the same transaction as the
+   * status change. Past schedules are history and stay as they are; reverting the
+   * status later does not reopen them.
+   */
+  private async cancelUpcomingSchedules(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+  ): Promise<void> {
+    await tx.interviewSchedule.updateMany({
+      where: {
+        applicationId,
+        status: ScheduleStatus.scheduled,
+        startAt: { gt: new Date() },
+      },
+      data: { status: ScheduleStatus.cancelled },
+    });
+  }
+
   private async assertCanAccessApplication(
     caller: TenantCaller,
     applicationId: string,
@@ -279,7 +304,8 @@ export class ApplicationsService {
 
     return await this.prisma.application.findMany({
       where: { candidateId: candidate.candidateId },
-      include: applicationIncludeOptions,
+      // The list needs no history; the latest full row carried staff notes (D1).
+      include: { ...applicationIncludeOptions, history: false },
       orderBy: { appliedAt: 'desc' },
     });
   }
@@ -333,6 +359,8 @@ export class ApplicationsService {
           notes: 'Ứng viên đã rút đơn ứng tuyển',
         },
       });
+
+      await this.cancelUpcomingSchedules(tx, applicationId);
     });
 
     return { message: 'Rút đơn ứng tuyển thành công' };
@@ -485,6 +513,18 @@ export class ApplicationsService {
   async getApplicationById(applicationId: string, caller: TenantCaller) {
     await this.assertCanAccessApplication(caller, applicationId);
 
+    if (caller.role === UserRole.candidate) {
+      const own = await this.prisma.application.findUnique({
+        where: { applicationId },
+        include: {
+          ...applicationIncludeOptions,
+          history: { select: candidateHistorySelect, orderBy: { changedAt: 'asc' } },
+        },
+      });
+      if (!own) throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
+      return { ...own, history: toCandidateHistory(own.history, own.status) };
+    }
+
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
       include: {
@@ -564,6 +604,10 @@ export class ApplicationsService {
         },
       });
 
+      if (dto.status === ApplicationStatus.rejected) {
+        await this.cancelUpcomingSchedules(tx, applicationId);
+      }
+
       return updated;
     });
 
@@ -577,10 +621,20 @@ export class ApplicationsService {
 
     const application = await this.prisma.application.findUnique({
       where: { applicationId },
-      select: { applicationId: true },
+      select: { applicationId: true, status: true },
     });
     if (!application)
       throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
+
+    // A candidate reads only the steps of their own application (R1, D8).
+    if (caller.role === UserRole.candidate) {
+      const rows = await this.prisma.applicationHistory.findMany({
+        where: { applicationId },
+        select: candidateHistorySelect,
+        orderBy: { changedAt: 'asc' },
+      });
+      return toCandidateHistory(rows, application.status);
+    }
 
     return await this.prisma.applicationHistory.findMany({
       where: { applicationId },

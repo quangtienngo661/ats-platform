@@ -1,5 +1,5 @@
 import { FileText, Trash2, Eye, CheckCircle, Clock, AlertCircle, Loader2 } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { SF } from '@/types/fonts/fonts';
 import { ICvDto } from '@/types/interfaces/cv.interface';
 
 interface CvCardProps {
@@ -90,7 +90,7 @@ export function CvCard({ cv, onView, onDelete }: CvCardProps) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex-shrink-0">
                     {cv.parsingStatus === 'completed' && (
                         <button
                             onClick={onView}
