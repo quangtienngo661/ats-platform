@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Scope: this file covers `libs/backend/database` and `libs/shared/types` only. See the repo-root `CLAUDE.md` for the monorepo as a whole (NestJS API, Next.js frontend, cross-cutting conventions like the response envelope and pagination shape — not repeated here). Always also check the global CLAUDE.md at `~/.claude/CLAUDE.md` — it defines behavioral rules (`~/.claude/rules/*.md`) and the section skeleton that apply across all projects.
+Scope: this file covers `libs/backend/database` and `libs/shared/types` only. See the repo-root `CLAUDE.md` for the monorepo as a whole (NestJS API, Next.js frontend, cross-cutting conventions like the response envelope and pagination shape — not repeated here).
 
 ## 1. Overview
 
@@ -40,7 +40,6 @@ Two shared libraries consumed by both apps: `libs/backend/database` (Prisma sche
 ## 5. Current Anti-patterns — Do Not Follow
 
 - **Enum sync between `schema.prisma` and `enums.ts` is entirely manual, with no CI check.** `src/lib/prisma-enums.ts` used to re-export Prisma's generated enums directly but was disabled — its header comment explains that leaked a Node.js module into Next.js Client Components and broke Turbopack builds. Don't re-enable that re-export to "simplify" the duplication; the fix for drift is discipline (update both files in the same commit), not reintroducing the re-export.
-- **`CandidateSkillSource` enum has no corresponding model** (`docs/current-state.md` M6, audit as of Jun 2026 — verified independently against `schema.prisma`, no `CandidateSkill` model exists) — `CandidateSkill` was never implemented, so the enum is orphaned in the schema. Leave it as-is unless you're implementing the `CandidateSkill` model (Phase 2 territory, RAG-adjacent) — don't delete the enum as unused-code cleanup without checking the roadmap first.
 
 ## 6. Important Commands
 
@@ -77,9 +76,9 @@ Per `docs/migration-roadmap.md` Phase 2 (RAG, Sep 2026): `pgvector` will be enab
 
 ## 9. Testing
 
-Neither library has test files today. If you add tests here, mirror `apps/api`'s pattern (`*.spec.ts` next to source, run via `@nx/jest`) rather than inventing a different runner — but note neither `project.json` currently defines a `test` target, so that would need wiring up first (see `.claude/rules/web/testing.md` for the same gap on that project).
+Neither library has test files today. If you add tests here, mirror `apps/api`'s pattern (`*.spec.ts` next to source, run via `@nx/jest`) rather than inventing a different runner — but note neither `project.json` currently defines a `test` target, so that would need wiring up first.
 
 ## 10. Other Notes
 
 - Both libraries have empty/minimal `project.json` targets (`types` has none at all; `database` only has the four `prisma-*` run-commands in §6) — anything beyond that comes from Nx's plugin inference (`@nx/eslint/plugin`, `@nx/jest/plugin`, `@nx/js/typescript` in `nx.json`), not an explicit target definition.
-- `apps/api` is the primary consumer of `@ats-platform/database` (`.claude/rules/apis/*.md`); `apps/web` should only ever consume `@ats-platform/types` (`.claude/rules/web/*.md`) — §4.
+- `apps/api` is the primary consumer of `@ats-platform/database`; `apps/web` should only ever consume `@ats-platform/types` — §4.
