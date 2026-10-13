@@ -8,7 +8,11 @@ import {
 } from '@ats-platform/database';
 import { ApplicationsService } from './applications.service';
 import { candidateHistorySelect } from '../../common/utils/include-options.util';
-import { ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import {
   callerOf,
   createPrismaMock,
@@ -798,4 +802,76 @@ describe('ApplicationsService', () => {
       expect(prisma.application.findMany.mock.calls[0][0].include.history).toBe(false);
     });
   });
+
+  it.each([
+    {
+      reason: 'APPLIED_NOT_MOVED',
+      status: ApplicationStatus.applied,
+      screening: null,
+      exception: BadRequestException,
+      message:
+        "Hãy chuyển đơn ứng tuyển sang trạng thái 'screening' trước khi chạy sàng lọc AI",
+    },
+    {
+      reason: 'FINAL_STATUS',
+      status: ApplicationStatus.hired,
+      screening: null,
+      exception: BadRequestException,
+      message:
+        "Không thể chạy sàng lọc AI khi đơn ứng tuyển đang ở trạng thái 'hired'",
+    },
+    {
+      reason: 'IN_QUEUE pending',
+      status: ApplicationStatus.screening,
+      screening: { status: ScreeningStatus.pending },
+      exception: ConflictException,
+      message: 'Sàng lọc AI đã được đưa vào hàng đợi',
+    },
+    {
+      reason: 'IN_QUEUE processing',
+      status: ApplicationStatus.screening,
+      screening: { status: ScreeningStatus.processing },
+      exception: ConflictException,
+      message: 'Sàng lọc AI đang được xử lý',
+    },
+    {
+      reason: 'ALREADY_SCREENED',
+      status: ApplicationStatus.interview,
+      screening: { status: ScreeningStatus.completed },
+      exception: ConflictException,
+      message:
+        'Sàng lọc AI đã hoàn tất. Vui lòng xem kết quả trong chi tiết đơn ứng tuyển',
+    },
+    {
+      reason: 'RETRY_LIMIT',
+      status: ApplicationStatus.offer,
+      screening: { status: ScreeningStatus.failed, retryCount: 3 },
+      exception: ConflictException,
+      message:
+        'Sàng lọc AI đã thất bại 3 lần. Vui lòng kiểm tra lại CV hoặc liên hệ quản trị viên',
+    },
+  ])(
+    'triggerScreening keeps its message and HTTP class for $reason',
+    async ({ status, screening, exception, message }) => {
+      prisma.application.findUnique
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          organizationId: 'org-1',
+          candidate: { userId: 'cand-user' },
+          jobPosting: { departmentId: 'dep-1' },
+        })
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          status,
+          cvId: 'cv-1',
+          screening,
+        });
+
+      const result = service.triggerScreening('app-1', platformAdmin);
+
+      await expect(result).rejects.toBeInstanceOf(exception);
+      await expect(result).rejects.toHaveProperty('message', message);
+      expect(cvScreeningsService.createScreeningRecord).not.toHaveBeenCalled();
+    },
+  );
 });
