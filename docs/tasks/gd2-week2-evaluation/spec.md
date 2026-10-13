@@ -26,7 +26,7 @@ tuyển dụng, D4 của tuần 1) không thuộc SP1.
 ## Ngoài phạm vi SP1
 
 Mẫu tiêu chí cấu hình theo tổ chức · @mention · ghi chú riêng tư · nhiều interviewer trên một lịch (panel) · ẩn
-scorecard của người khác đến khi tự nộp · thông báo hoặc email khi có scorecard (SP3) · co-pilot dùng scorecard
+scorecard của người khác đến khi tự nộp · thông báo hoặc email cho recruiter khi có scorecard (chưa thuộc spec nào: SP3 chỉ gửi cho ứng viên) · co-pilot dùng scorecard
 (GĐ4) · giữ lựa chọn so sánh qua nhiều trang · mọi thao tác tự đổi trạng thái theo điểm.
 
 ## Quy tắc
