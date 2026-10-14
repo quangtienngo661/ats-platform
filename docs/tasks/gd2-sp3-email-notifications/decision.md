@@ -213,6 +213,7 @@ Design được trình bày thành ba phần (kiến trúc và luồng; lỗi, n
 1. Thông báo cho recruiter khi có scorecard: **ngoài phạm vi SP3**. Mặc định này do phiên điều phối đặt ngày 2026-10-13;
    spec SP1 đã được sửa theo (`docs/tasks/gd2-week2-evaluation/spec.md:29`).
 2. Ứng viên `inactive`: **không gửi email**, row ở `skipped` (spec R17). Lúc viết spec, Claude đặt mặc định là vẫn gửi.
-   Phiên điều phối đổi lại, vì tài khoản đã bị khoá không nên nhận thư của nền tảng. Người dùng có thể đổi.
+   Phiên điều phối đổi lại, vì tài khoản đã bị khoá không nên nhận thư của nền tảng. **Người dùng xác nhận 2026-10-14:**
+   ứng viên `inactive` không nhận email, ứng viên `active` nhận như bình thường.
 3. Các điều chỉnh kỹ thuật khi viết plan (FK `applicationId` cascade, `updateManyAndReturn`, probe Mailpit và PostgreSQL
    chạy trên container dùng một lần) được ghi ở mục "Điều chỉnh spec" của [plan.md](plan.md).

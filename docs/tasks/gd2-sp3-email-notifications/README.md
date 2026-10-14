@@ -83,7 +83,7 @@ Tên test có `%s` hoặc `$status` là tên của test dùng `it.each`.
 | C12 processor bỏ qua row `sent`/`skipped`; SMTP tắt, lỗi và gửi thành công được ghi đúng | [notification-email.processor.spec.ts](../../../apps/api/src/app/candidate-notifications/notification-email.processor.spec.ts) › *skips a row that is already sent*, *skips a row that is already skipped*, *marks the row skipped when SMTP is disabled*, *records lastError and rethrows on a non-final failure without changing the status*, *marks the row failed and rethrows on the final attempt*, *sends the rendered email to the snapshot address and marks it sent*; [mail.service.spec.ts](../../../apps/api/src/common/mail/mail.service.spec.ts) › *sendMail returns false and creates no transport when SMTP is disabled*, *sendMail lets an SMTP error propagate* | unit pass |
 | C13 migration và FK trên PostgreSQL thật | [probe-email-notifications.js](results/probe-email-notifications.js); [log đỏ](results/probe-email-notifications-red.log), [log xanh](results/probe-email-notifications-green.log). Catalog xác nhận user và application dùng `CASCADE`, organization dùng `RESTRICT` | 1 PASS, 10 FAIL trước migration → 11 PASS sau migration |
 | C14 hành trình API → queue → Mailpit, đúng người nhận và nội dung, các row `sent` | [gd2-email-notifications.e2e.ts](../../../apps/web/e2e/gd2-email-notifications.e2e.ts) › *GĐ2 SP3 — email thông báo cho ứng viên*, gồm test *tổng cộng đúng 5 email, không có email hủy riêng, mọi row đã sent*; [log journey](results/e2e-sp3.log), [log toàn bộ](results/e2e-full.log) | 6 passed trong journey và trong suite toàn bộ |
-| C15 ứng viên `inactive`: row `skipped`, không enqueue, vẫn có in-app | `candidate-notifications.service.spec.ts` › *skips an inactive candidate* | unit pass; R17 vẫn là ASSUMPTION chờ người dùng |
+| C15 ứng viên `inactive`: row `skipped`, không enqueue, vẫn có in-app | `candidate-notifications.service.spec.ts` › *skips an inactive candidate* | unit pass; R17 người dùng xác nhận 2026-10-14 |
 
 C11 có mock cho lỗi đọc đơn, enqueue và ghi in-app, cùng các assert thứ tự gọi notifier sau khi lưu.
 Chưa có test riêng làm `emailNotification.create` ném lỗi hoặc gọi request thật trong các tình huống lỗi này.
@@ -117,8 +117,8 @@ C13 kiểm FK qua catalog; probe không thực hiện thao tác xóa user, appli
   việc pull và chạy stack đó trên CI chưa được kiểm.
 - Chưa quan sát trực tiếp AUTH có được trao đổi trong Mailpit probe `ok` hay không.
   Probe chứng minh transport gửi được tới server bật AUTH, còn log Mailpit không ghi AUTH từng phiên.
-- Hai ASSUMPTION vẫn chờ người dùng: ứng viên `inactive` không nhận email (R17), và không có
-  thông báo cho recruiter khi có scorecard.
+- Một ASSUMPTION vẫn chờ người dùng: không có thông báo cho recruiter khi có scorecard. Ứng viên
+  `inactive` không nhận email (R17) đã được người dùng xác nhận 2026-10-14.
 - Dự kiến có merge conflicts với SP1 và SP2 ở các file trong Global Constraints của
   [plan.md](plan.md#global-constraints): `apps/api/src/app/applications/applications.service.ts`,
   `apps/api/src/app/interviews/interviews.service.ts`, `libs/backend/database/prisma/schema.prisma`,

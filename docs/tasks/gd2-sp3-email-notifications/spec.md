@@ -65,7 +65,7 @@ Người nhận luôn là ứng viên của đơn. Tiêu đề là bản dự ki
 | R14 | In-app 4 trạng thái giữ nguyên câu chữ hiện tại. Thêm in-app cho #6–#8 với `NotificationType.interview`, `RelatedEntityType.interview`, `relatedEntityId` = `interviewId`. #1 không có in-app. |
 | R15 | Không có opt-out: ứng viên nào cũng nhận đủ 8 loại email (D6). |
 | R16 | Retry kế thừa `forRoot`: 3 lần, exponential 10 s (`app.module.ts:46-64`). Không truyền `defaultJobOptions` ở `registerQueue`. Queue giới hạn 30 email/phút bằng `setGlobalRateLimit`, giống queue xác minh (`auth.module.ts:49`). |
-| R17 | *(ASSUMPTION, chờ người dùng xác nhận)* Tài khoản ứng viên `UserStatus.inactive` lúc phát sự kiện không được gửi email: row vẫn được ghi nhưng ở `skipped` và không enqueue. In-app vẫn tạo như cũ. |
+| R17 | *(người dùng xác nhận 2026-10-14)* Tài khoản ứng viên `UserStatus.inactive` lúc phát sự kiện không được gửi email: row vẫn được ghi nhưng ở `skipped` và không enqueue. In-app vẫn tạo như cũ. Ứng viên `active` nhận email như bình thường. |
 
 ## Thiết kế
 
@@ -178,7 +178,7 @@ lọc), và bấm vào thì chỉ đánh dấu đã đọc (`NotificationDropdow
 | E9 | Sang `interview` rồi tạo lịch ngay | #2 rồi #6; thứ tự tới hộp thư không đảm bảo (concurrency 5) |
 | E10 | Redis sập lúc enqueue | Row nằm `pending`, không tự gửi lại (ngoài phạm vi) |
 | E11 | SMTP đã nhận mail rồi worker chết trước khi ghi `sent` | Có thể nhận bản lặp (at-least-once, R11) |
-| E12 | Tài khoản ứng viên `inactive` | Không gửi: row `skipped` (R17, ASSUMPTION chờ xác nhận) |
+| E12 | Tài khoản ứng viên `inactive` | Không gửi: row `skipped` (R17, người dùng xác nhận 2026-10-14) |
 | E13 | org_admin hoặc platform admin đổi trạng thái hay lịch | Như recruiter; `organizationId` vẫn lấy từ đơn |
 
 ## Kiểm thử và quy trình
@@ -226,7 +226,8 @@ lọc), và bấm vào thì chỉ đánh dấu đã đọc (`NotificationDropdow
 1. **Thông báo cho recruiter khi có scorecard nằm ngoài phạm vi SP3.** Spec SP1 đã được sửa thành *"chưa thuộc spec nào:
    SP3 chỉ gửi cho ứng viên"* (`docs/tasks/gd2-week2-evaluation/spec.md:29`).
 2. **Ứng viên `inactive` không nhận email** (R17, C15, E12). Mặc định ban đầu lúc viết spec là vẫn gửi. Phiên điều phối đổi
-   lại, vì tài khoản đã bị khoá không nên nhận thư của nền tảng. Người dùng có thể đổi.
+   lại, vì tài khoản đã bị khoá không nên nhận thư của nền tảng. **Người dùng xác nhận 2026-10-14:** ứng viên `inactive`
+   không nhận email, ứng viên `active` nhận như bình thường.
 
 ## Chưa xác minh
 
