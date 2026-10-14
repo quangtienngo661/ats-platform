@@ -67,7 +67,8 @@ function application(
 }
 
 describe('candidate selection', () => {
-  it('CandidateRow keeps its checkbox enabled with any number of other rows selected', async () => {
+  // One test per count: each re-renders 52 rows, so a single test for all four ran past the 5 s timeout.
+  it.each([0, 4, 50, 51])('CandidateRow keeps its checkbox enabled with any number of other rows selected (%i others)', async (otherSelectedCount) => {
     const user = userEvent.setup();
     const onToggle = vi.fn();
     const applications = Array.from({ length: 52 }, (_, index) => application(index + 1));
@@ -86,22 +87,19 @@ describe('candidate selection', () => {
         })}
       </tbody></table>
     );
-    const { rerender } = render(table(0));
+    const { rerender } = render(table(otherSelectedCount));
 
-    for (const otherSelectedCount of [0, 4, 50, 51]) {
-      rerender(table(otherSelectedCount));
-      const checkbox = screen.getByRole('checkbox', { name: 'Chọn Ứng viên 52' });
-      expect(checkbox).toBeEnabled();
-      expect(checkbox).not.toBeChecked();
-      expect(screen.getAllByRole('checkbox').filter(input => (input as HTMLInputElement).checked))
-        .toHaveLength(otherSelectedCount);
+    const checkbox = screen.getByRole('checkbox', { name: 'Chọn Ứng viên 52' });
+    expect(checkbox).toBeEnabled();
+    expect(checkbox).not.toBeChecked();
+    expect(screen.getAllByRole('checkbox').filter(input => (input as HTMLInputElement).checked))
+      .toHaveLength(otherSelectedCount);
 
-      await user.click(checkbox);
-      expect(onToggle).toHaveBeenLastCalledWith(target.applicationId);
-      rerender(table(otherSelectedCount, true));
-      expect(checkbox).toBeChecked();
-      expect(checkbox).toBeEnabled();
-    }
+    await user.click(checkbox);
+    expect(onToggle).toHaveBeenLastCalledWith(target.applicationId);
+    rerender(table(otherSelectedCount, true));
+    expect(checkbox).toBeChecked();
+    expect(checkbox).toBeEnabled();
   });
 
   it('"Chọn tất cả" selects every visible row and clears them again', async () => {
