@@ -1,0 +1,3 @@
+npx eslint apps/web/src/servers/applications/applications.action.ts apps/web/src/types/constants/screening-skip-reasons.ts
+
+EXIT=0
