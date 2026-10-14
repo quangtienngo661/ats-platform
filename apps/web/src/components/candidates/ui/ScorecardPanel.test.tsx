@@ -138,4 +138,36 @@ describe('ScorecardPanel', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(mocks.submit).not.toHaveBeenCalled();
   });
+
+  it('a recruiter who neither runs nor scheduled the interview still sees its scorecard', async () => {
+    const other = schedule({
+      interviewerId: 'user-2',
+      interviewer: { userId: 'user-2', fullName: 'Lê Văn C', email: 'c@ats.test' },
+    });
+    const saved = scorecard(other);
+    load([], [saved]);
+    render(<ScorecardPanel applicationId={applicationId} currentUserId="user-3" isClosed={false} />);
+
+    const card = await screen.findByRole('article', { name: 'Buổi phỏng vấn ngày 10/10/2026' });
+    expectSavedScorecard(card, saved);
+    expect(screen.queryByRole('button', { name: 'Nộp đánh giá' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Sửa đánh giá' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Chưa có buổi phỏng vấn.')).not.toBeInTheDocument();
+  });
+
+  it('a recruiter of another department still sees no scorecard', async () => {
+    load([], []);
+    mocks.scorecards.mockRejectedValue(new Error('Không thể tải dữ liệu. Vui lòng thử lại.'));
+    render(<ScorecardPanel applicationId={applicationId} currentUserId="user-3" isClosed={false} />);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toBeVisible();
+    expect(alert).toHaveTextContent('Không thể tải đánh giá phỏng vấn. Vui lòng thử lại.');
+    expect(screen.queryByRole('article')).not.toBeInTheDocument();
+    for (const value of ['4/5', '3/5', '5/5', '2/5', 'Nên tuyển', savedComment, 'Lê Văn C']) {
+      expect(screen.queryByText(value)).not.toBeInTheDocument();
+    }
+    expect(screen.queryByRole('button', { name: 'Nộp đánh giá' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Sửa đánh giá' })).not.toBeInTheDocument();
+  });
 });
