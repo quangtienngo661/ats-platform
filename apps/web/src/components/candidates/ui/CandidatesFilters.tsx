@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { CandidateRow } from './CandidateRow';
+import { CompareBar } from './CompareBar';
 
 interface CandidatesFiltersProps {
     applications: IApplicationDto[];
@@ -21,6 +22,24 @@ const statusFilters = [
 export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProps) {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+    useEffect(() => {
+        const pageIds = new Set(applications.map(application => application.applicationId));
+        setSelectedIds(previous => {
+            const next = new Set(Array.from(previous).filter(id => pageIds.has(id)));
+            return next.size === previous.size ? previous : next;
+        });
+    }, [applications]);
+
+    const onToggle = (applicationId: string) => {
+        setSelectedIds(previous => {
+            const next = new Set(previous);
+            if (next.has(applicationId)) next.delete(applicationId);
+            else next.add(applicationId);
+            return next;
+        });
+    };
 
     const filtered = applications
         .filter(a => selectedFilter === 'all' || a.status === selectedFilter)
@@ -32,6 +51,19 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 a.jobPosting?.title?.toLowerCase().includes(q)
             );
         });
+
+    const allSelected = filtered.length > 0 && filtered.every(application => selectedIds.has(application.applicationId));
+
+    const onToggleAll = () => {
+        setSelectedIds(previous => {
+            const next = new Set(previous);
+            for (const application of filtered) {
+                if (allSelected) next.delete(application.applicationId);
+                else next.add(application.applicationId);
+            }
+            return next;
+        });
+    };
 
     return (
         <div style={{ fontFamily: SFT }}>
@@ -69,12 +101,24 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 </div>
             </div>
 
+            <CompareBar jobId={jobId} selectedIds={Array.from(selectedIds)} />
+
             {/* Table */}
             <div className="bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-[#F2F2F7]">
+                                <th scope="col" className="px-6 py-4 text-left">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Chọn tất cả"
+                                        checked={allSelected}
+                                        onChange={onToggleAll}
+                                        disabled={filtered.length === 0}
+                                        className="h-4 w-4 cursor-pointer accent-[#0071E3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
+                                    />
+                                </th>
                                 {['Ứng viên', 'Vị trí ứng tuyển', 'Điểm AI', 'Trạng thái', 'Thời gian', ''].map((th, i) => (
                                     <th key={i} className={`${i === 5 ? 'text-right' : 'text-left'} px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]`} style={{ fontWeight: 600 }}>{th}</th>
                                 ))}
@@ -82,11 +126,11 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                         </thead>
                         <tbody>
                             {filtered.map((app) => (
-                                <CandidateRow key={app.applicationId} application={app} jobId={jobId} />
+                                <CandidateRow key={app.applicationId} application={app} jobId={jobId} selected={selectedIds.has(app.applicationId)} onToggle={onToggle} />
                             ))}
                             {filtered.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-[13px] text-[#AEAEB2]">
+                                    <td colSpan={7} className="px-6 py-12 text-center text-[13px] text-[#AEAEB2]">
                                         Không tìm thấy ứng viên nào.
                                     </td>
                                 </tr>
