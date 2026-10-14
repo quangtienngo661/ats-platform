@@ -1,0 +1,278 @@
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:21 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:22 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:22 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-6: this.notificationsService.create is not a function
+[Nest] 170224  - 10/14/2026, 10:50:22 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/05/2026, 10:00:00 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/05/2026, 10:00:00 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/05/2026, 10:00:00 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+[Nest] 170224  - 10/05/2026, 10:00:00 AM    WARN [ApplicationsService] Failed to notify candidate cand-user for application app-1: this.notificationsService.create is not a function
+FAIL api apps/api/src/app/applications/applications.service.spec.ts (5.142 s)
+  ● ApplicationsService › notifies once the application is created, after the transaction
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      117 |     ).resolves.toEqual({ applicationId: 'app-1', jobId: 'job-1' });
+      118 |
+    > 119 |     expect(candidateNotifications.applicationReceived).toHaveBeenCalledTimes(1);
+          |                                                        ^
+      120 |     expect(candidateNotifications.applicationReceived).toHaveBeenCalledWith('app-1');
+      121 |     expect(
+      122 |       candidateNotifications.applicationReceived.mock.invocationCallOrder[0],
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:119:56)
+
+  ● ApplicationsService › status transitions — all 49 pairs › applied → screening
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › applied → rejected
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › screening → interview
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › screening → rejected
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › interview → offer
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › interview → rejected
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › offer → hired
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › status transitions — all 49 pairs › offer → rejected
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      170 |           },
+      171 |         });
+    > 172 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                                 ^
+      173 |         expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
+      174 |       } else {
+      175 |         await expect(result).rejects.toThrow(
+
+      at src/app/applications/applications.service.spec.ts:172:65
+
+  ● ApplicationsService › enforces valid status transitions and notifies candidates when needed
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "app-1", "interview", []
+
+    Number of calls: 0
+
+      468 |     });
+      469 |
+    > 470 |     expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+          |                                                             ^
+      471 |       'app-1', ApplicationStatus.interview, [],
+      472 |     );
+      473 |
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:470:61)
+
+  ● ApplicationsService › allows a genuine revert and still notifies the candidate
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "app-6", "screening", []
+
+    Number of calls: 0
+
+      553 |     // The old revert branch returned from inside the transaction and never reached
+      554 |     // notifyCandidateStatusChangeSafe — the candidate got no signal at all.
+    > 555 |     expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+          |                                                             ^
+      556 |       'app-6', ApplicationStatus.screening, [],
+      557 |     );
+      558 |   });
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:555:61)
+
+  ● ApplicationsService › a revert to interview notifies with the target status
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      587 |     });
+      588 |
+    > 589 |     expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                             ^
+      590 |     expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+      591 |       'app-1', ApplicationStatus.interview, [],
+      592 |     );
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:589:61)
+
+  ● ApplicationsService › closing an application cancels its upcoming interviews (R7) › cancels the upcoming interviews when an application is rejected
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: {"data": {"status": "cancelled"}, "select": {"durationMinutes": true, "interviewId": true, "interviewType": true, "startAt": true}, "where": {"applicationId": "app-1", "startAt": {"gt": 2026-10-05T03:00:00.000Z}, "status": "scheduled"}}
+
+    Number of calls: 0
+
+      646 |       await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.rejected });
+      647 |
+    > 648 |       expect(tx.interviewSchedule.updateManyAndReturn).toHaveBeenCalledWith(upcomingCancellation);
+          |                                                        ^
+      649 |       // Inside the status change's transaction, never as a separate write.
+      650 |       expect(prisma.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
+      651 |     });
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:648:56)
+
+  ● ApplicationsService › closing an application cancels its upcoming interviews (R7) › passes the schedules cancelled by a rejection to the notification
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      671 |       await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.rejected });
+      672 |
+    > 673 |       expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+          |                                                               ^
+      674 |       expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+      675 |         'app-1', ApplicationStatus.rejected, cancelled,
+      676 |       );
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:673:63)
+
+  ● ApplicationsService › closing an application cancels its upcoming interviews (R7) › cancels the upcoming interviews when the candidate withdraws
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: {"data": {"status": "cancelled"}, "select": {"durationMinutes": true, "interviewId": true, "interviewType": true, "startAt": true}, "where": {"applicationId": "app-1", "startAt": {"gt": 2026-10-05T03:00:00.000Z}, "status": "scheduled"}}
+
+    Number of calls: 0
+
+      695 |       await service.withdraw('app-1', 'cand-user');
+      696 |
+    > 697 |       expect(tx.interviewSchedule.updateManyAndReturn).toHaveBeenCalledWith(upcomingCancellation);
+          |                                                        ^
+      698 |       expect(prisma.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
+      699 |     });
+      700 |
+
+      at Object.<anonymous> (src/app/applications/applications.service.spec.ts:697:56)
+
+Test Suites: 1 failed, 1 total
+Tests:       15 failed, 67 passed, 82 total
+Snapshots:   0 total
+Time:        5.537 s

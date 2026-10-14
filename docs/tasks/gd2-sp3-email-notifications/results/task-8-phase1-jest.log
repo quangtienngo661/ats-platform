@@ -1,0 +1,56 @@
+FAIL api apps/api/src/app/interviews/interviews.service.spec.ts
+  ● InterviewsService › notifies the candidate after creating a schedule
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      125 |     } as any);
+      126 |
+    > 127 |     expect(candidateNotifications.scheduleCreated).toHaveBeenCalledTimes(1);
+          |                                                    ^
+      128 |     expect(candidateNotifications.scheduleCreated.mock.calls[0][0]).toEqual(
+      129 |       snapshot,
+      130 |     );
+
+      at Object.<anonymous> (src/app/interviews/interviews.service.spec.ts:127:52)
+
+  ● InterviewsService › updateSchedule — status transitions › passes the schedule before and after an update
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: undefined
+
+      498 |       expect(
+      499 |         prisma.interviewSchedule.findUnique.mock.calls[0][0].select.applicationId,
+    > 500 |       ).toBe(true);
+          |         ^
+      501 |       expect(candidateNotifications.scheduleChanged).toHaveBeenCalledTimes(1);
+      502 |       expect(candidateNotifications.scheduleChanged.mock.calls[0][0]).toEqual(
+      503 |         beforeSnapshot,
+
+      at Object.<anonymous> (src/app/interviews/interviews.service.spec.ts:500:9)
+
+  ● InterviewsService › removeSchedule — candidate notifications › passes the schedule and the removal time after deleting
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: undefined
+
+      606 |         expect(
+      607 |           prisma.interviewSchedule.findUnique.mock.calls[0][0].select.applicationId,
+    > 608 |         ).toBe(true);
+          |           ^
+      609 |         expect(prisma.interviewSchedule.delete).toHaveBeenCalledWith({
+      610 |           where: { interviewId: 'int-1' },
+      611 |         });
+
+      at Object.<anonymous> (src/app/interviews/interviews.service.spec.ts:608:11)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 36 passed, 39 total
+Snapshots:   0 total
+Time:        4.086 s

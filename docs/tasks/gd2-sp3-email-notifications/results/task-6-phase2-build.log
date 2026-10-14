@@ -1,0 +1,58 @@
+
+ NX   Unable to initialize workspace data while attempting to create lock file:
+
+
+Access is denied. (os error 5)
+
+Try:
+- Verify you have read and write permissions for: \\?\E:\Learnings\Learning Stuffs\University\HK6\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\.nx\workspace-data\9a324e25-8aa9-44d9-b886-3bf1cea95d6a-v2.lock
+- Check that you own the file/directory or your user has access
+- Ensure the filesystem is not mounted read-only
+- If using Docker, ensure volume has correct permissions
+- If running in a restricted environment, you may need administrator privileges
+
+If the issue persists, please help us improve Nx by capturing logs and reporting this issue:
+1. Run: NX_NATIVE_FILE_LOGGING=nx::native::db=trace nx <your-command>
+2. Create an issue at https://github.com/nrwl/nx/issues/new/choose and include the .nx/workspace-data/nx.log file
+
+Then try: nx reset
+Pass --verbose to see the stacktrace.
+
+(node:171460) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:177928) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:177708) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ NX   Running target build for project api and 2 tasks it depends on:
+
+
+
+> nx run database:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run types:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+(node:177980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:173724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:178164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+webpack compiled [1m[32msuccessfully[39m[22m (54f8f33e2de0ac48)
+
+
+
+ NX   Successfully ran target build for project api and 2 tasks it depends on
+
+

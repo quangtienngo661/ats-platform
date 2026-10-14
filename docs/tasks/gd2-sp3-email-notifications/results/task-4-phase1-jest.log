@@ -1,0 +1,24 @@
+FAIL api apps/api/src/app/candidate-notifications/email/render-notification-email.spec.ts
+  ● Test suite failed to run
+
+    [96mapps/api/src/app/candidate-notifications/email/render-notification-email.spec.ts[0m:[93m8[0m:[93m8[0m - [91merror[0m[90m TS2307: [0mCannot find module './notification-email.types' or its corresponding type declarations.
+
+    [7m8[0m } from './notification-email.types';
+    [7m [0m [91m       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    [96mapps/api/src/app/candidate-notifications/email/render-notification-email.spec.ts[0m:[93m9[0m:[93m41[0m - [91merror[0m[90m TS2307: [0mCannot find module './render-notification-email' or its corresponding type declarations.
+
+    [7m9[0m import { renderNotificationEmail } from './render-notification-email';
+    [7m [0m [91m                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+FAIL api apps/api/src/app/candidate-notifications/email/format.spec.ts
+  ● Test suite failed to run
+
+    [96mapps/api/src/app/candidate-notifications/email/format.spec.ts[0m:[93m6[0m:[93m8[0m - [91merror[0m[90m TS2307: [0mCannot find module './format' or its corresponding type declarations.
+
+    [7m6[0m } from './format';
+    [7m [0m [91m       ~~~~~~~~~~[0m
+
+Test Suites: 2 failed, 2 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        2.319 s

@@ -1,0 +1,28 @@
+FAIL api apps/api/src/app/candidate-notifications/candidate-notifications.service.spec.ts
+  ● Test suite failed to run
+
+    apps/api/src/app/candidate-notifications/candidate-notifications.service.spec.ts:16:47 - error TS2307: Cannot find module './candidate-notifications.service' or its corresponding type declarations.
+
+    16 import { CandidateNotificationsService } from './candidate-notifications.service';
+                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    apps/api/src/app/candidate-notifications/candidate-notifications.service.spec.ts:17:46 - error TS2307: Cannot find module './candidate-notifications.module' or its corresponding type declarations.
+
+    17 import { CandidateNotificationsModule } from './candidate-notifications.module';
+                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    apps/api/src/app/candidate-notifications/candidate-notifications.service.spec.ts:18:39 - error TS2307: Cannot find module './schedule-changes' or its corresponding type declarations.
+
+    18 import type { ScheduleSnapshot } from './schedule-changes';
+                                             ~~~~~~~~~~~~~~~~~~~~
+
+FAIL api apps/api/src/app/candidate-notifications/schedule-changes.spec.ts
+  ● Test suite failed to run
+
+    apps/api/src/app/candidate-notifications/schedule-changes.spec.ts:6:8 - error TS2307: Cannot find module './schedule-changes' or its corresponding type declarations.
+
+    6 } from './schedule-changes';
+             ~~~~~~~~~~~~~~~~~~~~
+
+Test Suites: 2 failed, 2 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        4.024 s

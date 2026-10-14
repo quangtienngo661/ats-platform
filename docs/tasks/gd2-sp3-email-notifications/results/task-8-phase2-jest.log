@@ -1,0 +1,155 @@
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Session session-1 created (generating), question generation queued for topic: Backend
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Generating final result for session session-1 — weightedScore: 80
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Session session-1 completed with overallScore: 80
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Session session-1 abandoned by user user-1
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Session session-1 abandoned by user user-1
+[Nest] 158216  - 10/14/2026, 2:14:09 PM     LOG [InterviewSessionService] Session session-1 abandoned after inactivity
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewGenerationProcessor] Generating 10 questions for session session-1 (topic: Backend, difficulty: medium)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewGenerationProcessor] Session session-1 ready with 10 questions
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewGenerationProcessor] Generating 10 questions for session session-1 (topic: Backend, difficulty: medium)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM   ERROR [InterviewGenerationProcessor] Failed to generate questions for session session-1 (attempt 1/3): Gemini timeout
+Error: Gemini timeout
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:69:68)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewGenerationProcessor] Generating 10 questions for session session-1 (topic: Backend, difficulty: medium)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM   ERROR [InterviewGenerationProcessor] Failed to generate questions for session session-1 (attempt 3/3): Gemini down
+Error: Gemini down
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:78:68)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewGenerationProcessor] Generating 10 questions for session session-1 (topic: Backend, difficulty: medium)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM   ERROR [InterviewGenerationProcessor] Failed to generate questions for session session-1 (attempt 1/3): AI chỉ tạo được 3 câu hỏi thay vì 10 câu
+Error: AI chỉ tạo được 3 câu hỏi thay vì 10 câu
+    at InterviewGenerationProcessor.process (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview-generation.processor.ts:50:23)
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview-generation.processor.spec.ts:97:9)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewProcessor] Evaluating QnA: qna-1
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewProcessor] QnA qna-1 evaluated — Score: 80/100
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewProcessor] Evaluating QnA: qna-1
+[Nest] 158216  - 10/14/2026, 2:14:11 PM   ERROR [InterviewProcessor] Failed to evaluate QnA qna-1 (attempt 1/3): Gemini timeout
+Error: Gemini timeout
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview.processor.spec.ts:64:65)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:11 PM     LOG [InterviewProcessor] Evaluating QnA: qna-1
+[Nest] 158216  - 10/14/2026, 2:14:11 PM   ERROR [InterviewProcessor] Failed to evaluate QnA qna-1 (attempt 3/3): Gemini down
+Error: Gemini down
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\interviews\session\interview.processor.spec.ts:76:65)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:14 PM     LOG [InterviewAbandonProcessor] Swept 1 stale interview session(s): session-1
+[Nest] 158216  - 10/14/2026, 2:14:15 PM     LOG [NotificationEmailProcessor] Email notification row-1 no longer exists
+[Nest] 158216  - 10/14/2026, 2:14:15 PM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP connection timed out
+Error: SMTP connection timed out
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:173:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:15 PM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP delivery failed
+Error: SMTP delivery failed
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:191:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:15 PM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP delivery failed
+Error: SMTP delivery failed
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:191:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 158216  - 10/14/2026, 2:14:15 PM    WARN [NotificationEmailProcessor] Failed to record email notification row-1 error: Failure status could not be persisted
+[Nest] 158216  - 10/14/2026, 2:14:15 PM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatruncated suffix
+Error: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatruncated suffix
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:219:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+
+Test Suites: 15 passed, 15 total
+Tests:       229 passed, 229 total
+Snapshots:   0 total
+Time:        15.162 s, estimated 18 s
