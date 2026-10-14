@@ -78,6 +78,20 @@ export function ScorecardPanel({
     };
   }, [applicationId, reload]);
 
+  const cardsById = new Map<
+    string,
+    IScorecardListItem['interview'] &
+      Partial<Pick<IInterviewSchedule, 'interviewerId' | 'interviewer'>>
+  >(schedules.map((schedule) => [schedule.interviewId, schedule]));
+  for (const scorecard of scorecards) {
+    if (!cardsById.has(scorecard.interview.interviewId)) {
+      cardsById.set(scorecard.interview.interviewId, scorecard.interview);
+    }
+  }
+  const cards = [...cardsById.values()].sort(
+    (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+  );
+
   return (
     <section
       aria-label="Nội dung đánh giá"
@@ -113,19 +127,20 @@ export function ScorecardPanel({
             Thử lại
           </button>
         </div>
-      ) : schedules.length === 0 ? (
+      ) : cards.length === 0 ? (
         <p className="bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]">
           Chưa có buổi phỏng vấn.
         </p>
       ) : (
-        schedules.map((schedule) => {
+        cards.map((schedule) => {
           const saved = scorecards.find(
             (scorecard) => scorecard.interviewId === schedule.interviewId,
           );
           const canWrite =
             !isClosed &&
             schedule.status === ScheduleStatus.completed &&
-            schedule.interviewerId === currentUserId;
+            schedule.interviewerId === currentUserId &&
+            (!saved || saved.author.userId === currentUserId);
           const date = dateFormat.format(new Date(schedule.startAt));
           return (
             <article
@@ -145,7 +160,8 @@ export function ScorecardPanel({
                       : 'Trực tiếp'}
                   </h3>
                   <p className="text-[13px] text-[#6E6E73] mt-1">
-                    Người phỏng vấn: {schedule.interviewer.fullName}
+                    Người phỏng vấn:{' '}
+                    {schedule.interviewer?.fullName ?? saved?.author.fullName}
                   </p>
                 </div>
                 <span className="text-[12px] bg-[#F5F5F7] text-[#6E6E73] rounded-full px-2.5 py-1">
