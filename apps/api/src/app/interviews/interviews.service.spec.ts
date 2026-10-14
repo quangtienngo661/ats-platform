@@ -5,7 +5,11 @@ import {
   ScheduleStatus,
   UserRole,
 } from '@ats-platform/database';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InterviewsService } from './interviews.service';
 import { callerOf, createPrismaMock } from '../../test-utils/unit-test-helpers';
 import {
@@ -19,12 +23,30 @@ const orgAdmin = callerOf(UserRole.org_admin); // organization 'org-1'
 describe('InterviewsService', () => {
   let service: InterviewsService;
   let prisma: ReturnType<typeof createPrismaMock>;
+  let candidateNotifications: {
+    applicationReceived: jest.Mock;
+    applicationStatusChanged: jest.Mock;
+    scheduleCreated: jest.Mock;
+    scheduleChanged: jest.Mock;
+    scheduleRemoved: jest.Mock;
+  };
 
   beforeEach(() => {
     prisma = createPrismaMock();
     // Default: interviewer has no existing schedules, so the overlap check clears.
     prisma.interviewSchedule.findMany.mockResolvedValue([]);
-    service = new InterviewsService(prisma as any);
+    candidateNotifications = {
+      applicationReceived: jest.fn().mockResolvedValue(undefined),
+      applicationStatusChanged: jest.fn().mockResolvedValue(undefined),
+      scheduleCreated: jest.fn().mockResolvedValue(undefined),
+      scheduleChanged: jest.fn().mockResolvedValue(undefined),
+      scheduleRemoved: jest.fn().mockResolvedValue(undefined),
+    };
+    service = new InterviewsService(
+      ...([prisma, candidateNotifications] as unknown as ConstructorParameters<
+        typeof InterviewsService
+      >),
+    );
   });
 
   it('creates a schedule for an interview-stage application', async () => {
@@ -60,6 +82,55 @@ describe('InterviewsService', () => {
         }),
       }),
     );
+  });
+
+  it('notifies the candidate after creating a schedule', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+      status: ApplicationStatus.interview,
+      jobPosting: { departmentId: 'dep-1' },
+    });
+    prisma.recruiter.findUnique.mockResolvedValue({
+      recruiterId: 'rec-1',
+      departmentId: 'dep-1',
+      organizationId: 'org-1',
+      user: { userId: 'interviewer-1', role: UserRole.recruiter },
+    });
+    const snapshot = {
+      interviewId: 'int-1',
+      applicationId: 'app-1',
+      interviewerId: 'interviewer-1',
+      interviewType: InterviewType.online,
+      startAt: new Date('2026-06-01T09:00:00.000Z'),
+      durationMinutes: 60,
+      onlineMeetingLink: 'https://meet.test',
+      location: null,
+      status: ScheduleStatus.scheduled,
+    };
+    prisma.interviewSchedule.create.mockResolvedValue({
+      ...snapshot,
+      organizationId: 'org-1',
+      scheduledBy: 'admin-1',
+      application: { jobPosting: { departmentId: 'dep-1' } },
+    });
+
+    await service.createSchedule(platformAdmin, {
+      applicationId: 'app-1',
+      interviewerId: 'interviewer-1',
+      interviewType: InterviewType.online,
+      startAt: '2026-06-01T09:00:00.000Z',
+      durationMinutes: 60,
+      onlineMeetingLink: 'https://meet.test',
+    } as any);
+
+    expect(candidateNotifications.scheduleCreated).toHaveBeenCalledTimes(1);
+    expect(candidateNotifications.scheduleCreated.mock.calls[0][0]).toEqual(
+      snapshot,
+    );
+    expect(
+      candidateNotifications.scheduleCreated.mock.invocationCallOrder[0],
+    ).toBeGreaterThan(prisma.interviewSchedule.create.mock.invocationCallOrder[0]);
   });
 
   it('rejects scheduling when application is not in interview status', async () => {
@@ -132,6 +203,38 @@ describe('InterviewsService', () => {
         durationMinutes: 60,
       } as any),
     ).rejects.toThrow('trùng');
+  });
+
+  it('does not notify when scheduling is refused', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+      status: ApplicationStatus.interview,
+      jobPosting: { departmentId: 'dep-1' },
+    });
+    prisma.recruiter.findUnique.mockResolvedValue({
+      recruiterId: 'rec-1',
+      departmentId: 'dep-1',
+      organizationId: 'org-1',
+      user: { userId: 'interviewer-1', role: UserRole.recruiter },
+    });
+    prisma.interviewSchedule.findMany.mockResolvedValue([
+      { startAt: new Date('2026-06-01T09:00:00.000Z'), durationMinutes: 60 },
+    ]);
+
+    const call = service.createSchedule(platformAdmin, {
+      applicationId: 'app-1',
+      interviewerId: 'interviewer-1',
+      interviewType: InterviewType.online,
+      startAt: '2026-06-01T09:30:00.000Z',
+      durationMinutes: 60,
+      onlineMeetingLink: 'https://meet.test',
+    } as any);
+
+    await expect(call).rejects.toBeInstanceOf(BadRequestException);
+    await expect(call).rejects.toMatchObject({ status: 400 });
+    await expect(call).rejects.toThrow('Người phỏng vấn đã có lịch trùng khung giờ này');
+    expect(candidateNotifications.scheduleCreated).not.toHaveBeenCalled();
   });
 
   it('filters my schedules for candidates with date range pagination', async () => {
@@ -359,6 +462,54 @@ describe('InterviewsService', () => {
       application: { jobPosting: { departmentId: 'dep-1' } },
     });
 
+    it('passes the schedule before and after an update', async () => {
+      const beforeSnapshot = {
+        interviewId: 'int-1',
+        applicationId: 'app-1',
+        interviewerId: 'user-2',
+        interviewType: InterviewType.online,
+        startAt: new Date('2026-08-01T09:00:00Z'),
+        durationMinutes: 60,
+        onlineMeetingLink: 'https://meet.test',
+        location: null,
+        status: ScheduleStatus.scheduled,
+      };
+      const afterSnapshot = {
+        ...beforeSnapshot,
+        startAt: new Date('2026-08-01T10:00:00Z'),
+      };
+      prisma.interviewSchedule.findUnique.mockResolvedValue({
+        ...beforeSnapshot,
+        organizationId: 'org-1',
+        scheduledBy: 'user-1',
+        application: { jobPosting: { departmentId: 'dep-1' } },
+      });
+      prisma.interviewSchedule.update.mockResolvedValue({
+        ...afterSnapshot,
+        organizationId: 'org-1',
+        scheduledBy: 'user-1',
+        application: { jobPosting: { departmentId: 'dep-1' } },
+      });
+
+      await service.updateSchedule('int-1', orgAdmin, {
+        startAt: '2026-08-01T10:00:00Z',
+      } as any);
+
+      expect(
+        prisma.interviewSchedule.findUnique.mock.calls[0][0].select.applicationId,
+      ).toBe(true);
+      expect(candidateNotifications.scheduleChanged).toHaveBeenCalledTimes(1);
+      expect(candidateNotifications.scheduleChanged.mock.calls[0][0]).toEqual(
+        beforeSnapshot,
+      );
+      expect(candidateNotifications.scheduleChanged.mock.calls[0][1]).toEqual(
+        afterSnapshot,
+      );
+      expect(
+        candidateNotifications.scheduleChanged.mock.invocationCallOrder[0],
+      ).toBeGreaterThan(prisma.interviewSchedule.update.mock.invocationCallOrder[0]);
+    });
+
     it('refuses to reopen a completed interview', async () => {
       prisma.interviewSchedule.findUnique.mockResolvedValue(
         scheduleAt(ScheduleStatus.completed),
@@ -370,6 +521,24 @@ describe('InterviewsService', () => {
         } as any),
       ).rejects.toThrow('Không thể chuyển trạng thái lịch phỏng vấn');
       expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+    });
+
+    it('does not notify when an update is refused', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue({
+        ...scheduleAt(ScheduleStatus.completed),
+        applicationId: 'app-1',
+        interviewType: InterviewType.online,
+        onlineMeetingLink: 'https://meet.test',
+        location: null,
+      });
+
+      const call = service.updateSchedule('int-1', orgAdmin, {
+        status: ScheduleStatus.scheduled,
+      } as any);
+
+      await expect(call).rejects.toBeInstanceOf(BadRequestException);
+      await expect(call).rejects.toThrow('Không thể chuyển trạng thái lịch phỏng vấn');
+      expect(candidateNotifications.scheduleChanged).not.toHaveBeenCalled();
     });
 
     it('refuses to complete a cancelled interview', async () => {
@@ -402,6 +571,84 @@ describe('InterviewsService', () => {
           data: expect.objectContaining({ status: ScheduleStatus.completed }),
         }),
       );
+    });
+  });
+
+  describe('removeSchedule — candidate notifications', () => {
+    it('passes the schedule and the removal time after deleting', async () => {
+      const now = new Date('2026-10-14T02:30:00.000Z');
+      jest.useFakeTimers();
+      jest.setSystemTime(now);
+
+      try {
+        const snapshot = {
+          interviewId: 'int-1',
+          applicationId: 'app-1',
+          interviewerId: 'user-2',
+          interviewType: InterviewType.online,
+          startAt: new Date('2026-10-20T02:30:00.000Z'),
+          durationMinutes: 60,
+          onlineMeetingLink: 'https://meet.test',
+          location: null,
+          status: ScheduleStatus.scheduled,
+        };
+        const schedule = {
+          ...snapshot,
+          organizationId: 'org-1',
+          scheduledBy: 'user-1',
+          application: { jobPosting: { departmentId: 'dep-1' } },
+        };
+        prisma.interviewSchedule.findUnique.mockResolvedValue(schedule);
+        prisma.interviewSchedule.delete.mockResolvedValue(schedule);
+
+        await service.removeSchedule('int-1', orgAdmin);
+
+        expect(
+          prisma.interviewSchedule.findUnique.mock.calls[0][0].select.applicationId,
+        ).toBe(true);
+        expect(prisma.interviewSchedule.delete).toHaveBeenCalledWith({
+          where: { interviewId: 'int-1' },
+        });
+        expect(candidateNotifications.scheduleRemoved).toHaveBeenCalledTimes(1);
+        expect(candidateNotifications.scheduleRemoved.mock.calls[0][0]).toEqual(
+          snapshot,
+        );
+        expect(candidateNotifications.scheduleRemoved.mock.calls[0][1]).toEqual(
+          now,
+        );
+        expect(
+          candidateNotifications.scheduleRemoved.mock.calls[0][1],
+        ).toBeInstanceOf(Date);
+        expect(
+          candidateNotifications.scheduleRemoved.mock.invocationCallOrder[0],
+        ).toBeGreaterThan(prisma.interviewSchedule.delete.mock.invocationCallOrder[0]);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('does not notify when deleting is refused', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue({
+        interviewId: 'int-1',
+        applicationId: 'app-1',
+        organizationId: 'org-1',
+        scheduledBy: 'someone-else',
+        interviewerId: 'user-1',
+        interviewType: InterviewType.online,
+        startAt: new Date('2026-10-20T02:30:00.000Z'),
+        durationMinutes: 60,
+        onlineMeetingLink: 'https://meet.test',
+        location: null,
+        status: ScheduleStatus.scheduled,
+        application: { jobPosting: { departmentId: 'dep-1' } },
+      });
+
+      const call = service.removeSchedule('int-1', callerOf(UserRole.recruiter));
+
+      await expect(call).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(call).rejects.toMatchObject({ status: 403 });
+      expect(candidateNotifications.scheduleRemoved).not.toHaveBeenCalled();
+      expect(prisma.interviewSchedule.delete).not.toHaveBeenCalled();
     });
   });
 
