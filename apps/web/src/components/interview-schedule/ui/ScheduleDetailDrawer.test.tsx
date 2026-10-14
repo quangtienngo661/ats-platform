@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { IApplicationDto } from '@/types/interfaces/application.interface';
 import type { IInterviewSchedule } from '@/types/interfaces/interview.interface';
@@ -70,7 +70,7 @@ describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
     expect(screen.getByText('Chưa có địa điểm')).toBeInTheDocument();
   });
 
-  it('drawer shows the evaluation link only to the interviewer of a completed interview', () => {
+  it('drawer shows the evaluation link only to the interviewer of a completed interview', async () => {
     const currentUserId = 'user-2';
     const href = '/jobs/job-1/candidates/app-1?tab=evaluation';
     const cases = [
@@ -89,7 +89,7 @@ describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
       const drawer = renderDrawer(value, currentUserId);
       if (testCase.visible) {
         const link = screen.getByRole('link', { name: /đánh giá/i });
-        expect(link).toBeVisible();
+        await waitFor(() => expect(link).toBeVisible());
         expect(link).toHaveAttribute('href', href);
       } else {
         expect(screen.queryByRole('link', { name: /đánh giá/i })).not.toBeInTheDocument();

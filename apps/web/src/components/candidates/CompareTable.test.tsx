@@ -80,7 +80,8 @@ describe('CompareTable', () => {
     }
 
     for (const [index, item] of items.slice(0, 2).entries()) {
-      const screening = item.screening!;
+      const screening = item.screening;
+      if (!screening) throw new Error('fixture must have screening');
       for (const score of [screening.overallScore, screening.skillsScore, screening.experienceScore, screening.educationScore]) {
         columnContains(index, new RegExp(`(^|\\s)${score}(?=\\s|/|$)`));
       }
