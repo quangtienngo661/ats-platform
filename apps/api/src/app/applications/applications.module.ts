@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { BulkScreeningService } from './bulk-screening.service';
+import { ApplicationExportService } from './application-export.service';
 import { ApplicationsController } from './applications.controller';
 import { PrismaModule } from '../../common/prisma/prisma.module';
 import { AiUsageLogsService } from '../ai-usage-logs/ai-usage-logs.service';
@@ -10,7 +11,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
     imports: [PrismaModule, CvScreeningsModule, NotificationsModule],
     controllers: [ApplicationsController],
-    providers: [ApplicationsService, BulkScreeningService, AiUsageLogsService],
+    providers: [ApplicationsService, BulkScreeningService, ApplicationExportService, AiUsageLogsService],
     exports: [ApplicationsService],
 })
 export class ApplicationsModule { }

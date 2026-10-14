@@ -8,13 +8,15 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { ApplicationsService } from './applications.service';
 import { BulkScreeningService } from './bulk-screening.service';
+import { ApplicationExportService } from './application-export.service';
 import { BulkScreeningDto } from './dtos/bulk-screening.dto';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -37,6 +39,7 @@ export class ApplicationsController {
   constructor(
     private readonly applicationsService: ApplicationsService,
     private readonly bulkScreeningService: BulkScreeningService,
+    private readonly applicationExportService: ApplicationExportService,
   ) { }
 
   @Roles(UserRole.candidate)
@@ -78,6 +81,20 @@ export class ApplicationsController {
   @ApiResponse({ status: 200, description: 'Thành công' })
   getKanbanBoard(@Param('jobId') jobId: string, @CurrentCaller() caller: TenantCaller) {
     return this.applicationsService.getKanbanBoard(caller, jobId);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Get('job/:jobId/export')
+  @ApiOperation({ summary: 'Xuất danh sách ứng viên của tin ra CSV' })
+  async exportJobCsv(
+    @Param('jobId') jobId: string,
+    @CurrentCaller() caller: TenantCaller,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { filename, content } = await this.applicationExportService.exportJobCsv(caller, jobId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(content);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
