@@ -1,0 +1,43 @@
+Task 2 Step 2 (RED) — GĐ2 SP3 email_notifications probe, before the SP3 migration exists
+Date: 2026-10-14 · worktree E:\wt\ats-sp3 · branch feat/gd2-sp3-email-notifications · HEAD 141ebbc
+Probe written by Codex; container, migrate deploy and probe run by the stage-2-sp3-impl session
+(Codex's sandbox cannot reach Docker).
+
+$ docker run -d --rm --name ats-sp3-pg-probe -e POSTGRES_USER=probe -e POSTGRES_PASSWORD=probe-local -e POSTGRES_DB=probe -p 127.0.0.1:55533:5432 postgres:18.4-alpine
+1920dc684c24b4b2ba74ecc7ed1c61347e555469693f3460e4f66e877cdff302
+[exit code: 0]
+$ docker exec ats-sp3-pg-probe pg_isready -U probe -d probe
+/var/run/postgresql:5432 - rejecting connections
+[exit code: 1]   (still starting; re-run)
+$ docker exec ats-sp3-pg-probe pg_isready -U probe -d probe
+/var/run/postgresql:5432 - accepting connections
+[exit code: 0]
+
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe npx prisma migrate deploy --config libs/backend/database/prisma.config.ts
+Loaded Prisma config from libs\backend\database\prisma.config.ts.
+Prisma schema loaded from libs\backend\database\prisma\schema.prisma.
+Datasource "db": PostgreSQL database "probe", schema "public" at "localhost:55533"
+32 migrations found in prisma/migrations
+Applying migration `20260320004628_re_init_db`
+... (30 more, in order) ...
+Applying migration `20261005000000_add_interview_schedule_location`
+All migrations have been successfully applied.
+[exit code: 0]
+
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe node docs/tasks/gd2-sp3-email-notifications/results/probe-email-notifications.js
+PASS — CONTROL applications_organization_id_fkey confdeltype: expected r, got r (1 constraint(s))
+FAIL — email_notifications table exists: (missing)
+FAIL — email_notification_type values and order: enum type missing or not an enum
+FAIL — email_notification_status values and order: enum type missing or not an enum
+FAIL — email_notifications_organization_id_fkey confdeltype: expected r, got (missing) (0 constraint(s))
+FAIL — email_notifications_recipient_user_id_fkey confdeltype: expected c, got (missing) (0 constraint(s))
+FAIL — email_notifications_application_id_fkey confdeltype: expected c, got (missing) (0 constraint(s))
+FAIL — email_notifications.last_error is character varying(500): (missing)
+FAIL — email_notifications.status defaults to pending: (missing)
+FAIL — email_notifications_organization_id_idx exists: (missing)
+FAIL — email_notifications_application_id_idx exists: (missing)
+RESULT: 1 PASS, 10 FAIL
+[exit code: 1]
+
+Verdict: RED as expected — the control passes (the instrument reads the catalog), every SP3 check fails
+because the table, types, constraints and indexes do not exist yet.
