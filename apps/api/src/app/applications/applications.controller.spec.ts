@@ -23,7 +23,7 @@ describe('ApplicationsController', () => {
       getApplicationHistory: jest.fn(),
       getApplicationById: jest.fn(),
     };
-    const controller = new ApplicationsController(service as any, { bulkScreen: jest.fn() } as any);
+    const controller = new ApplicationsController(service as any, { bulkScreen: jest.fn() } as any, { exportJobCsv: jest.fn() } as any);
     const req = mockRequest({ userId: 'user-1', role: UserRole.candidate });
     const caller = callerOf(UserRole.recruiter);
 
@@ -54,7 +54,7 @@ describe('ApplicationsController', () => {
 describe('ApplicationsController bulk screening', () => {
   it('bulkScreening delegates to the service with caller, jobId and body', async () => {
     const bulkScreeningService = { bulkScreen: jest.fn() };
-    const controller = new ApplicationsController({} as any, bulkScreeningService as any);
+    const controller = new ApplicationsController({} as any, bulkScreeningService as any, { exportJobCsv: jest.fn() } as any);
     const caller = callerOf(UserRole.recruiter);
     const jobId = 'job-1';
     const dto: BulkScreeningDto = {
@@ -96,5 +96,36 @@ describe('ApplicationsController bulk screening', () => {
       bulkScreeningTracker({ user: { userId: 'u1' }, ip: '10.0.0.1' }),
     ).toBe('u1');
     expect(bulkScreeningTracker({ ip: '10.0.0.1' })).toBe('10.0.0.1');
+  });
+});
+
+describe('ApplicationsController CSV export', () => {
+  it('exportJobCsv sets text/csv and an attachment header and sends the content', async () => {
+    const exportService = { exportJobCsv: jest.fn() };
+    const controller = new ApplicationsController(
+      {} as any,
+      { bulkScreen: jest.fn() } as any,
+      exportService as any,
+    );
+    const caller = callerOf(UserRole.recruiter);
+    const jobId = '123e4567-e89b-42d3-a456-426614174000';
+    const filename = 'ung-vien-123e4567-20261014.csv';
+    const content = '\uFEFF"Mã đơn","Họ tên"\r\n"app-1","Nguyễn An"\r\n';
+    const res = { setHeader: jest.fn(), send: jest.fn() };
+    exportService.exportJobCsv.mockResolvedValue({ filename, content });
+
+    await controller.exportJobCsv(jobId, caller, res as any);
+
+    expect(exportService.exportJobCsv).toHaveBeenCalledTimes(1);
+    expect(exportService.exportJobCsv).toHaveBeenCalledWith(caller, jobId);
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Type',
+      'text/csv; charset=utf-8',
+    );
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      `attachment; filename="${filename}"`,
+    );
+    expect(res.send).toHaveBeenCalledWith(content);
   });
 });
