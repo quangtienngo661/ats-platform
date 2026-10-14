@@ -25,7 +25,8 @@ function schedule(overrides: Partial<IInterviewSchedule>): IInterviewSchedule {
     application: {
       applicationId: 'app-1',
       candidate: { user: { fullName: 'Nguyễn Văn A', email: 'a@ats.test' } },
-      jobPosting: { title: 'Backend Engineer', department: { name: 'Kỹ thuật' } },
+      // The staff schedule include keeps jobId, although IApplicationDto omits it.
+      jobPosting: { jobId: 'job-1', title: 'Backend Engineer', department: { name: 'Kỹ thuật' } },
     } as unknown as IApplicationDto,
     interviewer: { userId: 'user-2', fullName: 'Trần Thị B', email: 'b@ats.test' },
     scheduler: { userId: 'user-2', fullName: 'Trần Thị B', email: 'b@ats.test' },
@@ -33,8 +34,8 @@ function schedule(overrides: Partial<IInterviewSchedule>): IInterviewSchedule {
   };
 }
 
-function renderDrawer(value: IInterviewSchedule) {
-  return render(<ScheduleDetailDrawer schedule={value} onClose={vi.fn()} onChanged={vi.fn()} onReschedule={vi.fn()} />);
+function renderDrawer(value: IInterviewSchedule, currentUserId = 'user-2') {
+  return render(<ScheduleDetailDrawer schedule={value} currentUserId={currentUserId} onClose={vi.fn()} onChanged={vi.fn()} onReschedule={vi.fn()} />);
 }
 
 describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
@@ -67,5 +68,34 @@ describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
     renderDrawer(schedule({ location: null }));
 
     expect(screen.getByText('Chưa có địa điểm')).toBeInTheDocument();
+  });
+
+  it('drawer shows the evaluation link only to the interviewer of a completed interview', () => {
+    const currentUserId = 'user-2';
+    const href = '/jobs/job-1/candidates/app-1?tab=evaluation';
+    const cases = [
+      { status: 'scheduled', interviewerId: currentUserId, visible: false },
+      // I scheduled it, but someone else is its interviewer.
+      { status: 'completed', interviewerId: 'user-other', visible: false },
+      { status: 'completed', interviewerId: currentUserId, visible: true },
+    ] as const;
+
+    for (const testCase of cases) {
+      const value = schedule({
+        status: testCase.status,
+        interviewerId: testCase.interviewerId,
+        interviewer: { userId: testCase.interviewerId, fullName: 'Trần Thị B', email: 'b@ats.test' },
+      });
+      const drawer = renderDrawer(value, currentUserId);
+      if (testCase.visible) {
+        const link = screen.getByRole('link', { name: /đánh giá/i });
+        expect(link).toBeVisible();
+        expect(link).toHaveAttribute('href', href);
+      } else {
+        expect(screen.queryByRole('link', { name: /đánh giá/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      }
+      drawer.unmount();
+    }
   });
 });
