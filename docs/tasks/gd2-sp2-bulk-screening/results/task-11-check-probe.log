@@ -1,0 +1,2 @@
+node --check docs/tasks/gd2-sp2-bulk-screening/results/probe-export.mjs
+EXIT=0

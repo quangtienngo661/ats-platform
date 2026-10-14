@@ -1,0 +1,29 @@
+npm run test:web
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts
+
+
+ RUN  v4.1.6 E:/wt/ats-sp2/apps/web
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+ Test Files  51 passed (51)
+      Tests  348 passed (348)
+   Start at  14:04:07
+   Duration  48.57s (transform 1.72s, setup 13.92s, import 8.43s, tests 29.32s, environment 34.82s)
+
+EXIT=0

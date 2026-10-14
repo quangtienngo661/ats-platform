@@ -1,0 +1,4 @@
+organization_id=d9e5ed2f-093d-4500-80ff-0f412656b649
+PASS login-recruiter-1 {"status":201,"hasAccessToken":true}
+PASS P6 {"status":200,"contentType":"text/csv; charset=utf-8","contentDisposition":"attachment; filename=\"ung-vien-5a61f382-20261014.csv\"","bomBytes":[239,187,191],"headerMatches":true,"hasJsonEnvelope":false,"emailLeakCount":0,"cancelledApplicationPresent":false,"dataRecords":62,"bodySizeBytes":9257}
+PASS cleanup {"organizationsRemaining":0,"usersRemaining":0}
