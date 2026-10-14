@@ -1,5 +1,5 @@
 # Local verification stack. Separate database, queue and uploads from development.
-# No .env is imported; no mail or paid AI calls are used by the E2E journeys.
+# No .env is imported; mail goes only to this stack's own Mailpit; no paid AI calls are used by the E2E journeys.
 name: ats-platform-tests
 
 services:
@@ -29,6 +29,16 @@ services:
       timeout: 3s
       retries: 20
 
+  mailpit:
+    image: axllent/mailpit:v1.30.0
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      MP_MAX_MESSAGES: "5000"
+    ports:
+      - "127.0.0.1:51025:1025"
+      - "127.0.0.1:58025:8025"
+
   api:
     build:
       context: .
@@ -46,7 +56,13 @@ services:
       CLIENT_URL: ${WEB_E2E_BASE_URL:-http://localhost:3001}
       JWT_SECRET: ats-local-verification-only-not-for-production
       GOOGLE_API_KEY: local-verification-no-external-ai
-      SMTP_ENABLED: "false"
+      SMTP_ENABLED: "true"
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+      SMTP_USER: ats-test
+      SMTP_PASS: ats-test-not-a-secret
+      SMTP_FROM: "ATS Test <no-reply@ats.test>"
       ADMIN_EMAIL: admin@ats.local
       ADMIN_PASSWORD: Admin@123
     volumes:
@@ -61,6 +77,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      mailpit:
         condition: service_healthy
 
 volumes:
