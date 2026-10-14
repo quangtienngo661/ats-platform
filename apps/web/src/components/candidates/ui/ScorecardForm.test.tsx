@@ -47,40 +47,44 @@ beforeEach(() => {
 });
 
 describe('ScorecardForm', () => {
-  it('ScorecardForm blocks submit until all four ratings and a recommendation are chosen', async () => {
+  // Omit each required choice in turn, including the recommendation — one test per case.
+  it.each([
+    { missing: 0, what: 'Kỹ năng chuyên môn' },
+    { missing: 1, what: 'Giải quyết vấn đề' },
+    { missing: 2, what: 'Giao tiếp' },
+    { missing: 3, what: 'Phù hợp văn hoá' },
+    { missing: 4, what: 'khuyến nghị' },
+  ])('ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu $what)', async ({ missing }) => {
     const user = userEvent.setup();
-    // Omit each required choice in turn, including the recommendation.
-    for (const missing of [0, 1, 2, 3, 4]) {
-      mocks.submit.mockClear();
-      const onSaved = vi.fn();
-      const form = render(<ScorecardForm interviewId="int-1" disabled={false} onSaved={onSaved} />);
-      await expectBlocked(user);
-      for (const [index, rating] of ratings.entries()) {
-        const group = within(screen.getByRole('radiogroup', { name: rating.label }));
-        expect(group.getAllByRole('radio')).toHaveLength(5);
-        for (const value of [1, 2, 3, 4, 5]) {
-          expect(group.getByRole('radio', { name: String(value) })).not.toBeChecked();
-        }
-        if (index !== missing) await user.click(group.getByRole('radio', { name: String(rating.value) }));
+    mocks.submit.mockClear();
+    const onSaved = vi.fn();
+    const form = render(<ScorecardForm interviewId="int-1" disabled={false} onSaved={onSaved} />);
+    await expectBlocked(user);
+    for (const [index, rating] of ratings.entries()) {
+      const group = within(screen.getByRole('radiogroup', { name: rating.label }));
+      expect(group.getAllByRole('radio')).toHaveLength(5);
+      for (const value of [1, 2, 3, 4, 5]) {
+        expect(group.getByRole('radio', { name: String(value) })).not.toBeChecked();
       }
-      if (missing !== 4) await chooseRecommendation(user);
-      const comment = screen.getByRole('textbox', { name: /Nhận xét/i });
-      expect(comment).toHaveAttribute('maxlength', '2000');
-      await user.type(comment, commentText);
-      await expectBlocked(user);
-      expect(onSaved).not.toHaveBeenCalled();
-
-      if (missing === 4) await chooseRecommendation(user);
-      else {
-        const rating = ratings[missing];
-        await user.click(within(screen.getByRole('radiogroup', { name: rating.label }))
-          .getByRole('radio', { name: String(rating.value) }));
-      }
-      await user.click(screen.getByRole('button', { name: /^(Nộp|Lưu) đánh giá$/ }));
-      await waitFor(() => expect(mocks.submit).toHaveBeenCalledExactlyOnceWith('int-1', input));
-      await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
-      form.unmount();
+      if (index !== missing) await user.click(group.getByRole('radio', { name: String(rating.value) }));
     }
+    if (missing !== 4) await chooseRecommendation(user);
+    const comment = screen.getByRole('textbox', { name: /Nhận xét/i });
+    expect(comment).toHaveAttribute('maxlength', '2000');
+    await user.type(comment, commentText);
+    await expectBlocked(user);
+    expect(onSaved).not.toHaveBeenCalled();
+
+    if (missing === 4) await chooseRecommendation(user);
+    else {
+      const rating = ratings[missing];
+      await user.click(within(screen.getByRole('radiogroup', { name: rating.label }))
+        .getByRole('radio', { name: String(rating.value) }));
+    }
+    await user.click(screen.getByRole('button', { name: /^(Nộp|Lưu) đánh giá$/ }));
+    await waitFor(() => expect(mocks.submit).toHaveBeenCalledExactlyOnceWith('int-1', input));
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    form.unmount();
   });
 
   it('ScorecardForm shows the API message when the submit is refused and keeps the typed values', async () => {
