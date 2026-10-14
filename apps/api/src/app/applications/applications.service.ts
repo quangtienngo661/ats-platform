@@ -3,16 +3,13 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
   ApplicationStatus,
   JobStatus,
-  NotificationType,
   ParsingStatus,
   Prisma,
-  RelatedEntityType,
   ScheduleStatus,
   ScreeningStatus,
   UserRole,
@@ -35,7 +32,8 @@ import {
   TenantCaller,
 } from '../../common/tenancy/tenant-caller';
 import { SocketIoService } from '../../common/socket-io/socket-io.service';
-import { NotificationsService } from '../notifications/notifications.service';
+import { CandidateNotificationsService } from '../candidate-notifications/candidate-notifications.service';
+import type { CancelledScheduleSummary } from '../candidate-notifications/schedule-changes';
 
 const VALID_TRANSITIONS: Partial<
   Record<ApplicationStatus, ApplicationStatus[]>
@@ -65,44 +63,13 @@ const VALID_TRANSITIONS: Partial<
  */
 const MAX_SCREENING_RETRIES = 3;
 
-const NOTIFY_CANDIDATE_ON: ApplicationStatus[] = [
-  ApplicationStatus.interview,
-  ApplicationStatus.offer,
-  ApplicationStatus.hired,
-  ApplicationStatus.rejected,
-];
-
-const APPLICATION_STATUS_NOTIFICATION_COPY: Record<
-  string,
-  { title: string; message: string }
-> = {
-  [ApplicationStatus.interview]: {
-    title: 'Đơn ứng tuyển chuyển sang vòng phỏng vấn',
-    message: 'Đơn ứng tuyển của bạn đã được chuyển sang vòng phỏng vấn.',
-  },
-  [ApplicationStatus.offer]: {
-    title: 'Cập nhật đề nghị tuyển dụng',
-    message:
-      'Đơn ứng tuyển của bạn đã được chuyển sang vòng đề nghị tuyển dụng.',
-  },
-  [ApplicationStatus.hired]: {
-    title: 'Chúc mừng, bạn đã được tuyển',
-    message:
-      'Chúc mừng, đơn ứng tuyển của bạn đã được chuyển sang trạng thái trúng tuyển.',
-  },
-  [ApplicationStatus.rejected]: {
-    title: 'Đơn ứng tuyển đã bị từ chối',
-    message: 'Rất tiếc, đơn ứng tuyển của bạn đã bị từ chối.',
-  },
-};
-
 @Injectable()
 export class ApplicationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cvScreeningsService: CvScreeningsService,
     private readonly socketIoService: SocketIoService,
-    private readonly notificationsService: NotificationsService,
+    private readonly candidateNotifications: CandidateNotificationsService,
   ) {}
 
   private async getRecruiterDepartmentId(userId: string) {
@@ -169,14 +136,20 @@ export class ApplicationsService {
   private async cancelUpcomingSchedules(
     tx: Prisma.TransactionClient,
     applicationId: string,
-  ): Promise<void> {
-    await tx.interviewSchedule.updateMany({
+  ): Promise<CancelledScheduleSummary[]> {
+    return tx.interviewSchedule.updateManyAndReturn({
       where: {
         applicationId,
         status: ScheduleStatus.scheduled,
         startAt: { gt: new Date() },
       },
       data: { status: ScheduleStatus.cancelled },
+      select: {
+        interviewId: true,
+        startAt: true,
+        durationMinutes: true,
+        interviewType: true,
+      },
     });
   }
 
@@ -261,7 +234,7 @@ export class ApplicationsService {
       throw new ConflictException('Bạn đã ứng tuyển công việc này rồi');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    const appliedApplication = await this.prisma.$transaction(async (tx) => {
       const appliedApplication = await tx.application.create({
         data: {
           // The application belongs to the organization that owns the job posting —
@@ -292,6 +265,12 @@ export class ApplicationsService {
 
       return appliedApplication;
     });
+
+    await this.candidateNotifications.applicationReceived(
+      appliedApplication.applicationId,
+    );
+
+    return appliedApplication;
   }
 
   async getMyApplications(userId: string) {
@@ -585,7 +564,7 @@ export class ApplicationsService {
       }
     }
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const { updated, cancelled } = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.application.update({
         where: { applicationId },
         data: { status: dto.status, currentStageSince: new Date() },
@@ -604,14 +583,19 @@ export class ApplicationsService {
         },
       });
 
-      if (dto.status === ApplicationStatus.rejected) {
-        await this.cancelUpcomingSchedules(tx, applicationId);
-      }
+      const cancelled =
+        dto.status === ApplicationStatus.rejected
+          ? await this.cancelUpcomingSchedules(tx, applicationId)
+          : [];
 
-      return updated;
+      return { updated, cancelled };
     });
 
-    await this.notifyCandidateStatusChangeSafe(updated);
+    await this.candidateNotifications.applicationStatusChanged(
+      applicationId,
+      dto.status,
+      cancelled,
+    );
 
     return updated;
   }
@@ -711,31 +695,5 @@ export class ApplicationsService {
       application.cvId,
       configId,
     );
-  }
-
-  private async notifyCandidateStatusChangeSafe(application: any) {
-    if (!NOTIFY_CANDIDATE_ON.includes(application.status)) return;
-
-    const userId = application.candidate?.user?.userId;
-    if (!userId) return;
-
-    const copy = APPLICATION_STATUS_NOTIFICATION_COPY[application.status];
-    if (!copy) return;
-
-    try {
-      await this.notificationsService.create({
-        userId,
-        type: NotificationType.application,
-        title: copy.title,
-        message: copy.message,
-        relatedEntityId: application.applicationId,
-        relatedEntityType: RelatedEntityType.application,
-      });
-    } catch (error) {
-      Logger.warn(
-        `Failed to notify candidate ${userId} for application ${application.applicationId}: ${error.message}`,
-        'ApplicationsService',
-      );
-    }
   }
 }
