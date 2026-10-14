@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
+import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
+import { BulkScreeningBar } from './BulkScreeningBar';
 import { CandidateRow } from './CandidateRow';
 
 interface CandidatesFiltersProps {
     applications: IApplicationDto[];
     jobId: string;
+    // Required again once the candidates page passes the AI profiles (Task 10).
+    aiProfiles?: ConfigProfile[];
 }
 
 const statusFilters = [
@@ -18,9 +22,10 @@ const statusFilters = [
     { key: 'offer', label: 'Offer' },
 ] as const;
 
-export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProps) {
+export function CandidatesFilters({ applications, jobId, aiProfiles = [] }: CandidatesFiltersProps) {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
 
     const filtered = applications
         .filter(a => selectedFilter === 'all' || a.status === selectedFilter)
@@ -32,6 +37,31 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 a.jobPosting?.title?.toLowerCase().includes(q)
             );
         });
+
+    const allVisibleSelected = filtered.length > 0 && filtered.every(a => selectedIds.has(a.applicationId));
+    const selectedApplications = applications.filter(a => selectedIds.has(a.applicationId));
+
+    function toggleSelection(applicationId: string) {
+        setSelectedIds(previous => {
+            const next = new Set(previous);
+            if (next.has(applicationId)) next.delete(applicationId);
+            else next.add(applicationId);
+            return next;
+        });
+    }
+
+    function toggleAllVisible() {
+        if (filtered.length === 0) return;
+        setSelectedIds(previous => {
+            const next = new Set(previous);
+            const clearVisible = filtered.every(a => previous.has(a.applicationId));
+            filtered.forEach(a => {
+                if (clearVisible) next.delete(a.applicationId);
+                else next.add(a.applicationId);
+            });
+            return next;
+        });
+    }
 
     return (
         <div style={{ fontFamily: SFT }}>
@@ -69,12 +99,28 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 </div>
             </div>
 
+            <BulkScreeningBar
+                jobId={jobId}
+                selectedApplications={selectedApplications}
+                applications={applications}
+                aiProfiles={aiProfiles}
+            />
+
             {/* Table */}
             <div className="bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-[#F2F2F7]">
+                                <th scope="col" className="px-6 py-4 text-left">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Chọn tất cả"
+                                        checked={allVisibleSelected}
+                                        onChange={toggleAllVisible}
+                                        className="w-4 h-4 accent-[#0071E3] cursor-pointer"
+                                    />
+                                </th>
                                 {['Ứng viên', 'Vị trí ứng tuyển', 'Điểm AI', 'Trạng thái', 'Thời gian', ''].map((th, i) => (
                                     <th key={i} className={`${i === 5 ? 'text-right' : 'text-left'} px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]`} style={{ fontWeight: 600 }}>{th}</th>
                                 ))}
@@ -82,11 +128,12 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                         </thead>
                         <tbody>
                             {filtered.map((app) => (
-                                <CandidateRow key={app.applicationId} application={app} jobId={jobId} />
+                                <CandidateRow key={app.applicationId} application={app} jobId={jobId}
+                                    selected={selectedIds.has(app.applicationId)} onToggle={toggleSelection} />
                             ))}
                             {filtered.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-[13px] text-[#AEAEB2]">
+                                    <td colSpan={7} className="px-6 py-12 text-center text-[13px] text-[#AEAEB2]">
                                         Không tìm thấy ứng viên nào.
                                     </td>
                                 </tr>

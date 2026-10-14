@@ -6,6 +6,8 @@ import { IApplicationDto } from '@/types/interfaces/application.interface';
 interface CandidateRowProps {
     application: IApplicationDto;
     jobId: string;
+    selected: boolean;
+    onToggle: (applicationId: string) => void;
 }
 
 const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
@@ -36,7 +38,7 @@ function timeAgo(dateStr?: string): string {
     return `${days} ngày trước`;
 }
 
-export function CandidateRow({ application, jobId }: CandidateRowProps) {
+export function CandidateRow({ application, jobId, selected, onToggle }: CandidateRowProps) {
     const name = application.candidate?.user?.fullName || 'N/A';
     const email = application.candidate?.user?.email || 'N/A';
     const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
@@ -47,6 +49,15 @@ export function CandidateRow({ application, jobId }: CandidateRowProps) {
 
     return (
         <tr className="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group">
+            <td className="px-6 py-4">
+                <input
+                    type="checkbox"
+                    aria-label={`Chọn ${name}`}
+                    checked={selected}
+                    onChange={() => onToggle(application.applicationId)}
+                    className="w-4 h-4 accent-[#0071E3] cursor-pointer"
+                />
+            </td>
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]" style={{ fontFamily: SF, fontWeight: 600 }}>
