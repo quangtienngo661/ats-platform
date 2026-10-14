@@ -8,7 +8,7 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   private transporter?: nodemailer.Transporter;
 
-  private get isEnabled() {
+  isSmtpEnabled(): boolean {
     return (process.env.SMTP_ENABLED ?? '').toLowerCase() === 'true';
   }
 
@@ -60,11 +60,33 @@ export class MailService {
     return distPath;
   }
 
+  readTemplate(fileName: string): string {
+    return fs.readFileSync(this.getTemplatePath(fileName), 'utf8');
+  }
+
+  async sendMail(message: {
+    to: string;
+    subject: string;
+    html: string;
+    text: string;
+  }): Promise<boolean> {
+    if (!this.isSmtpEnabled()) {
+      this.logger.log(`[SMTP disabled] Would send "${message.subject}" to ${message.to}`);
+      return false;
+    }
+
+    await this.getTransporter().sendMail({
+      from: this.fromAddress,
+      ...message,
+    });
+    return true;
+  }
+
   async sendVerificationEmail(to: string, verifyLink: string) {
     const subject = 'Xác minh email của bạn';
     const text = `Vui lòng xác minh email bằng cách mở liên kết này: ${verifyLink}`;
 
-    if (!this.isEnabled) {
+    if (!this.isSmtpEnabled()) {
       this.logger.log(`[SMTP disabled] Would send verify email to ${to}: ${verifyLink}`);
       return;
     }
@@ -93,7 +115,7 @@ export class MailService {
     const subject = 'Đặt lại mật khẩu của bạn';
     const text = `Vui lòng đặt lại mật khẩu bằng cách mở liên kết này: ${resetLink}`;
 
-    if (!this.isEnabled) {
+    if (!this.isSmtpEnabled()) {
       this.logger.log(`[SMTP disabled] Would send forgot password email to ${to}: ${resetLink}`);
       return;
     }
