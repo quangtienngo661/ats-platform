@@ -4,14 +4,15 @@ import { useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
+import { useScreeningLiveRefresh } from '../useScreeningLiveRefresh';
 import { BulkScreeningBar } from './BulkScreeningBar';
 import { CandidateRow } from './CandidateRow';
+import { ExportCsvButton } from './ExportCsvButton';
 
 interface CandidatesFiltersProps {
     applications: IApplicationDto[];
     jobId: string;
-    // Required again once the candidates page passes the AI profiles (Task 10).
-    aiProfiles?: ConfigProfile[];
+    aiProfiles: ConfigProfile[];
 }
 
 const statusFilters = [
@@ -22,7 +23,8 @@ const statusFilters = [
     { key: 'offer', label: 'Offer' },
 ] as const;
 
-export function CandidatesFilters({ applications, jobId, aiProfiles = [] }: CandidatesFiltersProps) {
+export function CandidatesFilters({ applications, jobId, aiProfiles }: CandidatesFiltersProps) {
+    useScreeningLiveRefresh();
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
@@ -99,12 +101,17 @@ export function CandidatesFilters({ applications, jobId, aiProfiles = [] }: Cand
                 </div>
             </div>
 
-            <BulkScreeningBar
-                jobId={jobId}
-                selectedApplications={selectedApplications}
-                applications={applications}
-                aiProfiles={aiProfiles}
-            />
+            <div className="flex flex-wrap items-start justify-between gap-x-4">
+                <BulkScreeningBar
+                    jobId={jobId}
+                    selectedApplications={selectedApplications}
+                    applications={applications}
+                    aiProfiles={aiProfiles}
+                />
+                <div className="bg-white rounded-2xl border border-[#F2F2F7] p-4 mb-4">
+                    <ExportCsvButton jobId={jobId} />
+                </div>
+            </div>
 
             {/* Table */}
             <div className="bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden">
