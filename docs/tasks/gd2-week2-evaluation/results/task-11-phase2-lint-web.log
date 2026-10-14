@@ -1,0 +1,16 @@
+Command: npm run lint:web
+NODE_OPTIONS=
+
+
+> @ats-platform/source@0.0.0 lint:web
+> eslint --config apps/web/eslint.config.mjs apps/web/src --max-warnings 0
+
+
+E:\wt\ats-sp1\apps\web\src\components\candidates\CompareTable.test.tsx
+  83:25  warning  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+
+✖ 1 problem (0 errors, 1 warning)
+
+ESLint found too many warnings (maximum: 0).
+
+Exit code: 1

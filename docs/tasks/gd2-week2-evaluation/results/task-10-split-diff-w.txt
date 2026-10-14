@@ -1,0 +1,31 @@
+diff --git a/apps/web/src/components/candidates/ui/ScorecardForm.test.tsx b/apps/web/src/components/candidates/ui/ScorecardForm.test.tsx
+index 92d4723..4f12b8f 100644
+--- a/apps/web/src/components/candidates/ui/ScorecardForm.test.tsx
++++ b/apps/web/src/components/candidates/ui/ScorecardForm.test.tsx
+@@ -47,10 +47,15 @@ beforeEach(() => {
+ });
+ 
+ describe('ScorecardForm', () => {
+-  it('ScorecardForm blocks submit until all four ratings and a recommendation are chosen', async () => {
++  // Omit each required choice in turn, including the recommendation — one test per case.
++  it.each([
++    { missing: 0, what: 'Kỹ năng chuyên môn' },
++    { missing: 1, what: 'Giải quyết vấn đề' },
++    { missing: 2, what: 'Giao tiếp' },
++    { missing: 3, what: 'Phù hợp văn hoá' },
++    { missing: 4, what: 'khuyến nghị' },
++  ])('ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu $what)', async ({ missing }) => {
+     const user = userEvent.setup();
+-    // Omit each required choice in turn, including the recommendation.
+-    for (const missing of [0, 1, 2, 3, 4]) {
+     mocks.submit.mockClear();
+     const onSaved = vi.fn();
+     const form = render(<ScorecardForm interviewId="int-1" disabled={false} onSaved={onSaved} />);
+@@ -80,7 +85,6 @@ describe('ScorecardForm', () => {
+     await waitFor(() => expect(mocks.submit).toHaveBeenCalledExactlyOnceWith('int-1', input));
+     await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+     form.unmount();
+-    }
+   });
+ 
+   it('ScorecardForm shows the API message when the submit is refused and keeps the typed values', async () => {

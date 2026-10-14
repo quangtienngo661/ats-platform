@@ -1,0 +1,11 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen 4915ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm shows the API message when the submit is refused and keeps the typed values 1223ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  10:08:24
+   Duration  8.30s (transform 137ms, setup 250ms, import 201ms, tests 6.14s, environment 928ms)
+

@@ -1,0 +1,1284 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts
+
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/app/(recruiter)/jobs/[jobId]/compare/page.test.tsx (1 test | 1 failed) 16ms
+     × compare page shows the error and a back link for a bad ids list 14ms
+ ❯ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx (5 tests | 1 failed) 607ms
+     × drawer shows the evaluation link only to the interviewer of a completed interview 275ms
+ ❯ src/components/candidates/CompareTable.test.tsx (1 test | 1 failed) 10ms
+     × CompareTable shows AI scores labelled as suggestions, scorecard averages and no ranking 8ms
+ ❯ src/components/candidates/ui/CandidatesFilters.test.tsx (1 test | 1 failed) 1101ms
+     × "Chọn tất cả" selects every visible row and clears them again 1099ms
+ ❯ src/components/candidates/ui/CompareBar.test.tsx (1 test | 1 failed) 6ms
+     × CompareBar enables at 2 to 4 selections, and at 5 it is disabled with the note "Chọn tối đa 4 ứng viên để so sánh" 5ms
+ ❯ src/components/candidates/ui/CandidateRow.test.tsx (1 test | 1 failed) 283ms
+     × CandidateRow keeps its checkbox enabled with any number of other rows selected (the limit belongs to CompareBar) 282ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/CompareTable.test.tsx > CompareTable > CompareTable shows AI scores labelled as suggestions, scorecard averages and no ranking
+Error: Cannot find module '/src/components/candidates/CompareTable' imported from E:/wt/ats-sp1/apps/web/src/components/candidates/CompareTable.test.tsx
+ ❯ src/components/candidates/CompareTable.test.tsx:66:30
+     64|   it('CompareTable shows AI scores labelled as suggestions, scorecard …
+     65|     const modulePath = './CompareTable';
+     66|     const { CompareTable } = await import(/* @vite-ignore */ modulePat…
+       |                              ^
+     67|     render(<CompareTable items={items} jobId="job-1" />);
+     68|     const table = screen.getByRole('table');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/components/candidates/ui/CandidateRow.test.tsx > CandidateRow > CandidateRow keeps its checkbox enabled with any number of other rows selected (the limit belongs to CompareBar)
+TestingLibraryElementError: Unable to find an accessible element with the role "checkbox" and name "Chọn Nguyễn Văn 1"
+
+Here are the accessible roles:
+
+  table:
+
+  Name "":
+  <table />
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  <tbody />
+
+  --------------------------------------------------
+  row:
+
+  Name "V1 Nguyễn Văn 1 candidate-1@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  --------------------------------------------------
+  cell:
+
+  Name "V1 Nguyễn Văn 1 candidate-1@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-1"
+    style="font-weight: 500;"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <table>
+      <tbody>
+        <tr
+          class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+        >
+          <td
+            class="px-6 py-4"
+          >
+            <div
+              class="flex items-center gap-3"
+            >
+              <div
+                class="w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"
+                style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"
+              >
+                V1
+              </div>
+              <div>
+                <p
+                  class="text-[14px] text-[#1D1D1F]"
+                  style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+                >
+                  Nguyễn Văn 1
+                </p>
+                <p
+                  class="text-[12px] text-[#AEAEB2]"
+                >
+                  candidate-1@ats.test
+                </p>
+              </div>
+            </div>
+          </td>
+          <td
+            class="px-6 py-4"
+          >
+            <p
+              class="text-[13px] text-[#1D1D1F]"
+            />
+            <p
+              class="text-[12px] text-[#AEAEB2]"
+            />
+          </td>
+          <td
+            class="px-6 py-4"
+          >
+            <span
+              class="text-[12px] text-[#AEAEB2]"
+            >
+              Chưa có
+            </span>
+          </td>
+          <td
+            class="px-6 py-4"
+          >
+            <span
+              class="text-[11px] rounded-full px-2.5 py-1"
+              style="background: rgb(255, 251, 235); color: rgb(217, 119, 6); font-weight: 500;"
+            >
+              Phỏng vấn
+            </span>
+          </td>
+          <td
+            class="px-6 py-4"
+          >
+            <span
+              class="text-[12px] text-[#AEAEB2]"
+            >
+              1 giờ trước
+            </span>
+          </td>
+          <td
+            class="px-6 py-4 text-right"
+          >
+            <a
+              class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+              href="/jobs/job-1/candidates/app-1"
+              style="font-weight: 500;"
+            >
+              Xem chi tiết 
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-chevron-right w-3.5 h-3.5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m9 18 6-6-6-6"
+                />
+              </svg>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/candidates/ui/CandidateRow.test.tsx:36:29
+     34|     const props = { application, jobId: 'job-1', selected: false, onTo…
+     35|     const standalone = render(<table><tbody><CandidateRow {...props} /…
+     36|     const checkbox = screen.getByRole('checkbox', { name: 'Chọn Nguyễn…
+       |                             ^
+     37|     expect(within(screen.getByRole('row')).getAllByRole('cell')[0]).to…
+     38|     expect(checkbox).toBeEnabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/components/candidates/ui/CandidatesFilters.test.tsx > CandidatesFilters > "Chọn tất cả" selects every visible row and clears them again
+TestingLibraryElementError: Unable to find an accessible element with the role "checkbox" and name "Chọn tất cả"
+
+Here are the accessible roles:
+
+  textbox:
+
+  Name "Tìm ứng viên":
+  <input
+    aria-label="Tìm ứng viên"
+    class="bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"
+    placeholder="Tìm theo tên, vị trí..."
+    type="text"
+    value="Nguyễn"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Tất cả8":
+  <button
+    class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+    style="font-weight: 400;"
+  />
+
+  Name "Mới1":
+  <button
+    class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+    style="font-weight: 400;"
+  />
+
+  Name "Sàng lọc0":
+  <button
+    class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+    style="font-weight: 400;"
+  />
+
+  Name "Phỏng vấn7":
+  <button
+    class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 bg-[#EBF3FD] text-[#0071E3]"
+    style="font-weight: 500;"
+  />
+
+  Name "Offer0":
+  <button
+    class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+    style="font-weight: 400;"
+  />
+
+  --------------------------------------------------
+  table:
+
+  Name "":
+  <table
+    class="w-full"
+  />
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  <thead />
+
+  Name "":
+  <tbody />
+
+  --------------------------------------------------
+  row:
+
+  Name "Ứng viên Vị trí ứng tuyển Điểm AI Trạng thái Thời gian":
+  <tr
+    class="border-b border-[#F2F2F7]"
+  />
+
+  Name "V1 Nguyễn Văn 1 candidate-1@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  Name "V2 Nguyễn Văn 2 candidate-2@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  Name "V3 Nguyễn Văn 3 candidate-3@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  Name "V4 Nguyễn Văn 4 candidate-4@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  Name "V5 Nguyễn Văn 5 candidate-5@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  Name "V6 Nguyễn Văn 6 candidate-6@ats.test Chưa có Phỏng vấn 1 giờ trước Xem chi tiết":
+  <tr
+    class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+  />
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Ứng viên":
+  <th
+    class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  Name "Vị trí ứng tuyển":
+  <th
+    class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  Name "Điểm AI":
+  <th
+    class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  Name "Trạng thái":
+  <th
+    class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  Name "Thời gian":
+  <th
+    class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <th
+    class="text-right px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+    style="font-weight: 600;"
+  />
+
+  --------------------------------------------------
+  cell:
+
+  Name "V1 Nguyễn Văn 1 candidate-1@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  Name "V2 Nguyễn Văn 2 candidate-2@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  Name "V3 Nguyễn Văn 3 candidate-3@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  Name "V4 Nguyễn Văn 4 candidate-4@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  Name "V5 Nguyễn Văn 5 candidate-5@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  Name "V6 Nguyễn Văn 6 candidate-6@ats.test":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Chưa có":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Phỏng vấn":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "1 giờ trước":
+  <td
+    class="px-6 py-4"
+  />
+
+  Name "Xem chi tiết":
+  <td
+    class="px-6 py-4 text-right"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[14px] text-[#1D1D1F]"
+    style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="text-[13px] text-[#1D1D1F]"
+  />
+
+  Name "":
+  <p
+    class="text-[12px] text-[#AEAEB2]"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-1"
+    style="font-weight: 500;"
+  />
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-2"
+    style="font-weight: 500;"
+  />
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-3"
+    style="font-weight: 500;"
+  />
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-4"
+    style="font-weight: 500;"
+  />
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-5"
+    style="font-weight: 500;"
+  />
+
+  Name "Xem chi tiết":
+  <a
+    class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
+    href="/jobs/job-1/candidates/app-6"
+    style="font-weight: 500;"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"
+    >
+      <div
+        class="bg-white rounded-2xl border border-[#F2F2F7] p-4 mb-4"
+      >
+        <div
+          class="flex flex-col lg:flex-row gap-4"
+        >
+          <div
+            class="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border border-[#E5E5EA] bg-[#F5F5F7] flex-1"
+          >
+            <input
+              aria-label="Tìm ứng viên"
+              class="bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"
+              placeholder="Tìm theo tên, vị trí..."
+              type="text"
+              value="Nguyễn"
+            />
+          </div>
+          <div
+            class="flex gap-2 flex-wrap"
+          >
+            <button
+              class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+              style="font-weight: 400;"
+            >
+              Tất cả
+              <span
+                class="text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"
+              >
+                8
+              </span>
+            </button>
+            <button
+              class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+              style="font-weight: 400;"
+            >
+              Mới
+              <span
+                class="text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"
+              >
+                1
+              </span>
+            </button>
+            <button
+              class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+              style="font-weight: 400;"
+            >
+              Sàng lọc
+              <span
+                class="text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"
+              >
+                0
+              </span>
+            </button>
+            <button
+              class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 bg-[#EBF3FD] text-[#0071E3]"
+              style="font-weight: 500;"
+            >
+              Phỏng vấn
+              <span
+                class="text-[11px] px-1.5 rounded-full bg-[#0071E3] text-white"
+              >
+                7
+              </span>
+            </button>
+            <button
+              class="px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"
+              style="font-weight: 400;"
+            >
+              Offer
+              <span
+                class="text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"
+              >
+                0
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden"
+      >
+        <div
+          class="overflow-x-auto"
+        >
+          <table
+            class="w-full"
+          >
+            <thead>
+              <tr
+                class="border-b border-[#F2F2F7]"
+              >
+                <th
+                  class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                >
+                  Ứng viên
+                </th>
+                <th
+                  class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                >
+                  Vị trí ứng tuyển
+                </th>
+                <th
+                  class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                >
+                  Điểm AI
+                </th>
+                <th
+                  class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                >
+                  Trạng thái
+                </th>
+                <th
+                  class="text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                >
+                  Thời gian
+                </th>
+                <th
+                  class="text-right px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"
+                  style="font-weight: 600;"
+                />
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"
+              >
+                <td
+                  class="px-6 py-4"
+                >
+                  <div
+                    class="flex items-center gap-3"
+                  >
+                    <div
+                      class="w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"
+                      ...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/candidates/ui/CandidatesFilters.test.tsx:36:24
+     34|     await user.type(search, 'Nguyễn');
+     35|
+     36|     const all = screen.getByRole('checkbox', { name: 'Chọn tất cả' });
+       |                        ^
+     37|     const header = screen.getAllByRole('row')[0];
+     38|     expect(within(header).getAllByRole('columnheader')[0]).toContainEl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/components/candidates/ui/CompareBar.test.tsx > CompareBar > CompareBar enables at 2 to 4 selections, and at 5 it is disabled with the note "Chọn tối đa 4 ứng viên để so sánh"
+Error: Cannot find module '/src/components/candidates/ui/CompareBar' imported from E:/wt/ats-sp1/apps/web/src/components/candidates/ui/CompareBar.test.tsx
+ ❯ src/components/candidates/ui/CompareBar.test.tsx:12:28
+     10|     // Import inside the case so a missing implementation reports this…
+     11|     const modulePath = './CompareBar';
+     12|     const { CompareBar } = await import(/* @vite-ignore */ modulePath);
+       |                            ^
+     13|     const user = userEvent.setup();
+     14|     const ids = ['a', 'b', 'c', 'd', 'e'];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > drawer shows the evaluation link only to the interviewer of a completed interview
+TestingLibraryElementError: Unable to find an accessible element with the role "link" and name `/đánh giá/i`
+
+Here are the accessible roles:
+
+  dialog:
+
+  Name "Chi tiết lịch phỏng vấn":
+  <aside
+    aria-labelledby="radix-_r_j_"
+    class="flex h-full w-full max-w-[380px] flex-col bg-white shadow-2xl"
+    data-state="open"
+    id="radix-_r_i_"
+    role="dialog"
+    style="opacity: 0; transform: translateX(360px); pointer-events: auto;"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Chi tiết phỏng vấn":
+  <h2
+    class="text-[16px] text-[#1D1D1F]"
+    style="font-weight: 800;"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="text-[12px] text-[#6E6E73]"
+  />
+
+  Name "":
+  <p
+    class="truncate text-[15px] text-[#1D1D1F]"
+    style="font-weight: 800;"
+  />
+
+  Name "":
+  <p
+    class="truncate text-[12px] text-[#6E6E73]"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] uppercase tracking-[0.06em] text-[#6E6E73]"
+    style="font-weight: 800;"
+  />
+
+  Name "":
+  <p
+    class="mt-1 text-[14px] text-[#1D1D1F]"
+    style="font-weight: 700;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  Name "":
+  <p
+    class="text-[11px] text-[#AEAEB2]"
+  />
+
+  Name "":
+  <p
+    class="mt-0.5 text-[13px] text-[#1D1D1F]"
+    style="font-weight: 600;"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Đóng":
+  <button
+    aria-label="Đóng"
+    class="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]"
+    type="button"
+  />
+
+  Name "Đổi lịch":
+  <button
+    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-3 text-[14px] text-white shadow-sm transition-colors hover:bg-[#0077ED] disabled:cursor-not-allowed disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2]"
+    disabled=""
+    style="font-weight: 800;"
+    type="button"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  />
+  <div
+    class="fixed inset-0 z-40 flex justify-end bg-black/20"
+    data-state="open"
+    style="pointer-events: auto;"
+  >
+    <aside
+      aria-labelledby="radix-_r_j_"
+      class="flex h-full w-full max-w-[380px] flex-col bg-white shadow-2xl"
+      data-state="open"
+      id="radix-_r_i_"
+      role="dialog"
+      style="opacity: 0; transform: translateX(360px); pointer-events: auto;"
+      tabindex="-1"
+    >
+      <span
+        class="sr-only"
+        id="radix-_r_j_"
+      >
+        Chi tiết lịch phỏng vấn
+      </span>
+      <div
+        class="flex items-center justify-between border-b border-[#F2F2F7] px-5 py-4"
+      >
+        <div>
+          <h2
+            class="text-[16px] text-[#1D1D1F]"
+            style="font-weight: 800;"
+          >
+            Chi tiết phỏng vấn
+          </h2>
+          <p
+            class="text-[12px] text-[#6E6E73]"
+          >
+            Đã hoàn tất
+          </p>
+        </div>
+        <button
+          aria-label="Đóng"
+          class="rounded-lg p-2 text-[#AEAEB2] transition-colors hover:bg-[#F5F5F7]"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-x h-4 w-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6 6 18"
+            />
+            <path
+              d="m6 6 12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="flex-1 overflow-y-auto p-5"
+      >
+        <div
+          class="mb-5 flex items-center gap-3"
+        >
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0071E3] text-[15px] text-white"
+            style="font-weight: 800;"
+          >
+            VA
+          </div>
+          <div
+            class="min-w-0"
+          >
+            <p
+              class="truncate text-[15px] text-[#1D1D1F]"
+              style="font-weight: 800;"
+            >
+              Nguyễn Văn A
+            </p>
+            <p
+              class="truncate text-[12px] text-[#6E6E73]"
+            >
+              a@ats.test
+            </p>
+          </div>
+        </div>
+        <div
+          class="mb-5 rounded-xl border border-[#E5E5EA] bg-[#F5F5F7] px-4 py-3"
+        >
+          <p
+            class="text-[11px] uppercase tracking-[0.06em] text-[#6E6E73]"
+            style="font-weight: 800;"
+          >
+            Hình thức
+          </p>
+          <p
+            class="mt-1 text-[14px] text-[#1D1D1F]"
+            style="font-weight: 700;"
+          >
+            Phỏng vấn trực tiếp
+          </p>
+          <div
+            class="mt-1 break-all text-[13px] text-[#1D1D1F]"
+          >
+            <span>
+              Chưa có địa điểm
+            </span>
+          </div>
+        </div>
+        <div
+          class="space-y-3"
+        >
+          <div
+            class="flex items-start gap-3 rounded-xl border border-[#F2F2F7] px-3 py-3"
+          >
+            <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EBF3FD]"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-calendar-days h-4 w-4 text-[#0071E3]"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2v4"
+                />
+                <path
+                  d="M16 2v4"
+                />
+                <rect
+                  height="18"
+                  rx="2"
+                  width="18"
+                  x="3"
+                  y="4...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx:91:29
+     89|       const drawer = renderDrawer(value, currentUserId);
+     90|       if (testCase.visible) {
+     91|         const link = screen.getByRole('link', { name: /đánh giá/i });
+       |                             ^
+     92|         expect(link).toBeVisible();
+     93|         expect(link).toHaveAttribute('href', href);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/app/(recruiter)/jobs/[jobId]/compare/page.test.tsx > ComparePage > compare page shows the error and a back link for a bad ids list
+Error: Cannot find module '/src/app/(recruiter)/jobs/[jobId]/compare/page' imported from E:/wt/ats-sp1/apps/web/src/app/(recruiter)/jobs/[jobId]/compare/page.test.tsx
+ ❯ src/app/(recruiter)/jobs/[jobId]/compare/page.test.tsx:13:38
+     11|   it('compare page shows the error and a back link for a bad ids list'…
+     12|     const modulePath = './page';
+     13|     const { default: ComparePage } = await import(/* @vite-ignore */ m…
+       |                                      ^
+     14|     const invalidLists: Record<string, string>[] = [
+     15|       {},
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  6 failed | 50 passed (56)
+      Tests  6 failed | 348 passed (354)
+   Start at  10:38:21
+   Duration  59.43s (transform 1.61s, setup 15.76s, import 9.03s, tests 40.47s, environment 40.50s)
+
+Exit code: 1
