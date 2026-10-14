@@ -6,6 +6,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { MailModule } from '../../common/mail/mail.module';
 import { CandidateNotificationsService } from './candidate-notifications.service';
 import { NOTIFICATION_EMAIL_QUEUE } from './notification-email.constants';
+import { NotificationEmailProcessor } from './notification-email.processor';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { NOTIFICATION_EMAIL_QUEUE } from './notification-email.constants';
     MailModule,
     BullModule.registerQueue({ name: NOTIFICATION_EMAIL_QUEUE }),
   ],
-  providers: [CandidateNotificationsService],
+  providers: [CandidateNotificationsService, NotificationEmailProcessor],
   exports: [CandidateNotificationsService],
 })
 export class CandidateNotificationsModule implements OnModuleInit {
