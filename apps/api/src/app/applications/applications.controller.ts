@@ -10,6 +10,8 @@ import {
   Req,
   Res,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
@@ -18,6 +20,8 @@ import { ApplicationsService } from './applications.service';
 import { BulkScreeningService } from './bulk-screening.service';
 import { ApplicationExportService } from './application-export.service';
 import { BulkScreeningDto } from './dtos/bulk-screening.dto';
+import { ApplicationComparisonService } from './application-comparison.service';
+import { CompareApplicationsQueryDto } from './dto/compare-applications-query.dto';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -40,6 +44,7 @@ export class ApplicationsController {
     private readonly applicationsService: ApplicationsService,
     private readonly bulkScreeningService: BulkScreeningService,
     private readonly applicationExportService: ApplicationExportService,
+    private readonly comparisonService?: ApplicationComparisonService,
   ) { }
 
   @Roles(UserRole.candidate)
@@ -95,6 +100,22 @@ export class ApplicationsController {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(content);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Get('job/:jobId/compare')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ApiOperation({ summary: 'So sánh 2–4 ứng viên của cùng một tin tuyển dụng' })
+  @ApiResponse({ status: 200, description: 'Thành công' })
+  @ApiResponse({ status: 400, description: 'Chỉ so sánh 2–4 ứng viên của cùng một tin' })
+  @ApiResponse({ status: 403, description: 'Không có quyền xem đơn ứng tuyển' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy tin tuyển dụng' })
+  compareApplications(
+    @Param('jobId') jobId: string,
+    @Query() query: CompareApplicationsQueryDto,
+    @CurrentCaller() caller: TenantCaller,
+  ) {
+    return this.comparisonService.compare(caller, jobId, query.applicationIds);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)

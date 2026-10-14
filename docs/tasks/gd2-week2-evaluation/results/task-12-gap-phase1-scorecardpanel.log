@@ -1,0 +1,127 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > ScorecardPanel offers "Nộp đánh giá" only on a completed interview where I am the interviewer and none exists yet 440ms
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > ScorecardPanel is read-only when the application is closed 54ms
+ × src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > a recruiter who neither runs nor scheduled the interview still sees its scorecard 1055ms
+   → Unable to find role="article" and name "Buổi phỏng vấn ngày 10/10/2026"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-busy[39m=[32m"false"[39m
+      [33maria-label[39m=[32m"Nội dung đánh giá"[39m
+      [33mclass[39m=[32m"space-y-5"[39m
+      [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-[16px] text-[#1D1D1F]"[39m
+        [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+      [36m>[39m
+        [0mĐánh giá phỏng vấn[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]"[39m
+      [36m>[39m
+        [0mChưa có buổi phỏng vấn.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-busy[39m=[32m"false"[39m
+      [33maria-label[39m=[32m"Nội dung đánh giá"[39m
+      [33mclass[39m=[32m"space-y-5"[39m
+      [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-[16px] text-[#1D1D1F]"[39m
+        [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+      [36m>[39m
+        [0mĐánh giá phỏng vấn[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]"[39m
+      [36m>[39m
+        [0mChưa có buổi phỏng vấn.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > a recruiter of another department still sees no scorecard 115ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > a recruiter who neither runs nor scheduled the interview still sees its scorecard
+TestingLibraryElementError: Unable to find role="article" and name "Buổi phỏng vấn ngày 10/10/2026"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <section
+      aria-busy="false"
+      aria-label="Nội dung đánh giá"
+      class="space-y-5"
+      style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"
+    >
+      <h2
+        class="text-[16px] text-[#1D1D1F]"
+        style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"
+      >
+        Đánh giá phỏng vấn
+      </h2>
+      <p
+        class="bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]"
+      >
+        Chưa có buổi phỏng vấn.
+      </p>
+    </section>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <section
+      aria-busy="false"
+      aria-label="Nội dung đánh giá"
+      class="space-y-5"
+      style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"
+    >
+      <h2
+        class="text-[16px] text-[#1D1D1F]"
+        style="font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"
+      >
+        Đánh giá phỏng vấn
+      </h2>
+      <p
+        class="bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]"
+      >
+        Chưa có buổi phỏng vấn.
+      </p>
+    </section>
+  </div>
+</body>
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/candidates/ui/ScorecardPanel.test.tsx:151:31
+    149|     render(<ScorecardPanel applicationId={applicationId} currentUserId…
+    150|
+    151|     const card = await screen.findByRole('article', { name: 'Buổi phỏn…
+       |                               ^
+    152|     expectSavedScorecard(card, saved);
+    153|     expect(screen.queryByRole('button', { name: 'Nộp đánh giá' })).not…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  14:16:53
+   Duration  3.70s (transform 143ms, setup 386ms, import 168ms, tests 1.66s, environment 1.30s)
+

@@ -125,6 +125,15 @@ export const ScheduleStatus = {
 export type ScheduleStatus =
   (typeof ScheduleStatus)[keyof typeof ScheduleStatus];
 
+export const ScorecardRecommendation = {
+  strong_no: 'strong_no',
+  no: 'no',
+  yes: 'yes',
+  strong_yes: 'strong_yes',
+} as const;
+export type ScorecardRecommendation =
+  (typeof ScorecardRecommendation)[keyof typeof ScorecardRecommendation];
+
 export const DifficultyLevel = {
   easy: 'easy',
   medium: 'medium',

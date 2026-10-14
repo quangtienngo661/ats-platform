@@ -1,0 +1,9 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:16:41
+   Duration  13.94s (transform 187ms, setup 571ms, import 311ms, tests 10.89s, environment 1.96s)
+

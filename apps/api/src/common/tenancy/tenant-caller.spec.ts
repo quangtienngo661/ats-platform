@@ -1,6 +1,11 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRole } from '@ats-platform/database';
 import {
+  assertInCallerOrganizationOr404,
   assertOrganizationAccess,
   organizationScope,
   requireCallerOrganization,
@@ -76,6 +81,57 @@ describe('tenant-caller', () => {
     it('refuses staff with no organization, whatever the resource (E2)', () => {
       expect(() => assertOrganizationAccess(orphanRecruiter, 'org-1')).toThrow(
         ForbiddenException,
+      );
+    });
+  });
+
+  describe('assertInCallerOrganizationOr404', () => {
+    const message = 'Không tìm thấy tài nguyên';
+
+    it('lets a platform admin through', () => {
+      expect(() =>
+        assertInCallerOrganizationOr404(platformAdmin, 'org-2', message),
+      ).not.toThrow();
+    });
+
+    it.each([
+      ['an org_admin', orgAdmin],
+      ['a recruiter', recruiter],
+    ])(
+      'answers 404 with the given message for staff of another organization',
+      (_who, caller) => {
+        expect(() =>
+          assertInCallerOrganizationOr404(caller, 'org-2', message),
+        ).toThrow(NotFoundException);
+        expect(() =>
+          assertInCallerOrganizationOr404(caller, 'org-2', message),
+        ).toThrow(new NotFoundException(message));
+      },
+    );
+
+    it.each([
+      ['an org_admin', orgAdmin],
+      ['a recruiter', recruiter],
+    ])('passes staff of the same organization', (_who, caller) => {
+      expect(() =>
+        assertInCallerOrganizationOr404(caller, 'org-1', message),
+      ).not.toThrow();
+    });
+
+    it('refuses a candidate with 403', () => {
+      expect(() =>
+        assertInCallerOrganizationOr404(candidate, 'org-1', message),
+      ).toThrow(ForbiddenException);
+    });
+
+    it('refuses staff with no organization, whatever the resource (E2)', () => {
+      expect(() =>
+        assertInCallerOrganizationOr404(orphanRecruiter, 'org-1', message),
+      ).toThrow(ForbiddenException);
+      expect(() =>
+        assertInCallerOrganizationOr404(orphanRecruiter, 'org-1', message),
+      ).toThrow(
+        new ForbiddenException('Tài khoản của bạn chưa được gắn với tổ chức nào'),
       );
     });
   });

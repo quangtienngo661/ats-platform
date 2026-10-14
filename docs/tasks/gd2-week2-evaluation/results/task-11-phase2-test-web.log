@@ -1,0 +1,56 @@
+Command: npm run test:web
+NODE_OPTIONS=
+
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts
+
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ❯ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx (5 tests | 1 failed) 623ms
+     × drawer shows the evaluation link only to the interviewer of a completed interview 127ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > drawer shows the evaluation link only to the interviewer of a completed interview
+Error: expect(element).toBeVisible()
+
+Received element is not visible:
+  <a
+  class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#0071E3] px-4 py-3 text-[14px] text-[#0071E3] transition-colors hover:bg-[#EBF3FD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
+  href="/jobs/job-1/candidates/app-1?tab=evaluation"
+  style="font-weight: 800;"
+/>
+ ❯ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx:92:22
+     90|       if (testCase.visible) {
+     91|         const link = screen.getByRole('link', { name: /đánh giá/i });
+     92|         expect(link).toBeVisible();
+       |                      ^
+     93|         expect(link).toHaveAttribute('href', href);
+     94|       } else {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 55 passed (56)
+      Tests  1 failed | 353 passed (354)
+   Start at  10:48:45
+   Duration  58.55s (transform 1.49s, setup 14.23s, import 8.12s, tests 46.31s, environment 36.82s)
+
+
+Exit code: 1

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
@@ -8,6 +8,7 @@ import { useScreeningLiveRefresh } from '../useScreeningLiveRefresh';
 import { BulkScreeningBar } from './BulkScreeningBar';
 import { CandidateRow } from './CandidateRow';
 import { ExportCsvButton } from './ExportCsvButton';
+import { CompareBar } from './CompareBar';
 
 interface CandidatesFiltersProps {
     applications: IApplicationDto[];
@@ -27,7 +28,24 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
     useScreeningLiveRefresh();
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+    useEffect(() => {
+        const pageIds = new Set(applications.map(application => application.applicationId));
+        setSelectedIds(previous => {
+            const next = new Set(Array.from(previous).filter(id => pageIds.has(id)));
+            return next.size === previous.size ? previous : next;
+        });
+    }, [applications]);
+
+    const onToggle = (applicationId: string) => {
+        setSelectedIds(previous => {
+            const next = new Set(previous);
+            if (next.has(applicationId)) next.delete(applicationId);
+            else next.add(applicationId);
+            return next;
+        });
+    };
 
     const filtered = applications
         .filter(a => selectedFilter === 'all' || a.status === selectedFilter)
@@ -40,30 +58,19 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
             );
         });
 
-    const allVisibleSelected = filtered.length > 0 && filtered.every(a => selectedIds.has(a.applicationId));
+    const allSelected = filtered.length > 0 && filtered.every(application => selectedIds.has(application.applicationId));
     const selectedApplications = applications.filter(a => selectedIds.has(a.applicationId));
 
-    function toggleSelection(applicationId: string) {
+    const onToggleAll = () => {
         setSelectedIds(previous => {
             const next = new Set(previous);
-            if (next.has(applicationId)) next.delete(applicationId);
-            else next.add(applicationId);
+            for (const application of filtered) {
+                if (allSelected) next.delete(application.applicationId);
+                else next.add(application.applicationId);
+            }
             return next;
         });
-    }
-
-    function toggleAllVisible() {
-        if (filtered.length === 0) return;
-        setSelectedIds(previous => {
-            const next = new Set(previous);
-            const clearVisible = filtered.every(a => previous.has(a.applicationId));
-            filtered.forEach(a => {
-                if (clearVisible) next.delete(a.applicationId);
-                else next.add(a.applicationId);
-            });
-            return next;
-        });
-    }
+    };
 
     return (
         <div style={{ fontFamily: SFT }}>
@@ -112,6 +119,7 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                     <ExportCsvButton jobId={jobId} />
                 </div>
             </div>
+            <CompareBar jobId={jobId} selectedIds={Array.from(selectedIds)} />
 
             {/* Table */}
             <div className="bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden">
@@ -123,9 +131,10 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                                     <input
                                         type="checkbox"
                                         aria-label="Chọn tất cả"
-                                        checked={allVisibleSelected}
-                                        onChange={toggleAllVisible}
-                                        className="w-4 h-4 accent-[#0071E3] cursor-pointer"
+                                        checked={allSelected}
+                                        onChange={onToggleAll}
+                                        disabled={filtered.length === 0}
+                                        className="h-4 w-4 cursor-pointer accent-[#0071E3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
                                     />
                                 </th>
                                 {['Ứng viên', 'Vị trí ứng tuyển', 'Điểm AI', 'Trạng thái', 'Thời gian', ''].map((th, i) => (
@@ -135,8 +144,7 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                         </thead>
                         <tbody>
                             {filtered.map((app) => (
-                                <CandidateRow key={app.applicationId} application={app} jobId={jobId}
-                                    selected={selectedIds.has(app.applicationId)} onToggle={toggleSelection} />
+                                <CandidateRow key={app.applicationId} application={app} jobId={jobId} selected={selectedIds.has(app.applicationId)} onToggle={onToggle} />
                             ))}
                             {filtered.length === 0 && (
                                 <tr>

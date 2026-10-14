@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
@@ -55,7 +57,7 @@ export function CandidateRow({ application, jobId, selected, onToggle }: Candida
                     aria-label={`Chọn ${name}`}
                     checked={selected}
                     onChange={() => onToggle(application.applicationId)}
-                    className="w-4 h-4 accent-[#0071E3] cursor-pointer"
+                    className="h-4 w-4 cursor-pointer accent-[#0071E3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
                 />
             </td>
             <td className="px-6 py-4">

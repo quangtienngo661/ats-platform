@@ -173,7 +173,7 @@ export class ApplicationsService {
     });
   }
 
-  private async assertCanAccessApplication(
+  async assertCanAccessApplication(
     caller: TenantCaller,
     applicationId: string,
   ) {

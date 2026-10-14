@@ -1,0 +1,90 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ × src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen 5014ms
+   → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ × src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm shows the API message when the submit is refused and keeps the typed values 646ms
+   → expected "vi.fn()" to be called once with arguments: [ 'int-1', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+Compared values have no visual difference.
+
+  2nd vi.fn() call:
+
+@@ -1,9 +1,9 @@
+  [
+    "int-1",
+    {
+-     "comment": "Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.",
++     "comment": "Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.",
+      "communication": 5,
+      "cultureFit": 2,
+      "problemSolving": 3,
+      "recommendation": "yes",
+      "technicalSkills": 4,
+
+
+Number of calls: 2
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/components/candidates/ui/ScorecardForm.test.tsx:50:3
+     48|
+     49| describe('ScorecardForm', () => {
+     50|   it('ScorecardForm blocks submit until all four ratings and a recomme…
+       |   ^
+     51|     const user = userEvent.setup();
+     52|     // Omit each required choice in turn, including the recommendation.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm shows the API message when the submit is refused and keeps the typed values
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'int-1', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+Compared values have no visual difference.
+
+  2nd vi.fn() call:
+
+@@ -1,9 +1,9 @@
+  [
+    "int-1",
+    {
+-     "comment": "Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.",
++     "comment": "Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.Trình bày rõ ràng, cần bổ sung kinh nghiệm thiết kế hệ thống.",
+      "communication": 5,
+      "cultureFit": 2,
+      "problemSolving": 3,
+      "recommendation": "yes",
+      "technicalSkills": 4,
+
+
+Number of calls: 2
+
+ ❯ src/components/candidates/ui/ScorecardForm.test.tsx:104:26
+    102|
+    103|     expect(await screen.findByText(message)).toBeVisible();
+    104|     expect(mocks.submit).toHaveBeenCalledExactlyOnceWith('int-1', inpu…
+       |                          ^
+    105|     for (const rating of ratings) {
+    106|       expect(within(screen.getByRole('radiogroup', { name: rating.labe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  10:08:47
+   Duration  10.82s (transform 2.67s, setup 317ms, import 2.81s, tests 5.66s, environment 1.47s)
+

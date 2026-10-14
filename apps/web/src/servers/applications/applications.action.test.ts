@@ -4,9 +4,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScreeningSkipReason, type IBulkScreeningResult } from '@ats-platform/types';
 import { revalidatePath } from 'next/cache';
+import { unstable_rethrow } from 'next/navigation';
 import type { IApplicationHistoryItem } from '@/types/interfaces/application.interface';
 import {
   bulkScreenApplicationsAction,
+  compareApplicationsAction,
   exportCandidatesCsvAction,
   getApplicationByIdAction,
   getApplicationHistoryAction,
@@ -15,6 +17,7 @@ import {
 const mocks = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
 vi.mock('@/lib/http', () => ({ default: { get: mocks.get, post: mocks.post, patch: vi.fn() } }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn() }));
 
 const apiHistory: IApplicationHistoryItem[] = [
   { id: 'h1', fromStatus: null, toStatus: 'applied', changedAt: '2026-10-01T02:12:00.000Z' },
@@ -157,5 +160,39 @@ describe('bulk screening and CSV export actions', () => {
       success: false,
       message: 'Tin có quá nhiều đơn để xuất CSV (tối đa 5000)',
     });
+  });
+});
+
+describe('compareApplicationsAction', () => {
+  it('compareApplicationsAction joins the ids with commas', async () => {
+    const items = ['a', 'b', 'c'].map((applicationId) => ({
+      applicationId,
+      candidateName: `Ứng viên ${applicationId}`,
+      status: 'interview',
+      appliedAt: '2026-10-01T02:12:00.000Z',
+      screening: null,
+      scorecards: {
+        count: 0,
+        average: { technicalSkills: null, problemSolving: null, communication: null, cultureFit: null },
+        recommendations: [],
+      },
+      noteCount: 0,
+    }));
+    mocks.get.mockResolvedValueOnce({ data: items });
+
+    await expect(compareApplicationsAction('job-1', ['a', 'b', 'c'])).resolves.toEqual(items);
+    expect(mocks.get).toHaveBeenCalledExactlyOnceWith('/applications/job/job-1/compare', {
+      params: { applicationIds: 'a,b,c' },
+    });
+  });
+
+  it('compareApplicationsAction rethrows with the standard message', async () => {
+    const error = new Error('offline');
+    mocks.get.mockRejectedValueOnce(error);
+    const result = compareApplicationsAction('job-1', ['a', 'b']);
+
+    await expect(result).rejects.toThrow('Không thể tải dữ liệu. Vui lòng thử lại.');
+    await expect(result).rejects.toMatchObject({ cause: error });
+    expect(unstable_rethrow).toHaveBeenCalledWith(error);
   });
 });

@@ -1,0 +1,15 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu 'Kỹ năng chuyên môn') 2019ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu 'Giải quyết vấn đề') 1597ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu 'Giao tiếp') 1802ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu 'Phù hợp văn hoá') 1781ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu 'khuyến nghị') 1712ms
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm shows the API message when the submit is refused and keeps the typed values 1762ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  10:23:48
+   Duration  13.17s (transform 175ms, setup 386ms, import 224ms, tests 10.68s, environment 1.71s)
+
