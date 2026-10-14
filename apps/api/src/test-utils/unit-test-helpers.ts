@@ -28,6 +28,15 @@ export const createPrismaMock = () => ({
   aiUsageLog: model(['create', 'findMany', 'count']),
   application: model(['create', 'findMany', 'findUnique', 'count', 'update']),
   applicationHistory: model(['create', 'findMany']),
+  applicationNote: model([
+    'create',
+    'findMany',
+    'findUnique',
+    'count',
+    'update',
+    'delete',
+    'groupBy',
+  ]),
   candidate: model([
     'create',
     'findFirst',
@@ -72,6 +81,13 @@ export const createPrismaMock = () => ({
     'findUnique',
     'update',
     'updateMany',
+  ]),
+  interviewScorecard: model([
+    'create',
+    'upsert',
+    'findUnique',
+    'findMany',
+    'count',
   ]),
   interviewSession: model([
     'create',

@@ -1,0 +1,17 @@
+PASS — CHECK technical_skills rejects 0: rejected (23514 interview_scorecards_technical_skills_check); expected SQLSTATE 23514
+PASS — CHECK technical_skills rejects 6: rejected (23514 interview_scorecards_technical_skills_check); expected SQLSTATE 23514
+PASS — CHECK problem_solving rejects 0: rejected (23514 interview_scorecards_problem_solving_check); expected SQLSTATE 23514
+PASS — CHECK problem_solving rejects 6: rejected (23514 interview_scorecards_problem_solving_check); expected SQLSTATE 23514
+PASS — CHECK communication rejects 0: rejected (23514 interview_scorecards_communication_check); expected SQLSTATE 23514
+PASS — CHECK communication rejects 6: rejected (23514 interview_scorecards_communication_check); expected SQLSTATE 23514
+PASS — CHECK culture_fit rejects 0: rejected (23514 interview_scorecards_culture_fit_check); expected SQLSTATE 23514
+PASS — CHECK culture_fit rejects 6: rejected (23514 interview_scorecards_culture_fit_check); expected SQLSTATE 23514
+PASS — CONTROL all four scores accept 1: accepted 1 scorecard(s)
+PASS — CONTROL all four scores accept 5: accepted 1 scorecard(s)
+PASS — UNIQUE rejects a second scorecard for the same interview_id: rejected (23505 interview_scorecards_interview_id_key); expected SQLSTATE 23505
+PASS — FK RESTRICT rejects deleting an interview with a scorecard: rejected (23001 interview_scorecards_interview_id_fkey); expected SQLSTATE 23001
+PASS — CASCADE deleting an application removes its notes: notes 1 before -> 0 after; applications deleted: 1
+PASS — ENUM scorecard_recommendation has exactly the four specified values: strong_no, no, yes, strong_yes
+PASS — probe rows left behind (interview_scorecards): 0
+PASS — probe rows left behind (application_notes): 0
+RESULT: all checks passed

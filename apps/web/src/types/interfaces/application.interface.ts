@@ -15,6 +15,7 @@ export interface IApplicationDto extends IApplication {
     createdAt?: string;
     updatedAt?: string;
     jobPosting?: {
+        jobId?: string;
         organizationId?: string;
         title: string;
         departmentId: string;

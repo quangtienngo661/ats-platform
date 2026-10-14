@@ -8,10 +8,14 @@ import {
   Query,
   Req,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ApplicationsService } from './applications.service';
+import { ApplicationComparisonService } from './application-comparison.service';
+import { CompareApplicationsQueryDto } from './dto/compare-applications-query.dto';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -27,7 +31,10 @@ import { TenantCaller } from '../../common/tenancy/tenant-caller';
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(
+    private readonly applicationsService: ApplicationsService,
+    private readonly comparisonService?: ApplicationComparisonService,
+  ) { }
 
   @Roles(UserRole.candidate)
   @Post()
@@ -68,6 +75,22 @@ export class ApplicationsController {
   @ApiResponse({ status: 200, description: 'Thành công' })
   getKanbanBoard(@Param('jobId') jobId: string, @CurrentCaller() caller: TenantCaller) {
     return this.applicationsService.getKanbanBoard(caller, jobId);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Get('job/:jobId/compare')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ApiOperation({ summary: 'So sánh 2–4 ứng viên của cùng một tin tuyển dụng' })
+  @ApiResponse({ status: 200, description: 'Thành công' })
+  @ApiResponse({ status: 400, description: 'Chỉ so sánh 2–4 ứng viên của cùng một tin' })
+  @ApiResponse({ status: 403, description: 'Không có quyền xem đơn ứng tuyển' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy tin tuyển dụng' })
+  compareApplications(
+    @Param('jobId') jobId: string,
+    @Query() query: CompareApplicationsQueryDto,
+    @CurrentCaller() caller: TenantCaller,
+  ) {
+    return this.comparisonService.compare(caller, jobId, query.applicationIds);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)

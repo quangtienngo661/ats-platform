@@ -1,0 +1,13 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > ScorecardPanel offers "Nộp đánh giá" only on a completed interview where I am the interviewer and none exists yet 273ms
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > ScorecardPanel is read-only when the application is closed 35ms
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > a recruiter who neither runs nor scheduled the interview still sees its scorecard 32ms
+ ✓ src/components/candidates/ui/ScorecardPanel.test.tsx > ScorecardPanel > a recruiter of another department still sees no scorecard 30ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  14:21:53
+   Duration  1.84s (transform 183ms, setup 369ms, import 209ms, tests 373ms, environment 704ms)
+

@@ -1,0 +1,101 @@
+{"run":2,"iteration":1,"step":"render","ms":53.810199999999895}
+{"run":2,"iteration":1,"step":"first_expectBlocked","ms":243.48390000000018}
+{"run":2,"iteration":1,"step":"group_queries_and_unchecked_assertions","ms":411.3149000000003,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":1,"step":"group_click","ms":0,"group":1,"label":"Kỹ năng chuyên môn","skipped":true}
+{"run":2,"iteration":1,"step":"group_queries_and_unchecked_assertions","ms":116.80380000000014,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":1,"step":"group_click","ms":116.03680000000031,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":1,"step":"group_queries_and_unchecked_assertions","ms":226.8090000000002,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":1,"step":"group_click","ms":82.63670000000002,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":1,"step":"group_queries_and_unchecked_assertions","ms":117.96600000000035,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":1,"step":"group_click","ms":52.45399999999972,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":1,"step":"chooseRecommendation","ms":113.8759}
+{"run":2,"iteration":1,"step":"comment_textbox_and_maxlength","ms":17.203999999999724}
+{"run":2,"iteration":1,"step":"type_comment","ms":1009.8481999999995}
+{"run":2,"iteration":1,"step":"second_expectBlocked","ms":6.297299999999268}
+{"run":2,"iteration":1,"step":"final_missing_choice","ms":119.27719999999954}
+{"run":2,"iteration":1,"step":"final_submit_click","ms":63.105500000000575}
+{"run":2,"iteration":1,"step":"waitFor_submit","ms":15.487999999999374}
+{"run":2,"iteration":1,"step":"waitFor_onSaved","ms":14.983900000000176}
+{"run":2,"iteration":1,"step":"unmount","ms":2.085599999999431}
+{"run":2,"iteration":1,"step":"iteration_total","ms":2793.4532,"completed":true}
+{"run":2,"iteration":2,"step":"render","ms":7.298399999999674}
+{"run":2,"iteration":2,"step":"first_expectBlocked","ms":11.311200000000099}
+{"run":2,"iteration":2,"step":"group_queries_and_unchecked_assertions","ms":87.46890000000076,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":2,"step":"group_click","ms":65.70880000000034,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":2,"step":"group_queries_and_unchecked_assertions","ms":92.72600000000057,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":2,"step":"group_click","ms":0,"group":2,"label":"Giải quyết vấn đề","skipped":true}
+{"run":2,"iteration":2,"step":"group_queries_and_unchecked_assertions","ms":26.160499999999956,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":2,"step":"group_click","ms":53.661700000000565,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":2,"step":"group_queries_and_unchecked_assertions","ms":86.63700000000063,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":2,"step":"group_click","ms":53.6252999999997,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":2,"step":"chooseRecommendation","ms":93.89179999999942}
+{"run":2,"iteration":2,"step":"comment_textbox_and_maxlength","ms":19.761099999999715}
+{"run":2,"iteration":2,"step":"type_comment","ms":976.7122000000008}
+{"run":2,"iteration":2,"step":"second_expectBlocked","ms":31.32879999999932}
+{"run":2,"iteration":2,"step":"final_missing_choice","ms":287.28319999999985}
+{"run":2,"iteration":2,"step":"final_submit_click","ms":111.48900000000049}
+{"run":2,"iteration":2,"step":"waitFor_submit","ms":15.272399999999834}
+{"run":2,"iteration":2,"step":"waitFor_onSaved","ms":14.877800000000207}
+{"run":2,"iteration":2,"step":"unmount","ms":1.9765999999999622}
+{"run":2,"iteration":2,"step":"iteration_total","ms":2045.2300999999998,"completed":true}
+{"run":2,"iteration":3,"step":"render","ms":9.944000000000415}
+{"run":2,"iteration":3,"step":"first_expectBlocked","ms":23.714899999999943}
+{"run":2,"iteration":3,"step":"group_queries_and_unchecked_assertions","ms":186.04259999999977,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":3,"step":"group_click","ms":70.14300000000003,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":3,"step":"group_queries_and_unchecked_assertions","ms":143.36849999999959,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":3,"step":"group_click","ms":41.382800000000316,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":3,"step":"group_queries_and_unchecked_assertions","ms":141.86099999999897,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":3,"step":"group_click","ms":0,"group":3,"label":"Giao tiếp","skipped":true}
+{"run":2,"iteration":3,"step":"group_queries_and_unchecked_assertions","ms":59.9398999999994,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":3,"step":"group_click","ms":49.38130000000092,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":3,"step":"chooseRecommendation","ms":90.72159999999894}
+{"run":2,"iteration":3,"step":"comment_textbox_and_maxlength","ms":22.437599999999293}
+{"run":2,"iteration":3,"step":"type_comment","ms":1000.4459000000006}
+{"run":2,"iteration":3,"step":"second_expectBlocked","ms":9.520700000000943}
+{"run":2,"iteration":3,"step":"final_missing_choice","ms":161.10490000000027}
+{"run":2,"iteration":3,"step":"final_submit_click","ms":111.45259999999871}
+{"run":2,"iteration":3,"step":"waitFor_submit","ms":14.44880000000012}
+{"run":2,"iteration":3,"step":"waitFor_onSaved","ms":12.383900000000722}
+{"run":2,"iteration":3,"step":"unmount","ms":1.0948000000007596}
+{"run":2,"iteration":3,"step":"iteration_total","ms":2157.969299999999,"completed":true}
+{"run":2,"iteration":4,"step":"render","ms":8.228000000000975}
+{"run":2,"iteration":4,"step":"first_expectBlocked","ms":26.04229999999916}
+{"run":2,"iteration":4,"step":"group_queries_and_unchecked_assertions","ms":131.03900000000067,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":4,"step":"group_click","ms":50.55739999999969,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":4,"step":"group_queries_and_unchecked_assertions","ms":107.34799999999996,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":4,"step":"group_click","ms":49.96889999999985,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":4,"step":"group_queries_and_unchecked_assertions","ms":103.12760000000162,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":4,"step":"group_click","ms":51.748600000000806,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":4,"step":"group_queries_and_unchecked_assertions","ms":92.99279999999999,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":4,"step":"group_click","ms":0,"group":4,"label":"Phù hợp văn hoá","skipped":true}
+{"run":2,"iteration":4,"step":"chooseRecommendation","ms":80.53399999999965}
+{"run":2,"iteration":4,"step":"comment_textbox_and_maxlength","ms":13.324000000000524}
+{"run":2,"iteration":4,"step":"type_comment","ms":999.994999999999}
+{"run":2,"iteration":4,"step":"second_expectBlocked","ms":5.0613999999986845}
+{"run":2,"iteration":4,"step":"final_missing_choice","ms":88.76780000000144}
+{"run":2,"iteration":4,"step":"final_submit_click","ms":47.289700000001176}
+{"run":2,"iteration":4,"step":"waitFor_submit","ms":15.614199999999983}
+{"run":2,"iteration":4,"step":"waitFor_onSaved","ms":15.613999999999578}
+{"run":2,"iteration":4,"step":"unmount","ms":0.6202000000012049}
+{"run":2,"iteration":4,"step":"iteration_total","ms":1894.9521000000004,"completed":true}
+{"run":2,"iteration":5,"step":"render","ms":4.898699999999735}
+{"run":2,"iteration":5,"step":"first_expectBlocked","ms":8.767399999998815}
+{"run":2,"iteration":5,"step":"group_queries_and_unchecked_assertions","ms":57.10490000000027,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":5,"step":"group_click","ms":54.65149999999994,"group":1,"label":"Kỹ năng chuyên môn"}
+{"run":2,"iteration":5,"step":"group_queries_and_unchecked_assertions","ms":57.584100000000035,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":5,"step":"group_click","ms":52.102100000000064,"group":2,"label":"Giải quyết vấn đề"}
+{"run":2,"iteration":5,"step":"group_queries_and_unchecked_assertions","ms":53.697000000000116,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":5,"step":"group_click","ms":56.068200000001525,"group":3,"label":"Giao tiếp"}
+{"run":2,"iteration":5,"step":"group_queries_and_unchecked_assertions","ms":54.19210000000021,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":5,"step":"group_click","ms":56.72240000000056,"group":4,"label":"Phù hợp văn hoá"}
+{"run":2,"iteration":5,"step":"chooseRecommendation","ms":0,"skipped":true}
+{"run":2,"iteration":5,"step":"comment_textbox_and_maxlength","ms":10.38299999999981}
+{"run":2,"iteration":5,"step":"type_comment","ms":986.9444000000003}
+{"run":2,"iteration":5,"step":"second_expectBlocked","ms":7.71520000000055}
+{"run":2,"iteration":5,"step":"final_missing_choice","ms":87.97689999999966}
+{"run":2,"iteration":5,"step":"final_submit_click","ms":97.31310000000121}
+{"run":2,"iteration":5,"step":"waitFor_submit","ms":29.03399999999965}
+{"run":2,"iteration":5,"step":"waitFor_onSaved","ms":15.09820000000036}
+{"run":2,"iteration":5,"step":"unmount","ms":1.0789999999997235}
+{"run":2,"iteration":5,"step":"iteration_total","ms":1696.9143999999997,"completed":true}
+{"run":2,"iteration":null,"step":"whole_test_total","ms":10591.5802,"completed":true}

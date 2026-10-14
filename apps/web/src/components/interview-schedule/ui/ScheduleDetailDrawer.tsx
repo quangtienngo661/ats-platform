@@ -3,6 +3,7 @@
 import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
 
 import { useTransition } from 'react';
+import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Ban, Building2, Briefcase, CalendarDays, CheckCircle2, Clock, RefreshCw, UserRound, X } from 'lucide-react';
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
@@ -13,6 +14,7 @@ import { ScheduleStatus } from '@ats-platform/types';
 
 interface ScheduleDetailDrawerProps {
     schedule: IInterviewSchedule;
+    currentUserId: string;
     onClose: () => void;
     onChanged: () => void;
     onReschedule: (schedule: IInterviewSchedule) => void;
@@ -32,7 +34,7 @@ const statusLabels: Record<string, string> = {
     cancelled: 'Đã hủy',
 };
 
-export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedule }: ScheduleDetailDrawerProps) {
+export function ScheduleDetailDrawer({ schedule, currentUserId, onClose, onChanged, onReschedule }: ScheduleDetailDrawerProps) {
     const [isPending, startTransition] = useTransition();
     const candidate = schedule.application?.candidate;
     const candidateName = candidate?.user?.fullName ?? 'Ứng viên';
@@ -133,6 +135,15 @@ export function ScheduleDetailDrawer({ schedule, onClose, onChanged, onReschedul
                 </div>
 
                 <div className="flex flex-col gap-2 border-t border-[#F2F2F7] p-5">
+                    {schedule.status === ScheduleStatus.completed && schedule.interviewerId === currentUserId && (
+                        <Link
+                            href={`/jobs/${schedule.application.jobPosting?.jobId}/candidates/${schedule.applicationId}?tab=evaluation`}
+                            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#0071E3] px-4 py-3 text-[14px] text-[#0071E3] transition-colors hover:bg-[#EBF3FD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
+                            style={{ fontWeight: 800 }}
+                        >
+                            Đánh giá
+                        </Link>
+                    )}
                     {canMutate && (
                         <div className="grid grid-cols-2 gap-2">
                             <button
