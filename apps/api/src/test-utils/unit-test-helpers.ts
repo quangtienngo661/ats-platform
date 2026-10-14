@@ -47,6 +47,7 @@ export const createPrismaMock = () => ({
     'update',
     'delete',
   ]),
+  emailNotification: model(['create', 'findUnique', 'updateMany']),
   organization: model([
     'create',
     'findMany',
