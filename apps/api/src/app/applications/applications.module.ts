@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
+import { BulkScreeningService } from './bulk-screening.service';
+import { ApplicationExportService } from './application-export.service';
 import { ApplicationComparisonService } from './application-comparison.service';
 import { ApplicationsController } from './applications.controller';
 import { PrismaModule } from '../../common/prisma/prisma.module';
@@ -10,7 +12,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
     imports: [PrismaModule, CvScreeningsModule, NotificationsModule],
     controllers: [ApplicationsController],
-    providers: [ApplicationsService, ApplicationComparisonService, AiUsageLogsService],
+    providers: [ApplicationsService, BulkScreeningService, ApplicationExportService, ApplicationComparisonService, AiUsageLogsService],
     exports: [ApplicationsService],
 })
 export class ApplicationsModule { }

@@ -101,4 +101,50 @@ describe('CvScreeningProcessor', () => {
     expect(failedWrite).toBeDefined();
     expect(failedWrite[0].data.errorLog).toBe('Gemini timeout');
   });
+
+  it('skips the in-app notification for a silent job but still emits the socket event', async () => {
+    primeContext();
+    geminiService.screeningCV.mockResolvedValue({
+      skills_score: 80,
+      experience_score: 80,
+      education_score: 80,
+      ai_reasoning: 'The candidate meets the requirements.',
+      matched_skills: [],
+      missing_skills: [],
+      matched_nice_to_haves: [],
+    });
+    const job = buildJob(0);
+    job.data.notify = false;
+
+    await expect(processor.process(job)).resolves.toBeUndefined();
+
+    expect(notificationsService.create).not.toHaveBeenCalled();
+    expect(socketIoService.handleEmit).toHaveBeenCalledWith(
+      'cv-screening:completed',
+      expect.objectContaining({ applicationId: 'app-1' }),
+      'job_job-1',
+    );
+  });
+
+  it('still notifies for a job without the flag', async () => {
+    primeContext();
+    geminiService.screeningCV.mockResolvedValue({
+      skills_score: 80,
+      experience_score: 80,
+      education_score: 80,
+      ai_reasoning: 'The candidate meets the requirements.',
+      matched_skills: [],
+      missing_skills: [],
+      matched_nice_to_haves: [],
+    });
+
+    await expect(processor.process(buildJob(0))).resolves.toBeUndefined();
+
+    expect(notificationsService.create).toHaveBeenCalled();
+    expect(socketIoService.handleEmit).toHaveBeenCalledWith(
+      'cv-screening:completed',
+      expect.objectContaining({ applicationId: 'app-1' }),
+      'job_job-1',
+    );
+  });
 });

@@ -48,7 +48,7 @@ describe('CandidateRow', () => {
     standalone.unmount();
 
     // Exercise the real shared selection state with zero through seven other rows.
-    render(<CandidatesFilters applications={applications} jobId="job-1" />);
+    render(<CandidatesFilters applications={applications} jobId="job-1" aiProfiles={[]} />);
     const target = screen.getByRole('checkbox', { name: 'Chọn Nguyễn Văn 1' });
     expect(target).toBeEnabled();
     for (const other of applications.slice(1)) {

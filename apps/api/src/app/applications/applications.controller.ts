@@ -2,18 +2,24 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Request, Response } from 'express';
 import { ApplicationsService } from './applications.service';
+import { BulkScreeningService } from './bulk-screening.service';
+import { ApplicationExportService } from './application-export.service';
+import { BulkScreeningDto } from './dtos/bulk-screening.dto';
 import { ApplicationComparisonService } from './application-comparison.service';
 import { CompareApplicationsQueryDto } from './dto/compare-applications-query.dto';
 import { CreateApplicationDto, GetApplicationsByJobQueryDto, UpdateApplicationStatusDto } from './dtos/application.dto';
@@ -26,6 +32,9 @@ import { Resources } from '../../common/decorators/resources.decorator';
 import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
 
+export const bulkScreeningTracker = (req: { user?: { userId?: string }; ip?: string }) =>
+  req.user?.userId ?? req.ip ?? '';
+
 @ApiTags('Đơn ứng tuyển')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -33,6 +42,8 @@ import { TenantCaller } from '../../common/tenancy/tenant-caller';
 export class ApplicationsController {
   constructor(
     private readonly applicationsService: ApplicationsService,
+    private readonly bulkScreeningService: BulkScreeningService,
+    private readonly applicationExportService: ApplicationExportService,
     private readonly comparisonService?: ApplicationComparisonService,
   ) { }
 
@@ -78,6 +89,20 @@ export class ApplicationsController {
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)
+  @Get('job/:jobId/export')
+  @ApiOperation({ summary: 'Xuất danh sách ứng viên của tin ra CSV' })
+  async exportJobCsv(
+    @Param('jobId') jobId: string,
+    @CurrentCaller() caller: TenantCaller,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { filename, content } = await this.applicationExportService.exportJobCsv(caller, jobId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(content);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
   @Get('job/:jobId/compare')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @ApiOperation({ summary: 'So sánh 2–4 ứng viên của cùng một tin tuyển dụng' })
@@ -103,6 +128,20 @@ export class ApplicationsController {
     @CurrentCaller() caller: TenantCaller,
   ) {
     return this.applicationsService.getApplicationsByJob(caller, jobId, query);
+  }
+
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Post('job/:jobId/bulk-screening')
+  @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 3, ttl: 60000, getTracker: bulkScreeningTracker } })
+  @ApiOperation({ summary: 'Sàng lọc CV hàng loạt bằng AI' })
+  bulkScreening(
+    @Param('jobId') jobId: string,
+    @CurrentCaller() caller: TenantCaller,
+    @Body() dto: BulkScreeningDto,
+  ) {
+    return this.bulkScreeningService.bulkScreen(caller, jobId, dto);
   }
 
   @Roles(UserRole.recruiter, UserRole.admin)

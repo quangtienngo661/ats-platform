@@ -1,9 +1,11 @@
 'use server';
 
-import { actionErrorMessage as extractMessage, rethrowReadError } from '@/lib/action-error';
+import { actionErrorMessage as extractMessage, apiErrorResponse, rethrowReadError } from '@/lib/action-error';
 
 import http from '@/lib/http';
 import { revalidatePath } from 'next/cache';
+import { unstable_rethrow } from 'next/navigation';
+import type { IBulkScreeningResult } from '@ats-platform/types';
 import { IApplicationDto, IApplicationHistoryItem, IGetApplicationsByJobQuery, IPaginatedApplications, IApplicationCard } from '@/types/interfaces/application.interface';
 
 import { IKanbanDto } from '@/types/interfaces/kanban.interface';
@@ -16,6 +18,16 @@ export type ApplicationActionState = {
     message: string;
     data?: IApplicationDto;
 };
+
+export type BulkScreeningActionState = {
+    success: boolean;
+    message: string;
+    data?: IBulkScreeningResult;
+};
+
+export type ExportCsvActionState =
+    | { success: true; filename: string; csv: string }
+    | { success: false; message: string };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -168,6 +180,63 @@ export async function triggerCvScreeningAction(
         return { success: true, message: 'Kích hoạt sàng lọc CV thành công', data: response.data as IApplicationDto };
     } catch (err) {
         return { success: false, message: extractMessage(err, 'Kích hoạt sàng lọc CV thất bại') };
+    }
+}
+
+// ─── BULK CV SCREENING ────────────────────────────────────────────────────────
+export async function bulkScreenApplicationsAction(
+    jobId: string,
+    input: { applicationIds?: string[]; moveAppliedToScreening: boolean; configId?: string }
+): Promise<BulkScreeningActionState> {
+    try {
+        const body: typeof input = { moveAppliedToScreening: input.moveAppliedToScreening };
+        if (input.applicationIds !== undefined) body.applicationIds = input.applicationIds;
+        if (input.configId !== undefined) body.configId = input.configId;
+
+        const response = await http.post(`/applications/job/${jobId}/bulk-screening`, body);
+        const data = response.data as IBulkScreeningResult;
+        revalidatePath(`/jobs/${jobId}/candidates`);
+        return { success: true, message: `Đã đưa ${data.queued.length} đơn vào hàng đợi`, data };
+    } catch (err) {
+        unstable_rethrow(err);
+        if (apiErrorResponse(err)?.status === 429) {
+            return {
+                success: false,
+                message: 'Bạn vừa gửi quá nhiều yêu cầu chấm hàng loạt. Vui lòng thử lại sau một phút.',
+            };
+        }
+        return { success: false, message: extractMessage(err, 'Chấm CV hàng loạt thất bại') };
+    }
+}
+
+// ─── EXPORT CANDIDATES CSV ────────────────────────────────────────────────────
+export async function exportCandidatesCsvAction(jobId: string): Promise<ExportCsvActionState> {
+    try {
+        const csv = await http.get<string, string>(`/applications/job/${jobId}/export`, { responseType: 'text' });
+        const { year, month, day } = Object.fromEntries(
+            new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).formatToParts(new Date()).map(({ type, value }) => [type, value])
+        );
+        return { success: true, filename: `ung-vien-${jobId.slice(0, 8)}-${year}${month}${day}.csv`, csv };
+    } catch (err) {
+        unstable_rethrow(err);
+        const response = apiErrorResponse(err);
+        let data: unknown = response?.data;
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                data = undefined;
+            }
+        }
+        return {
+            success: false,
+            message: extractMessage({ response: { ...response, data } }, 'Xuất CSV thất bại'),
+        };
     }
 }
 

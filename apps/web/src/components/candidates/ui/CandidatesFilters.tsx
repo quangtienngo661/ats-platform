@@ -3,12 +3,17 @@
 import { useEffect, useState } from 'react';
 import { SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
+import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
+import { useScreeningLiveRefresh } from '../useScreeningLiveRefresh';
+import { BulkScreeningBar } from './BulkScreeningBar';
 import { CandidateRow } from './CandidateRow';
+import { ExportCsvButton } from './ExportCsvButton';
 import { CompareBar } from './CompareBar';
 
 interface CandidatesFiltersProps {
     applications: IApplicationDto[];
     jobId: string;
+    aiProfiles: ConfigProfile[];
 }
 
 const statusFilters = [
@@ -19,7 +24,8 @@ const statusFilters = [
     { key: 'offer', label: 'Offer' },
 ] as const;
 
-export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProps) {
+export function CandidatesFilters({ applications, jobId, aiProfiles }: CandidatesFiltersProps) {
+    useScreeningLiveRefresh();
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -53,6 +59,7 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
         });
 
     const allSelected = filtered.length > 0 && filtered.every(application => selectedIds.has(application.applicationId));
+    const selectedApplications = applications.filter(a => selectedIds.has(a.applicationId));
 
     const onToggleAll = () => {
         setSelectedIds(previous => {
@@ -101,6 +108,17 @@ export function CandidatesFilters({ applications, jobId }: CandidatesFiltersProp
                 </div>
             </div>
 
+            <div className="flex flex-wrap items-start justify-between gap-x-4">
+                <BulkScreeningBar
+                    jobId={jobId}
+                    selectedApplications={selectedApplications}
+                    applications={applications}
+                    aiProfiles={aiProfiles}
+                />
+                <div className="bg-white rounded-2xl border border-[#F2F2F7] p-4 mb-4">
+                    <ExportCsvButton jobId={jobId} />
+                </div>
+            </div>
             <CompareBar jobId={jobId} selectedIds={Array.from(selectedIds)} />
 
             {/* Table */}

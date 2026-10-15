@@ -1,0 +1,4157 @@
+npm run test:web -- src/components/candidates
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/candidates
+
+
+ RUN  v4.1.6 E:/wt/ats-sp2/apps/web
+
+ ❯ src/components/candidates/ui/BulkScreeningDialog.test.tsx (0 test)
+ ❯ src/components/candidates/ui/BulkScreeningBar.test.tsx (0 test)
+ ❯ src/components/candidates/ui/CandidatesFilters.test.tsx (2 tests | 2 failed) 6054ms
+     × CandidateRow keeps its checkbox enabled with any number of other rows selected 5551ms
+     × "Chọn tất cả" selects every visible row and clears them again 502ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/ui/BulkScreeningBar.test.tsx [ src/components/candidates/ui/BulkScreeningBar.test.tsx ]
+Error: Failed to resolve import "./BulkScreeningBar" from "apps/web/src/components/candidates/ui/BulkScreeningBar.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/wt/ats-sp2/apps/web/src/components/candidates/ui/BulkScreeningBar.test.tsx:7:0
+  4  |  const __vi_import_1__ = await import("@testing-library/user-event");
+  5  |  const __vi_import_2__ = await import("@ats-platform/types");
+  6  |  const __vi_import_3__ = await import("./BulkScreeningBar");
+     |                                       ^
+  7  |  const __vi_import_4__ = await import("react/jsx-dev-runtime");
+  8  |  
+ ❯ TransformPluginContext._formatLog ../../node_modules/vite/dist/node/chunks/node.js:30486:39
+ ❯ TransformPluginContext.error ../../node_modules/vite/dist/node/chunks/node.js:30483:14
+ ❯ normalizeUrl ../../node_modules/vite/dist/node/chunks/node.js:27725:18
+ ❯ ../../node_modules/vite/dist/node/chunks/node.js:27788:30
+ ❯ TransformPluginContext.transform ../../node_modules/vite/dist/node/chunks/node.js:27756:4
+ ❯ EnvironmentPluginContainer.transform ../../node_modules/vite/dist/node/chunks/node.js:30271:14
+ ❯ loadAndTransform ../../node_modules/vite/dist/node/chunks/node.js:24532:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/components/candidates/ui/BulkScreeningDialog.test.tsx [ src/components/candidates/ui/BulkScreeningDialog.test.tsx ]
+Error: Failed to resolve import "./BulkScreeningDialog" from "apps/web/src/components/candidates/ui/BulkScreeningDialog.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/wt/ats-sp2/apps/web/src/components/candidates/ui/BulkScreeningDialog.test.tsx:10:0
+  5  |  const __vi_import_2__ = await import("@ats-platform/types");
+  6  |  const __vi_import_3__ = await import("@/types/constants/screening-skip-reasons");
+  7  |  const __vi_import_4__ = await import("./BulkScreeningDialog");
+     |                                       ^
+  8  |  const __vi_import_5__ = await import("react/jsx-dev-runtime");
+  9  |  
+ ❯ TransformPluginContext._formatLog ../../node_modules/vite/dist/node/chunks/node.js:30486:39
+ ❯ TransformPluginContext.error ../../node_modules/vite/dist/node/chunks/node.js:30483:14
+ ❯ normalizeUrl ../../node_modules/vite/dist/node/chunks/node.js:27725:18
+ ❯ ../../node_modules/vite/dist/node/chunks/node.js:27788:30
+ ❯ TransformPluginContext.transform ../../node_modules/vite/dist/node/chunks/node.js:27756:4
+ ❯ EnvironmentPluginContainer.transform ../../node_modules/vite/dist/node/chunks/node.js:30271:14
+ ❯ loadAndTransform ../../node_modules/vite/dist/node/chunks/node.js:24532:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/ui/CandidatesFilters.test.tsx > candidate selection > CandidateRow keeps its checkbox enabled with any number of other rows selected
+TestingLibraryElementError: Unable to find an accessible element with the role "checkbox" and name "Chọn Ứng viên 52"
+
+Here are the accessible roles:
+
+  table:
+
+  Name "":
+  [36m<table />[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "V1 Ứng viên 1 candidate-1@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 2 candidate-2@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 3 candidate-3@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 4 candidate-4@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 5 candidate-5@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V6 Ứng viên 6 candidate-6@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V7 Ứng viên 7 candidate-7@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V8 Ứng viên 8 candidate-8@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V9 Ứng viên 9 candidate-9@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 10 candidate-10@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 11 candidate-11@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 12 candidate-12@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 13 candidate-13@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 14 candidate-14@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 15 candidate-15@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 16 candidate-16@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 17 candidate-17@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 18 candidate-18@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 19 candidate-19@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 20 candidate-20@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 21 candidate-21@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 22 candidate-22@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 23 candidate-23@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 24 candidate-24@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 25 candidate-25@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 26 candidate-26@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 27 candidate-27@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 28 candidate-28@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 29 candidate-29@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 30 candidate-30@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 31 candidate-31@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 32 candidate-32@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 33 candidate-33@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 34 candidate-34@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 35 candidate-35@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 36 candidate-36@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 37 candidate-37@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 38 candidate-38@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 39 candidate-39@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 40 candidate-40@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 41 candidate-41@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 42 candidate-42@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 43 candidate-43@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 44 candidate-44@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 45 candidate-45@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 46 candidate-46@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 47 candidate-47@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 48 candidate-48@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 49 candidate-49@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 50 candidate-50@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 51 candidate-51@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 52 candidate-52@ats.test Frontend Engineer Kỹ thuật Chưa có Sàng lọc 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  cell:
+
+  Name "V1 Ứng viên 1 candidate-1@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 2 candidate-2@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 3 candidate-3@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 4 candidate-4@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 5 candidate-5@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V6 Ứng viên 6 candidate-6@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V7 Ứng viên 7 candidate-7@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V8 Ứng viên 8 candidate-8@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V9 Ứng viên 9 candidate-9@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 10 candidate-10@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 11 candidate-11@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 12 candidate-12@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 13 candidate-13@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 14 candidate-14@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 15 candidate-15@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 16 candidate-16@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 17 candidate-17@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 18 candidate-18@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V1 Ứng viên 19 candidate-19@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 20 candidate-20@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 21 candidate-21@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 22 candidate-22@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 23 candidate-23@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 24 candidate-24@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 25 candidate-25@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 26 candidate-26@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 27 candidate-27@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 28 candidate-28@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V2 Ứng viên 29 candidate-29@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 30 candidate-30@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 31 candidate-31@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 32 candidate-32@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 33 candidate-33@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 34 candidate-34@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 35 candidate-35@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 36 candidate-36@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 37 candidate-37@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 38 candidate-38@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V3 Ứng viên 39 candidate-39@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 40 candidate-40@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 41 candidate-41@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 42 candidate-42@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 43 candidate-43@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 44 candidate-44@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 45 candidate-45@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 46 candidate-46@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 47 candidate-47@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 48 candidate-48@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V4 Ứng viên 49 candidate-49@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 50 candidate-50@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 51 candidate-51@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "V5 Ứng viên 52 candidate-52@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000001"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000002"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000003"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000004"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000005"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000006"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000007"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000008"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000009"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000010"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000011"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000012"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000013"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000014"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000015"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000016"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000017"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000018"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000019"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000020"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000021"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000022"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000023"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000024"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000025"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000026"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000027"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000028"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000029"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000030"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000031"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000032"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000033"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000034"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000035"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000036"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000037"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000038"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000039"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000040"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000041"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000042"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000043"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000044"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000045"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000046"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000047"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000048"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000049"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000050"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000051"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000052"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<table>[39m
+      [36m<tbody>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-3"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"[39m
+                [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+              [36m>[39m
+                [0mV1[0m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+                  [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+                [36m>[39m
+                  [0mỨng viên 1[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                [36m>[39m
+                  [0mcandidate-1@ats.test[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+            [36m>[39m
+              [0mFrontend Engineer[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+            [36m>[39m
+              [0mKỹ thuật[0m
+            [36m</p>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+            [36m>[39m
+              [0mChưa có[0m
+            [36m</span>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[11px] rounded-full px-2.5 py-1"[39m
+              [33mstyle[39m=[32m"background: rgb(243, 232, 255); color: rgb(139, 92, 246); font-weight: 500;"[39m
+            [36m>[39m
+              [0mSàng lọc[0m
+            [36m</span>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+            [36m>[39m
+              [0m19 giờ trước[0m
+            [36m</span>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+              [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000001"[39m
+              [33mstyle[39m=[32m"font-weight: 500;"[39m
+            [36m>[39m
+              [0mXem chi tiết [0m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-chevron-right w-3.5 h-3.5"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 18 6-6-6-6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</a>[39m
+          [36m</td>[39m
+        [36m</tr>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-3"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"[39m
+                [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+              [36m>[39m
+                [0mV2[0m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+                  [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+                [36m>[39m
+                  [0mỨng viên 2[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                [36m>[39m
+                  [0mcandidate-2@ats.test[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+            [36m>[39m
+              [0mFrontend Engineer[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+            [36m>[39m
+              [0mKỹ thuật[0m
+            [36m</p>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+            [36m>[39m
+              [0mChưa có[0m
+            [36m</span>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"px-6 py-4"[39m
+          [36m>[39m
+            [36m<span[39m
+           ...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/candidates/ui/CandidatesFilters.test.tsx:89:31
+     87|     for (const otherSelectedCount of [0, 4, 50, 51]) {
+     88|       rerender(table(otherSelectedCount));
+     89|       const checkbox = screen.getByRole('checkbox', { name: 'Chọn Ứng …
+       |                               ^
+     90|       expect(checkbox).toBeEnabled();
+     91|       expect(checkbox).not.toBeChecked();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/components/candidates/ui/CandidatesFilters.test.tsx > candidate selection > "Chọn tất cả" selects every visible row and clears them again
+TestingLibraryElementError: Unable to find an accessible element with the role "checkbox" and name "Chọn tất cả"
+
+Here are the accessible roles:
+
+  textbox:
+
+  Name "Tìm ứng viên":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Tìm ứng viên"[39m
+    [33mclass[39m=[32m"bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"[39m
+    [33mplaceholder[39m=[32m"Tìm theo tên, vị trí..."[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m"Frontend"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Tất cả4":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+    [33mstyle[39m=[32m"font-weight: 400;"[39m
+  [36m/>[39m
+
+  Name "Mới3":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 bg-[#EBF3FD] text-[#0071E3]"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Sàng lọc1":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+    [33mstyle[39m=[32m"font-weight: 400;"[39m
+  [36m/>[39m
+
+  Name "Phỏng vấn0":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+    [33mstyle[39m=[32m"font-weight: 400;"[39m
+  [36m/>[39m
+
+  Name "Offer0":
+  [36m<button[39m
+    [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+    [33mstyle[39m=[32m"font-weight: 400;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  table:
+
+  Name "":
+  [36m<table[39m
+    [33mclass[39m=[32m"w-full"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<thead />[39m
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "Ứng viên Vị trí ứng tuyển Điểm AI Trạng thái Thời gian":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7]"[39m
+  [36m/>[39m
+
+  Name "NA Nguyễn An candidate-1@ats.test Frontend Engineer Kỹ thuật Chưa có Mới 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  Name "TB Trần Bình candidate-2@ats.test Frontend Engineer Kỹ thuật Chưa có Mới 19 giờ trước Xem chi tiết":
+  [36m<tr[39m
+    [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Ứng viên":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  Name "Vị trí ứng tuyển":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  Name "Điểm AI":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  Name "Trạng thái":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  Name "Thời gian":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<th[39m
+    [33mclass[39m=[32m"text-right px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+    [33mstyle[39m=[32m"font-weight: 600;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  cell:
+
+  Name "NA Nguyễn An candidate-1@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Mới":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  Name "TB Trần Bình candidate-2@ats.test":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Frontend Engineer Kỹ thuật":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Chưa có":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Mới":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "19 giờ trước":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<td[39m
+    [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+    [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000001"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  Name "Xem chi tiết":
+  [36m<a[39m
+    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000002"[39m
+    [33mstyle[39m=[32m"font-weight: 500;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Inter\", system-ui, sans-serif;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-2xl border border-[#F2F2F7] p-4 mb-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col lg:flex-row gap-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border border-[#E5E5EA] bg-[#F5F5F7] flex-1"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Tìm ứng viên"[39m
+              [33mclass[39m=[32m"bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"[39m
+              [33mplaceholder[39m=[32m"Tìm theo tên, vị trí..."[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"Frontend"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex gap-2 flex-wrap"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+              [33mstyle[39m=[32m"font-weight: 400;"[39m
+            [36m>[39m
+              [0mTất cả[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"[39m
+              [36m>[39m
+                [0m4[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 bg-[#EBF3FD] text-[#0071E3]"[39m
+              [33mstyle[39m=[32m"font-weight: 500;"[39m
+            [36m>[39m
+              [0mMới[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-[11px] px-1.5 rounded-full bg-[#0071E3] text-white"[39m
+              [36m>[39m
+                [0m3[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+              [33mstyle[39m=[32m"font-weight: 400;"[39m
+            [36m>[39m
+              [0mSàng lọc[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+              [33mstyle[39m=[32m"font-weight: 400;"[39m
+            [36m>[39m
+              [0mPhỏng vấn[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"[39m
+              [36m>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 text-[#6E6E73] hover:bg-[#F5F5F7]"[39m
+              [33mstyle[39m=[32m"font-weight: 400;"[39m
+            [36m>[39m
+              [0mOffer[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-[11px] px-1.5 rounded-full bg-[#E5E5EA] text-[#1D1D1F]"[39m
+              [36m>[39m
+                [0m0[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"overflow-x-auto"[39m
+        [36m>[39m
+          [36m<table[39m
+            [33mclass[39m=[32m"w-full"[39m
+          [36m>[39m
+            [36m<thead>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"border-b border-[#F2F2F7]"[39m
+              [36m>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m>[39m
+                  [0mỨng viên[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m>[39m
+                  [0mVị trí ứng tuyển[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m>[39m
+                  [0mĐiểm AI[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m>[39m
+                  [0mTrạng thái[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-left px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m>[39m
+                  [0mThời gian[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mclass[39m=[32m"text-right px-6 py-4 text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]"[39m
+                  [33mstyle[39m=[32m"font-weight: 600;"[39m
+                [36m/>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+              [36m>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-3"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"[39m
+                      [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+                    [36m>[39m
+                      [0mNA[0m
+                    [36m</div>[39m
+                    [36m<div>[39m
+                      [36m<p[39m
+                        [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+                        [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+                      [36m>[39m
+                        [0mNguyễn An[0m
+                      [36m</p>[39m
+                      [36m<p[39m
+                        [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                      [36m>[39m
+                        [0mcandidate-1@ats.test[0m
+                      [36m</p>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+                  [36m>[39m
+                    [0mFrontend Engineer[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0mKỹ thuật[0m
+                  [36m</p>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0mChưa có[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[11px] rounded-full px-2.5 py-1"[39m
+                    [33mstyle[39m=[32m"background: rgb(235, 243, 253); color: rgb(0, 113, 227); font-weight: 500;"[39m
+                  [36m>[39m
+                    [0mMới[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0m19 giờ trước[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+                [36m>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+                    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000001"[39m
+                    [33mstyle[39m=[32m"font-weight: 500;"[39m
+                  [36m>[39m
+                    [0mXem chi tiết [0m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-chevron-right w-3.5 h-3.5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m9 18 6-6-6-6"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</a>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group"[39m
+              [36m>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-3"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]"[39m
+                      [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 600;"[39m
+                    [36m>[39m
+                      [0mTB[0m
+                    [36m</div>[39m
+                    [36m<div>[39m
+                      [36m<p[39m
+                        [33mclass[39m=[32m"text-[14px] text-[#1D1D1F]"[39m
+                        [33mstyle[39m=[32m"font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Inter\", system-ui, sans-serif; font-weight: 500;"[39m
+                      [36m>[39m
+                        [0mTrần Bình[0m
+                      [36m</p>[39m
+                      [36m<p[39m
+                        [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                      [36m>[39m
+                        [0mcandidate-2@ats.test[0m
+                      [36m</p>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[13px] text-[#1D1D1F]"[39m
+                  [36m>[39m
+                    [0mFrontend Engineer[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0mKỹ thuật[0m
+                  [36m</p>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0mChưa có[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[11px] rounded-full px-2.5 py-1"[39m
+                    [33mstyle[39m=[32m"background: rgb(235, 243, 253); color: rgb(0, 113, 227); font-weight: 500;"[39m
+                  [36m>[39m
+                    [0mMới[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[12px] text-[#AEAEB2]"[39m
+                  [36m>[39m
+                    [0m19 giờ trước[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td[39m
+                  [33mclass[39m=[32m"px-6 py-4 text-right"[39m
+                [36m>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"[39m
+                    [33mhref[39m=[32m"/jobs/10000000-0000-4000-8000-000000000001/candidates/30000000-0000-4000-8000-000000000002"[39m
+                    [33mstyle[39m=[32m"font-weight: 500;"[39m
+                  [36m>[39m
+                    [0mXem chi tiết [0m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"lucide lucide-chevron-right w-3.5 h-3.5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m9 18 6-6-6-6"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</a>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/candidates/ui/CandidatesFilters.test.tsx:121:30
+    119|     expect(screen.queryByText('Nguyễn Dũng')).not.toBeInTheDocument();
+    120|
+    121|     const selectAll = screen.getByRole('checkbox', { name: 'Chọn tất c…
+       |                              ^
+    122|     await user.click(selectAll);
+    123|     expect(selectAll).toBeChecked();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  2 failed (2)
+   Start at  10:22:57
+   Duration  9.16s (transform 254ms, setup 1.36s, import 643ms, tests 6.05s, environment 5.39s)
+
+EXIT=1

@@ -1,0 +1,41 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts gd2-bulk-screening
+
+[WebServer] (node:186640) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/wt/ats-sp2/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\wt\ats-sp2\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+GĐ1: waiting 23s for the real local auth window.
+  x  1 [chromium] › apps\web\e2e\gd2-bulk-screening.e2e.ts:51:7 › GĐ2 SP2 — chấm hàng loạt và xuất CSV › C16: recruiter queues one applied application, sees the completed skip, and downloads CSV (3ms)
+
+
+  1) [chromium] › apps\web\e2e\gd2-bulk-screening.e2e.ts:51:7 › GĐ2 SP2 — chấm hàng loạt và xuất CSV › C16: recruiter queues one applied application, sees the completed skip, and downloads CSV 
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Tien Ngo\AppData\Local\ms-playwright\chromium_headless_shell-1243\chrome-headless-shell-win64\chrome-headless-shell.exe
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: apps\web\test-results\gd2-bulk-screening.e2e.ts--affbe-eted-skip-and-downloads-CSV-chromium\error-context.md
+
+    Error Context: apps\web\test-results\gd2-bulk-screening.e2e.ts--affbe-eted-skip-and-downloads-CSV-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps\web\test-results\gd2-bulk-screening.e2e.ts--affbe-eted-skip-and-downloads-CSV-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace apps\web\test-results\gd2-bulk-screening.e2e.ts--affbe-eted-skip-and-downloads-CSV-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps\web\e2e\gd2-bulk-screening.e2e.ts:51:7 › GĐ2 SP2 — chấm hàng loạt và xuất CSV › C16: recruiter queues one applied application, sees the completed skip, and downloads CSV 
