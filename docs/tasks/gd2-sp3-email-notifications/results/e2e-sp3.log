@@ -1,0 +1,15 @@
+[WebServer] (node:188864) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/wt/ats-sp3/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\wt\ats-sp3\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+  ok 1 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:60:7 › GĐ2 SP3 — email thông báo cho ứng viên › nộp đơn gửi email xác nhận tới đúng địa chỉ ứng viên (606ms)
+  ok 2 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:77:7 › GĐ2 SP3 — email thông báo cho ứng viên › sang screening không gửi, sang interview gửi email mời phỏng vấn (736ms)
+  ok 3 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:95:7 › GĐ2 SP3 — email thông báo cho ứng viên › tạo lịch online gửi email có giờ Việt Nam và có thông báo in-app (840ms)
+  ok 4 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:123:7 › GĐ2 SP3 — email thông báo cho ứng viên › đổi giờ gửi email kèm giờ cũ (637ms)
+  ok 5 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:140:7 › GĐ2 SP3 — email thông báo cho ứng viên › từ chối gửi một email trung tính liệt kê lịch bị hủy, không lộ lý do (575ms)
+  ok 6 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:154:7 › GĐ2 SP3 — email thông báo cho ứng viên › tổng cộng đúng 5 email, không có email hủy riêng, mọi row đã sent (3.0s)
+
+  6 passed (22.7s)

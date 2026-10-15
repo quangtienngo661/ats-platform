@@ -6,6 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { CandidateNotificationsService } from '../candidate-notifications/candidate-notifications.service';
+import { toScheduleSnapshot } from '../candidate-notifications/schedule-changes';
 import {
   assertOrganizationAccess,
   isOrganizationStaff,
@@ -51,7 +53,10 @@ const VALID_SCHEDULE_TRANSITIONS: Partial<
 
 @Injectable()
 export class InterviewsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly candidateNotifications: CandidateNotificationsService,
+  ) {}
 
   private async getRecruiterDepartmentId(userId: string) {
     const recruiter = await this.prisma.recruiter.findUnique({
@@ -269,6 +274,7 @@ export class InterviewsService {
       where: { interviewId },
       select: {
         interviewId: true,
+        applicationId: true,
         organizationId: true,
         scheduledBy: true,
         interviewerId: true,
@@ -313,7 +319,7 @@ export class InterviewsService {
       dto.durationMinutes,
     );
 
-    return this.prisma.interviewSchedule.create({
+    const created = await this.prisma.interviewSchedule.create({
       data: {
         // The schedule belongs to the organization that owns the application.
         organizationId: application.organizationId,
@@ -335,6 +341,11 @@ export class InterviewsService {
       },
       include: scheduleIncludeOptions,
     });
+
+    await this.candidateNotifications.scheduleCreated(
+      toScheduleSnapshot(created),
+    );
+    return created;
   }
 
   async getMySchedules(
@@ -490,23 +501,35 @@ export class InterviewsService {
       );
     }
 
-    return this.prisma.interviewSchedule.update({
+    const updated = await this.prisma.interviewSchedule.update({
       where: { interviewId },
       data: updateData,
       include: scheduleIncludeOptions,
     });
+
+    await this.candidateNotifications.scheduleChanged(
+      toScheduleSnapshot(schedule),
+      toScheduleSnapshot(updated),
+    );
+    return updated;
   }
 
   async removeSchedule(interviewId: string, caller: TenantCaller) {
-    await this.assertCanMutateSchedule(caller, interviewId);
+    const schedule = await this.assertCanMutateSchedule(caller, interviewId);
 
     // R12: the scorecard FK is RESTRICT; refuse with 409 instead of letting the delete fail at the database.
     const scorecards = await this.prisma.interviewScorecard.count({ where: { interviewId } });
     if (scorecards > 0) throw new ConflictException('Buổi phỏng vấn đã có đánh giá, không thể xoá');
 
-    return this.prisma.interviewSchedule.delete({
+    const deleted = await this.prisma.interviewSchedule.delete({
       where: { interviewId },
     });
+
+    await this.candidateNotifications.scheduleRemoved(
+      toScheduleSnapshot(schedule),
+      new Date(),
+    );
+    return deleted;
   }
 
   async createTopic(dto: CreateInterviewTopicDto) {

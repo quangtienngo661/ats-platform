@@ -1,0 +1,71 @@
+[Nest] 161284  - 10/14/2026, 10:54:21 AM     LOG [NotificationEmailProcessor] Email notification row-1 no longer exists
+[Nest] 161284  - 10/14/2026, 10:54:21 AM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP connection timed out
+Error: SMTP connection timed out
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:173:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 161284  - 10/14/2026, 10:54:21 AM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP delivery failed
+Error: SMTP delivery failed
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:191:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 161284  - 10/14/2026, 10:54:21 AM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: SMTP delivery failed
+Error: SMTP delivery failed
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:191:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+[Nest] 161284  - 10/14/2026, 10:54:21 AM    WARN [NotificationEmailProcessor] Failed to record email notification row-1 error: Failure status could not be persisted
+[Nest] 161284  - 10/14/2026, 10:54:21 AM   ERROR [NotificationEmailProcessor] Email notification row-1 failed: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatruncated suffix
+Error: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatruncated suffix
+    at Object.<anonymous> (E:\wt\ats-sp3\apps\api\src\app\candidate-notifications\notification-email.processor.spec.ts:219:19)
+    at Promise.finally.completed (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+    at _callCircusTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+    at _runTest (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+    at E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+    at _runTestsForDescribeBlock (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+    at run (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+    at runAndTransformResultsToJestFormat (E:\wt\ats-sp3\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+    at jestAdapter (E:\wt\ats-sp3\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (E:\wt\ats-sp3\node_modules\jest-runner\build\index.js:343:7)
+
+Test Suites: 8 passed, 8 total
+Tests:       158 passed, 158 total
+Snapshots:   0 total
+Time:        4.87 s, estimated 9 s

@@ -190,6 +190,7 @@ model User {
   notifications      Notification[]
   scorecards         InterviewScorecard[]
   applicationNotes   ApplicationNote[]
+  emailNotifications EmailNotification[]
 
   @@index([organizationId])
   @@map("users")
@@ -234,6 +235,7 @@ model Organization {
   interviewSchedules InterviewSchedule[]
   scorecards         InterviewScorecard[]
   applicationNotes   ApplicationNote[]
+  emailNotifications EmailNotification[]
 
   @@map("organizations")
 }
@@ -447,6 +449,7 @@ model Application {
   schedules    InterviewSchedule[]
   screening    CVScreening?
   notes        ApplicationNote[]
+  emailNotifications EmailNotification[]
 
   @@index([organizationId])
   @@map("applications")
@@ -706,4 +709,54 @@ model ApplicationNote {
   @@index([applicationId])
   @@index([organizationId])
   @@map("application_notes")
+}
+
+// ============================================================
+// EMAIL NOTIFICATION (GĐ2 SP3)
+// ============================================================
+
+enum EmailNotificationType {
+  application_received
+  application_interview
+  application_offer
+  application_hired
+  application_rejected
+  schedule_created
+  schedule_updated
+  schedule_cancelled
+
+  @@map("email_notification_type")
+}
+
+enum EmailNotificationStatus {
+  pending
+  sent
+  failed
+  skipped
+
+  @@map("email_notification_status")
+}
+
+model EmailNotification {
+  id              String                  @id @default(uuid())
+  organizationId  String                  @map("organization_id")
+  recipientUserId String                  @map("recipient_user_id")
+  recipientEmail  String                  @map("recipient_email")
+  applicationId   String                  @map("application_id")
+  // No FK: a schedule can be hard-deleted (removeSchedule) and the email must survive it.
+  interviewId     String?                 @map("interview_id")
+  type            EmailNotificationType
+  status          EmailNotificationStatus @default(pending)
+  payload         Json
+  lastError       String?                 @map("last_error") @db.VarChar(500)
+  createdAt       DateTime                @default(now()) @map("created_at")
+  sentAt          DateTime?               @map("sent_at")
+
+  organization Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  recipient    User         @relation(fields: [recipientUserId], references: [userId], onDelete: Cascade)
+  application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([applicationId])
+  @@map("email_notifications")
 }

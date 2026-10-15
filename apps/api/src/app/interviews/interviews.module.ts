@@ -14,6 +14,7 @@ import {
 import { PrismaModule } from '../../common/prisma/prisma.module';
 import { GeminiModule } from '../../common/external-apis/gemini/gemini.module';
 import { SocketIoModule } from '../../common/socket-io/socket-io.module';
+import { CandidateNotificationsModule } from '../candidate-notifications/candidate-notifications.module';
 
 /** How often to look for interview sessions nobody is working on any more. */
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -23,6 +24,7 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
     PrismaModule,
     GeminiModule,
     SocketIoModule,
+    CandidateNotificationsModule,
     // No `defaultJobOptions` here on purpose — it would replace, not extend, the
     // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
     BullModule.registerQueue(

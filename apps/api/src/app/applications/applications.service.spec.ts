@@ -27,18 +27,30 @@ describe('ApplicationsService', () => {
   let prisma: ReturnType<typeof createPrismaMock>;
   let cvScreeningsService: { createScreeningRecord: jest.Mock };
   let socket: ReturnType<typeof createSocketMock>;
-  let notificationsService: { create: jest.Mock };
+  let candidateNotifications: {
+    applicationReceived: jest.Mock;
+    applicationStatusChanged: jest.Mock;
+    scheduleCreated: jest.Mock;
+    scheduleChanged: jest.Mock;
+    scheduleRemoved: jest.Mock;
+  };
 
   beforeEach(() => {
     prisma = createPrismaMock();
     cvScreeningsService = { createScreeningRecord: jest.fn() };
     socket = createSocketMock();
-    notificationsService = { create: jest.fn() };
+    candidateNotifications = {
+      applicationReceived: jest.fn().mockResolvedValue(undefined),
+      applicationStatusChanged: jest.fn().mockResolvedValue(undefined),
+      scheduleCreated: jest.fn().mockResolvedValue(undefined),
+      scheduleChanged: jest.fn().mockResolvedValue(undefined),
+      scheduleRemoved: jest.fn().mockResolvedValue(undefined),
+    };
     service = new ApplicationsService(
       prisma as any,
       cvScreeningsService as any,
       socket as any,
-      notificationsService as any,
+      candidateNotifications as any,
     );
   });
 
@@ -84,6 +96,37 @@ describe('ApplicationsService', () => {
     );
   });
 
+  it('notifies once the application is created, after the transaction', async () => {
+    const tx = createPrismaTransactionMock();
+    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      status: JobStatus.active,
+    });
+    prisma.cV.findUnique.mockResolvedValue({
+      cvId: 'cv-1',
+      candidateId: 'cand-1',
+      parsingStatus: ParsingStatus.completed,
+      parsedData: { isConfirmed: true },
+    });
+    prisma.application.findMany.mockResolvedValue([]);
+    tx.application.create.mockResolvedValue({
+      applicationId: 'app-1',
+      jobId: 'job-1',
+    });
+    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+    await expect(
+      service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' }),
+    ).resolves.toEqual({ applicationId: 'app-1', jobId: 'job-1' });
+
+    expect(candidateNotifications.applicationReceived).toHaveBeenCalledTimes(1);
+    expect(candidateNotifications.applicationReceived).toHaveBeenCalledWith('app-1');
+    expect(
+      candidateNotifications.applicationReceived.mock.invocationCallOrder[0],
+    ).toBeGreaterThan(prisma.$transaction.mock.invocationCallOrder[0]);
+  });
+
   describe('status transitions — all 49 pairs', () => {
     // This is the business contract, kept independent of the implementation map.
     const permitted: Partial<Record<ApplicationStatus, ApplicationStatus[]>> = {
@@ -98,6 +141,7 @@ describe('ApplicationsService', () => {
 
     it.each(pairs)('$from → $to', async ({ from, to }) => {
       const tx = createPrismaTransactionMock();
+      tx.interviewSchedule.updateManyAndReturn.mockResolvedValue([]);
       prisma.application.findUnique.mockResolvedValue({
         applicationId: 'app-1',
         organizationId: 'org-1',
@@ -129,21 +173,14 @@ describe('ApplicationsService', () => {
             rejectionReason: undefined,
           },
         });
-        const shouldNotify = new Set<ApplicationStatus>([
-          ApplicationStatus.interview,
-          ApplicationStatus.offer,
-          ApplicationStatus.hired,
-          ApplicationStatus.rejected,
-        ]).has(to);
-        expect(notificationsService.create).toHaveBeenCalledTimes(
-          shouldNotify ? 1 : 0,
-        );
+        expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+        expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith('app-1', to, []);
       } else {
         await expect(result).rejects.toThrow(
           `Không thể chuyển trạng thái từ '${from}' sang '${to}'`,
         );
         expect(prisma.$transaction).not.toHaveBeenCalled();
-        expect(notificationsService.create).not.toHaveBeenCalled();
+        expect(candidateNotifications.applicationStatusChanged).not.toHaveBeenCalled();
       }
     });
   });
@@ -239,6 +276,32 @@ describe('ApplicationsService', () => {
     ).rejects.toThrow('r');
   });
 
+  it('does not notify when the application is refused', async () => {
+    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    prisma.jobPosting.findUnique.mockResolvedValue({
+      jobId: 'job-1',
+      status: JobStatus.active,
+    });
+    prisma.cV.findUnique.mockResolvedValue({
+      cvId: 'cv-1',
+      candidateId: 'cand-1',
+      parsingStatus: ParsingStatus.completed,
+      parsedData: { isConfirmed: true },
+    });
+    prisma.application.findMany.mockResolvedValue([
+      { status: ApplicationStatus.applied },
+    ]);
+
+    await expect(
+      service.apply('user-1', { jobId: 'job-1', cvId: 'cv-1' }),
+    ).rejects.toMatchObject({
+      status: 409,
+      message: 'Bạn đã ứng tuyển công việc này rồi',
+    });
+
+    expect(candidateNotifications.applicationReceived).not.toHaveBeenCalled();
+  });
+
   it('withdraws only the owner application in applied status', async () => {
     const tx = createPrismaTransactionMock();
     prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
@@ -262,6 +325,30 @@ describe('ApplicationsService', () => {
         data: expect.objectContaining({ status: ApplicationStatus.cancelled }),
       }),
     );
+  });
+
+  it('withdrawing notifies nobody', async () => {
+    const tx = createPrismaTransactionMock();
+    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      candidateId: 'cand-1',
+      status: ApplicationStatus.applied,
+    });
+    tx.application.update.mockResolvedValue({
+      applicationId: 'app-1',
+      jobId: 'job-1',
+    });
+    tx.interviewSchedule.updateManyAndReturn.mockResolvedValue([]);
+    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+    await service.withdraw('app-1', 'user-1');
+
+    expect(candidateNotifications.applicationReceived).not.toHaveBeenCalled();
+    expect(candidateNotifications.applicationStatusChanged).not.toHaveBeenCalled();
+    expect(candidateNotifications.scheduleCreated).not.toHaveBeenCalled();
+    expect(candidateNotifications.scheduleChanged).not.toHaveBeenCalled();
+    expect(candidateNotifications.scheduleRemoved).not.toHaveBeenCalled();
   });
 
   it('builds a recruiter-scoped kanban board', async () => {
@@ -384,11 +471,8 @@ describe('ApplicationsService', () => {
       status: ApplicationStatus.interview,
     });
 
-    expect(notificationsService.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: 'cand-user',
-        relatedEntityId: 'app-1',
-      }),
+    expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+      'app-1', ApplicationStatus.interview, [],
     );
 
     prisma.application.findUnique
@@ -472,7 +556,44 @@ describe('ApplicationsService', () => {
     );
     // The old revert branch returned from inside the transaction and never reached
     // notifyCandidateStatusChangeSafe — the candidate got no signal at all.
-    expect(notificationsService.create).toHaveBeenCalled();
+    expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+      'app-6', ApplicationStatus.screening, [],
+    );
+  });
+
+  it('a revert to interview notifies with the target status', async () => {
+    const tx = createPrismaTransactionMock();
+    prisma.application.findUnique
+      .mockResolvedValueOnce({
+        applicationId: 'app-1',
+        candidate: { userId: 'cand-user' },
+        jobPosting: { departmentId: 'dep-1' },
+      })
+      .mockResolvedValueOnce({
+        applicationId: 'app-1',
+        status: ApplicationStatus.rejected,
+      });
+    prisma.applicationHistory.findMany.mockResolvedValue([
+      { fromStatus: ApplicationStatus.applied },
+      { fromStatus: ApplicationStatus.screening },
+      { fromStatus: ApplicationStatus.interview },
+    ]);
+    tx.application.update.mockResolvedValue({
+      applicationId: 'app-1',
+      status: ApplicationStatus.interview,
+      candidate: { user: { userId: 'cand-user' } },
+    });
+    prisma.$transaction.mockImplementation((callback: any) => callback(tx));
+
+    await service.updateStatus('app-1', platformAdmin, {
+      status: ApplicationStatus.interview,
+      isReverted: true,
+    });
+
+    expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+    expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+      'app-1', ApplicationStatus.interview, [],
+    );
   });
 
   describe('closing an application cancels its upcoming interviews (R7)', () => {
@@ -482,6 +603,7 @@ describe('ApplicationsService', () => {
     beforeEach(() => {
       jest.useFakeTimers({ now, doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
       tx = createPrismaTransactionMock();
+      tx.interviewSchedule.updateManyAndReturn.mockResolvedValue([]);
       tx.application.update.mockImplementation(async ({ data }: { data: { status: ApplicationStatus } }) => ({
         applicationId: 'app-1',
         organizationId: 'org-1',
@@ -503,6 +625,12 @@ describe('ApplicationsService', () => {
         startAt: { gt: now },
       },
       data: { status: ScheduleStatus.cancelled },
+      select: {
+        interviewId: true,
+        startAt: true,
+        durationMinutes: true,
+        interviewType: true,
+      },
     };
 
     function applicationIn(status: ApplicationStatus) {
@@ -521,9 +649,35 @@ describe('ApplicationsService', () => {
 
       await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.rejected });
 
-      expect(tx.interviewSchedule.updateMany).toHaveBeenCalledWith(upcomingCancellation);
+      expect(tx.interviewSchedule.updateManyAndReturn).toHaveBeenCalledWith(upcomingCancellation);
       // Inside the status change's transaction, never as a separate write.
-      expect(prisma.interviewSchedule.updateMany).not.toHaveBeenCalled();
+      expect(prisma.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
+    });
+
+    it('passes the schedules cancelled by a rejection to the notification', async () => {
+      applicationIn(ApplicationStatus.interview);
+      const cancelled = [
+        {
+          interviewId: 'interview-1',
+          startAt: new Date('2026-10-20T02:30:00.000Z'),
+          durationMinutes: 60,
+          interviewType: 'online',
+        },
+        {
+          interviewId: 'interview-2',
+          startAt: new Date('2026-10-21T03:00:00.000Z'),
+          durationMinutes: 45,
+          interviewType: 'onsite',
+        },
+      ];
+      tx.interviewSchedule.updateManyAndReturn.mockResolvedValue(cancelled);
+
+      await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.rejected });
+
+      expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledTimes(1);
+      expect(candidateNotifications.applicationStatusChanged).toHaveBeenCalledWith(
+        'app-1', ApplicationStatus.rejected, cancelled,
+      );
     });
 
     it('leaves interviews alone when an application moves to offer', async () => {
@@ -531,7 +685,7 @@ describe('ApplicationsService', () => {
 
       await service.updateStatus('app-1', platformAdmin, { status: ApplicationStatus.offer });
 
-      expect(tx.interviewSchedule.updateMany).not.toHaveBeenCalled();
+      expect(tx.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
     });
 
     it('cancels the upcoming interviews when the candidate withdraws', async () => {
@@ -544,8 +698,8 @@ describe('ApplicationsService', () => {
 
       await service.withdraw('app-1', 'cand-user');
 
-      expect(tx.interviewSchedule.updateMany).toHaveBeenCalledWith(upcomingCancellation);
-      expect(prisma.interviewSchedule.updateMany).not.toHaveBeenCalled();
+      expect(tx.interviewSchedule.updateManyAndReturn).toHaveBeenCalledWith(upcomingCancellation);
+      expect(prisma.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
     });
 
     it('does not reopen interviews when a rejection is reverted', async () => {
@@ -561,7 +715,7 @@ describe('ApplicationsService', () => {
         isReverted: true,
       });
 
-      expect(tx.interviewSchedule.updateMany).not.toHaveBeenCalled();
+      expect(tx.interviewSchedule.updateManyAndReturn).not.toHaveBeenCalled();
       expect(tx.interviewSchedule.update).not.toHaveBeenCalled();
       expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
     });

@@ -1,0 +1,45 @@
+(node:180560) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:189580) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:184904) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ NX   Running target build for project api and 2 tasks it depends on:
+
+
+
+> nx run database:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run types:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+(node:186940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:189640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:181324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+webpack compiled [1m[32msuccessfully[39m[22m (22f3546e02f1154a)
+
+
+
+ NX   Successfully ran target build for project api and 2 tasks it depends on
+
+
+
+ NX   Nx detected a flaky task
+
+  api:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+

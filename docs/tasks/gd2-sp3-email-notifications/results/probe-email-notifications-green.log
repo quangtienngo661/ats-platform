@@ -1,0 +1,93 @@
+Task 2 Step 4 (GREEN) — GĐ2 SP3 email_notifications probe, after the SP3 migration
+Date: 2026-10-14 · worktree E:\wt\ats-sp3 · branch feat/gd2-sp3-email-notifications · on top of 39e4b0f
+Schema, migration.sql and enums.ts written by Codex; prisma, docker, probe and build run by the
+stage-2-sp3-impl session. Same disposable container as the red run (ats-sp3-pg-probe, 127.0.0.1:55533),
+already holding the 32 earlier migrations.
+
+== migrate diff, CONTROL (DB before the SP3 migration -> edited schema.prisma) ==
+Deviation from the plan's wording: the plan says to run this "before Step 3", but before Step 3 the
+schema has no SP3 block, so the command could never print CREATE TABLE and the control could not fail.
+It was run after Step 3 (schema edited) and before migrate deploy, which is the comparison that can
+show the difference.
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe npx prisma migrate diff --config libs/backend/database/prisma.config.ts --from-config-datasource --to-schema libs/backend/database/prisma/schema.prisma --script
+Loaded Prisma config from libs\backend\database\prisma.config.ts.
+-- CreateEnum
+CREATE TYPE "email_notification_type" AS ENUM ('application_received', 'application_interview', 'application_offer', 'application_hired', 'application_rejected', 'schedule_created', 'schedule_updated', 'schedule_cancelled');
+-- CreateEnum
+CREATE TYPE "email_notification_status" AS ENUM ('pending', 'sent', 'failed', 'skipped');
+-- CreateTable
+CREATE TABLE "email_notifications" (
+    "id" TEXT NOT NULL,
+    "organization_id" TEXT NOT NULL,
+    "recipient_user_id" TEXT NOT NULL,
+    "recipient_email" TEXT NOT NULL,
+    "application_id" TEXT NOT NULL,
+    "interview_id" TEXT,
+    "type" "email_notification_type" NOT NULL,
+    "status" "email_notification_status" NOT NULL DEFAULT 'pending',
+    "payload" JSONB NOT NULL,
+    "last_error" VARCHAR(500),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sent_at" TIMESTAMP(3),
+    CONSTRAINT "email_notifications_pkey" PRIMARY KEY ("id")
+);
+-- CreateIndex
+CREATE INDEX "email_notifications_organization_id_idx" ON "email_notifications"("organization_id");
+-- CreateIndex
+CREATE INDEX "email_notifications_application_id_idx" ON "email_notifications"("application_id");
+-- AddForeignKey (x3: organization_id RESTRICT, recipient_user_id CASCADE, application_id CASCADE; all ON UPDATE CASCADE)
+[exit code: 0]
+Result: the instrument works here — it printed CREATE TABLE "email_notifications". The generated SQL is
+identical to the hand-written migration.sql. (The brain's note that migrate diff prints nothing on this
+machine did not hold for --from-config-datasource with DATABASE_URL set inline.)
+
+== migrate deploy ==
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe npx prisma migrate deploy --config libs/backend/database/prisma.config.ts
+33 migrations found in prisma/migrations
+Applying migration `20261015000000_add_email_notifications`
+All migrations have been successfully applied.
+[exit code: 0]
+
+== probe ==
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe node docs/tasks/gd2-sp3-email-notifications/results/probe-email-notifications.js
+PASS — CONTROL applications_organization_id_fkey confdeltype: expected r, got r (1 constraint(s))
+PASS — email_notifications table exists: email_notifications
+PASS — email_notification_type values and order: expected ["application_received","application_interview","application_offer","application_hired","application_rejected","schedule_created","schedule_updated","schedule_cancelled"], got ["application_received","application_interview","application_offer","application_hired","application_rejected","schedule_created","schedule_updated","schedule_cancelled"]
+PASS — email_notification_status values and order: expected ["pending","sent","failed","skipped"], got ["pending","sent","failed","skipped"]
+PASS — email_notifications_organization_id_fkey confdeltype: expected r, got r (1 constraint(s))
+PASS — email_notifications_recipient_user_id_fkey confdeltype: expected c, got c (1 constraint(s))
+PASS — email_notifications_application_id_fkey confdeltype: expected c, got c (1 constraint(s))
+PASS — email_notifications.last_error is character varying(500): character varying(500)
+PASS — email_notifications.status defaults to pending: 'pending'::email_notification_status
+PASS — email_notifications_organization_id_idx exists: present
+PASS — email_notifications_application_id_idx exists: present
+RESULT: 11 PASS, 0 FAIL
+[exit code: 0]
+
+== migrate diff after deploy (DB -> schema.prisma) ==
+$ DATABASE_URL=postgresql://probe:probe-local@localhost:55533/probe npx prisma migrate diff --config libs/backend/database/prisma.config.ts --from-config-datasource --to-schema libs/backend/database/prisma/schema.prisma --script --exit-code
+Loaded Prisma config from libs\backend\database\prisma.config.ts.
+-- This is an empty migration.
+[exit code: 0]   (--exit-code: 0 = empty diff)
+Result: no drift between the migrated database and schema.prisma. Valid as evidence because the same
+command printed the full SQL in the control above.
+
+$ docker rm -f ats-sp3-pg-probe
+ats-sp3-pg-probe
+[exit code: 0]
+
+== Step 5 ==
+$ npx prisma generate --schema=libs/backend/database/prisma/schema.prisma
+✔ Generated Prisma Client (7.8.0) to .\libs\backend\database\src\generated\prisma in 236ms
+[exit code: 0]
+$ rm -rf dist .nx/cache
+[exit code: 0]
+$ npx nx build api
+> nx run database:build  [local cache]
+> nx run types:build   (tsc --build tsconfig.lib.json)
+> nx run api:build     (webpack compiled successfully)
+Successfully ran target build for project api and 2 tasks it depends on
+[exit code: 0]
+Note: database:build was still served from an Nx local cache after rm -rf .nx/cache, so the cache lives
+elsewhere. No code uses prisma.emailNotification yet, so this build does not yet prove the new client is
+compiled in; Task 5 (first consumer) is the real check.

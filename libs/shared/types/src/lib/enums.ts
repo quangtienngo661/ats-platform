@@ -163,6 +163,32 @@ export type RelatedEntityType =
   (typeof RelatedEntityType)[keyof typeof RelatedEntityType];
 
 // ============================================================
+// Email notification enums
+// ============================================================
+
+export const EmailNotificationType = {
+  application_received: 'application_received',
+  application_interview: 'application_interview',
+  application_offer: 'application_offer',
+  application_hired: 'application_hired',
+  application_rejected: 'application_rejected',
+  schedule_created: 'schedule_created',
+  schedule_updated: 'schedule_updated',
+  schedule_cancelled: 'schedule_cancelled',
+} as const;
+export type EmailNotificationType =
+  (typeof EmailNotificationType)[keyof typeof EmailNotificationType];
+
+export const EmailNotificationStatus = {
+  pending: 'pending',
+  sent: 'sent',
+  failed: 'failed',
+  skipped: 'skipped',
+} as const;
+export type EmailNotificationStatus =
+  (typeof EmailNotificationStatus)[keyof typeof EmailNotificationStatus];
+
+// ============================================================
 // Backward compatibility aliases for old code
 // ============================================================
 

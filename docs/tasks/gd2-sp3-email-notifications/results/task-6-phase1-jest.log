@@ -1,0 +1,12 @@
+FAIL api apps/api/src/app/candidate-notifications/notification-email.processor.spec.ts
+  ● Test suite failed to run
+
+    [96mapps/api/src/app/candidate-notifications/notification-email.processor.spec.ts[0m:[93m6[0m:[93m44[0m - [91merror[0m[90m TS2307: [0mCannot find module './notification-email.processor' or its corresponding type declarations.
+
+    [7m6[0m import { NotificationEmailProcessor } from './notification-email.processor';
+    [7m [0m [91m                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        2.425 s

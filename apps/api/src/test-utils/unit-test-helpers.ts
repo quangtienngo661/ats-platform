@@ -56,6 +56,7 @@ export const createPrismaMock = () => ({
     'update',
     'delete',
   ]),
+  emailNotification: model(['create', 'findUnique', 'updateMany']),
   organization: model([
     'create',
     'findMany',
@@ -81,6 +82,7 @@ export const createPrismaMock = () => ({
     'findUnique',
     'update',
     'updateMany',
+    'updateManyAndReturn',
   ]),
   interviewScorecard: model([
     'create',

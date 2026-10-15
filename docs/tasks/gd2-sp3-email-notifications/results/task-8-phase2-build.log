@@ -1,0 +1,3542 @@
+(node:163772) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:183892) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:183480) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ NX   Running target build for project api and 2 tasks it depends on:
+
+
+
+> nx run database:build  [local cache]
+
+
+> nx run types:build  [local cache]
+
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+(node:124132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:181872) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:184548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.controller.ts:16:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    14 | import { RolesGuard } from '../../common/guards/roles.guard';
+    15 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 16 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    17 | import { CreateAiConfigDto, UpdateAiConfigDto } from './dtos/ai-config.dto';
+    18 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+    19 | import { TenantCaller } from '../../common/tenancy/tenant-caller';
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:2:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+  > 2 | import { Prisma } from '@ats-platform/database';
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 | import { PrismaService } from '../../common/prisma/prisma.service';
+    4 | import { CreateAiConfigDto, UpdateAiConfigDto } from './dtos/ai-config.dto';
+    5 | import {
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:40:28[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    38 | 		}
+    39 |
+  > 40 | 		return await this.prisma.$transaction(async (tx) => {
+       | 		                         ^^^^^^^^^^^^
+    41 | 			if (createAiConfigDto.isDefault) {
+    42 | 				await this.clearDefault(tx, organizationId);
+    43 | 			}
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:61:28[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    59 |
+    60 | 	async findAll(caller: TenantCaller) {
+  > 61 | 		return await this.prisma.aiConfig.findMany({
+       | 		                         ^^^^^^^^
+    62 | 			where: organizationScope(caller),
+    63 | 			orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
+    64 | 		});
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:84:28[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    82 | 		);
+    83 |
+  > 84 | 		return await this.prisma.$transaction(async (tx) => {
+       | 		                         ^^^^^^^^^^^^
+    85 | 			if (updateAiConfigDto.isDefault === true) {
+    86 | 				await this.clearDefault(tx, existingConfig.organizationId, configId);
+    87 | 			}
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:111:45[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    109 | 		}
+    110 |
+  > 111 | 		const screeningsCount = await this.prisma.cVScreening.count({
+        | 		                                          ^^^^^^^^^^^
+    112 | 			where: { configId },
+    113 | 		});
+    114 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:119:28[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    117 | 		}
+    118 |
+  > 119 | 		return await this.prisma.aiConfig.delete({ where: { configId } });
+        | 		                         ^^^^^^^^
+    120 | 	}
+    121 |
+    122 | 	async setDefault(configId: string, caller: TenantCaller) {
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:125:28[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    123 | 		const config = await this.getConfigOrThrow(configId, caller);
+    124 |
+  > 125 | 		return await this.prisma.$transaction(async (tx) => {
+        | 		                         ^^^^^^^^^^^^
+    126 | 			await this.clearDefault(tx, config.organizationId, configId);
+    127 |
+    128 | 			return tx.aiConfig.update({
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:156:42[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    154 |
+    155 | 	private async ensureOrganizationExists(organizationId: string) {
+  > 156 | 		const organization = await this.prisma.organization.findUnique({
+        | 		                                       ^^^^^^^^^^^^
+    157 | 			where: { organizationId },
+    158 | 			select: { organizationId: true },
+    159 | 		});
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/ai-config.service.ts:176:36[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    174 | 	/** Another organization's config is reported exactly like a missing one. */
+    175 | 	private async getConfigOrThrow(configId: string, caller: TenantCaller) {
+  > 176 | 		const config = await this.prisma.aiConfig.findFirst({
+        | 		                                 ^^^^^^^^
+    177 | 			where: { configId, ...organizationScope(caller) },
+    178 | 		});
+    179 | 		if (!config) {
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-config/dtos/ai-config.dto.ts:3:27[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+    2 | import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+  > 3 | import { IAiConfig } from '@ats-platform/types';
+      |                           ^^^^^^^^^^^^^^^^^^^^^
+    4 |
+    5 | export class CreateAiConfigDto implements Omit<IAiConfig, 'configId'> {
+    6 |     @ApiProperty({
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.controller.ts:4:43[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+    3 | import { AiUsageLogsService } from './ai-usage-logs.service';
+  > 4 | import { AiActionType, AiLogStatus } from '@ats-platform/database';
+      |                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 | import { AuthGuard } from '@nestjs/passport';
+    6 | import { RolesGuard } from '../../common/guards/roles.guard';
+    7 | import { Roles } from '../../common/decorators/roles.decorator';
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.controller.ts:8:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     6 | import { RolesGuard } from '../../common/guards/roles.guard';
+     7 | import { Roles } from '../../common/decorators/roles.decorator';
+  >  8 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+     9 |
+    10 | @ApiTags('Nhật ký sử dụng AI')
+    11 | @ApiBearerAuth()
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.service.ts:3:43[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+    2 | import { PrismaService } from '../../common/prisma/prisma.service';
+  > 3 | import { AiActionType, AiLogStatus } from '@ats-platform/database';
+      |                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+    4 |
+    5 | @Injectable()
+    6 | export class AiUsageLogsService {
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.service.ts:29:38[39m[22m
+[90mTS2339: [39mProperty 'aiUsageLog' does not exist on type 'PrismaService'.
+    27 |     }) {
+    28 |         try {
+  > 29 |             return await this.prisma.aiUsageLog.create({
+       |                                      ^^^^^^^^^^
+    30 |                 data: {
+    31 |                     referenceId: refId,
+    32 |                     actionType,
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.service.ts:50:40[39m[22m
+[90mTS2339: [39mProperty 'aiUsageLog' does not exist on type 'PrismaService'.
+    48 |
+    49 |     async getLogsById(referenceId: string) {
+  > 50 |         const logs = await this.prisma.aiUsageLog.findMany({
+       |                                        ^^^^^^^^^^
+    51 |             where: { referenceId },
+    52 |             orderBy: { createdAt: 'desc' },
+    53 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.service.ts:77:25[39m[22m
+[90mTS2339: [39mProperty 'aiUsageLog' does not exist on type 'PrismaService'.
+    75 |
+    76 |         const [items, total] = await Promise.all([
+  > 77 |             this.prisma.aiUsageLog.findMany({
+       |                         ^^^^^^^^^^
+    78 |                 where: whereClause,
+    79 |                 skip: skip,
+    80 |                 take: limit,
+
+[1m[31mERROR[39m[22m in [1m./src/app/ai-usage-logs/ai-usage-logs.service.ts:83:25[39m[22m
+[90mTS2339: [39mProperty 'aiUsageLog' does not exist on type 'PrismaService'.
+    81 |                 orderBy: { createdAt: 'desc' },
+    82 |             }),
+  > 83 |             this.prisma.aiUsageLog.count({
+       |                         ^^^^^^^^^^
+    84 |                 where: whereClause,
+    85 |             }),
+    86 |         ]);
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.controller.ts:19:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    17 | import { RolesGuard } from '../../common/guards/roles.guard';
+    18 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 19 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    20 | import { OwnershipGuard } from '../../common/guards/resources.guard';
+    21 | import { Resources } from '../../common/decorators/resources.decorator';
+    22 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:16:8[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    14 |   ScreeningStatus,
+    15 |   UserRole,
+  > 16 | } from '@ats-platform/database';
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    17 | import { PrismaService } from '../../common/prisma/prisma.service';
+    18 | import {
+    19 |   CreateApplicationDto,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:76:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    74 |
+    75 |   private async getRecruiterDepartmentId(userId: string) {
+  > 76 |     const recruiter = await this.prisma.recruiter.findUnique({
+       |                                         ^^^^^^^^^
+    77 |       where: { userId },
+    78 |       select: { departmentId: true },
+    79 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:95:39[39m[22m
+[90mTS2339: [39mProperty 'applicationHistory' does not exist on type 'PrismaService'.
+    93 |     applicationId: string,
+    94 |   ): Promise<ApplicationStatus[]> {
+  > 95 |     const history = await this.prisma.applicationHistory.findMany({
+       |                                       ^^^^^^^^^^^^^^^^^^
+    96 |       where: { applicationId },
+    97 |       select: { fromStatus: true },
+    98 |       orderBy: { changedAt: 'asc' },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:160:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    158 |     applicationId: string,
+    159 |   ) {
+  > 160 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    161 |       where: { applicationId },
+    162 |       select: {
+    163 |         applicationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:189:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    187 |
+    188 |   async apply(userId: string, dto: CreateApplicationDto) {
+  > 189 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    190 |       where: { userId },
+    191 |       select: { candidateId: true },
+    192 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:196:35[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    194 |       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    195 |
+  > 196 |     const job = await this.prisma.jobPosting.findUnique({
+        |                                   ^^^^^^^^^^
+    197 |       where: { jobId: dto.jobId },
+    198 |       select: { jobId: true, status: true, organizationId: true },
+    199 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:207:34[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    205 |     }
+    206 |
+  > 207 |     const cv = await this.prisma.cV.findUnique({
+        |                                  ^^
+    208 |       where: { cvId: dto.cvId },
+    209 |       include: { parsedData: { select: { isConfirmed: true } } },
+    210 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:226:41[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    224 |     }
+    225 |
+  > 226 |     const existings = await this.prisma.application.findMany({
+        |                                         ^^^^^^^^^^^
+    227 |       where: { jobId: dto.jobId, candidateId: candidate.candidateId },
+    228 |     });
+    229 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:237:50[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    235 |     }
+    236 |
+  > 237 |     const appliedApplication = await this.prisma.$transaction(async (tx) => {
+        |                                                  ^^^^^^^^^^^^
+    238 |       const appliedApplication = await tx.application.create({
+    239 |         data: {
+    240 |           // The application belongs to the organization that owns the job posting —
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:277:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    275 |
+    276 |   async getMyApplications(userId: string) {
+  > 277 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    278 |       where: { userId },
+    279 |       select: { candidateId: true },
+    280 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:284:30[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    282 |       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    283 |
+  > 284 |     return await this.prisma.application.findMany({
+        |                              ^^^^^^^^^^^
+    285 |       where: { candidateId: candidate.candidateId },
+    286 |       // The list needs no history; the latest full row carried staff notes (D1).
+    287 |       include: { ...applicationIncludeOptions, history: false },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:293:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    291 |
+    292 |   async withdraw(applicationId: string, userId: string) {
+  > 293 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    294 |       where: { userId },
+    295 |       select: { candidateId: true },
+    296 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:300:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    298 |       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    299 |
+  > 300 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    301 |       where: { applicationId },
+    302 |       select: { applicationId: true, candidateId: true, status: true },
+    303 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:315:23[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    313 |     }
+    314 |
+  > 315 |     await this.prisma.$transaction(async (tx) => {
+        |                       ^^^^^^^^^^^^
+    316 |       const withdrawnApplication = await tx.application.update({
+    317 |         where: { applicationId },
+    318 |         data: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:357:43[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    355 |
+    356 |     if (caller.role === UserRole.recruiter) {
+  > 357 |       const recruiter = await this.prisma.recruiter.findUnique({
+        |                                           ^^^^^^^^^
+    358 |         where: { userId: caller.userId },
+    359 |       });
+    360 |       if (!recruiter)
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:365:44[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    363 |     }
+    364 |
+  > 365 |     const applications = await this.prisma.application.findMany({
+        |                                            ^^^^^^^^^^^
+    366 |       where: whereCondition,
+    367 |       include: applicationIncludeOptions,
+    368 |       orderBy: { currentStageSince: 'asc' },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:396:35[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    394 |
+    395 |   async getKanbanBoard(caller: TenantCaller, jobId: string) {
+  > 396 |     const job = await this.prisma.jobPosting.findUnique({
+        |                                   ^^^^^^^^^^
+    397 |       where: { jobId },
+    398 |       select: {
+    399 |         jobId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:410:44[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    408 |     await this.assertCanAccessDepartment(caller, job);
+    409 |
+  > 410 |     const applications = await this.prisma.application.findMany({
+        |                                            ^^^^^^^^^^^
+    411 |       where: { jobId, status: { not: ApplicationStatus.cancelled } },
+    412 |       include: applicationIncludeOptions,
+    413 |       orderBy: { currentStageSince: 'asc' },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:437:46[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    435 |     }
+    436 |
+  > 437 |     const cancelledCount = await this.prisma.application.count({
+        |                                              ^^^^^^^^^^^
+    438 |       where: { jobId, status: ApplicationStatus.cancelled },
+    439 |     });
+    440 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:458:35[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    456 |     query: GetApplicationsByJobQueryDto = {},
+    457 |   ) {
+  > 458 |     const job = await this.prisma.jobPosting.findUnique({
+        |                                   ^^^^^^^^^^
+    459 |       where: { jobId },
+    460 |       select: { jobId: true, departmentId: true, organizationId: true },
+    461 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:475:46[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    473 |     };
+    474 |
+  > 475 |     const [items, total] = await this.prisma.$transaction([
+        |                                              ^^^^^^^^^^^^
+    476 |       this.prisma.application.findMany({
+    477 |         where,
+    478 |         include: applicationIncludeOptions,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:476:19[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    474 |
+    475 |     const [items, total] = await this.prisma.$transaction([
+  > 476 |       this.prisma.application.findMany({
+        |                   ^^^^^^^^^^^
+    477 |         where,
+    478 |         include: applicationIncludeOptions,
+    479 |         orderBy: { appliedAt: 'desc' },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:483:19[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    481 |         take: limit,
+    482 |       }),
+  > 483 |       this.prisma.application.count({ where }),
+        |                   ^^^^^^^^^^^
+    484 |     ]);
+    485 |
+    486 |     return {
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:496:37[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    494 |
+    495 |     if (caller.role === UserRole.candidate) {
+  > 496 |       const own = await this.prisma.application.findUnique({
+        |                                     ^^^^^^^^^^^
+    497 |         where: { applicationId },
+    498 |         include: {
+    499 |           ...applicationIncludeOptions,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:507:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    505 |     }
+    506 |
+  > 507 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    508 |       where: { applicationId },
+    509 |       include: {
+    510 |         ...applicationIncludeOptions,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:531:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    529 |     await this.assertCanAccessApplication(caller, applicationId);
+    530 |
+  > 531 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    532 |       where: { applicationId },
+    533 |       select: { applicationId: true, status: true },
+    534 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:567:54[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    565 |     }
+    566 |
+  > 567 |     const { updated, cancelled } = await this.prisma.$transaction(async (tx) => {
+        |                                                      ^^^^^^^^^^^^
+    568 |       const updated = await tx.application.update({
+    569 |         where: { applicationId },
+    570 |         data: { status: dto.status, currentStageSince: new Date() },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:606:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    604 |     await this.assertCanAccessApplication(caller, applicationId);
+    605 |
+  > 606 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    607 |       where: { applicationId },
+    608 |       select: { applicationId: true, status: true },
+    609 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:615:38[39m[22m
+[90mTS2339: [39mProperty 'applicationHistory' does not exist on type 'PrismaService'.
+    613 |     // A candidate reads only the steps of their own application (R1, D8).
+    614 |     if (caller.role === UserRole.candidate) {
+  > 615 |       const rows = await this.prisma.applicationHistory.findMany({
+        |                                      ^^^^^^^^^^^^^^^^^^
+    616 |         where: { applicationId },
+    617 |         select: candidateHistorySelect,
+    618 |         orderBy: { changedAt: 'asc' },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:623:30[39m[22m
+[90mTS2339: [39mProperty 'applicationHistory' does not exist on type 'PrismaService'.
+    621 |     }
+    622 |
+  > 623 |     return await this.prisma.applicationHistory.findMany({
+        |                              ^^^^^^^^^^^^^^^^^^
+    624 |       where: { applicationId },
+    625 |       include: {
+    626 |         user: { select: { userId: true, fullName: true, role: true } },
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/applications.service.ts:639:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    637 |     await this.assertCanAccessApplication(caller, applicationId);
+    638 |
+  > 639 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    640 |       where: { applicationId },
+    641 |       select: {
+    642 |         applicationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/candidate-history.ts:1:35[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { ApplicationStatus } from '@ats-platform/database';
+      |                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 |
+    3 | /** The history columns read for a candidate (`candidateHistorySelect`). */
+    4 | export interface CandidateHistoryRow {
+
+[1m[31mERROR[39m[22m in [1m./src/app/applications/dtos/application.dto.ts:1:35[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { ApplicationStatus } from '@ats-platform/database';
+      |                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |     IsBoolean,
+    4 |     IsEnum,
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:10:38[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     8 |   UnauthorizedException,
+     9 | } from '@nestjs/common';
+  > 10 | import { UserRole, UserStatus } from '@ats-platform/database';
+       |                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    11 | import { LoginDto, RegisterDto } from './dtos/auth.dto';
+    12 | import { PrismaService } from '../../common/prisma/prisma.service';
+    13 | import * as bcrypt from 'bcrypt';
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:123:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    121 |     }
+    122 |
+  > 123 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    124 |       where: { email: loginDto.email },
+    125 |     });
+    126 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:163:50[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    161 |     const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
+    162 |
+  > 163 |     const newRefreshTokenRow = await this.prisma.refreshToken.create({
+        |                                                  ^^^^^^^^^^^^
+    164 |       data: {
+    165 |         userId: user.userId,
+    166 |         tokenHash: hashedRefreshToken,
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:176:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    174 |
+    175 |   async register(registerDto: RegisterDto) {
+  > 176 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    177 |       where: { email: registerDto.email },
+    178 |     });
+    179 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:199:39[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    197 |     const hashedPassword = bcrypt.hashSync(registerDto.password, 10);
+    198 |
+  > 199 |     const newUser = await this.prisma.$transaction(async (tx) => {
+        |                                       ^^^^^^^^^^^^
+    200 |       const createdUser = await tx.user.create({
+    201 |         data: {
+    202 |           email: registerDto.email,
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:240:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    238 |     }
+    239 |
+  > 240 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    241 |       where: { email },
+    242 |     });
+    243 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:281:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    279 |     }
+    280 |
+  > 281 |     const user = await this.prisma.user.findUnique({ where: { userId } });
+        |                                    ^^^^
+    282 |     if (!user) {
+    283 |       // Defensive: token exists but user not found
+    284 |       await this.redisClient.del(tokenKey);
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:299:25[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    297 |       }
+    298 |
+  > 299 |       await this.prisma.user.update({
+        |                         ^^^^
+    300 |         where: { userId },
+    301 |         data: { emailVerified: true },
+    302 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:356:45[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    354 |     }
+    355 |
+  > 356 |     const existingToken = await this.prisma.refreshToken.findUnique({
+        |                                             ^^^^^^^^^^^^
+    357 |       where: { id: refreshTokenId },
+    358 |     });
+    359 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:372:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    370 |     }
+    371 |
+  > 372 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    373 |       where: { userId: payloadUserId },
+    374 |       select: { userId: true, role: true, fullName: true, status: true },
+    375 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:396:50[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    394 |     const hashedNewRefreshToken = bcrypt.hashSync(newRefreshToken, 10);
+    395 |
+  > 396 |     const newRefreshTokenRow = await this.prisma.refreshToken.create({
+        |                                                  ^^^^^^^^^^^^
+    397 |       data: {
+    398 |         userId: payloadUserId,
+    399 |         tokenHash: hashedNewRefreshToken,
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:405:23[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    403 |     });
+    404 |
+  > 405 |     await this.prisma.refreshToken.update({
+        |                       ^^^^^^^^^^^^
+    406 |       where: { id: existingToken.id },
+    407 |       data: { revoked: true },
+    408 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:435:51[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    433 |
+    434 |         if (refreshTokenId && currentRefreshToken) {
+  > 435 |           const existingToken = await this.prisma.refreshToken.findUnique({
+        |                                                   ^^^^^^^^^^^^
+    436 |             where: { id: refreshTokenId },
+    437 |           });
+    438 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:445:31[39m[22m
+[90mTS2339: [39mProperty 'refreshToken' does not exist on type 'PrismaService'.
+    443 |
+    444 |           if (isMatch) {
+  > 445 |             await this.prisma.refreshToken.updateMany({
+        |                               ^^^^^^^^^^^^
+    446 |               where: { id: refreshTokenId, revoked: false },
+    447 |               data: { revoked: true },
+    448 |             });
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:458:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    456 |
+    457 |   async forgotPassword(email: string) {
+  > 458 |     const user = await this.prisma.user.findUnique({ where: { email } });
+        |                                    ^^^^
+    459 |     if (!user) {
+    460 |       throw new BadRequestException('Không tìm thấy người dùng');
+    461 |     }
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:488:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    486 |     }
+    487 |
+  > 488 |     const user = await this.prisma.user.findUnique({ where: { userId } });
+        |                                    ^^^^
+    489 |     if (!user) {
+    490 |       throw new NotFoundException('Không tìm thấy người dùng');
+    491 |     }
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/auth.service.ts:496:23[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    494 |
+    495 |     // Atomically update password + revoke ALL refresh tokens for this user
+  > 496 |     await this.prisma.$transaction(async (tx) => {
+        |                       ^^^^^^^^^^^^
+    497 |       await tx.user.update({
+    498 |         where: { userId },
+    499 |         data: { passwordHash: hashedPassword },
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/dtos/auth.dto.ts:2:23[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { IsEmail, IsEnum, IsString, IsStrongPassword } from "class-validator";
+  > 2 | import { IAuth } from "@ats-platform/types";
+      |                       ^^^^^^^^^^^^^^^^^^^^^
+    3 | import { ApiProperty } from "@nestjs/swagger";
+    4 |
+    5 | export class LoginDto implements IAuth {
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/strategies/jwt.strategy.ts:1:28[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+  > 1 | import { UserStatus } from '@ats-platform/types';
+      |                            ^^^^^^^^^^^^^^^^^^^^^
+    2 | import { Injectable, UnauthorizedException } from '@nestjs/common';
+    3 | import { PassportStrategy } from '@nestjs/passport';
+    4 | import { Request } from 'express';
+
+[1m[31mERROR[39m[22m in [1m./src/app/auth/strategies/jwt.strategy.ts:42:44[39m[22m
+[90mTS2345: [39mArgument of type 'PrismaService' is not assignable to parameter of type 'Pick<PrismaService, "user">'.
+  Property 'user' is missing in type 'PrismaService' but required in type 'Pick<PrismaService, "user">'.
+    40 |     // minted before a role change, a deactivation or a move to another
+    41 |     // organization must not keep working until it expires.
+  > 42 |     const user = await resolveTenantCaller(this.prisma, payload.userId);
+       |                                            ^^^^^^^^^^^
+    43 |
+    44 |     if (!user) {
+    45 |       throw new UnauthorizedException('Token không hợp lệ');
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:13:8[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    11 |   ScheduleStatus,
+    12 |   UserStatus,
+  > 13 | } from '@ats-platform/database';
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    14 | import { PrismaService } from '../../common/prisma/prisma.service';
+    15 | import { NotificationsService } from '../notifications/notifications.service';
+    16 | import type { CreateNotificationDto } from '../notifications/dto/create-notification.dto';
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:168:45[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    166 |   ) {
+    167 |     try {
+  > 168 |       const application = await this.prisma.application.findUnique({
+        |                                             ^^^^^^^^^^^
+    169 |         where: { applicationId },
+    170 |         select: {
+    171 |           applicationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:247:40[39m[22m
+[90mTS2339: [39mProperty 'emailNotification' does not exist on type 'PrismaService'.
+    245 |           ? EmailNotificationStatus.skipped
+    246 |           : EmailNotificationStatus.pending;
+  > 247 |       const { id } = await this.prisma.emailNotification.create({
+        |                                        ^^^^^^^^^^^^^^^^^
+    248 |         data: {
+    249 |           organizationId: application.organizationId,
+    250 |           recipientUserId: user.userId,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:289:48[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    287 |           ]),
+    288 |         ];
+  > 289 |         const interviewers = await this.prisma.user.findMany({
+        |                                                ^^^^
+    290 |           where: { userId: { in: interviewerIds } },
+    291 |           select: { userId: true, fullName: true },
+    292 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:300:13[39m[22m
+[90mTS2345: [39mArgument of type 'unknown' is not assignable to parameter of type 'string'.
+    298 |           schedule: this.scheduleDetails(
+    299 |             schedule,
+  > 300 |             names.get(schedule.interviewerId) ?? '',
+        |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    301 |           ),
+    302 |         };
+    303 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/candidate-notifications.service.ts:324:17[39m[22m
+[90mTS2322: [39mType 'unknown' is not assignable to type 'string'.
+    322 |                 break;
+    323 |               case 'interviewerId':
+  > 324 |                 previous.interviewerName = names.get(before.interviewerId) ?? '';
+        |                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    325 |                 break;
+    326 |             }
+    327 |           }
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/email/notification-email.types.ts:1:36[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import type { InterviewType } from '@ats-platform/database';
+      |                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 |
+    3 | export interface ApplicationContext {
+    4 |   applicationId: string;
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/email/render-notification-email.ts:1:54[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { EmailNotificationType, InterviewType } from '@ats-platform/database';
+      |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |   escapeHtml,
+    4 |   fillLayout,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/notification-email.processor.ts:4:41[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { Logger } from '@nestjs/common';
+    3 | import { Job } from 'bullmq';
+  > 4 | import { EmailNotificationStatus } from '@ats-platform/database';
+      |                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 | import { PrismaService } from '../../common/prisma/prisma.service';
+    6 | import { MailService } from '../../common/mail/mail.service';
+    7 | import { CLIENT_URL } from '../../common/constants/urls';
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/notification-email.processor.ts:28:37[39m[22m
+[90mTS2339: [39mProperty 'emailNotification' does not exist on type 'PrismaService'.
+    26 |
+    27 |     try {
+  > 28 |       const row = await this.prisma.emailNotification.findUnique({
+       |                                     ^^^^^^^^^^^^^^^^^
+    29 |         where: { id: notificationId },
+    30 |       });
+    31 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/notification-email.processor.ts:54:25[39m[22m
+[90mTS2339: [39mProperty 'emailNotification' does not exist on type 'PrismaService'.
+    52 |       });
+    53 |
+  > 54 |       await this.prisma.emailNotification.updateMany({
+       |                         ^^^^^^^^^^^^^^^^^
+    55 |         where: { id: notificationId },
+    56 |         data: delivered
+    57 |           ? {
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/notification-email.processor.ts:74:27[39m[22m
+[90mTS2339: [39mProperty 'emailNotification' does not exist on type 'PrismaService'.
+    72 |
+    73 |       try {
+  > 74 |         await this.prisma.emailNotification.updateMany({
+       |                           ^^^^^^^^^^^^^^^^^
+    75 |           where: { id: notificationId },
+    76 |           data: {
+    77 |             lastError: message.slice(0, 500),
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidate-notifications/schedule-changes.ts:1:52[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import type { InterviewType, ScheduleStatus } from '@ats-platform/database';
+      |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 |
+    3 | export interface ScheduleSnapshot {
+    4 |   interviewId: string;
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.controller.ts:1:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { UserRole } from '@ats-platform/database';
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
+    3 | import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+    4 | import { AuthGuard } from '@nestjs/passport';
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:1:53[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { ApplicationStatus, Prisma, UserRole } from '@ats-platform/database';
+      |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |   ForbiddenException,
+    4 |   Injectable,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:25:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    23 |
+    24 |   async getProfile(userId: string) {
+  > 25 |     const candidate = await this.prisma.candidate.findUnique({
+       |                                         ^^^^^^^^^
+    26 |       where: { userId },
+    27 |       include: { ...candidateIncludeOptions },
+    28 |       omit: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:49:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    47 |
+    48 |   async updateProfile(userId: string, updateDto: UpdateCandidateProfileDto) {
+  > 49 |     const candidate = await this.prisma.candidate.findUnique({
+       |                                         ^^^^^^^^^
+    50 |       where: { userId },
+    51 |       select: {
+    52 |         profileData: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:67:23[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    65 |     );
+    66 |
+  > 67 |     await this.prisma.candidate.update({
+       |                       ^^^^^^^^^
+    68 |       where: { userId },
+    69 |       data: {
+    70 |         currentTitle: updateDto.currentTitle,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:96:23[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    94 |     profileData: Record<string, unknown>,
+    95 |   ) {
+  > 96 |     await this.prisma.candidate.update({
+       |                       ^^^^^^^^^
+    97 |       where: { candidateId },
+    98 |       data: {
+    99 |         profileData: profileData as Prisma.InputJsonObject,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:105:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    103 |
+    104 |   private async getRecruiterDepartmentId(userId: string) {
+  > 105 |     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                         ^^^^^^^^^
+    106 |       where: { userId },
+    107 |       select: { departmentId: true },
+    108 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:168:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    166 |     if (!scope) return;
+    167 |
+  > 168 |     const candidate = await this.prisma.candidate.findFirst({
+        |                                         ^^^^^^^^^
+    169 |       where: {
+    170 |         candidateId,
+    171 |         ...scope,
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:186:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    184 |     await this.assertCanViewCandidate(candidateId, caller);
+    185 |
+  > 186 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    187 |       where: { candidateId },
+    188 |       include: {
+    189 |         user: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:267:51[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    265 |       : baseWhere;
+    266 |
+  > 267 |     const [candidates, total] = await this.prisma.$transaction([
+        |                                                   ^^^^^^^^^^^^
+    268 |       this.prisma.candidate.findMany({
+    269 |         where,
+    270 |         include: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:268:19[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    266 |
+    267 |     const [candidates, total] = await this.prisma.$transaction([
+  > 268 |       this.prisma.candidate.findMany({
+        |                   ^^^^^^^^^
+    269 |         where,
+    270 |         include: {
+    271 |           user: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/candidates/candidates.service.ts:297:19[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    295 |         take: limit,
+    296 |       }),
+  > 297 |       this.prisma.candidate.count({ where }),
+        |                   ^^^^^^^^^
+    298 |     ]);
+    299 |
+    300 |     return {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.controller.ts:7:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     5 | import { RolesGuard } from '../../common/guards/roles.guard';
+     6 | import { Roles } from '../../common/decorators/roles.decorator';
+  >  7 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { Request } from 'express';
+     9 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+    10 | import { TenantCaller } from '../../common/tenancy/tenant-caller';
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:11:8[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     9 |   Prisma,
+    10 |   ScreeningStatus,
+  > 11 | } from '@ats-platform/database';
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    12 | import { PrismaService } from '../../common/prisma/prisma.service';
+    13 | import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
+    14 | import { InjectQueue } from '@nestjs/bullmq';
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:87:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    85 |     if (assertOrganizationAccess(caller, resource.organizationId)) return;
+    86 |
+  > 87 |     const recruiter = await this.prisma.recruiter.findUnique({
+       |                                         ^^^^^^^^^
+    88 |       where: { userId: caller.userId },
+    89 |       select: { departmentId: true },
+    90 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:109:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    107 |     }>
+    108 |   > {
+  > 109 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    110 |       where: { applicationId },
+    111 |     });
+    112 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:113:34[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    111 |     });
+    112 |
+  > 113 |     const cv = await this.prisma.cV.findUnique({
+        |                                  ^^
+    114 |       where: { cvId },
+    115 |     });
+    116 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:132:41[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    130 |     );
+    131 |
+  > 132 |     const screening = await this.prisma.cVScreening.upsert({
+        |                                         ^^^^^^^^^^^
+    133 |       where: { applicationId },
+    134 |       create: {
+    135 |         // The screening belongs to the organization that owns the application.
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:177:41[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    175 |     }>
+    176 |   > {
+  > 177 |     const screening = await this.prisma.cVScreening.findUnique({
+        |                                         ^^^^^^^^^^^
+    178 |       where: { applicationId },
+    179 |       include: screeningResultIncludeOptions,
+    180 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:199:41[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    197 |     userId: string,
+    198 |   ): Promise<ScreeningResultForCandidate> {
+  > 199 |     const screening = await this.prisma.cVScreening.findUnique({
+        |                                         ^^^^^^^^^^^
+    200 |       where: { applicationId },
+    201 |       include: {
+    202 |         application: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:208:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    206 |     });
+    207 |
+  > 208 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    209 |       where: { userId },
+    210 |       select: { candidateId: true },
+    211 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:241:35[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    239 |     caller: TenantCaller,
+    240 |   ): Promise<ScreeningStats> {
+  > 241 |     const job = await this.prisma.jobPosting.findUnique({
+        |                                   ^^^^^^^^^^
+    242 |       where: { jobId },
+    243 |       select: {
+    244 |         jobId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:255:42[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    253 |     await this.assertCanAccessJob(caller, job);
+    254 |
+  > 255 |     const screenings = await this.prisma.cVScreening.findMany({
+        |                                          ^^^^^^^^^^^
+    256 |       where: { application: { jobId } },
+    257 |       select: {
+    258 |         screeningId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:353:40[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    351 |   ): Promise<AiConfig> {
+    352 |     if (configId) {
+  > 353 |       const config = await this.prisma.aiConfig.findFirst({
+        |                                        ^^^^^^^^
+    354 |         where: { configId, organizationId },
+    355 |       });
+    356 |       if (!config) {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/cv-screenings.service.ts:362:45[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    360 |     }
+    361 |
+  > 362 |     const defaultConfig = await this.prisma.aiConfig.findFirst({
+        |                                             ^^^^^^^^
+    363 |       where: { isDefault: true, organizationId },
+    364 |     });
+    365 |     if (!defaultConfig) {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:11:8[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     9 |   RelatedEntityType,
+    10 |   ScreeningStatus,
+  > 11 | } from '@ats-platform/database';
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    12 | import { SocketIoService } from '../../../common/socket-io/socket-io.service';
+    13 | import { applicationIncludeOptions } from '../../../common/utils/include-options.util';
+    14 | import { NotificationsService } from '../../notifications/notifications.service';
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:46:45[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    44 |         const jobRoom = `job_${application.jobId}`;
+    45 |
+  > 46 |         const screening = await this.prisma.cVScreening.update({
+       |                                             ^^^^^^^^^^^
+    47 |           where: { screeningId },
+    48 |           data: {
+    49 |             status: 'processing',
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:116:19[39m[22m
+[90mTS2339: [39mProperty 'cVParsedData' does not exist on type 'PrismaService'.
+    114 |   ): Promise<any> {
+    115 |     const [cvParsedData, application, aiConfig] = await Promise.all([
+  > 116 |       this.prisma.cVParsedData.findUnique({
+        |                   ^^^^^^^^^^^^
+    117 |         where: { cvId },
+    118 |       }),
+    119 |       this.prisma.application.findUnique({
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:119:19[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    117 |         where: { cvId },
+    118 |       }),
+  > 119 |       this.prisma.application.findUnique({
+        |                   ^^^^^^^^^^^
+    120 |         where: { applicationId },
+    121 |         include: {
+    122 |           jobPosting: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:134:19[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    132 |         },
+    133 |       }),
+  > 134 |       this.prisma.aiConfig.findUnique({
+        |                   ^^^^^^^^
+    135 |         where: { configId },
+    136 |       }) || null,
+    137 |     ]);
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:174:43[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    172 |     // organization's default happens to come back first.
+    173 |     if (!config) {
+  > 174 |       const screening = await this.prisma.cVScreening.findUnique({
+        |                                           ^^^^^^^^^^^
+    175 |         where: { screeningId },
+    176 |         select: { organizationId: true },
+    177 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:179:29[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    177 |       });
+    178 |       config = screening
+  > 179 |         ? await this.prisma.aiConfig.findFirst({
+        |                             ^^^^^^^^
+    180 |             where: {
+    181 |               isDefault: true,
+    182 |               organizationId: screening.organizationId,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:214:47[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    212 |     );
+    213 |     // 3. Update DB (Có thể viết thêm 1 hàm 'updateScreeningResult' ở Service hoặc update thẳng tại đây bằng Prisma)
+  > 214 |     const screeningResult = await this.prisma.cVScreening.update({
+        |                                               ^^^^^^^^^^^
+    215 |       where: { screeningId },
+    216 |       data: {
+    217 |         skillsScore: skills_score,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:233:50[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    231 |     });
+    232 |
+  > 233 |     const updatedApplication = await this.prisma.application.findUnique({
+        |                                                  ^^^^^^^^^^^
+    234 |       where: { applicationId: screeningResult.applicationId },
+    235 |       include: applicationIncludeOptions,
+    236 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:250:23[39m[22m
+[90mTS2339: [39mProperty 'cVScreening' does not exist on type 'PrismaService'.
+    248 |     error: any,
+    249 |   ): Promise<any> {
+  > 250 |     await this.prisma.cVScreening.update({
+        |                       ^^^^^^^^^^^
+    251 |       where: { screeningId },
+    252 |       data: {
+    253 |         status: 'failed',
+
+[1m[31mERROR[39m[22m in [1m./src/app/cv-screenings/processors/cv-screenings.processor.ts:262:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    260 |
+    261 |   private async emitScreeningCompletedFailure(applicationId: string) {
+  > 262 |     const application = await this.prisma.application.findUnique({
+        |                                           ^^^^^^^^^^^
+    263 |       where: { applicationId },
+    264 |       select: { jobId: true },
+    265 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.controller.ts:1:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { UserRole } from '@ats-platform/database';
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |   BadRequestException,
+    4 |   Body,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:2:39[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+  > 2 | import { ParsingStatus, Prisma } from '@ats-platform/database';
+      |                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 | import * as path from 'node:path';
+    4 | import { PrismaService } from '../../common/prisma/prisma.service';
+    5 | import { CandidatesService } from '../candidates/candidates.service';
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:27:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    25 |
+    26 |   async resolveCandidateIdByUserId(userId: string): Promise<string> {
+  > 27 |     const candidate = await this.prisma.candidate.findUnique({
+       |                                         ^^^^^^^^^
+    28 |       where: { userId },
+    29 |       select: { candidateId: true },
+    30 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:54:40[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    52 |       .replace(/\\/g, '/');
+    53 |
+  > 54 |     const cvRecord = await this.prisma.cV.create({
+       |                                        ^^
+    55 |       data: {
+    56 |         candidateId,
+    57 |         fileName,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:81:30[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    79 |
+    80 |   async getMyCVs(candidateId: string) {
+  > 81 |     return await this.prisma.cV.findMany({
+       |                              ^^
+    82 |       where: { candidateId },
+    83 |       orderBy: { uploadedAt: 'desc' },
+    84 |       omit: { rawText: true },
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:96:34[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    94 |
+    95 |   async getCVById(cvId: string) {
+  > 96 |     const cv = await this.prisma.cV.findUnique({
+       |                                  ^^
+    97 |       where: { cvId },
+    98 |       include: {
+    99 |         parsedData: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:150:25[39m[22m
+[90mTS2339: [39mProperty 'cVParsedData' does not exist on type 'PrismaService'.
+    148 |       await this.candidatesService.updateProfileData(candidateId, profileData);
+    149 |
+  > 150 |       await this.prisma.cVParsedData.update({
+        |                         ^^^^^^^^^^^^
+    151 |         where: { cvId: cv.cvId },
+    152 |         data: { isConfirmed: true },
+    153 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:160:25[39m[22m
+[90mTS2339: [39mProperty 'cVParsedData' does not exist on type 'PrismaService'.
+    158 |       message = 'Cập nhật hồ sơ ứng viên thành công';
+    159 |     } else if (markAsConfirmed) {
+  > 160 |       await this.prisma.cVParsedData.update({
+        |                         ^^^^^^^^^^^^
+    161 |         where: { cvId: cv.cvId },
+    162 |         data: { isConfirmed: true },
+    163 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:175:34[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    173 |
+    174 |   async deleteCV(cvId: string, candidateId: string) {
+  > 175 |     const cv = await this.prisma.cV.findUnique({
+        |                                  ^^
+    176 |       where: { cvId },
+    177 |       include: {
+    178 |         _count: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:198:23[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    196 |     }
+    197 |
+  > 198 |     await this.prisma.cV.delete({ where: { cvId } });
+        |                       ^^
+    199 |
+    200 |     const absolutePath = path.isAbsolute(cv.filePath)
+    201 |       ? cv.filePath
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/cvs.service.ts:219:34[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    217 |
+    218 |   async downloadCV(cvId: string) {
+  > 219 |     const cv = await this.prisma.cV.findUnique({
+        |                                  ^^
+    220 |       where: { cvId },
+    221 |       select: { cvId: true, filePath: true, candidateId: true },
+    222 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/processors/cv-parsing.processor.ts:6:49[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    4 | import { CvParsedDataService } from "../cv-parsed-data/cv-parsed-data.service";
+    5 | import { PrismaService } from "../../../common/prisma/prisma.service";
+  > 6 | import { NotificationType, ParsingStatus } from "@ats-platform/database";
+      |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    7 | import { Logger } from "@nestjs/common";
+    8 | import { SocketIoService } from "../../../common/socket-io/socket-io.service";
+    9 | import { NotificationsService } from "../../notifications/notifications.service";
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/processors/cv-parsing.processor.ts:30:31[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    28 |             const { cvId } = job.data;
+    29 |
+  > 30 |             await this.prisma.cV.update({
+       |                               ^^
+    31 |                 where: { cvId },
+    32 |                 data: { parsingStatus: ParsingStatus.processing },
+    33 |             });
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/processors/cv-parsing.processor.ts:36:46[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    34 |
+    35 |             try {
+  > 36 |                 const cv = await this.prisma.cV.findUnique({
+       |                                              ^^
+    37 |                     where: { cvId },
+    38 |                     select: {
+    39 |                         rawText: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/processors/cv-parsing.processor.ts:56:50[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    54 |
+    55 |                 // 4. Lưu DB trong transaction
+  > 56 |                 const result = await this.prisma.$transaction(async (tx) => {
+       |                                                  ^^^^^^^^^^^^
+    57 |                     await this.cvParsedDataService.create(cvId, parsedData, tx);
+    58 |                     return tx.cV.update({
+    59 |                         where: { cvId },
+
+[1m[31mERROR[39m[22m in [1m./src/app/cvs/processors/cv-parsing.processor.ts:91:51[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    89 |
+    90 |                 // 6. Update failed + ghi error log
+  > 91 |                 const errorCv = await this.prisma.cV.update({
+       |                                                   ^^
+    92 |                     where: { cvId },
+    93 |                     data: {
+    94 |                         parsingStatus: ParsingStatus.failed,
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.controller.ts:13:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    11 | import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+    12 | import { DepartmentsService } from './departments.service';
+  > 13 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    14 | import { Roles } from '../../common/decorators/roles.decorator';
+    15 | import { AuthGuard } from '@nestjs/passport';
+    16 | import { RolesGuard } from '../../common/guards/roles.guard';
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:35:46[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    33 |
+    34 |     if (isPlatformAdmin(caller.role)) {
+  > 35 |       const organization = await this.prisma.organization.findUnique({
+       |                                              ^^^^^^^^^^^^
+    36 |         where: { organizationId },
+    37 |         select: { organizationId: true },
+    38 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:46:30[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    44 |     }
+    45 |
+  > 46 |     return await this.prisma.department.create({
+       |                              ^^^^^^^^^^
+    47 |       data: {
+    48 |         organizationId,
+    49 |         name: createDepartmentDto.name,
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:62:30[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    60 |    */
+    61 |   async findAll(caller: TenantCaller) {
+  > 62 |     return await this.prisma.department.findMany({
+       |                              ^^^^^^^^^^
+    63 |       where: organizationScope(caller),
+    64 |       include: departmentIncludeOptions,
+    65 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:70:42[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    68 |   /** Another organization's department is reported exactly like a missing one. */
+    69 |   private async findVisibleOrThrow(id: string, caller: TenantCaller) {
+  > 70 |     const department = await this.prisma.department.findFirst({
+       |                                          ^^^^^^^^^^
+    71 |       where: { departmentId: id, ...organizationScope(caller) },
+    72 |       include: {
+    73 |         _count: { select: { recruiters: true, jobPostings: true } },
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:85:42[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    83 |
+    84 |   async findOne(id: string, caller: TenantCaller) {
+  > 85 |     const department = await this.prisma.department.findFirst({
+       |                                          ^^^^^^^^^^
+    86 |       where: { departmentId: id, ...organizationScope(caller) },
+    87 |       include: {
+    88 |         recruiters: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:110:30[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    108 |     // would drag its recruiters and postings across the tenant boundary while
+    109 |     // their own organizationId stayed behind. UpdateDepartmentDto omits the field.
+  > 110 |     return await this.prisma.department.update({
+        |                              ^^^^^^^^^^
+    111 |       where: { departmentId: id },
+    112 |       data: {
+    113 |         name: updateDepartmentDto.name,
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/departments.service.ts:142:30[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    140 |     }
+    141 |
+  > 142 |     return await this.prisma.department.delete({
+        |                              ^^^^^^^^^^
+    143 |       where: { departmentId: id },
+    144 |     });
+    145 |   }
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/dtos/departments.dto.ts:3:29[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+    2 | import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+  > 3 | import { IDepartment } from '@ats-platform/types';
+      |                             ^^^^^^^^^^^^^^^^^^^^^
+    4 | import { Department } from '@ats-platform/database';
+    5 |
+    6 | export class CreateDepartmentDto implements IDepartment {
+
+[1m[31mERROR[39m[22m in [1m./src/app/departments/dtos/departments.dto.ts:4:28[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+    3 | import { IDepartment } from '@ats-platform/types';
+  > 4 | import { Department } from '@ats-platform/database';
+      |                            ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 |
+    6 | export class CreateDepartmentDto implements IDepartment {
+    7 |   @IsString()
+
+[1m[31mERROR[39m[22m in [1m./src/app/health/health.service.ts:46:43[39m[22m
+[90mTS2339: [39mProperty '$queryRaw' does not exist on type 'PrismaService'.
+    44 |   private async checkDatabase(): Promise<DependencyStatus> {
+    45 |     try {
+  > 46 |       await this.withDeadline(this.prisma.$queryRaw`SELECT 1`);
+       |                                           ^^^^^^^^^
+    47 |       return 'up';
+    48 |     } catch (error) {
+    49 |       this.logger.error(
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/dto/create-interview.dto.ts:1:31[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { InterviewType } from '@ats-platform/database';
+      |                               ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { Transform } from 'class-transformer';
+    3 | import {
+    4 |     IsDateString,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/dto/get-interview-schedules-query.dto.ts:1:32[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { ScheduleStatus } from '@ats-platform/database';
+      |                                ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { IsDateString, IsEnum, IsIn, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+    3 | import { Transform } from 'class-transformer';
+    4 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/dto/update-interview.dto.ts:1:47[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { InterviewType, ScheduleStatus } from '@ats-platform/database';
+      |                                               ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { Transform } from 'class-transformer';
+    3 | import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUrl, IsUUID, Max, MaxLength, Min } from 'class-validator';
+    4 | import {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interview-schedule.rules.ts:2:31[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { BadRequestException } from '@nestjs/common';
+  > 2 | import { InterviewType } from '@ats-platform/database';
+      |                               ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 |
+    4 | export const LOCATION_MAX_LENGTH = 255;
+    5 | export const LOCATION_REQUIRED_MESSAGE = 'Phỏng vấn trực tiếp cần địa điểm';
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.controller.ts:26:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    24 | import { RolesGuard } from '../../common/guards/roles.guard';
+    25 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 26 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    27 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+    28 | import { TenantCaller } from '../../common/tenancy/tenant-caller';
+    29 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:28:8[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    26 |   ScheduleStatus,
+    27 |   UserRole,
+  > 28 | } from '@ats-platform/database';
+       |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    29 | import {
+    30 |   candidateScheduleSelect,
+    31 |   interviewTopicCategorySelect,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:61:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    59 |
+    60 |   private async getRecruiterDepartmentId(userId: string) {
+  > 61 |     const recruiter = await this.prisma.recruiter.findUnique({
+       |                                         ^^^^^^^^^
+    62 |       where: { userId },
+    63 |       select: { departmentId: true },
+    64 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:80:40[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    78 |     if (!categoryId) return;
+    79 |
+  > 80 |     const category = await this.prisma.jobCategory.findUnique({
+       |                                        ^^^^^^^^^^^
+    81 |       where: { categoryId },
+    82 |       select: { categoryId: true },
+    83 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:93:43[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    91 |     applicationId: string,
+    92 |   ) {
+  > 93 |     const application = await this.prisma.application.findUnique({
+       |                                           ^^^^^^^^^^^
+    94 |       where: { applicationId },
+    95 |       select: {
+    96 |         applicationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:133:43[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    131 |     resource: { organizationId: string; departmentId: string },
+    132 |   ) {
+  > 133 |     const interviewer = await this.prisma.recruiter.findUnique({
+        |                                           ^^^^^^^^^
+    134 |       where: { userId: interviewerId },
+    135 |       select: {
+    136 |         recruiterId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:191:42[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    189 |     // `existingEnd > newStart` depends on each row's own duration, so it is
+    190 |     // checked in memory over the interviewer's (few) scheduled slots.
+  > 191 |     const candidates = await this.prisma.interviewSchedule.findMany({
+        |                                          ^^^^^^^^^^^^^^^^^
+    192 |       where: {
+    193 |         interviewerId,
+    194 |         status: ScheduleStatus.scheduled,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:221:40[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    219 |     interviewId: string,
+    220 |   ) {
+  > 221 |     const schedule = await this.prisma.interviewSchedule.findUnique({
+        |                                        ^^^^^^^^^^^^^^^^^
+    222 |       where: { interviewId },
+    223 |       select: {
+    224 |         organizationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:272:40[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    270 |     interviewId: string,
+    271 |   ) {
+  > 272 |     const schedule = await this.prisma.interviewSchedule.findUnique({
+        |                                        ^^^^^^^^^^^^^^^^^
+    273 |       where: { interviewId },
+    274 |       select: {
+    275 |         interviewId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:321:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    319 |     );
+    320 |
+  > 321 |     const created = await this.prisma.interviewSchedule.create({
+        |                                       ^^^^^^^^^^^^^^^^^
+    322 |       data: {
+    323 |         // The schedule belongs to the organization that owns the application.
+    324 |         organizationId: application.organizationId,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:362:43[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    360 |
+    361 |     if (role === UserRole.candidate) {
+  > 362 |       const candidate = await this.prisma.candidate.findUnique({
+        |                                           ^^^^^^^^^
+    363 |         where: { userId },
+    364 |         select: { candidateId: true },
+    365 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:403:23[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    401 |     const schedulesQuery =
+    402 |       role === UserRole.candidate
+  > 403 |         ? this.prisma.interviewSchedule.findMany({
+        |                       ^^^^^^^^^^^^^^^^^
+    404 |             ...pageArgs,
+    405 |             select: candidateScheduleSelect,
+    406 |           })
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:407:23[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    405 |             select: candidateScheduleSelect,
+    406 |           })
+  > 407 |         : this.prisma.interviewSchedule.findMany({
+        |                       ^^^^^^^^^^^^^^^^^
+    408 |             ...pageArgs,
+    409 |             include: scheduleIncludeOptions,
+    410 |           });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:414:19[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    412 |     const [schedules, total] = await Promise.all([
+    413 |       schedulesQuery,
+  > 414 |       this.prisma.interviewSchedule.count({ where }),
+        |                   ^^^^^^^^^^^^^^^^^
+    415 |     ]);
+    416 |
+    417 |     return {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:433:29[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    431 |     const schedule =
+    432 |       caller.role === UserRole.candidate
+  > 433 |         ? await this.prisma.interviewSchedule.findUnique({
+        |                             ^^^^^^^^^^^^^^^^^
+    434 |             where: { interviewId },
+    435 |             select: candidateScheduleSelect,
+    436 |           })
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:437:29[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    435 |             select: candidateScheduleSelect,
+    436 |           })
+  > 437 |         : await this.prisma.interviewSchedule.findUnique({
+        |                             ^^^^^^^^^^^^^^^^^
+    438 |             where: { interviewId },
+    439 |             include: scheduleIncludeOptions,
+    440 |           });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:503:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    501 |     }
+    502 |
+  > 503 |     const updated = await this.prisma.interviewSchedule.update({
+        |                                       ^^^^^^^^^^^^^^^^^
+    504 |       where: { interviewId },
+    505 |       data: updateData,
+    506 |       include: scheduleIncludeOptions,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:519:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    517 |     const schedule = await this.assertCanMutateSchedule(caller, interviewId);
+    518 |
+  > 519 |     const deleted = await this.prisma.interviewSchedule.delete({
+        |                                       ^^^^^^^^^^^^^^^^^
+    520 |       where: { interviewId },
+    521 |     });
+    522 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:539:24[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    537 |     }
+    538 |
+  > 539 |     return this.prisma.interviewTopic.create({
+        |                        ^^^^^^^^^^^^^^
+    540 |       data,
+    541 |       include: interviewTopicIncludeOptions,
+    542 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:545:24[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    543 |   }
+    544 |   async findAllTopics() {
+  > 545 |     return this.prisma.interviewTopic.findMany({
+        |                        ^^^^^^^^^^^^^^
+    546 |       orderBy: { name: 'asc' },
+    547 |       include: interviewTopicIncludeOptions,
+    548 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:551:37[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    549 |   }
+    550 |   async findTopicById(topicId: string) {
+  > 551 |     const topic = await this.prisma.interviewTopic.findUnique({
+        |                                     ^^^^^^^^^^^^^^
+    552 |       where: { topicId },
+    553 |       include: interviewTopicIncludeOptions,
+    554 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:559:37[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    557 |   }
+    558 |   async updateTopic(topicId: string, dto: UpdateInterviewTopicDto) {
+  > 559 |     const topic = await this.prisma.interviewTopic.findUnique({
+        |                                     ^^^^^^^^^^^^^^
+    560 |       where: { topicId },
+    561 |       select: { topicId: true },
+    562 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:575:24[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    573 |     }
+    574 |
+  > 575 |     return this.prisma.interviewTopic.update({
+        |                        ^^^^^^^^^^^^^^
+    576 |       where: { topicId },
+    577 |       data: updateData,
+    578 |       include: interviewTopicIncludeOptions,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:582:37[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    580 |   }
+    581 |   async removeTopic(topicId: string) {
+  > 582 |     const topic = await this.prisma.interviewTopic.findUnique({
+        |                                     ^^^^^^^^^^^^^^
+    583 |       where: { topicId },
+    584 |       include: { _count: { select: { sessions: true } } },
+    585 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:594:24[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    592 |     }
+    593 |
+  > 594 |     return this.prisma.interviewTopic.delete({
+        |                        ^^^^^^^^^^^^^^
+    595 |       where: { topicId },
+    596 |     });
+    597 |   }
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:600:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    598 |
+    599 |   async getSessionById(sessionId: string, userId: string) {
+  > 600 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    601 |       where: { userId },
+    602 |       select: { candidateId: true },
+    603 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:606:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    604 |     if (!candidate) throw new NotFoundException('Không tìm thấy ứng viên');
+    605 |
+  > 606 |     const session = await this.prisma.interviewSession.findUnique({
+        |                                       ^^^^^^^^^^^^^^^^
+    607 |       where: { sessionId },
+    608 |       include: {
+    609 |         topic: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:629:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    627 |
+    628 |   async getSessionResult(sessionId: string, userId: string) {
+  > 629 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    630 |       where: { userId },
+    631 |       select: { candidateId: true },
+    632 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:635:38[39m[22m
+[90mTS2339: [39mProperty 'interviewResult' does not exist on type 'PrismaService'.
+    633 |     if (!candidate) throw new NotFoundException('Không tìm thấy ứng viên');
+    634 |
+  > 635 |     const result = await this.prisma.interviewResult.findUnique({
+        |                                      ^^^^^^^^^^^^^^^
+    636 |       where: { sessionId },
+    637 |       include: {
+    638 |         session: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:658:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    656 |   }
+    657 |   async getMySessions(userId: string) {
+  > 658 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    659 |       where: { userId },
+    660 |       select: { candidateId: true },
+    661 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/interviews.service.ts:664:40[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    662 |     if (!candidate) throw new NotFoundException('Không tìm thấy ứng viên');
+    663 |
+  > 664 |     const sessions = await this.prisma.interviewSession.findMany({
+        |                                        ^^^^^^^^^^^^^^^^
+    665 |       where: { candidateId: candidate.candidateId },
+    666 |       select: {
+    667 |         sessionId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/dto/start-session.dto.ts:1:33[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { DifficultyLevel } from '@ats-platform/database';
+      |                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+    3 |
+    4 | export class StartSessionDto {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-generation.processor.ts:7:50[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     5 | import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+     6 | import { SocketIoService } from '../../../common/socket-io/socket-io.service';
+  >  7 | import { InterviewStatus, DifficultyLevel } from '@ats-platform/database';
+       |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^
+     8 |
+     9 | export interface GenerateQuestionsJobData {
+    10 |     sessionId: string;
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-generation.processor.ts:53:31[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    51 |             }
+    52 |
+  > 53 |             await this.prisma.$transaction(async (tx) => {
+       |                               ^^^^^^^^^^^^
+    54 |                 const qnaData = aiResult.slice(0, 10).map((q: any, index: number) => ({
+    55 |                     sessionId,
+    56 |                     orderIndex: index + 1,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-generation.processor.ts:85:31[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    83 |
+    84 |             // Hết lượt retry — đánh dấu session hủy, báo client qua socket
+  > 85 |             await this.prisma.interviewSession.update({
+       |                               ^^^^^^^^^^^^^^^^
+    86 |                 where: { sessionId },
+    87 |                 data: { status: InterviewStatus.abandon },
+    88 |             }).catch((updateErr) => {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:14:33[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    12 | import { Queue } from 'bullmq';
+    13 | import Redis from 'ioredis';
+  > 14 | import { InterviewStatus } from '@ats-platform/database';
+       |                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    15 | import { SocketIoService } from '../../../common/socket-io/socket-io.service';
+    16 | import { sessionIncludeOptions } from '../../../common/utils/include-options.util';
+    17 | import { EvaluateQnaJobData } from './interview.processor';
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:43:37[39m[22m
+[90mTS2339: [39mProperty 'interviewTopic' does not exist on type 'PrismaService'.
+    41 |
+    42 |   async startSession(userId: string, dto: StartSessionDto) {
+  > 43 |     const topic = await this.prisma.interviewTopic.findUnique({
+       |                                     ^^^^^^^^^^^^^^
+    44 |       where: { topicId: dto.topicId },
+    45 |       include: { category: true },
+    46 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:49:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    47 |     if (!topic) throw new NotFoundException('Không tìm thấy chủ đề phỏng vấn');
+    48 |
+  > 49 |     const candidate = await this.prisma.candidate.findUnique({
+       |                                         ^^^^^^^^^
+    50 |       where: { userId },
+    51 |       select: { candidateId: true },
+    52 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:56:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    54 |       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    55 |
+  > 56 |     const session = await this.prisma.interviewSession.create({
+       |                                       ^^^^^^^^^^^^^^^^
+    57 |       data: {
+    58 |         candidateId: candidate.candidateId,
+    59 |         topicId: dto.topicId,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:84:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    82 |     sessionId: string,
+    83 |   ): Promise<boolean> {
+  > 84 |     const candidate = await this.prisma.candidate.findUnique({
+       |                                         ^^^^^^^^^
+    85 |       where: { userId },
+    86 |       select: { candidateId: true },
+    87 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:89:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    87 |     });
+    88 |
+  > 89 |     const session = await this.prisma.interviewSession.findUnique({
+       |                                       ^^^^^^^^^^^^^^^^
+    90 |       where: { sessionId },
+    91 |       select: { candidateId: true },
+    92 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:100:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+     98 |
+     99 |   async getSessionStatus(sessionId: string): Promise<InterviewStatus | null> {
+  > 100 |     const session = await this.prisma.interviewSession.findUnique({
+        |                                       ^^^^^^^^^^^^^^^^
+    101 |       where: { sessionId },
+    102 |       select: { status: true },
+    103 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:109:35[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    107 |
+    108 |   async getCurrentQuestion(sessionId: string) {
+  > 109 |     const qna = await this.prisma.interviewQnA.findFirst({
+        |                                   ^^^^^^^^^^^^
+    110 |       where: {
+    111 |         sessionId,
+    112 |         OR: [
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:134:35[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    132 |
+    133 |   async submitAnswer(sessionId: string, qnaId: string, answerText: string) {
+  > 134 |     const qna = await this.prisma.interviewQnA.findUnique({
+        |                                   ^^^^^^^^^^^^
+    135 |       where: { qnaId },
+    136 |     });
+    137 |     if (!qna) throw new NotFoundException('Không tìm thấy câu hỏi phỏng vấn');
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:147:23[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    145 |     await this.touchActivity(sessionId);
+    146 |
+  > 147 |     await this.prisma.interviewQnA.update({
+        |                       ^^^^^^^^^^^^
+    148 |       where: { qnaId },
+    149 |       data: { answerText },
+    150 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:164:25[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    162 |
+    163 |     if (followupResult.hasFollowup && followupResult.followupQuestion) {
+  > 164 |       await this.prisma.interviewQnA.update({
+        |                         ^^^^^^^^^^^^
+    165 |         where: { qnaId },
+    166 |         data: {
+    167 |           hasFollowup: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:196:35[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    194 |     followupAnswer: string,
+    195 |   ) {
+  > 196 |     const qna = await this.prisma.interviewQnA.findUnique({
+        |                                   ^^^^^^^^^^^^
+    197 |       where: { qnaId },
+    198 |     });
+    199 |     if (!qna) throw new NotFoundException('Không tìm thấy câu hỏi phỏng vấn');
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:209:23[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    207 |     await this.touchActivity(sessionId);
+    208 |
+  > 209 |     await this.prisma.interviewQnA.update({
+        |                       ^^^^^^^^^^^^
+    210 |       where: { qnaId },
+    211 |       data: { followupAnswer },
+    212 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:224:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    222 |
+    223 |   async endSession(sessionId: string) {
+  > 224 |     const session = await this.prisma.interviewSession.findUnique({
+        |                                       ^^^^^^^^^^^^^^^^
+    225 |       where: { sessionId },
+    226 |       include: {
+    227 |         topic: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:237:46[39m[22m
+[90mTS2339: [39mProperty 'interviewResult' does not exist on type 'PrismaService'.
+    235 |     if (!session) throw new NotFoundException('Không tìm thấy phiên phỏng vấn');
+    236 |
+  > 237 |     const existingResult = await this.prisma.interviewResult.findUnique({
+        |                                              ^^^^^^^^^^^^^^^
+    238 |       where: { sessionId },
+    239 |     });
+    240 |     if (existingResult) return existingResult;
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:242:39[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    240 |     if (existingResult) return existingResult;
+    241 |
+  > 242 |     const allQnAs = await this.prisma.interviewQnA.findMany({
+        |                                       ^^^^^^^^^^^^
+    243 |       where: { sessionId },
+    244 |       orderBy: { orderIndex: 'asc' },
+    245 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:253:25[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    251 |
+    252 |     if (hasPendingEvaluation) {
+  > 253 |       await this.prisma.interviewSession.update({
+        |                         ^^^^^^^^^^^^^^^^
+    254 |         where: { sessionId },
+    255 |         data: { status: InterviewStatus.pending_result },
+    256 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:313:38[39m[22m
+[90mTS2339: [39mProperty 'interviewResult' does not exist on type 'PrismaService'.
+    311 |     );
+    312 |
+  > 313 |     const result = await this.prisma.interviewResult.upsert({
+        |                                      ^^^^^^^^^^^^^^^
+    314 |       where: { sessionId },
+    315 |       update: {
+    316 |         overallScore: aiResult.overallScore,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:330:23[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    328 |     });
+    329 |
+  > 330 |     await this.prisma.interviewSession.update({
+        |                       ^^^^^^^^^^^^^^^^
+    331 |       where: { sessionId },
+    332 |       data: { status: InterviewStatus.completed },
+    333 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:356:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    354 |
+    355 |   async resumeSession(userId: string) {
+  > 356 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    357 |       where: { userId },
+    358 |       select: { candidateId: true },
+    359 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:362:45[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    360 |     if (!candidate) return null;
+    361 |
+  > 362 |     const activeSession = await this.prisma.interviewSession.findFirst({
+        |                                             ^^^^^^^^^^^^^^^^
+    363 |       where: {
+    364 |         candidateId: candidate.candidateId,
+    365 |         status: InterviewStatus.in_progress,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:383:41[39m[22m
+[90mTS2339: [39mProperty 'candidate' does not exist on type 'PrismaService'.
+    381 |
+    382 |   async abandonSession(sessionId: string, userId: string) {
+  > 383 |     const candidate = await this.prisma.candidate.findUnique({
+        |                                         ^^^^^^^^^
+    384 |       where: { userId },
+    385 |       select: { candidateId: true },
+    386 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:390:39[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    388 |       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
+    389 |
+  > 390 |     const session = await this.prisma.interviewSession.findUnique({
+        |                                       ^^^^^^^^^^^^^^^^
+    391 |       where: { sessionId },
+    392 |       select: { sessionId: true, candidateId: true, status: true },
+    393 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:411:46[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    409 |     }
+    410 |
+  > 411 |     const updatedSession = await this.prisma.interviewSession.update({
+        |                                              ^^^^^^^^^^^^^^^^
+    412 |       where: { sessionId },
+    413 |       data: { status: InterviewStatus.abandon },
+    414 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:449:42[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    447 |     const staleBefore = Date.now() - INACTIVITY_GRACE_MS;
+    448 |
+  > 449 |     const candidates = await this.prisma.interviewSession.findMany({
+        |                                          ^^^^^^^^^^^^^^^^
+    450 |       where: {
+    451 |         status: {
+    452 |           in: [InterviewStatus.in_progress, InterviewStatus.generating],
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview-session.service.ts:474:41[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    472 |       // Guarded update: the status must still be sweepable at write time, otherwise
+    473 |       // a session the candidate finished a moment ago would be clobbered.
+  > 474 |       const updated = await this.prisma.interviewSession.updateMany({
+        |                                         ^^^^^^^^^^^^^^^^
+    475 |         where: {
+    476 |           sessionId: session.sessionId,
+    477 |           status: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.gateway.ts:10:33[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     8 | import { Socket } from 'socket.io';
+     9 | import { InterviewSessionService } from './interview-session.service';
+  > 10 | import { InterviewStatus } from '@ats-platform/database';
+       |                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    11 |
+    12 | const NODE_ENV = process.env.NODE_ENV || 'development';
+    13 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:6:33[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    4 | import { PrismaService } from '../../../common/prisma/prisma.service';
+    5 | import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+  > 6 | import { InterviewStatus } from '@ats-platform/database';
+      |                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    7 | import { InterviewSessionService } from './interview-session.service';
+    8 |
+    9 | export interface EvaluateQnaJobData {
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:35:47[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    33 |             try {
+    34 |                 // 1. Lấy thông tin câu hỏi + câu trả lời từ DB
+  > 35 |                 const qna = await this.prisma.interviewQnA.findUnique({
+       |                                               ^^^^^^^^^^^^
+    36 |                     where: { qnaId },
+    37 |                 });
+    38 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:62:35[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    60 |                 // coveredPoints: các expected points mà ứng viên đã đề cập đúng
+    61 |                 // missedPoints: các expected points mà ứng viên chưa nói tới
+  > 62 |                 await this.prisma.interviewQnA.update({
+       |                                   ^^^^^^^^^^^^
+    63 |                     where: { qnaId },
+    64 |                     data: {
+    65 |                         correctnessScore: aiResult.score,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:90:35[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    88 |
+    89 |                 // Ghi lỗi vào feedback để endSession biết câu này bị lỗi chấm
+  > 90 |                 await this.prisma.interviewQnA.update({
+       |                                   ^^^^^^^^^^^^
+    91 |                     where: { qnaId },
+    92 |                     data: {
+    93 |                         feedback: `[ERROR] Chấm điểm thất bại: ${error.message}`,
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:97:47[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+     95 |                 });
+     96 |
+  >  97 |                 const qna = await this.prisma.interviewQnA.findUnique({
+        |                                               ^^^^^^^^^^^^
+     98 |                     where: { qnaId },
+     99 |                     select: { sessionId: true },
+    100 |                 });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:113:43[39m[22m
+[90mTS2339: [39mProperty 'interviewSession' does not exist on type 'PrismaService'.
+    111 |
+    112 |     private async finalizePendingSessionIfReady(sessionId: string) {
+  > 113 |         const session = await this.prisma.interviewSession.findUnique({
+        |                                           ^^^^^^^^^^^^^^^^
+    114 |             where: { sessionId },
+    115 |             select: { status: true },
+    116 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/interviews/session/interview.processor.ts:120:45[39m[22m
+[90mTS2339: [39mProperty 'interviewQnA' does not exist on type 'PrismaService'.
+    118 |         if (session?.status !== InterviewStatus.pending_result) return;
+    119 |
+  > 120 |         const remaining = await this.prisma.interviewQnA.count({
+        |                                             ^^^^^^^^^^^^
+    121 |             where: {
+    122 |                 sessionId,
+    123 |                 correctnessScore: null,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/dtos/job-categories.dto.ts:3:30[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+    2 | import { ApiProperty, PartialType } from '@nestjs/swagger';
+  > 3 | import { IJobCategory } from '@ats-platform/types';
+      |                              ^^^^^^^^^^^^^^^^^^^^^
+    4 |
+    5 | export class CreateJobCategoryDto implements IJobCategory {
+    6 | 	@ApiProperty({ example: 'Software Development', description: 'The name of the job category' })
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.controller.ts:16:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    14 | import { RolesGuard } from '../../common/guards/roles.guard';
+    15 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 16 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    17 | import {
+    18 |   CreateJobCategoryDto,
+    19 |   JobCategoryDto,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:19:28[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    17 | 		await this.ensureParentExists(createJobCategoryDto.parentCategoryId);
+    18 |
+  > 19 | 		return await this.prisma.jobCategory.create({
+       | 		                         ^^^^^^^^^^^
+    20 | 			data: {
+    21 | 				name: createJobCategoryDto.name,
+    22 | 				parentCategoryId: createJobCategoryDto.parentCategoryId,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:32:28[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    30 |
+    31 | 	async findAll() {
+  > 32 | 		return await this.prisma.jobCategory.findMany({
+       | 		                         ^^^^^^^^^^^
+    33 | 			include: {
+    34 | 				parentCategory: true,
+    35 | 				childCategories: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:43:38[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    41 |
+    42 | 	async findOne(id: string) {
+  > 43 | 		const category = await this.prisma.jobCategory.findUnique({
+       | 		                                   ^^^^^^^^^^^
+    44 | 			where: { categoryId: id },
+    45 | 			include: {
+    46 | 				parentCategory: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:59:46[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    57 |
+    58 | 	async update(id: string, updateJobCategoryDto: UpdateJobCategoryDto) {
+  > 59 | 		const existingCategory = await this.prisma.jobCategory.findUnique({
+       | 		                                           ^^^^^^^^^^^
+    60 | 			where: { categoryId: id },
+    61 | 		});
+    62 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:76:28[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    74 | 		}
+    75 |
+  > 76 | 		return await this.prisma.jobCategory.update({
+       | 		                         ^^^^^^^^^^^
+    77 | 			where: { categoryId: id },
+    78 | 			data: {
+    79 | 				name: updateJobCategoryDto.name,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:90:46[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    88 |
+    89 | 	async remove(id: string) {
+  > 90 | 		const existingCategory = await this.prisma.jobCategory.findUnique({
+       | 		                                           ^^^^^^^^^^^
+    91 | 			where: { categoryId: id },
+    92 | 			include: {
+    93 | 				childCategories: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:109:28[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    107 | 		}
+    108 |
+  > 109 | 		return await this.prisma.jobCategory.delete({
+        | 		                         ^^^^^^^^^^^
+    110 | 			where: { categoryId: id },
+    111 | 		});
+    112 | 	}
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:119:36[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    117 | 		}
+    118 |
+  > 119 | 		const parent = await this.prisma.jobCategory.findUnique({
+        | 		                                 ^^^^^^^^^^^
+    120 | 			where: { categoryId: parentCategoryId },
+    121 | 			select: { categoryId: true },
+    122 | 		});
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-categories/job-categories.service.ts:141:38[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    139 | 			}
+    140 |
+  > 141 | 			const current = await this.prisma.jobCategory.findUnique({
+        | 			                                  ^^^^^^^^^^^
+    142 | 				where: { categoryId: currentParentId },
+    143 | 				select: { parentCategoryId: true },
+    144 | 			});
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/dto/job-posting.dto.ts:1:41[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { JobStatus, LocationType } from '@ats-platform/database';
+      |                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+    3 | import { IJobPostingSkills, ISkill } from '@ats-platform/types'
+    4 | import {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/dto/job-posting.dto.ts:3:43[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { JobStatus, LocationType } from '@ats-platform/database';
+    2 | import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+  > 3 | import { IJobPostingSkills, ISkill } from '@ats-platform/types'
+      |                                           ^^^^^^^^^^^^^^^^^^^^^
+    4 | import {
+    5 | 	ArrayMaxSize,
+    6 | 	IsArray,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-posting-filters.ts:1:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { Prisma } from '@ats-platform/database';
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 |
+    3 | /**
+    4 |  * Where-conditions for the salary and skill filters of the job board, to be joined
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-posting-skills/job-posting-skills.service.ts:3:43[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { Injectable } from "@nestjs/common";
+    2 | import { PrismaService } from "../../../common/prisma/prisma.service";
+  > 3 | import { IJobPostingSkills, ISkill } from "@ats-platform/types";
+      |                                           ^^^^^^^^^^^^^^^^^^^^^
+    4 | import { Prisma } from "@ats-platform/database";
+    5 |
+    6 | @Injectable()
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-posting-skills/job-posting-skills.service.ts:4:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { PrismaService } from "../../../common/prisma/prisma.service";
+    3 | import { IJobPostingSkills, ISkill } from "@ats-platform/types";
+  > 4 | import { Prisma } from "@ats-platform/database";
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 |
+    6 | @Injectable()
+    7 | export class JobPostingSkillsService {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.controller.ts:29:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    27 | import { RolesGuard } from '../../common/guards/roles.guard';
+    28 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 29 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    30 | import { OwnershipGuard } from '../../common/guards/resources.guard';
+    31 | import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt.guard';
+    32 | import { Request } from 'express';
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:7:57[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     5 |   NotFoundException,
+     6 | } from '@nestjs/common';
+  >  7 | import { JobStatus, Prisma, UserRole, UserStatus } from '@ats-platform/database';
+       |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { PrismaService } from '../../common/prisma/prisma.service';
+     9 | import {
+    10 |   CreateJobPostingDto,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:74:42[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    72 |     if (manager && !createJobPostingDto.createdBy) throw new BadRequestException('Vui lòng chọn recruiter phụ trách');
+    73 |     if (createJobPostingDto.categoryId) {
+  > 74 |       const category = await this.prisma.jobCategory.findUnique({
+       |                                          ^^^^^^^^^^^
+    75 |         where: { categoryId: createJobPostingDto.categoryId },
+    76 |         select: { categoryId: true },
+    77 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:86:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    84 |     }
+    85 |
+  > 86 |     const recruiter = await this.prisma.recruiter.findUnique({
+       |                                         ^^^^^^^^^
+    87 |       where: manager ? { recruiterId: createJobPostingDto.createdBy } : { userId: caller.userId },
+    88 |       select: { recruiterId: true, departmentId: true, organizationId: true, user: { select: { role: true, status: true } } },
+    89 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:106:42[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    104 |     }
+    105 |
+  > 106 |     const department = await this.prisma.department.findUnique({
+        |                                          ^^^^^^^^^^
+    107 |       where: { departmentId: recruiter.departmentId },
+    108 |       select: { departmentId: true, organizationId: true },
+    109 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:132:30[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    130 |     );
+    131 |
+  > 132 |     return await this.prisma.$transaction(async (tx) => {
+        |                              ^^^^^^^^^^^^
+    133 |       const newJobPosting = await tx.jobPosting.create({
+    134 |         data: {
+    135 |           // The posting belongs to the organization that owns the recruiter's department.
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:231:46[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    229 |     };
+    230 |
+  > 231 |     const [items, total] = await this.prisma.$transaction([
+        |                                              ^^^^^^^^^^^^
+    232 |       this.prisma.jobPosting.findMany({
+    233 |         where,
+    234 |         include: jobPostingIncludeFor(viewer),
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:232:19[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    230 |
+    231 |     const [items, total] = await this.prisma.$transaction([
+  > 232 |       this.prisma.jobPosting.findMany({
+        |                   ^^^^^^^^^^
+    233 |         where,
+    234 |         include: jobPostingIncludeFor(viewer),
+    235 |         omit: { createdBy: true, departmentId: true, categoryId: true },
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:240:19[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    238 |         take: limit,
+    239 |       }),
+  > 240 |       this.prisma.jobPosting.count({ where }),
+        |                   ^^^^^^^^^^
+    241 |     ]);
+    242 |
+    243 |     return {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:255:38[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    253 |    */
+    254 |   async getFilterOptions() {
+  > 255 |     const skills = await this.prisma.skill.findMany({
+        |                                      ^^^^^
+    256 |       where: {
+    257 |         jobPostingSkills: {
+    258 |           some: { jobPosting: { status: JobStatus.active } },
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:268:42[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    266 |
+    267 |   async findOne(id: string, viewer?: TenantCaller) {
+  > 268 |     const jobPosting = await this.prisma.jobPosting.findUnique({
+        |                                          ^^^^^^^^^^
+    269 |       where: { jobId: id },
+    270 |       include: jobPostingIncludeFor(viewer),
+    271 |       omit: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:299:50[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    297 |
+    298 |   async update(id: string, updateJobPostingDto: UpdateJobPostingDto) {
+  > 299 |     const existingJobPosting = await this.prisma.jobPosting.findUnique({
+        |                                                  ^^^^^^^^^^
+    300 |       where: { jobId: id },
+    301 |       select: {
+    302 |         jobId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:332:30[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    330 |         : undefined;
+    331 |
+  > 332 |     return await this.prisma.$transaction(async (tx) => {
+        |                              ^^^^^^^^^^^^
+    333 |       const updatedJobPosting = await tx.jobPosting.update({
+    334 |         where: { jobId: id },
+    335 |         data: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:391:50[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    389 |
+    390 |   async remove(id: string) {
+  > 391 |     const existingJobPosting = await this.prisma.jobPosting.findUnique({
+        |                                                  ^^^^^^^^^^
+    392 |       where: { jobId: id },
+    393 |       select: { jobId: true },
+    394 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:400:30[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    398 |     }
+    399 |
+  > 400 |     return await this.prisma.jobPosting.delete({
+        |                              ^^^^^^^^^^
+    401 |       where: { jobId: id },
+    402 |       include: jobPostingIncludeOptions,
+    403 |       omit: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:413:42[39m[22m
+[90mTS2339: [39mProperty 'jobCategory' does not exist on type 'PrismaService'.
+    411 |   private async ensureRelationsExist(updateJobPostingDto: UpdateJobPostingDto) {
+    412 |     if (updateJobPostingDto.categoryId) {
+  > 413 |       const category = await this.prisma.jobCategory.findUnique({
+        |                                          ^^^^^^^^^^^
+    414 |         where: { categoryId: updateJobPostingDto.categoryId },
+    415 |         select: { categoryId: true },
+    416 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/job-postings/job-postings.service.ts:444:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    442 |     if (!nextRecruiterId) return undefined;
+    443 |
+  > 444 |     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                         ^^^^^^^^^
+    445 |       where: { recruiterId: nextRecruiterId },
+    446 |       select: { departmentId: true, organizationId: true },
+    447 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/dto/create-notification.dto.ts:1:53[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { NotificationType, RelatedEntityType } from '@ats-platform/database';
+      |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+    3 |
+    4 | export class CreateNotificationDto {
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.controller.ts:18:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    16 | import { RolesGuard } from '../../common/guards/roles.guard';
+    17 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 18 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    19 |
+    20 | @ApiTags('Thông báo')
+    21 | @ApiBearerAuth()
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:15:48[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    13 |
+    14 |     async create(dto: CreateNotificationDto) {
+  > 15 |         const notification = await this.prisma.notification.create({
+       |                                                ^^^^^^^^^^^^
+    16 |             data: {
+    17 |                 userId: dto.userId,
+    18 |                 type: dto.type,
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:41:25[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    39 |
+    40 |         const [notifications, total] = await Promise.all([
+  > 41 |             this.prisma.notification.findMany({
+       |                         ^^^^^^^^^^^^
+    42 |                 where,
+    43 |                 orderBy: { createdAt: 'desc' },
+    44 |                 skip,
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:47:25[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    45 |                 take: limit,
+    46 |             }),
+  > 47 |             this.prisma.notification.count({ where }),
+       |                         ^^^^^^^^^^^^
+    48 |         ]);
+    49 |
+    50 |         return {
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:61:41[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    59 |     }
+    60 |     async getUnreadCount(userId: string) {
+  > 61 |         const count = await this.prisma.notification.count({
+       |                                         ^^^^^^^^^^^^
+    62 |             where: { userId, isRead: false },
+    63 |         });
+    64 |         return { unreadCount: count };
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:67:48[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    65 |     }
+    66 |     async markAsRead(notificationId: string, userId: string) {
+  > 67 |         const notification = await this.prisma.notification.findUnique({
+       |                                                ^^^^^^^^^^^^
+    68 |             where: { notificationId },
+    69 |         });
+    70 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:74:28[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    72 |         if (notification.userId !== userId) throw new NotFoundException('Không tìm thấy thông báo');
+    73 |
+  > 74 |         return this.prisma.notification.update({
+       |                            ^^^^^^^^^^^^
+    75 |             where: { notificationId },
+    76 |             data: { isRead: true },
+    77 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:80:42[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    78 |     }
+    79 |     async markAllAsRead(userId: string) {
+  > 80 |         const result = await this.prisma.notification.updateMany({
+       |                                          ^^^^^^^^^^^^
+    81 |             where: { userId, isRead: false },
+    82 |             data: { isRead: true },
+    83 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:87:48[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    85 |     }
+    86 |     async remove(notificationId: string, userId: string) {
+  > 87 |         const notification = await this.prisma.notification.findUnique({
+       |                                                ^^^^^^^^^^^^
+    88 |             where: { notificationId },
+    89 |         });
+    90 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/notifications/notifications.service.ts:94:28[39m[22m
+[90mTS2339: [39mProperty 'notification' does not exist on type 'PrismaService'.
+    92 |         if (notification.userId !== userId) throw new NotFoundException('Không tìm thấy thông báo');
+    93 |
+  > 94 |         return this.prisma.notification.delete({
+       |                            ^^^^^^^^^^^^
+    95 |             where: { notificationId },
+    96 |         });
+    97 |     }
+
+[1m[31mERROR[39m[22m in [1m./src/app/organizations/organizations.controller.ts:9:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+     7 | } from '@nestjs/swagger';
+     8 | import { AuthGuard } from '@nestjs/passport';
+  >  9 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    10 | import { RolesGuard } from '../../common/guards/roles.guard';
+    11 | import { Roles } from '../../common/decorators/roles.decorator';
+    12 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+
+[1m[31mERROR[39m[22m in [1m./src/app/organizations/organizations.service.ts:39:32[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    37 |   async create(dto: CreateOrganizationDto) {
+    38 |     try {
+  > 39 |       return await this.prisma.$transaction(async (tx) => {
+       |                                ^^^^^^^^^^^^
+    40 |         const organization = await tx.organization.create({
+    41 |           data: { name: dto.name.trim(), slug: dto.slug },
+    42 |         });
+
+[1m[31mERROR[39m[22m in [1m./src/app/organizations/organizations.service.ts:66:24[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    64 |
+    65 |   async findAll() {
+  > 66 |     return this.prisma.organization.findMany({
+       |                        ^^^^^^^^^^^^
+    67 |       orderBy: { createdAt: 'asc' },
+    68 |       select: organizationSummary,
+    69 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/organizations/organizations.service.ts:73:44[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    71 |
+    72 |   async findOne(organizationId: string) {
+  > 73 |     const organization = await this.prisma.organization.findUnique({
+       |                                            ^^^^^^^^^^^^
+    74 |       where: { organizationId },
+    75 |       select: organizationSummary,
+    76 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/dtos/recruiters.dto.ts:2:28[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { ApiProperty, PartialType } from '@nestjs/swagger';
+  > 2 | import { IRecruiter } from '@ats-platform/types';
+      |                            ^^^^^^^^^^^^^^^^^^^^^
+    3 | import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, IsUUID, MinLength } from 'class-validator';
+    4 | import { Recruiter } from '@ats-platform/database';
+    5 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/dtos/recruiters.dto.ts:4:27[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { IRecruiter } from '@ats-platform/types';
+    3 | import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, IsUUID, MinLength } from 'class-validator';
+  > 4 | import { Recruiter } from '@ats-platform/database';
+      |                           ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 |
+    6 | export class CreateRecruiterDto implements IRecruiter {
+    7 | 	@ApiProperty({
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.controller.ts:17:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    15 | import { RolesGuard } from '../../common/guards/roles.guard';
+    16 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 17 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    18 | import { CreateRecruiterAccountDto, CreateRecruiterDto, RecruiterDto, UpdateMyRecruiterDto, UpdateRecruiterDto } from './dtos/recruiters.dto';
+    19 | import { Request } from 'express';
+    20 | import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:15:38[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    13 | import { PrismaService } from '../../common/prisma/prisma.service';
+    14 | import { recruiterIncludeOptions } from '../../common/utils/include-options.util';
+  > 15 | import { UserRole, UserStatus } from '@ats-platform/database';
+       |                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    16 | import * as bcrypt from 'bcrypt';
+    17 | import { SocketIoService } from '../../common/socket-io/socket-io.service';
+    18 | import {
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:31:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    29 |
+    30 |   private async ensureUserExists(userId: string) {
+  > 31 |     const user = await this.prisma.user.findUnique({
+       |                                    ^^^^
+    32 |       where: { userId },
+    33 |       select: { userId: true, role: true, status: true },
+    34 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:53:42[39m[22m
+[90mTS2339: [39mProperty 'department' does not exist on type 'PrismaService'.
+    51 |     departmentId: string,
+    52 |   ): Promise<string> {
+  > 53 |     const department = await this.prisma.department.findUnique({
+       |                                          ^^^^^^^^^^
+    54 |       where: { departmentId },
+    55 |       select: { organizationId: true },
+    56 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:67:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    65 |   /** A recruiter the caller may see — anyone else's is reported as not found. */
+    66 |   private async findVisibleOrThrow(id: string, caller: TenantCaller) {
+  > 67 |     const recruiter = await this.prisma.recruiter.findFirst({
+       |                                         ^^^^^^^^^
+    68 |       where: { recruiterId: id, ...organizationScope(caller) },
+    69 |       include: { _count: { select: { jobPostings: true } } },
+    70 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:87:49[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    85 |     );
+    86 |
+  > 87 |     const existingRecruiter = await this.prisma.recruiter.findUnique({
+       |                                                 ^^^^^^^^^
+    88 |       where: {
+    89 |         userId: createRecruiterDto.userId,
+    90 |       },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:99:30[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+     97 |     }
+     98 |
+  >  99 |     return await this.prisma.recruiter.create({
+        |                              ^^^^^^^^^
+    100 |       data: {
+    101 |         userId: createRecruiterDto.userId,
+    102 |         // A recruiter belongs to the organization that owns its department.
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:119:27[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    117 |     const organizationId = await this.resolveDepartmentOrganization(caller, dto.departmentId);
+    118 |     const email = dto.email.trim().toLowerCase();
+  > 119 |     if (await this.prisma.user.findUnique({ where: { email }, select: { userId: true } })) {
+        |                           ^^^^
+    120 |       throw new BadRequestException('Email đã tồn tại');
+    121 |     }
+    122 |     const passwordHash = await bcrypt.hash(dto.password, 10);
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:124:32[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    122 |     const passwordHash = await bcrypt.hash(dto.password, 10);
+    123 |     try {
+  > 124 |       return await this.prisma.$transaction(async tx => {
+        |                                ^^^^^^^^^^^^
+    125 |         const user = await tx.user.create({ data: { fullName: dto.fullName, email, passwordHash, role: UserRole.recruiter, status: UserStatus.active, emailVerified: true } });
+    126 |         return tx.recruiter.create({
+    127 |           data: { userId: user.userId, organizationId, departmentId: dto.departmentId, position: dto.position },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:139:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    137 |
+    138 |   async getMe(userId: string) {
+  > 139 |     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                         ^^^^^^^^^
+    140 |       where: { userId },
+    141 |       include: { ...recruiterIncludeOptions },
+    142 |       omit: { userId: true, departmentId: true },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:153:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    151 |
+    152 |   async updateMe(userId: string, updateDto: UpdateMyRecruiterDto) {
+  > 153 |     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                         ^^^^^^^^^
+    154 |       where: { userId },
+    155 |     });
+    156 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:161:30[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    159 |     }
+    160 |
+  > 161 |     return await this.prisma.recruiter.update({
+        |                              ^^^^^^^^^
+    162 |       where: { recruiterId: recruiter.recruiterId },
+    163 |       data: { position: updateDto.position },
+    164 |       include: { ...recruiterIncludeOptions },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:174:30[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    172 |    */
+    173 |   async findAll(caller: TenantCaller) {
+  > 174 |     return await this.prisma.recruiter.findMany({
+        |                              ^^^^^^^^^
+    175 |       where: organizationScope(caller),
+    176 |       include: { ...recruiterIncludeOptions },
+    177 |       omit: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:185:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    183 |
+    184 |   async findOne(id: string, caller: TenantCaller) {
+  > 185 |     const recruiter = await this.prisma.recruiter.findFirst({
+        |                                         ^^^^^^^^^
+    186 |       where: { recruiterId: id, ...organizationScope(caller) },
+    187 |       omit: {
+    188 |         userId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:229:46[39m[22m
+[90mTS2344: [39mType '"recruiter"' does not satisfy the constraint 'keyof PrismaService'.
+    227 |     }
+    228 |
+  > 229 |     const persist = (tx: Pick<PrismaService, 'recruiter'>) => tx.recruiter.update({
+        |                                              ^^^^^^^^^^^
+    230 |       where: {
+    231 |         recruiterId: id,
+    232 |       },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:229:76[39m[22m
+[90mTS2339: [39mProperty 'update' does not exist on type 'unknown'.
+    227 |     }
+    228 |
+  > 229 |     const persist = (tx: Pick<PrismaService, 'recruiter'>) => tx.recruiter.update({
+        |                                                                            ^^^^^^
+    230 |       where: {
+    231 |         recruiterId: id,
+    232 |       },
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:245:55[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    243 |       },
+    244 |     });
+  > 245 |     const updated = accessChanged ? await this.prisma.$transaction(async tx => {
+        |                                                       ^^^^^^^^^^^^
+    246 |       const result = await persist(tx);
+    247 |       await tx.refreshToken.updateMany({ where: { userId: current.userId, revoked: false }, data: { revoked: true } });
+    248 |       return result;
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:249:24[39m[22m
+[90mTS2345: [39mArgument of type 'PrismaService' is not assignable to parameter of type 'Pick<PrismaService, "recruiter">'.
+  Property 'recruiter' is missing in type 'PrismaService' but required in type 'Pick<PrismaService, "recruiter">'.
+    247 |       await tx.refreshToken.updateMany({ where: { userId: current.userId, revoked: false }, data: { revoked: true } });
+    248 |       return result;
+  > 249 |     }) : await persist(this.prisma);
+        |                        ^^^^^^^^^^^
+    250 |     if (accessChanged) this.sockets.disconnectUser(current.userId);
+    251 |     return updated;
+    252 |   }
+
+[1m[31mERROR[39m[22m in [1m./src/app/recruiters/recruiters.service.ts:265:39[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    263 |     }
+    264 |
+  > 265 |     const deleted = await this.prisma.$transaction(async tx => {
+        |                                       ^^^^^^^^^^^^
+    266 |       const result = await tx.recruiter.delete({
+    267 |       where: {
+    268 |         recruiterId: id,
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/dtos/skills.dto.ts:3:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+    2 | import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+  > 3 | import { ISkill } from '@ats-platform/types';
+      |                        ^^^^^^^^^^^^^^^^^^^^^
+    4 | import { Skill } from '@ats-platform/database';
+    5 |
+    6 | export class CreateSkillDto implements ISkill {
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/dtos/skills.dto.ts:4:23[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    2 | import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+    3 | import { ISkill } from '@ats-platform/types';
+  > 4 | import { Skill } from '@ats-platform/database';
+      |                       ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 |
+    6 | export class CreateSkillDto implements ISkill {
+    7 |   @ApiProperty({
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.controller.ts:17:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    15 | import { RolesGuard } from '../../common/guards/roles.guard';
+    16 | import { Roles } from '../../common/decorators/roles.decorator';
+  > 17 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    18 | import { CreateSkillDto, SkillDto, UpdateSkillDto } from './dtos/skills.dto';
+    19 |
+    20 | @ApiTags('Kỹ năng')
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:17:45[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    15 |     // turned it into an extra AND-filter, so "TypeScript" in a different category
+    16 |     // looked new — the duplicate slipped through and Prisma threw a raw P2002.
+  > 17 |     const existingSkill = await this.prisma.skill.findUnique({
+       |                                             ^^^^^
+    18 |       where: { name: createSkillDto.name },
+    19 |     });
+    20 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:25:30[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    23 |     }
+    24 |
+  > 25 |     return await this.prisma.skill.create({
+       |                              ^^^^^
+    26 |       data: {
+    27 |         name: createSkillDto.name,
+    28 |         category: createSkillDto.category,
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:34:30[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    32 |
+    33 |   async findAll() {
+  > 34 |     return await this.prisma.skill.findMany({
+       |                              ^^^^^
+    35 |       orderBy: {
+    36 |         category: 'asc',
+    37 |       },
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:42:30[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    40 |
+    41 |   async search(name?: string, category?: string) {
+  > 42 |     return await this.prisma.skill.findMany({
+       |                              ^^^^^
+    43 |       where: {
+    44 |         ...(name
+    45 |           ? {
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:65:37[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    63 |
+    64 |   async findOne(id: string) {
+  > 65 |     const skill = await this.prisma.skill.findUnique({
+       |                                     ^^^^^
+    66 |       where: { skillId: id },
+    67 |     });
+    68 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:77:37[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    75 |
+    76 |   async update(id: string, updateSkillDto: UpdateSkillDto) {
+  > 77 |     const skill = await this.prisma.skill.findUnique({
+       |                                     ^^^^^
+    78 |       where: { skillId: id },
+    79 |     });
+    80 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:85:30[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    83 |     }
+    84 |
+  > 85 |     return await this.prisma.skill.update({
+       |                              ^^^^^
+    86 |       where: { skillId: id },
+    87 |       data: {
+    88 |         name: updateSkillDto.name,
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:95:37[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    93 |
+    94 |   async remove(id: string) {
+  > 95 |     const skill = await this.prisma.skill.findUnique({
+       |                                     ^^^^^
+    96 |       where: { skillId: id },
+    97 |       include: { _count: { select: { jobPostingSkills: true } } },
+    98 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/skills/skills.service.ts:112:30[39m[22m
+[90mTS2339: [39mProperty 'skill' does not exist on type 'PrismaService'.
+    110 |     }
+    111 |
+  > 112 |     return await this.prisma.skill.delete({
+        |                              ^^^^^
+    113 |       where: { skillId: id },
+    114 |     });
+    115 |   }
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/dtos/user.dto.ts:2:38[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID } from 'class-validator';
+  > 2 | import { UserRole, UserStatus } from '@ats-platform/database';
+      |                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 | import { IUserDto } from '@ats-platform/types';
+    4 | import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
+    5 | import { User } from '@ats-platform/database';
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/dtos/user.dto.ts:3:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+    1 | import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID } from 'class-validator';
+    2 | import { UserRole, UserStatus } from '@ats-platform/database';
+  > 3 | import { IUserDto } from '@ats-platform/types';
+      |                          ^^^^^^^^^^^^^^^^^^^^^
+    4 | import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
+    5 | import { User } from '@ats-platform/database';
+    6 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/dtos/user.dto.ts:5:22[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    3 | import { IUserDto } from '@ats-platform/types';
+    4 | import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
+  > 5 | import { User } from '@ats-platform/database';
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    6 |
+    7 | export class CreateUserDto implements IUserDto {
+    8 |     @ApiProperty({
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.controller.ts:14:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    12 | import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+    13 | import { UsersService } from './users.service';
+  > 14 | import { UserRole } from '@ats-platform/database';
+       |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    15 | import { Roles } from '../../common/decorators/roles.decorator';
+    16 | import { AuthGuard } from '@nestjs/passport';
+    17 | import { RolesGuard } from '../../common/guards/roles.guard';
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:6:38[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    4 |   NotFoundException,
+    5 | } from '@nestjs/common';
+  > 6 | import { UserRole, UserStatus } from '@ats-platform/database';
+      |                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    7 | import {
+    8 |   ChangePasswordDto,
+    9 |   CreateUserDto,
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:14:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    12 | } from './dtos/user.dto';
+    13 | import { PrismaService } from '../../common/prisma/prisma.service';
+  > 14 | import { Prisma } from '@ats-platform/database';
+       |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+    15 | import * as bcrypt from 'bcrypt';
+    16 | import { SocketIoService } from '../../common/socket-io/socket-io.service';
+    17 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:46:44[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    44 |     }
+    45 |
+  > 46 |     const organization = await this.prisma.organization.findUnique({
+       |                                            ^^^^^^^^^^^^
+    47 |       where: { organizationId },
+    48 |       select: { organizationId: true },
+    49 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:63:44[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    61 |     const passwordHash = bcrypt.hashSync(data.password, 10);
+    62 |
+  > 63 |     const existingUser = await this.prisma.user.findUnique({
+       |                                            ^^^^
+    64 |       where: { email: data.email },
+    65 |     });
+    66 |
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:71:39[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    69 |     }
+    70 |
+  > 71 |     const newUser = await this.prisma.$transaction(async (tx) => {
+       |                                       ^^^^^^^^^^^^
+    72 |       const user = await tx.user.create({
+    73 |         data: {
+    74 |           email: data.email,
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:92:30[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    90 |
+    91 |   async findAll() {
+  > 92 |     return await this.prisma.user.findMany({
+       |                              ^^^^
+    93 |       orderBy: { createdAt: 'desc' },
+    94 |       omit: { passwordHash: true },
+    95 |       include: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:102:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    100 |
+    101 |   async findOne(userId: string) {
+  > 102 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    103 |       where: { userId },
+    104 |       omit: { passwordHash: true },
+    105 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:127:32[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    125 |
+    126 |     try {
+  > 127 |       return await this.prisma.user.update({
+        |                                ^^^^
+    128 |         where: { userId },
+    129 |         data,
+    130 |         omit: { passwordHash: true },
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:141:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    139 |
+    140 |   async changePassword(userId: string, dto: ChangePasswordDto) {
+  > 141 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    142 |       where: { userId },
+    143 |       select: { passwordHash: true },
+    144 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:159:39[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    157 |
+    158 |     const newPasswordHash = bcrypt.hashSync(dto.newPassword, 10);
+  > 159 |     const updated = await this.prisma.$transaction(async tx => {
+        |                                       ^^^^^^^^^^^^
+    160 |       const result = await tx.user.update({
+    161 |         where: { userId }, data: { passwordHash: newPasswordHash }, omit: { passwordHash: true },
+    162 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:184:43[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    182 |     }
+    183 |
+  > 184 |     const currentUser = await this.prisma.user.findUnique({
+        |                                           ^^^^
+    185 |       where: { userId },
+    186 |       select: {
+    187 |         userId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:200:46[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    198 |
+    199 |     if (updateUserDto.email && updateUserDto.email !== currentUser.email) {
+  > 200 |       const existingUser = await this.prisma.user.findUnique({
+        |                                              ^^^^
+    201 |         where: { email: updateUserDto.email },
+    202 |         select: { userId: true },
+    203 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:253:29[39m[22m
+[90mTS2339: [39mProperty '$transaction' does not exist on type 'PrismaService'.
+    251 |       });
+    252 |       const updated = accessChanged
+  > 253 |         ? await this.prisma.$transaction(async tx => {
+        |                             ^^^^^^^^^^^^
+    254 |             const user = await persist(tx);
+    255 |             await tx.refreshToken.updateMany({ where: { userId, revoked: false }, data: { revoked: true } });
+    256 |             return user;
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:281:36[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    279 |     //   ApplicationHistory.changedBy                        (directly on User)
+    280 |     //   InterviewSchedule.scheduledBy / .interviewerId      (directly on User)
+  > 281 |     const user = await this.prisma.user.findUnique({
+        |                                    ^^^^
+    282 |       where: { userId },
+    283 |       select: {
+    284 |         _count: {
+
+[1m[31mERROR[39m[22m in [1m./src/app/users/users.service.ts:335:41[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    333 |
+    334 |     try {
+  > 335 |       const deleted = await this.prisma.user.delete({
+        |                                         ^^^^
+    336 |         where: { userId },
+    337 |         omit: { passwordHash: true },
+    338 |       });
+
+[1m[31mERROR[39m[22m in [1m./src/common/decorators/roles.decorator.ts:2:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { SetMetadata } from "@nestjs/common";
+  > 2 | import { UserRole } from "@ats-platform/database";
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 |
+    4 | export const ROLES_KEY = 'roles';
+    5 |
+
+[1m[31mERROR[39m[22m in [1m./src/common/external-apis/gemini/gemini.service.ts:6:43[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    4 | import { GeminiModel } from '../../types/enums/gemini-model.enum';
+    5 | import { AiUsageLogsService } from '../../../app/ai-usage-logs/ai-usage-logs.service';
+  > 6 | import { AiActionType, AiLogStatus } from '@ats-platform/database';
+      |                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+    7 | import { cvParsingConfig, jdParsingConfig, screeningConfig, mockInterviewGenerateConfig, mockInterviewFollowupConfig, mockInterviewEvaluateConfig, mockInterviewResultConfig } from '../../configs/gemini.config';
+    8 |
+    9 | @Injectable()
+
+[1m[31mERROR[39m[22m in [1m./src/common/filters/global-exception.filter.ts:1:31[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+  > 1 | import { errorResponse } from '@ats-platform/types';
+      |                               ^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |     ExceptionFilter,
+    4 |     Catch,
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:1:45[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { ApplicationStatus, UserRole } from '@ats-platform/database';
+      |                                             ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |     CanActivate,
+    4 |     ExecutionContext,
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:48:54[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    46 |         switch (resource) {
+    47 |             case 'job-posting': {
+  > 48 |                 const jobPosting = await this.prisma.jobPosting.findUnique({
+       |                                                      ^^^^^^^^^^
+    49 |                     where: { jobId: resourceId },
+    50 |                     select: {
+    51 |                         organizationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:78:46[39m[22m
+[90mTS2339: [39mProperty 'cV' does not exist on type 'PrismaService'.
+    76 |
+    77 |             case 'cv': {
+  > 78 |                 const cv = await this.prisma.cV.findUnique({
+       |                                              ^^
+    79 |                     where: { cvId: resourceId },
+    80 |                     select: {
+    81 |                         candidate: { select: { userId: true } },
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:116:57[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    114 |
+    115 |                 if (user.role === UserRole.recruiter) {
+  > 116 |                     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                                         ^^^^^^^^^
+    117 |                         where: { userId },
+    118 |                         select: { departmentId: true },
+    119 |                     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:134:55[39m[22m
+[90mTS2339: [39mProperty 'application' does not exist on type 'PrismaService'.
+    132 |
+    133 |             case 'application': {
+  > 134 |                 const application = await this.prisma.application.findUnique({
+        |                                                       ^^^^^^^^^^^
+    135 |                     where: { applicationId: resourceId },
+    136 |                     select: {
+    137 |                         organizationId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:154:57[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    152 |                     }
+    153 |
+  > 154 |                     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                                         ^^^^^^^^^
+    155 |                         where: { userId },
+    156 |                         select: { departmentId: true },
+    157 |                     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/resources.guard.ts:173:52[39m[22m
+[90mTS2339: [39mProperty 'interviewSchedule' does not exist on type 'PrismaService'.
+    171 |
+    172 |             case 'interview-schedule': {
+  > 173 |                 const schedule = await this.prisma.interviewSchedule.findUnique({
+        |                                                    ^^^^^^^^^^^^^^^^^
+    174 |                     where: { interviewId: resourceId },
+    175 |                     select: { scheduledBy: true },
+    176 |                 });
+
+[1m[31mERROR[39m[22m in [1m./src/common/guards/roles.guard.ts:1:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { UserRole } from '@ats-platform/database';
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+    3 | import { Reflector } from "@nestjs/core";
+    4 | import { ROLES_KEY } from "../decorators/roles.decorator";
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/prisma.service.ts:2:30[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { Injectable, OnModuleInit } from '@nestjs/common';
+  > 2 | import { PrismaClient } from '@ats-platform/database';
+      |                              ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 | import { PrismaPg } from '@prisma/adapter-pg';
+    4 | import { Pool } from 'pg';
+    5 |
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/prisma.service.ts:15:20[39m[22m
+[90mTS2339: [39mProperty '$connect' does not exist on type 'PrismaService'.
+    13 |
+    14 |     async onModuleInit() {
+  > 15 |         await this.$connect();
+       |                    ^^^^^^^^
+    16 |     }
+    17 |
+    18 |     async onModuleDestroy() {
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/prisma.service.ts:19:20[39m[22m
+[90mTS2339: [39mProperty '$disconnect' does not exist on type 'PrismaService'.
+    17 |
+    18 |     async onModuleDestroy() {
+  > 19 |         await this.$disconnect();
+       |                    ^^^^^^^^^^^
+    20 |     }
+    21 | }
+    22 |
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/seed/admin-seed.service.ts:18:42[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    16 |
+    17 |   private async seedAdmin() {
+  > 18 |     const adminCount = await this.prisma.user.count({
+       |                                          ^^^^
+    19 |       where: { role: 'admin' },
+    20 |     });
+    21 |
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/seed/admin-seed.service.ts:31:47[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    29 |     const fullName = process.env.ADMIN_FULL_NAME || 'System Administrator';
+    30 |
+  > 31 |     const existingByEmail = await this.prisma.user.findUnique({
+       |                                               ^^^^
+    32 |       where: { email },
+    33 |       select: { userId: true },
+    34 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/seed/admin-seed.service.ts:45:23[39m[22m
+[90mTS2339: [39mProperty 'user' does not exist on type 'PrismaService'.
+    43 |     const passwordHash = bcrypt.hashSync(password, 10);
+    44 |
+  > 45 |     await this.prisma.user.create({
+       |                       ^^^^
+    46 |       data: {
+    47 |         email,
+    48 |         passwordHash,
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/seed/admin-seed.service.ts:75:59[39m[22m
+[90mTS2339: [39mProperty 'organization' does not exist on type 'PrismaService'.
+    73 |    */
+    74 |   private async seedDefaultAiConfig() {
+  > 75 |     const organizationsWithoutDefault = await this.prisma.organization.findMany({
+       |                                                           ^^^^^^^^^^^^
+    76 |       where: { aiConfigs: { none: { isDefault: true } } },
+    77 |       select: { organizationId: true, name: true },
+    78 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/prisma/seed/admin-seed.service.ts:88:40[39m[22m
+[90mTS2339: [39mProperty 'aiConfig' does not exist on type 'PrismaService'.
+    86 |
+    87 |     for (const organization of organizationsWithoutDefault) {
+  > 88 |       const config = await this.prisma.aiConfig.create({
+       |                                        ^^^^^^^^
+    89 |         data: {
+    90 |           ...defaultAiConfigData(),
+    91 |           organizationId: organization.organizationId,
+
+[1m[31mERROR[39m[22m in [1m./src/common/socket-io/socket-io.service.ts:1:28[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+  > 1 | import { UserStatus } from '@ats-platform/types';
+      |                            ^^^^^^^^^^^^^^^^^^^^^
+    2 | import { Logger } from '@nestjs/common';
+    3 | import {
+    4 |   ConnectedSocket,
+
+[1m[31mERROR[39m[22m in [1m./src/common/socket-io/socket-io.service.ts:76:37[39m[22m
+[90mTS2345: [39mArgument of type 'PrismaService' is not assignable to parameter of type 'Pick<PrismaService, "user">'.
+  Property 'user' is missing in type 'PrismaService' but required in type 'Pick<PrismaService, "user">'.
+    74 |       // Same resolver as JwtStrategy, so HTTP and sockets agree on the organization.
+    75 |       const user = payload?.userId
+  > 76 |         ? await resolveTenantCaller(this.prisma, payload.userId)
+       |                                     ^^^^^^^^^^^
+    77 |         : null;
+    78 |
+    79 |       if (!user || user.status !== UserStatus.active || this.revokedClients.has(client)) {
+
+[1m[31mERROR[39m[22m in [1m./src/common/socket-io/socket-io.service.ts:135:44[39m[22m
+[90mTS2345: [39mArgument of type 'PrismaService' is not assignable to parameter of type 'Pick<PrismaService, "user">'.
+  Property 'user' is missing in type 'PrismaService' but required in type 'Pick<PrismaService, "user">'.
+    133 |     const userId = client.data.user?.userId;
+    134 |     if (!userId || this.revokedClients.has(client)) return false;
+  > 135 |     const user = await resolveTenantCaller(this.prisma, userId);
+        |                                            ^^^^^^^^^^^
+    136 |     if (!user || user.status !== UserStatus.active) {
+    137 |       this.revokedClients.add(client);
+    138 |       client.disconnect(true);
+
+[1m[31mERROR[39m[22m in [1m./src/common/socket-io/socket-io.service.ts:143:35[39m[22m
+[90mTS2339: [39mProperty 'jobPosting' does not exist on type 'PrismaService'.
+    141 |     client.data.user = user;
+    142 |
+  > 143 |     const job = await this.prisma.jobPosting.findUnique({
+        |                                   ^^^^^^^^^^
+    144 |       where: { jobId },
+    145 |       select: { departmentId: true, organizationId: true },
+    146 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/socket-io/socket-io.service.ts:162:41[39m[22m
+[90mTS2339: [39mProperty 'recruiter' does not exist on type 'PrismaService'.
+    160 |
+    161 |     // A recruiter inside the right organization still needs the job's department.
+  > 162 |     const recruiter = await this.prisma.recruiter.findUnique({
+        |                                         ^^^^^^^^^
+    163 |       where: { userId: user.userId },
+    164 |       select: { departmentId: true },
+    165 |     });
+
+[1m[31mERROR[39m[22m in [1m./src/common/tenancy/resolve-tenant-caller.ts:1:38[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { UserRole, UserStatus } from '@ats-platform/database';
+      |                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import { PrismaService } from '../prisma/prisma.service';
+    3 | import { TenantCaller } from './tenant-caller';
+    4 |
+
+[1m[31mERROR[39m[22m in [1m./src/common/tenancy/resolve-tenant-caller.ts:20:31[39m[22m
+[90mTS2344: [39mType '"user"' does not satisfy the constraint 'keyof PrismaService'.
+    18 |  */
+    19 | export async function resolveTenantCaller(
+  > 20 |   prisma: Pick<PrismaService, 'user'>,
+       |                               ^^^^^^
+    21 |   userId: string,
+    22 | ): Promise<ResolvedCaller | null> {
+    23 |   const user = await prisma.user.findUnique({
+
+[1m[31mERROR[39m[22m in [1m./src/common/tenancy/resolve-tenant-caller.ts:23:34[39m[22m
+[90mTS2339: [39mProperty 'findUnique' does not exist on type 'unknown'.
+    21 |   userId: string,
+    22 | ): Promise<ResolvedCaller | null> {
+  > 23 |   const user = await prisma.user.findUnique({
+       |                                  ^^^^^^^^^^
+    24 |     where: { userId },
+    25 |     select: {
+    26 |       userId: true,
+
+[1m[31mERROR[39m[22m in [1m./src/common/tenancy/tenant-caller.ts:2:26[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+    1 | import { BadRequestException, ForbiddenException } from '@nestjs/common';
+  > 2 | import { UserRole } from '@ats-platform/database';
+      |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 |
+    4 | /**
+    5 |  * Who is making a request, as the tenant boundary sees it.
+
+[1m[31mERROR[39m[22m in [1m./src/common/utils/include-options.util.ts:1:24[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/backend/database/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/backend/database/src/index.ts'.
+  > 1 | import { Prisma } from "@ats-platform/database";
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+    2 | import {
+    3 |   isOrganizationStaff,
+    4 |   isPlatformAdmin,
+
+[1m[31mERROR[39m[22m in [1m./src/common/utils/response-format.util.ts:1:32[39m[22m
+[90mTS6305: [39mOutput file 'E:/wt/ats-sp3/dist/out-tsc/libs/shared/types/src/index.d.ts' has not been built from source file 'E:/wt/ats-sp3/libs/shared/types/src/index.ts'.
+  > 1 | import { ResponseFormat } from "@ats-platform/types";
+      |                                ^^^^^^^^^^^^^^^^^^^^^
+    2 | import { ApiProperty } from "@nestjs/swagger";
+    3 |
+    4 | export class Response<T> implements ResponseFormat<T> {
+
+webpack compiled with [1m[31m351 errors[39m[22m (22f3546e02f1154a)
+Warning: command "webpack-cli build --node-env=production" exited with non-zero status code
+
+
+ NX   Running target build for project api and 2 tasks it depends on failed
+
+Failed tasks:
+
+- api:build
+
+Hint: run the command with --verbose for more details.
+
+(node:184288) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:187768) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:167928) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ NX   Running target build for project api and 2 tasks it depends on:
+
+
+
+> nx run database:build  [local cache]
+
+
+> nx run types:build
+
+> tsc --build tsconfig.lib.json
+
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+(node:187792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:188048) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:184400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+webpack compiled [1m[32msuccessfully[39m[22m (22f3546e02f1154a)
+
+
+
+ NX   Successfully ran target build for project api and 2 tasks it depends on
+
+Nx read the output from the cache instead of running the command for 1 out of 3 tasks.
+
+
+ NX   Nx detected a flaky task
+
+  api:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+

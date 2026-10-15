@@ -1,0 +1,14 @@
+# Review Task 7 — nối vào ApplicationsService (approved, a26d272 + 32a7446)
+
+- Files: pha 1 `applications.service.spec.ts`, `unit-test-helpers.ts` (+`updateManyAndReturn` cho `interviewSchedule`); pha 2 `applications.service.ts`, `applications.module.ts`. Không chạm file khác; spec/helper không đổi ở pha 2 (`git diff a26d272 -- …` rỗng).
+- Test cũ chỉ sửa đúng ba chỗ plan cho phép, không assert nào yếu đi:
+  - (a) constructor: mock `candidateNotifications` 5 method thay `notificationsService`.
+  - (b) 49 cặp: `shouldNotify` (chỉ 4 trạng thái) → `applicationStatusChanged` đúng 1 lần, đúng `('app-1', to, [])` cho MỌI cặp hợp lệ (mạnh hơn); dòng 383 `objectContaining` → tham số chính xác; dòng 471 `toHaveBeenCalled()` → `toHaveBeenCalledWith('app-6', screening, [])` (mạnh hơn).
+  - (c) describe R7: `upcomingCancellation` thêm `select` 4 trường; MỌI tham chiếu `interviewSchedule.updateMany` trong describe (520, 522, 530, 543, 544, 560) đổi sang `updateManyAndReturn`. Cách đọc của phiên `-impl`: chỉ đổi `upcomingCancellation` sẽ khiến ba assert `not.toHaveBeenCalled` thành rỗng nghĩa (làm yếu test) — nên đổi cả describe. Thêm mock mặc định `[]` ở 49 cặp (plan cho phép) và ở `beforeEach` R7.
+- 5 test mới đúng tên plan.
+- Đỏ trước: `results/task-7-phase1-jest.log` — 15 fail, đều là assert (`expected 1, received 0`), không lỗi biên dịch; 67 pass.
+- Xanh (Codex chạy, phiên `-impl` đọc log): `task-7-phase2-jest.log` (`applications|candidate-notifications`) 8 suite, 158/158; `task-7-phase2-jest-wide.log` (`applications|interviews|candidate-notifications`, điều phối yêu cầu) 15 suite, 223/223; `task-7-phase2-build.log` exit 0; `task-7-phase2-lint.log` 0 lỗi, 310 cảnh báo — cảnh báo trong file SP3 chạm đều là `no-explicit-any` ở spec (`as any` theo khuôn repo) hoặc `catch (err: any)` có sẵn trong `mail.service.ts:101,130`; file production mới của SP3 không có cảnh báo.
+- Interfaces khớp plan: constructor tham số 4 là `CandidateNotificationsService`; `cancelUpcomingSchedules` trả `CancelledScheduleSummary[]` qua `updateManyAndReturn` (`where` không đổi); `apply` gọi `applicationReceived` sau transaction; `updateStatus` gọi `applicationStatusChanged(applicationId, dto.status, cancelled)` cho mọi lần đổi thành công; `withdraw` không gọi gì; bỏ hằng số/hàm in-app cũ.
+- Finding nhỏ (không chặn): plan dặn bỏ `NotificationsModule` nếu `grep -rn "NotificationsService"` chỉ còn ở spec; mẫu grep khớp chuỗi con của `CandidateNotificationsService` nên Codex giữ lại theo chữ plan. Thực tế `NotificationsService` không còn được dùng trong `applications` → import thừa nhưng vô hại; để nguyên để không tăng điểm xung đột với SP1/SP2 ở `applications.module.ts`.
+- Ghi chú: agent chuyển tiếp chết vì 429 giữa pha 2; job Codex đã `completed` (kiểm `codex-companion status`/`result`) trước khi review.
+- `git ls-remote --heads origin feat/gd2-sp3-email-notifications`: rỗng (control `dev` → `93ad69b`).
