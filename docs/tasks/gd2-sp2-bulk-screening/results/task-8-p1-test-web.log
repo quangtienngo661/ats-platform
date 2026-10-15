@@ -1,0 +1,106 @@
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/servers/applications src/types/constants
+
+
+ RUN  v4.1.6 E:/wt/ats-sp2/apps/web
+
+ ❯ src/types/constants/screening-skip-reasons.test.ts (0 test)
+ ❯ src/servers/applications/applications.action.test.ts (7 tests | 5 failed) 20ms
+     × bulkScreenApplicationsAction posts the ids, the flag and the config 4ms
+     × sends no applicationIds in auto mode 1ms
+     × explains a 429 in Vietnamese 1ms
+     × exportCandidatesCsvAction reads the CSV as text and names the file 6ms
+     × shows the API message of a 400 whose body arrived as text 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/types/constants/screening-skip-reasons.test.ts [ src/types/constants/screening-skip-reasons.test.ts ]
+Error: Failed to resolve import "./screening-skip-reasons" from "apps/web/src/types/constants/screening-skip-reasons.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/wt/ats-sp2/apps/web/src/types/constants/screening-skip-reasons.test.ts:3:45
+  1  |  import { describe, expect, it } from "vitest";
+  2  |  import { ScreeningSkipReason } from "@ats-platform/types";
+  3  |  import { SCREENING_SKIP_REASON_LABELS } from "./screening-skip-reasons";
+     |                                                ^
+  4  |  describe("screening skip reason labels", () => {
+  5  |  	it("every ScreeningSkipReason has a Vietnamese label", () => {
+ ❯ TransformPluginContext._formatLog ../../node_modules/vite/dist/node/chunks/node.js:30486:39
+ ❯ TransformPluginContext.error ../../node_modules/vite/dist/node/chunks/node.js:30483:14
+ ❯ normalizeUrl ../../node_modules/vite/dist/node/chunks/node.js:27725:18
+ ❯ ../../node_modules/vite/dist/node/chunks/node.js:27788:30
+ ❯ TransformPluginContext.transform ../../node_modules/vite/dist/node/chunks/node.js:27756:4
+ ❯ EnvironmentPluginContainer.transform ../../node_modules/vite/dist/node/chunks/node.js:30271:14
+ ❯ loadAndTransform ../../node_modules/vite/dist/node/chunks/node.js:24532:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/servers/applications/applications.action.test.ts > bulk screening and CSV export actions > bulkScreenApplicationsAction posts the ids, the flag and the config
+TypeError: bulkScreenApplicationsAction is not a function
+ ❯ src/servers/applications/applications.action.test.ts:75:26
+     73|     mocks.post.mockResolvedValueOnce({ data: screeningResult });
+     74|
+     75|     const result = await bulkScreenApplicationsAction(jobId, {
+       |                          ^
+     76|       applicationIds,
+     77|       moveAppliedToScreening: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/servers/applications/applications.action.test.ts > bulk screening and CSV export actions > sends no applicationIds in auto mode
+TypeError: bulkScreenApplicationsAction is not a function
+ ❯ src/servers/applications/applications.action.test.ts:99:11
+     97|     mocks.post.mockResolvedValueOnce({ data: screeningResult });
+     98|
+     99|     await bulkScreenApplicationsAction(jobId, { moveAppliedToScreening…
+       |           ^
+    100|
+    101|     expect(mocks.post.mock.calls).toStrictEqual([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/servers/applications/applications.action.test.ts > bulk screening and CSV export actions > explains a 429 in Vietnamese
+TypeError: bulkScreenApplicationsAction is not a function
+ ❯ src/servers/applications/applications.action.test.ts:111:26
+    109|     });
+    110|
+    111|     const result = await bulkScreenApplicationsAction(jobId, { moveApp…
+       |                          ^
+    112|
+    113|     expect(result).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/servers/applications/applications.action.test.ts > bulk screening and CSV export actions > exportCandidatesCsvAction reads the CSV as text and names the file
+TypeError: exportCandidatesCsvAction is not a function
+ ❯ src/servers/applications/applications.action.test.ts:127:26
+    125|     mocks.get.mockResolvedValueOnce(csv);
+    126|
+    127|     const result = await exportCandidatesCsvAction(jobId);
+       |                          ^
+    128|
+    129|     expect(mocks.get).toHaveBeenCalledWith(`/applications/job/${jobId}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/servers/applications/applications.action.test.ts > bulk screening and CSV export actions > shows the API message of a 400 whose body arrived as text
+TypeError: exportCandidatesCsvAction is not a function
+ ❯ src/servers/applications/applications.action.test.ts:152:26
+    150|     });
+    151|
+    152|     const result = await exportCandidatesCsvAction(jobId);
+       |                          ^
+    153|
+    154|     expect(result).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 2 passed (7)
+   Start at  10:07:00
+   Duration  3.44s (transform 3.14s, setup 1.61s, import 2.31s, tests 20ms, environment 1.07s)
+

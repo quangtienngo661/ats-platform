@@ -11,7 +11,6 @@ import {
   ParsingStatus,
   Prisma,
   ScheduleStatus,
-  ScreeningStatus,
   UserRole,
 } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -25,6 +24,7 @@ import {
   candidateHistorySelect,
 } from '../../common/utils/include-options.util';
 import { toCandidateHistory } from './candidate-history';
+import { checkScreeningEligibility } from './screening-eligibility';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 import {
   assertOrganizationAccess,
@@ -55,13 +55,6 @@ const VALID_TRANSITIONS: Partial<
     ApplicationStatus.rejected,
   ],
 };
-
-/**
- * How many times a recruiter may re-trigger a screening that keeps failing.
- * `CVScreening.retryCount` is incremented on every manual re-trigger; without a
- * cap a permanently-broken CV could be re-queued (and re-billed to Gemini) forever.
- */
-const MAX_SCREENING_RETRIES = 3;
 
 @Injectable()
 export class ApplicationsService {
@@ -111,7 +104,7 @@ export class ApplicationsService {
    * admin, and an org_admin inside its organization, stop there); a recruiter then
    * also needs the job's department — the narrower, pre-existing boundary.
    */
-  private async assertCanAccessDepartment(
+  async assertCanAccessDepartment(
     caller: TenantCaller,
     resource: { organizationId: string; departmentId: string },
   ) {
@@ -153,7 +146,7 @@ export class ApplicationsService {
     });
   }
 
-  private async assertCanAccessApplication(
+  async assertCanAccessApplication(
     caller: TenantCaller,
     applicationId: string,
   ) {
@@ -650,40 +643,14 @@ export class ApplicationsService {
     if (!application)
       throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
 
-    if (application.status === ApplicationStatus.applied) {
-      throw new BadRequestException(
-        `Hãy chuyển đơn ứng tuyển sang trạng thái 'screening' trước khi chạy sàng lọc AI`,
-      );
-    }
-    if (
-      application.status === ApplicationStatus.hired ||
-      application.status === ApplicationStatus.rejected ||
-      application.status === ApplicationStatus.cancelled
-    ) {
-      throw new BadRequestException(
-        `Không thể chạy sàng lọc AI khi đơn ứng tuyển đang ở trạng thái '${application.status}'`,
-      );
-    }
-    if (application.screening && application.screening.status) {
-      if (application.screening.status === ScreeningStatus.pending) {
-        throw new ConflictException('Sàng lọc AI đã được đưa vào hàng đợi');
+    const verdict = checkScreeningEligibility(application, {
+      allowApplied: false,
+    });
+    if (verdict.eligible === false) {
+      if (verdict.httpStatus === 400) {
+        throw new BadRequestException(verdict.message);
       }
-      if (application.screening.status === ScreeningStatus.processing) {
-        throw new ConflictException('Sàng lọc AI đang được xử lý');
-      }
-      if (application.screening.status === ScreeningStatus.completed) {
-        throw new ConflictException(
-          'Sàng lọc AI đã hoàn tất. Vui lòng xem kết quả trong chi tiết đơn ứng tuyển',
-        );
-      }
-      if (
-        application.screening.status === ScreeningStatus.failed &&
-        application.screening.retryCount >= MAX_SCREENING_RETRIES
-      ) {
-        throw new ConflictException(
-          `Sàng lọc AI đã thất bại ${MAX_SCREENING_RETRIES} lần. Vui lòng kiểm tra lại CV hoặc liên hệ quản trị viên`,
-        );
-      }
+      throw new ConflictException(verdict.message);
     }
 
     // The config — an explicit one, or the default — is resolved INSIDE the

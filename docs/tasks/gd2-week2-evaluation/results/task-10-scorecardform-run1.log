@@ -1,0 +1,29 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ × src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen 5021ms
+   → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm shows the API message when the submit is refused and keeps the typed values 1049ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/candidates/ui/ScorecardForm.test.tsx > ScorecardForm > ScorecardForm blocks submit until all four ratings and a recommendation are chosen
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/components/candidates/ui/ScorecardForm.test.tsx:50:3
+     48|
+     49| describe('ScorecardForm', () => {
+     50|   it('ScorecardForm blocks submit until all four ratings and a recomme…
+       |   ^
+     51|     const user = userEvent.setup();
+     52|     // Omit each required choice in turn, including the recommendation.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:07:59
+   Duration  7.90s (transform 96ms, setup 225ms, import 150ms, tests 6.07s, environment 750ms)
+

@@ -18,6 +18,7 @@ export interface ProcessCvScreeningJobData {
   cvId: string;
   applicationId: string;
   configId: string;
+  notify?: boolean;
 }
 
 @Processor('cv-screening', { concurrency: 5 })
@@ -77,12 +78,14 @@ export class CvScreeningProcessor extends WorkerHost {
           updatedApplication,
           jobRoom,
         );
-        await this.createNotificationSafe(
-          application.jobPosting.recruiter.userId,
-          'Sàng lọc AI hoàn tất',
-          `AI đã hoàn tất sàng lọc CV cho ${updatedApplication.candidate?.user?.fullName ?? 'một ứng viên'}.`,
-          applicationId,
-        );
+        if (job.data.notify !== false) {
+          await this.createNotificationSafe(
+            application.jobPosting.recruiter.userId,
+            'Sàng lọc AI hoàn tất',
+            `AI đã hoàn tất sàng lọc CV cho ${updatedApplication.candidate?.user?.fullName ?? 'một ứng viên'}.`,
+            applicationId,
+          );
+        }
       } catch (error) {
         const maxAttempts = job.opts.attempts ?? 1;
         const isFinalAttempt = job.attemptsMade + 1 >= maxAttempts;

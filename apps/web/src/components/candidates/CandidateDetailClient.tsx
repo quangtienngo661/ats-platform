@@ -1,15 +1,33 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Star, Clock, Briefcase, Mail } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { CandidateOverviewTab } from './ui/CandidateOverviewTab';
+import { CandidateTabs } from './ui/CandidateTabs';
+import { ScorecardPanel } from './ui/ScorecardPanel';
+import { NotesPanel } from './ui/NotesPanel';
 import { SERVER_URL } from '@/types/constants/urls';
 
 interface CandidateDetailClientProps {
     application: IApplicationDto;
     jobId: string;
+    currentUserId: string;
+    isClosed: boolean;
+}
+
+type CandidateTab = 'overview' | 'evaluation' | 'notes';
+const tabs: { id: CandidateTab; label: string }[] = [
+    { id: 'overview', label: 'Tổng quan' },
+    { id: 'evaluation', label: 'Đánh giá phỏng vấn' },
+    { id: 'notes', label: 'Ghi chú' },
+];
+
+function parseTab(tab: string | null): CandidateTab {
+    return tab === 'evaluation' || tab === 'notes' ? tab : 'overview';
 }
 
 const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
@@ -23,7 +41,24 @@ const statusConfig: Record<string, { label: string; bg: string; color: string }>
 };
 
 
-export default function CandidateDetailClient({ application, jobId }: CandidateDetailClientProps) {
+export default function CandidateDetailClient({ application, jobId, currentUserId, isClosed }: CandidateDetailClientProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const queryTab = searchParams.get('tab');
+    const [activeTab, setActiveTab] = useState<CandidateTab>(() => parseTab(queryTab));
+
+    useEffect(() => { setActiveTab(parseTab(queryTab)); }, [queryTab]);
+
+    function changeTab(tab: CandidateTab) {
+        setActiveTab(tab);
+        const query = new URLSearchParams(searchParams.toString());
+        if (tab === 'overview') query.delete('tab');
+        else query.set('tab', tab);
+        const suffix = query.toString();
+        router.replace(`${pathname}${suffix ? `?${suffix}` : ''}`, { scroll: false });
+    }
+
     const name = application.candidate?.user?.fullName || 'N/A';
     const email = application.candidate?.user?.email || '';
     const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
@@ -92,8 +127,12 @@ export default function CandidateDetailClient({ application, jobId }: CandidateD
                 </div>
             </div>
 
-            {/* Tab Content (Now fully integrated) */}
-            <CandidateOverviewTab application={application} />
+            <CandidateTabs tabs={tabs} active={activeTab} onChange={changeTab} />
+            <div role="tabpanel" id={`candidate-panel-${activeTab}`} aria-labelledby={`candidate-tab-${activeTab}`} tabIndex={0}>
+                {activeTab === 'overview' && <CandidateOverviewTab application={application} />}
+                {activeTab === 'evaluation' && <ScorecardPanel key={application.applicationId} applicationId={application.applicationId} currentUserId={currentUserId} isClosed={isClosed} />}
+                {activeTab === 'notes' && <NotesPanel key={application.applicationId} applicationId={application.applicationId} currentUserId={currentUserId} />}
+            </div>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -214,7 +215,7 @@ export class InterviewsService {
     }
   }
 
-  private async assertCanViewSchedule(
+  async assertCanViewSchedule(
     caller: TenantCaller,
     interviewId: string,
   ) {
@@ -515,6 +516,10 @@ export class InterviewsService {
 
   async removeSchedule(interviewId: string, caller: TenantCaller) {
     const schedule = await this.assertCanMutateSchedule(caller, interviewId);
+
+    // R12: the scorecard FK is RESTRICT; refuse with 409 instead of letting the delete fail at the database.
+    const scorecards = await this.prisma.interviewScorecard.count({ where: { interviewId } });
+    if (scorecards > 0) throw new ConflictException('Buổi phỏng vấn đã có đánh giá, không thể xoá');
 
     const deleted = await this.prisma.interviewSchedule.delete({
       where: { interviewId },

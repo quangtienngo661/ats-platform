@@ -188,6 +188,8 @@ model User {
   interviewSchedules InterviewSchedule[]  @relation("Interviewer")
   scheduledBy        InterviewSchedule[]  @relation("ScheduledBy")
   notifications      Notification[]
+  scorecards         InterviewScorecard[]
+  applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
 
   @@index([organizationId])
@@ -231,6 +233,8 @@ model Organization {
   cvScreenings       CVScreening[]
   aiConfigs          AiConfig[]
   interviewSchedules InterviewSchedule[]
+  scorecards         InterviewScorecard[]
+  applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
 
   @@map("organizations")
@@ -444,6 +448,7 @@ model Application {
   history      ApplicationHistory[]
   schedules    InterviewSchedule[]
   screening    CVScreening?
+  notes        ApplicationNote[]
   emailNotifications EmailNotification[]
 
   @@index([organizationId])
@@ -626,6 +631,7 @@ model InterviewSchedule {
   application  Application  @relation(fields: [applicationId], references: [applicationId])
   scheduler    User         @relation("ScheduledBy", fields: [scheduledBy], references: [userId])
   interviewer  User         @relation("Interviewer", fields: [interviewerId], references: [userId])
+  scorecard    InterviewScorecard?
 
   @@index([organizationId])
   @@map("interview_schedules")
@@ -650,6 +656,59 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+// ============================================================
+// INTERVIEW SCORECARDS & APPLICATION NOTES
+// ============================================================
+
+enum ScorecardRecommendation {
+  strong_no
+  no
+  yes
+  strong_yes
+
+  @@map("scorecard_recommendation")
+}
+
+model InterviewScorecard {
+  id              String                  @id @default(uuid())
+  organizationId  String                  @map("organization_id")
+  interviewId     String                  @unique @map("interview_id")
+  authorId        String                  @map("author_id")
+  technicalSkills Int                     @map("technical_skills")
+  problemSolving  Int                     @map("problem_solving")
+  communication   Int                     @map("communication")
+  cultureFit      Int                     @map("culture_fit")
+  recommendation  ScorecardRecommendation
+  comment         String?                 @db.VarChar(2000)
+  submittedAt     DateTime                @default(now()) @map("submitted_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+
+  organization Organization      @relation(fields: [organizationId], references: [organizationId])
+  interview    InterviewSchedule @relation(fields: [interviewId], references: [interviewId], onDelete: Restrict)
+  author       User              @relation(fields: [authorId], references: [userId])
+
+  @@index([organizationId])
+  @@map("interview_scorecards")
+}
+
+model ApplicationNote {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  applicationId  String   @map("application_id")
+  authorId       String   @map("author_id")
+  body           String   @db.VarChar(2000)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+  author       User         @relation(fields: [authorId], references: [userId])
+
+  @@index([applicationId])
+  @@index([organizationId])
+  @@map("application_notes")
 }
 
 // ============================================================

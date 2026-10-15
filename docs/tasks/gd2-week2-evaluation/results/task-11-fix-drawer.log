@@ -1,0 +1,14 @@
+
+ RUN  v4.1.6 E:/wt/ats-sp1/apps/web
+
+ ✓ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > shows an online interview with its meeting link 457ms
+ ✓ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > shows a stored non-http(s) link as text, never as a link 60ms
+ ✓ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > shows an onsite interview with its address 65ms
+ ✓ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > says when an older onsite interview has no address yet 54ms
+ ✓ src/components/interview-schedule/ui/ScheduleDetailDrawer.test.tsx > ScheduleDetailDrawer — how the interview takes place (R3) > drawer shows the evaluation link only to the interviewer of a completed interview 205ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  10:54:50
+   Duration  5.04s (transform 259ms, setup 556ms, import 1.04s, tests 842ms, environment 2.15s)
+

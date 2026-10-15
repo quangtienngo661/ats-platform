@@ -1,0 +1,16 @@
+npm run test:web -- src/components/candidates
+
+> @ats-platform/source@0.0.0 test:web
+> vitest run --config apps/web/vitest.config.mts src/components/candidates
+
+
+ RUN  v4.1.6 E:/wt/ats-sp2/apps/web
+
+
+ Test Files  3 passed (3)
+      Tests  12 passed (12)
+   Start at  10:36:20
+   Duration  5.95s (transform 379ms, setup 971ms, import 876ms, tests 4.62s, environment 4.06s)
+
+
+EXIT=0

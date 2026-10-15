@@ -89,6 +89,7 @@ export default async function InterviewSchedulePage({ searchParams }: InterviewS
             applications={applications}
             interviewers={departmentRecruiters}
             userRole={me?.role}
+            currentUserId={me?.userId ?? ''}
             currentRecruiter={currentRecruiter}
             selectedWeekStart={toDateInputValue(selectedWeekStart)}
             minWeekStart={toDateInputValue(minWeekStart)}

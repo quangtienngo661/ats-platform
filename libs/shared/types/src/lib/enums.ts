@@ -125,6 +125,15 @@ export const ScheduleStatus = {
 export type ScheduleStatus =
   (typeof ScheduleStatus)[keyof typeof ScheduleStatus];
 
+export const ScorecardRecommendation = {
+  strong_no: 'strong_no',
+  no: 'no',
+  yes: 'yes',
+  strong_yes: 'strong_yes',
+} as const;
+export type ScorecardRecommendation =
+  (typeof ScorecardRecommendation)[keyof typeof ScorecardRecommendation];
+
 export const DifficultyLevel = {
   easy: 'easy',
   medium: 'medium',
@@ -187,3 +196,16 @@ export { UserRole as Role };
 export { JobStatus as JobPostingStatus };
 export { ParsingStatus as CVParsingStatus };
 export { InterviewStatus as InterviewSessionStatus };
+
+export const ScreeningSkipReason = {
+  NOT_IN_JOB: 'NOT_IN_JOB',
+  APPLIED_NOT_MOVED: 'APPLIED_NOT_MOVED',
+  FINAL_STATUS: 'FINAL_STATUS',
+  IN_QUEUE: 'IN_QUEUE',
+  ALREADY_SCREENED: 'ALREADY_SCREENED',
+  RETRY_LIMIT: 'RETRY_LIMIT',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  ENQUEUE_FAILED: 'ENQUEUE_FAILED',
+} as const;
+export type ScreeningSkipReason =
+  (typeof ScreeningSkipReason)[keyof typeof ScreeningSkipReason];

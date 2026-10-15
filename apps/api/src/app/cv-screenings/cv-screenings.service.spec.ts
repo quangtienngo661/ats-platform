@@ -262,4 +262,26 @@ describe('CvScreeningsService', () => {
       AiRecommendation.reject,
     );
   });
+
+  it('marks a bulk job as silent', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
+    prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
+    prisma.aiConfig.findFirst.mockResolvedValue({ configId: 'cfg-1' });
+    prisma.cVScreening.upsert.mockResolvedValue({ screeningId: 'screen-1' });
+
+    await service.createScreeningRecord('app-1', 'cv-1', undefined, {
+      notify: false,
+    });
+
+    expect(queue.add).toHaveBeenCalledWith('process-cv-screening', {
+      screeningId: 'screen-1',
+      cvId: 'cv-1',
+      applicationId: 'app-1',
+      configId: 'cfg-1',
+      notify: false,
+    });
+  });
 });

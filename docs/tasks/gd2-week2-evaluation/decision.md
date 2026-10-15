@@ -101,7 +101,9 @@ không cắt mục nào; phạm vi là các mục GĐ2 còn lại trong artifact
 | Chọn so sánh | Chỉ trong trang hiện tại (50 ứng viên/trang) | Giữ lựa chọn qua nhiều trang | Giữ qua trang cần state chia sẻ và chưa có nhu cầu |
 | So sánh và ADR 0002 | Chỉ hiển thị, không xếp hạng, không đổi trạng thái | Cột "tốt nhất", gợi ý tự động | Spine human-in-the-loop của ĐA2 |
 | Giao diện | Tab *Tổng quan \| Đánh giá phỏng vấn \| Ghi chú* trên trang chi tiết; liên kết ở drawer lịch | Form scorecard riêng ở drawer | Một nơi duy nhất cho form, không nhân đôi |
+| Tổ chức khác (R6) | Trả 404 qua helper mới `assertInCallerOrganizationOr404`, gọi trước các helper hiện có (code cũ trả 403) | Sửa helper hiện có để trả 404 | Claude đề xuất khi viết plan để không lộ sự tồn tại của bản ghi; chờ người dùng đọc plan, chưa được người dùng duyệt |
+| Quyền xem đơn (R8) | Quyền đọc/ghi ghi chú, đọc scorecard và so sánh theo quyền xem đơn đó: org_admin và platform admin theo tổ chức, recruiter theo khoa của tin; platform admin chỉ đọc; interviewer của lịch vẫn nộp được dù khác khoa (R1) | Mọi staff cùng tổ chức đọc mọi scorecard và ghi chú | Claude đề xuất khi viết plan để giữ ranh giới khoa của tin; chờ người dùng đọc plan, chưa được người dùng duyệt |
 
-**Chờ xác nhận (bổ sung khi viết spec, chưa được duyệt):** R12 trong spec — xoá lịch đã có scorecard trả 409 (FK
+**Đã duyệt 2026-10-13 (người dùng: spec không có vấn đề):** R12 trong spec — xoá lịch đã có scorecard trả 409 (FK
 `Restrict`). Phương án đã cân nhắc: cascade (mất đánh giá khi xoá lịch) và cấm xoá mọi lịch `completed` (đổi hành vi hiện
 có rộng hơn cần thiết). Claude đề xuất `Restrict`.

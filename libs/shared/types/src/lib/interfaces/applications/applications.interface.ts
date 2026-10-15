@@ -1,4 +1,8 @@
-import { ApplicationStatus, AiRecommendation } from '../../enums';
+import {
+  ApplicationStatus,
+  AiRecommendation,
+  ScreeningSkipReason,
+} from '../../enums';
 
 export interface IApplication {
   jobId: string;
@@ -30,4 +34,14 @@ export interface IApplicationCard {
 export interface IKanbanColumn {
   status: ApplicationStatus;
   applications: IApplicationCard[];
+}
+
+export interface IBulkScreeningResult {
+  queued: { applicationId: string; movedToScreening: boolean }[];
+  skipped: {
+    applicationId: string;
+    reason: ScreeningSkipReason;
+    movedToScreening: boolean;
+  }[];
+  remaining: number;
 }

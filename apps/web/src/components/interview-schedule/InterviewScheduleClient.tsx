@@ -24,6 +24,7 @@ interface InterviewScheduleClientProps {
     applications: IApplicationDto[];
     interviewers: IRecruiterDto[];
     currentRecruiter: IRecruiterDto | null;
+    currentUserId: string;
     userRole?: string;
     selectedWeekStart: string;
     minWeekStart: string;
@@ -58,6 +59,7 @@ export default function InterviewScheduleClient({
     applications,
     interviewers,
     currentRecruiter,
+    currentUserId,
     userRole,
     selectedWeekStart,
     minWeekStart,
@@ -135,6 +137,7 @@ export default function InterviewScheduleClient({
             {selectedSchedule && (
                 <ScheduleDetailDrawer
                     schedule={selectedSchedule}
+                    currentUserId={currentUserId}
                     onClose={() => setSelectedSchedule(null)}
                     onChanged={handleScheduleChanged}
                     onReschedule={(schedule) => {

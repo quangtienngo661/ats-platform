@@ -19,6 +19,10 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   isStrongPassword:
     'phải có ít nhất 8 ký tự, gồm chữ thường, chữ hoa, số và ký tự đặc biệt',
   isString: 'phải là chuỗi',
+  isArray: 'phải là mảng',
+  arrayMinSize: 'chưa đủ số phần tử tối thiểu',
+  arrayMaxSize: 'vượt quá số phần tử tối đa cho phép',
+  arrayUnique: 'không được chứa phần tử trùng nhau',
   isNotEmpty: 'không được để trống',
   minLength: 'không đủ độ dài tối thiểu',
   isEnum: 'không thuộc giá trị hợp lệ',
