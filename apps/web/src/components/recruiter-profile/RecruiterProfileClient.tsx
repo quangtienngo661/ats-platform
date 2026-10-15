@@ -111,8 +111,8 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
                                     <button type="button" onClick={handleCancel} className="px-3 py-1.5 text-[#6E6E73] hover:bg-[#F5F5F7] rounded-lg transition-colors text-[13px]" style={{ fontWeight: 500 }}>
                                         Hủy
                                     </button>
-                                    <button type="submit" disabled={isPending} className="flex items-center gap-1.5 px-4 py-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-lg shadow-sm shadow-[#0071E3]/20 transition-all text-[13px]" style={{ fontWeight: 500 }}>
-                                        {isPending ? <span className="animate-pulse">Đang lưu...</span> : <><Save className="w-3.5 h-3.5" /> Lưu thay đổi</>}
+                                    <button type="submit" disabled={isPending} className="flex items-center gap-1.5 px-4 py-1.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-lg shadow-sm shadow-[#0071E3]/20 transition text-[13px]" style={{ fontWeight: 500 }}>
+                                        {isPending ? <span className="animate-pulse">Đang lưu…</span> : <><Save className="w-3.5 h-3.5" /> Lưu thay đổi</>}
                                     </button>
                                 </div>
                             )}
@@ -171,7 +171,7 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
                                                     name="position"
                                                     value={position}
                                                     onChange={e => setPosition(e.target.value)}
-                                                    className="w-full p-3 bg-white rounded-xl border border-[#0071E3] focus:ring-4 focus:ring-[#0071E3]/10 outline-none text-[14px] text-[#1D1D1F] transition-all shadow-sm"
+                                                    className="w-full p-3 bg-white rounded-xl border border-[#0071E3] focus:ring-4 focus:ring-[#0071E3]/10 outline-none text-[14px] text-[#1D1D1F] transition shadow-sm"
                                                     placeholder="Ví dụ: Senior IT Recruiter"
                                                 />
                                             </motion.div>

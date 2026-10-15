@@ -56,7 +56,7 @@ export function JobPostingStep2({
                 {isParsing ? (
                     <div className="flex flex-col items-center justify-center py-6 text-[#6E6E73]">
                         <Loader2 className="w-6 h-6 animate-spin mb-3 text-[#0071E3]" />
-                        <p className="text-[13px]">Đang phân tích mô tả công việc...</p>
+                        <p className="text-[13px]">Đang phân tích mô tả công việc…</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -119,7 +119,7 @@ export function JobPostingStep2({
                         name="categoryId"
                         value={formData.categoryId}
                         onChange={event => updateField('categoryId', event.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition text-[14px]"
                     >
                         <option value="">-- Chọn danh mục --</option>
                         {categories.map(category => (
@@ -133,7 +133,7 @@ export function JobPostingStep2({
                         name="status"
                         value={formData.status}
                         onChange={event => updateField('status', event.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition text-[14px]"
                     >
                         <option value="draft">Bản nháp</option>
                         <option value="active">Đang tuyển</option>
@@ -152,7 +152,7 @@ export function JobPostingStep2({
                         min={0}
                         value={formData.salaryMin}
                         onChange={event => updateField('salaryMin', event.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition text-[14px]"
                     />
                 </div>
                 <div>
@@ -164,7 +164,7 @@ export function JobPostingStep2({
                         min={0}
                         value={formData.salaryMax}
                         onChange={event => updateField('salaryMax', event.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition text-[14px]"
                     />
                 </div>
             </div>

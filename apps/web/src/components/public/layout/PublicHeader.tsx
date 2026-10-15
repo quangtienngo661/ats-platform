@@ -87,7 +87,7 @@ export function PublicHeader({
                             <Link
                                 key={href}
                                 href={href}
-                                className={`px-1.5 lg:px-3 py-1.5 rounded-lg text-[13px] whitespace-nowrap transition-all ${isActive
+                                className={`px-1.5 lg:px-3 py-1.5 rounded-lg text-[13px] whitespace-nowrap transition ${isActive
                                     ? 'bg-[#EBF3FD] text-[#0071E3]'
                                     : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]'
                                     }`}
@@ -109,6 +109,9 @@ export function PublicHeader({
 
                         <div className="relative">
                         <button
+                            type="button"
+                            aria-label="Menu tài khoản"
+                            aria-expanded={avatarOpen}
                             onClick={() => setAvatarOpen(!avatarOpen)}
                             className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[#F5F5F7] transition-colors"
                         >
@@ -180,7 +183,7 @@ export function PublicHeader({
                         </Link>
                         <Link
                             href="/register"
-                            className="px-4 py-2 text-[13px] text-white bg-[#0071E3] hover:bg-[#0077ED] rounded-xl transition-all shadow-sm shadow-[#0071E3]/20"
+                            className="px-4 py-2 text-[13px] text-white bg-[#0071E3] hover:bg-[#0077ED] rounded-xl transition shadow-sm shadow-[#0071E3]/20"
                             style={{ fontWeight: 500 }}
                         >
                             Đăng ký
@@ -190,6 +193,9 @@ export function PublicHeader({
 
                 {/* Mobile menu toggle */}
                 <button
+                    type="button"
+                    aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
+                    aria-expanded={mobileOpen}
                     onClick={() => setMobileOpen(!mobileOpen)}
                     className="md:hidden ml-auto p-1.5 rounded-lg text-[#6E6E73] hover:bg-[#F5F5F7] transition-colors"
                 >

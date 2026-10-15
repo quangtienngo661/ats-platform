@@ -78,10 +78,10 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
             <div className="bg-white rounded-2xl border border-[#F2F2F7] p-4 mb-4">
                 <div className="flex flex-col lg:flex-row gap-4">
                     {/* Search */}
-                    <div className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border border-[#E5E5EA] bg-[#F5F5F7] flex-1">
+                    <div className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border border-[#E5E5EA] bg-[#F5F5F7] flex-1 focus-within:border-[#0071E3] focus-within:bg-white">
                         <input aria-label="Tìm ứng viên"
                             type="text"
-                            placeholder="Tìm theo tên, vị trí..."
+                            placeholder="Tìm theo tên, vị trí…"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             className="bg-transparent text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none w-full"
@@ -95,7 +95,7 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                                 : applications.filter(a => a.status === f.key).length;
                             return (
                                 <button key={f.key} onClick={() => setSelectedFilter(f.key)}
-                                    className={`px-3.5 py-1.5 rounded-xl transition-all text-[13px] flex items-center gap-2 ${selectedFilter === f.key ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
+                                    className={`px-3.5 py-1.5 rounded-xl transition text-[13px] flex items-center gap-2 ${selectedFilter === f.key ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
                                     style={{ fontWeight: selectedFilter === f.key ? 500 : 400 }}>
                                     {f.label}
                                     <span className={`text-[11px] px-1.5 rounded-full ${selectedFilter === f.key ? 'bg-[#0071E3] text-white' : 'bg-[#E5E5EA] text-[#1D1D1F]'}`}>

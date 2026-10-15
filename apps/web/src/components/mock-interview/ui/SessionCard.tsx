@@ -48,7 +48,7 @@ export function SessionCard({ session }: SessionCardProps) {
     return (
         <CardWrapper
             href={href}
-            className={`group flex items-center gap-4 p-4 bg-white rounded-xl border border-[#E5E5EA] transition-all duration-200 ${
+            className={`group flex items-center gap-4 p-4 bg-white rounded-xl border border-[#E5E5EA] transition duration-200 ${
                 isAbandoned ? 'opacity-60 grayscale' : 'hover:border-[#AEAEB2] hover:shadow-sm cursor-pointer'
             }`}
         >
@@ -109,17 +109,17 @@ export function SessionCard({ session }: SessionCardProps) {
                     </span>
                     {session.status === 'in_progress' && (
                         <span className="text-[10px]" style={{ color: '#0071E3', fontWeight: 500 }}>
-                            Đang diễn ra...
+                            Đang diễn ra…
                         </span>
                     )}
                     {isGenerating && (
                         <span className="text-[10px]" style={{ color: '#0071E3', fontWeight: 500 }}>
-                            Đang tạo câu hỏi...
+                            Đang tạo câu hỏi…
                         </span>
                     )}
                     {isPending && (
                         <span className="text-[10px]" style={{ color: '#0071E3', fontWeight: 500 }}>
-                            Đang chấm điểm...
+                            Đang chấm điểm…
                         </span>
                     )}
                     {session.status === 'abandon' && (

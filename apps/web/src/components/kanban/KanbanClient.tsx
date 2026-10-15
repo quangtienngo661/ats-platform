@@ -301,7 +301,7 @@ export default function KanbanClient({
         <div className="px-4 mr-3 lg:px-6 pb-2 flex items-center justify-end">
           <button
             onClick={() => setShowCancelled(true)}
-            className="flex items-center gap-1.5 border border-[#E5E5EA] hover:border-[#D2D2D7] text-[#6E6E73] rounded-xl px-3 py-1.5 text-[12px] transition-all hover:bg-[#F5F5F7]"
+            className="flex items-center gap-1.5 border border-[#E5E5EA] hover:border-[#D2D2D7] text-[#6E6E73] rounded-xl px-3 py-1.5 text-[12px] transition hover:bg-[#F5F5F7]"
           >
             <ArchiveX className="w-3.5 h-3.5" />
             Đã hủy / Rút đơn

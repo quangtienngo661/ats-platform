@@ -250,7 +250,7 @@ export default function InterviewChatClient({
                 {
                     id: 'generating',
                     role: 'ai',
-                    content: '⏳ AI đang tổng hợp kết quả phỏng vấn của bạn, vui lòng chờ...',
+                    content: '⏳ AI đang tổng hợp kết quả phỏng vấn của bạn, vui lòng chờ…',
                     type: 'system',
                 },
             ]);
@@ -263,7 +263,7 @@ export default function InterviewChatClient({
                 {
                     id: 'complete',
                     role: 'ai',
-                    content: '🎉 Chúc mừng bạn đã hoàn thành bài phỏng vấn! Đang chuyển đến trang kết quả...',
+                    content: '🎉 Chúc mừng bạn đã hoàn thành bài phỏng vấn! Đang chuyển đến trang kết quả…',
                     type: 'system',
                 },
             ]);
@@ -353,7 +353,7 @@ export default function InterviewChatClient({
                 <div className="px-5 py-3 border-b border-[#F2F2F7] bg-white flex items-center gap-3">
                     <button
                         onClick={() => router.push('/mock-interview')}
-                        className="p-1.5 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all flex-shrink-0"
+                        className="p-1.5 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition flex-shrink-0"
                         title="Thoát phỏng vấn"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -414,8 +414,8 @@ export default function InterviewChatClient({
                         isCompleted
                             ? 'Phỏng vấn đã kết thúc'
                             : isFollowup
-                                ? 'Trả lời câu hỏi bổ sung...'
-                                : 'Nhập câu trả lời của bạn...'
+                                ? 'Trả lời câu hỏi bổ sung…'
+                                : 'Nhập câu trả lời của bạn…'
                     }
                 />
             </div>

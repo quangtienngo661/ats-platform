@@ -70,7 +70,7 @@ export default function JobPostingsClient({ jobs, skillsDb, categories, currentR
             <div className="flex items-center gap-2 mb-5">
                 {(['all', 'active', 'draft', 'closed'] as const).map(f => (
                     <button key={f} onClick={() => setFilter(f)}
-                        className={`px-3.5 py-1.5 rounded-xl text-[13px] transition-all ${filter === f ? 'bg-[#1D1D1F] text-white' : 'bg-white border border-[#E5E5EA] text-[#6E6E73] hover:border-[#D2D2D7]'}`}
+                        className={`px-3.5 py-1.5 rounded-xl text-[13px] transition ${filter === f ? 'bg-[#1D1D1F] text-white' : 'bg-white border border-[#E5E5EA] text-[#6E6E73] hover:border-[#D2D2D7]'}`}
                         style={{ fontWeight: filter === f ? 500 : 400 }}>
                         {f === 'all' ? 'Tất cả' : f === 'active' ? 'Đang tuyển' : f === 'draft' ? 'Bản nháp' : 'Đã đóng'}
                     </button>

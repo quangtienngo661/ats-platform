@@ -49,7 +49,7 @@ export function MutateRecruiterModal({ onClose, isEdited, editingRecruiter, depa
             </select></div>
           ) : <>
             <div><label htmlFor="recruiter-name">Họ và tên</label><input id="recruiter-name" name="fullName" required className={input} /></div>
-            <div><label htmlFor="recruiter-email">Email</label><input id="recruiter-email" name="email" type="email" required className={input} /></div>
+            <div><label htmlFor="recruiter-email">Email</label><input id="recruiter-email" name="email" type="email" autoComplete="off" spellCheck={false} required className={input} /></div>
             <div><label htmlFor="recruiter-password">Mật khẩu</label><input id="recruiter-password" name="password" type="password" autoComplete="new-password" required minLength={8} className={input} />
               <p className="text-xs text-gray-500 mt-1">Tối thiểu 8 ký tự, có chữ thường, chữ hoa, số và ký tự đặc biệt.</p></div>
           </>}
@@ -64,7 +64,7 @@ export function MutateRecruiterModal({ onClose, isEdited, editingRecruiter, depa
           {state.message && <p role="status" className="text-red-700">{state.message}</p>}
           {departments.length === 0 && <p role="status">Cần tạo phòng ban trước khi thêm recruiter.</p>}
           <div className="flex gap-3 pt-3"><button type="button" onClick={onClose} className={input}>Hủy</button>
-            <button type="submit" disabled={pending || departments.length === 0} className="bg-blue-600 disabled:bg-gray-300 text-white rounded-xl p-3 w-full">{pending ? 'Đang lưu...' : isEdited ? 'Cập nhật' : 'Tạo'}</button></div>
+            <button type="submit" disabled={pending || departments.length === 0} className="bg-blue-600 disabled:bg-gray-300 text-white rounded-xl p-3 w-full">{pending ? 'Đang lưu…' : isEdited ? 'Cập nhật' : 'Tạo'}</button></div>
         </form>
       </section></DialogContent>
     </div></DialogOverlay></AccessibleDialog>

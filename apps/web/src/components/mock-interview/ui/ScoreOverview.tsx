@@ -36,7 +36,7 @@ export function ScoreOverview({ overallScore, strengths, weaknesses }: ScoreOver
                                 strokeLinecap="round"
                                 strokeDasharray={circumference}
                                 strokeDashoffset={strokeDashoffset}
-                                className="transition-all duration-1000 ease-out"
+                                className="transition duration-1000 ease-out"
                             />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">

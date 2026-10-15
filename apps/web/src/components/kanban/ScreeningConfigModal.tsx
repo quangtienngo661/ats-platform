@@ -117,7 +117,7 @@ export default function ScreeningConfigModal({
                                         return (
                                             <label
                                                 key={profile.configId}
-                                                className="flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all
+                                                className="flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition
                                                     has-[:checked]:border-[#0071E3] has-[:checked]:bg-[#EBF3FD]
                                                     border-[#F2F2F7] bg-white hover:border-[#D2D2D7]"
                                             >

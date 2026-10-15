@@ -32,7 +32,7 @@ function StrengthBar({ password }: { password: string }) {
                 {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}
-                        className="h-1 flex-1 rounded-full transition-all"
+                        className="h-1 flex-1 rounded-full transition"
                         style={{ background: i <= score ? colors[score] : '#E5E5EA' }}
                     />
                 ))}
@@ -60,7 +60,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     const pwMatch = password === confirmPassword && confirmPassword !== '';
     const canSubmit = Object.values(reqs).every(Boolean) && pwMatch;
 
-    const INPUT_CLS = "w-full pl-4 pr-10 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]";
+    const INPUT_CLS = "w-full pl-4 pr-10 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]";
 
     return (
         <motion.div
@@ -146,6 +146,8 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                                 />
                                 <button
                                     type="button"
+                                    aria-label={showConfirm ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
+                                    aria-pressed={showConfirm}
                                     onClick={() => setShowConfirm(!showConfirm)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                                 >
@@ -174,7 +176,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                         <button
                             type="submit"
                             disabled={!canSubmit}
-                            className="w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl text-[14px] transition-all shadow-sm disabled:shadow-none disabled:cursor-not-allowed"
+                            className="w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl text-[14px] transition shadow-sm disabled:shadow-none disabled:cursor-not-allowed"
                             style={{ fontFamily: SFT, fontWeight: 500 }}
                         >
                             Đặt lại mật khẩu
@@ -194,7 +196,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                     </p>
                     <Link
                         href="/sign-in"
-                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px] hover:bg-[#0077ED] transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px] hover:bg-[#0077ED] transition"
                         style={{ fontFamily: SFT, fontWeight: 500 }}
                     >
                         Đăng nhập ngay

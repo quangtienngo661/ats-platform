@@ -109,7 +109,7 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                                     required
                                     placeholder="Ví dụ: Công nghệ thông tin"
                                     defaultValue={isEditing ? (editingCategory?.name ?? '') : ''}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -122,7 +122,7 @@ export function MutateJobCategoryModal({ onClose, editingCategory, parentCategor
                                     <select id="mutatejobcategorymodal-field-2"
                                         value={parentId}
                                         onChange={(e) => setParentId(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px] bg-white appearance-none"
+                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition text-[14px] bg-white appearance-none"
                                         style={{ fontFamily: SFT }}
                                     >
                                         <option value="">— Không (danh mục gốc) —</option>

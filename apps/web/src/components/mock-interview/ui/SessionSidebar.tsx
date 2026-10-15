@@ -88,7 +88,7 @@ export function SessionSidebar({
                 {/* Progress bar */}
                 <div className="w-full h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
                     <div
-                        className="h-full rounded-full transition-all duration-500 ease-out"
+                        className="h-full rounded-full transition-[width] duration-500 ease-out"
                         style={{
                             width: `${progress}%`,
                             background: isCompleted ? '#34C759' : 'linear-gradient(90deg, #0071E3, #6366F1)',
@@ -101,7 +101,7 @@ export function SessionSidebar({
                     {Array.from({ length: totalQuestions }, (_, i) => (
                         <div
                             key={i}
-                            className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] transition-all duration-300"
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] transition duration-300"
                             style={{
                                 background: i < currentIndex ? '#0071E3' : i === currentIndex - 1 ? '#0071E3' : '#F2F2F7',
                                 color: i < currentIndex ? '#fff' : '#AEAEB2',
@@ -119,7 +119,7 @@ export function SessionSidebar({
                 {!isCompleted && onAbandon && (
                     <button
                         onClick={onAbandon}
-                        className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#FF3B30] rounded-xl text-[13px] transition-all"
+                        className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#FF3B30] rounded-xl text-[13px] transition"
                         style={{ fontWeight: 500 }}
                     >
                         Hủy phỏng vấn

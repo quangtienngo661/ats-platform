@@ -19,7 +19,7 @@ export function TypingIndicator() {
                         <div className="w-2 h-2 bg-[#AEAEB2] rounded-full animate-bounce" style={{ animationDelay: '300ms', animationDuration: '1s' }} />
                     </div>
                     <span className="text-[11px] text-[#AEAEB2] ml-1" style={{ fontFamily: SFT }}>
-                        AI đang phân tích...
+                        AI đang phân tích…
                     </span>
                 </div>
             </div>

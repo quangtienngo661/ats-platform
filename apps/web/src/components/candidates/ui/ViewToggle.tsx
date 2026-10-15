@@ -12,7 +12,7 @@ export function ViewToggle({ jobId, activeView }: ViewToggleProps) {
         <div className="flex items-center gap-1 bg-[#F5F5F7] p-1 rounded-xl w-fit" style={{ fontFamily: SFT }}>
             <Link
                 href={`/jobs/${jobId}/candidates`}
-                className={`flex items-center gap-2 px-4 py-2 rounded-[10px] text-[13px] transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-[10px] text-[13px] transition ${
                     activeView === 'list'
                         ? 'bg-white text-[#1D1D1F] shadow-sm'
                         : 'text-[#6E6E73] hover:text-[#1D1D1F]'
@@ -24,7 +24,7 @@ export function ViewToggle({ jobId, activeView }: ViewToggleProps) {
             </Link>
             <Link
                 href={`/jobs/${jobId}/kanban`}
-                className={`flex items-center gap-2 px-4 py-2 rounded-[10px] text-[13px] transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-[10px] text-[13px] transition ${
                     activeView === 'kanban'
                         ? 'bg-white text-[#1D1D1F] shadow-sm'
                         : 'text-[#6E6E73] hover:text-[#1D1D1F]'

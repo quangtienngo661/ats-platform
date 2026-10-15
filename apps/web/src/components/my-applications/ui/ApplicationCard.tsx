@@ -51,7 +51,7 @@ export function ApplicationCard({ application: app, onWithdrawSuccess }: Applica
     const canWithdraw = app.status === 'applied';
 
     return (
-        <div className="group bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-md hover:shadow-black/5 transition-all">
+        <div className="group bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-md hover:shadow-black/5 transition">
             <div className="flex items-start gap-4">
                 <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"

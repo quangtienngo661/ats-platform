@@ -24,7 +24,7 @@ export function CandidatesStats({ applications }: CandidatesStatsProps) {
     return (
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
             {stats.map(({ icon: Icon, bg, color, value, label }) => (
-                <div key={label} className="bg-white rounded-2xl p-5 border border-[#F2F2F7] hover:shadow-md hover:shadow-black/5 transition-all">
+                <div key={label} className="bg-white rounded-2xl p-5 border border-[#F2F2F7] hover:shadow-md hover:shadow-black/5 transition">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: bg }}>
                             <Icon className="w-5 h-5" style={{ color }} />

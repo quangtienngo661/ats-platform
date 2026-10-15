@@ -54,7 +54,7 @@ export function JobCard({ job }: JobCardProps) {
     return (
         <Link
             href={`/job-postings/${job.jobId}`}
-            className="group flex flex-col bg-white rounded-3xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-xl hover:shadow-black/5 transition-all duration-300 overflow-hidden"
+            className="group flex flex-col bg-white rounded-3xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-xl hover:shadow-black/5 transition duration-300 overflow-hidden"
             style={{ fontFamily: SFT }}
         >
             <div className="p-5 flex-1 flex flex-col">

@@ -23,6 +23,17 @@ html {
   tab-size: 4;
   scroll-behavior: smooth;
 }
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+/* Scrolling inside a dialog must not chain to the page behind it. */
+[role='dialog'],
+[role='dialog'] .overflow-y-auto,
+[role='dialog'] .overflow-auto {
+  overscroll-behavior: contain;
+}
 body {
   font-family: inherit;
   line-height: inherit;

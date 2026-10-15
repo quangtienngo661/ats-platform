@@ -255,13 +255,13 @@ export function MutateJobPostingModal({
                                     type="button"
                                     onClick={handleParseClick}
                                     disabled={isPending || isParsing || !lockedDepartment}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                                     style={{ fontWeight: 600 }}
                                 >
                                     {isPending || isParsing ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            Đang phân tích...
+                                            Đang phân tích…
                                         </>
                                     ) : (
                                         <>
@@ -274,11 +274,11 @@ export function MutateJobPostingModal({
                                     type="submit"
                                     onClick={handleSubmitClick}
                                     disabled={isPending || isParsing || !lockedDepartment}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                                     style={{ fontWeight: 600 }}
                                 >
                                     {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    {isPending ? 'Đang lưu...' : isEditing ? 'Cập nhật' : 'Xuất bản'}
+                                    {isPending ? 'Đang lưu…' : isEditing ? 'Cập nhật' : 'Xuất bản'}
                                 </button>
                             )}
                         </div>

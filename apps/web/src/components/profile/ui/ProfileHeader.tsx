@@ -44,7 +44,7 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
 
                         <button
                             onClick={onEdit}
-                            className="flex items-center gap-2 px-3 py-2 bg-[#F5F5F7] hover:bg-[#EBEBF0] text-[#1D1D1F] rounded-xl transition-all text-[12px]"
+                            className="flex items-center gap-2 px-3 py-2 bg-[#F5F5F7] hover:bg-[#EBEBF0] text-[#1D1D1F] rounded-xl transition text-[12px]"
                             style={{ fontWeight: 500 }}
                         >
                             <Edit2 className="w-3.5 h-3.5" />

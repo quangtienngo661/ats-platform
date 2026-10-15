@@ -187,7 +187,7 @@ export function RecruiterDetailModal({
                         </button>
                         <button
                             onClick={() => { onEdit(recruiter); onClose(); }}
-                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[13px]"
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
                             style={{ fontFamily: SF, fontWeight: 600 }}
                         >
                             Chỉnh sửa thông tin

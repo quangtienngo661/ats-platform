@@ -137,7 +137,7 @@ export function BulkScreeningDialog({
 
                     {error && <p role="alert" className="mt-4 text-[13px] text-[#DC2626]">{error}</p>}
                     {isSubmitting && (
-                        <p role="status" className="mt-4 text-[13px] text-[#6E6E73]">Đang gửi yêu cầu chấm...</p>
+                        <p role="status" className="mt-4 text-[13px] text-[#6E6E73]">Đang gửi yêu cầu chấm…</p>
                     )}
 
                     <div className="flex justify-end gap-2 mt-6">

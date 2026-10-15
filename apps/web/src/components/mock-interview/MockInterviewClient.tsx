@@ -158,13 +158,13 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
                             <button
                                 onClick={handleStart}
                                 disabled={!canStart}
-                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#0071E3] to-[#0077ED] hover:from-[#0077ED] hover:to-[#0060C0] text-white"
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] transition duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#0071E3] to-[#0077ED] hover:from-[#0077ED] hover:to-[#0060C0] text-white"
                                 style={{ fontWeight: 600 }}
                             >
                                 {isStarting ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        AI đang chuẩn bị đề...
+                                        AI đang chuẩn bị đề…
                                     </>
                                 ) : (
                                     <>

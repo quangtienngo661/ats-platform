@@ -45,16 +45,16 @@ export default function CompanySettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="page-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Tên công ty</label>
-                  <input id="page-field-1" type="text" defaultValue="Acme Corporation" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-1" type="text" defaultValue="Acme Corporation" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
                 </div>
                 <div>
                   <label htmlFor="page-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mã số thuế</label>
-                  <input id="page-field-2" type="text" defaultValue="0123456789" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-2" type="text" defaultValue="0123456789" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
                 </div>
               </div>
               <div>
                 <label htmlFor="page-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Lĩnh vực hoạt động</label>
-                <select id="page-field-3" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]">
+                <select id="page-field-3" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]">
                   <option>Công nghệ thông tin</option>
                   <option>Tài chính - Ngân hàng</option>
                   <option>Y tế - Chăm sóc sức khỏe</option>
@@ -68,7 +68,7 @@ export default function CompanySettingsPage() {
                 <textarea id="page-field-4"
                   rows={4}
                   defaultValue="Acme Corporation là công ty công nghệ hàng đầu chuyên về phát triển giải pháp AI cho doanh nghiệp. Với đội ngũ hơn 500 nhân viên tài năng, chúng tôi cam kết mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng."
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px] resize-none"
                 />
               </div>
             </div>
@@ -82,27 +82,27 @@ export default function CompanySettingsPage() {
                 <label htmlFor="page-field-5" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                   <MapPin className="w-4 h-4 inline mr-1.5" />Địa chỉ
                 </label>
-                <input id="page-field-5" type="text" defaultValue="123 Nguyễn Huệ, Quận 1, TP.HCM" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-5" type="text" defaultValue="123 Nguyễn Huệ, Quận 1, TP.HCM" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="page-field-6" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                     <Phone className="w-4 h-4 inline mr-1.5" />Số điện thoại
                   </label>
-                  <input id="page-field-6" type="tel" defaultValue="+84 28 1234 5678" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-6" type="tel" defaultValue="+84 28 1234 5678" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
                 </div>
                 <div>
                   <label htmlFor="page-field-7" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                     <Mail className="w-4 h-4 inline mr-1.5" />Email
                   </label>
-                  <input id="page-field-7" type="email" defaultValue="contact@acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                  <input id="page-field-7" type="email" autoComplete="off" spellCheck={false} defaultValue="contact@acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
                 </div>
               </div>
               <div>
                 <label htmlFor="page-field-8" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
                   <Globe className="w-4 h-4 inline mr-1.5" />Website
                 </label>
-                <input id="page-field-8" type="url" defaultValue="https://acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-8" type="url" defaultValue="https://acme.com" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
               </div>
             </div>
           </div>
@@ -113,11 +113,11 @@ export default function CompanySettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="page-field-9" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>LinkedIn</label>
-                <input id="page-field-9" type="url" placeholder="https://linkedin.com/company/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-9" type="url" placeholder="https://linkedin.com/company/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
               </div>
               <div>
                 <label htmlFor="page-field-10" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Facebook</label>
-                <input id="page-field-10" type="url" placeholder="https://facebook.com/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]" />
+                <input id="page-field-10" type="url" placeholder="https://facebook.com/acme" className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]" />
               </div>
             </div>
           </div>
@@ -130,11 +130,11 @@ export default function CompanySettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+              className="flex items-center gap-2 px-6 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
               style={{ fontWeight: 600 }}
             >
               <Save className="w-4 h-4" />
-              {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+              {saving ? 'Đang lưu…' : 'Lưu thay đổi'}
             </button>
           </div>
         </div>

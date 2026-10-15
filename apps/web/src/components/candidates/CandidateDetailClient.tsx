@@ -116,7 +116,7 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
                     {/* Quick Actions */}
                     <div className="flex gap-2 flex-shrink-0 my-auto">
                         <a
-                            className="px-4 py-2 text-[13px] border border-[#E5E5EA] hover:bg-[#F5F5F7] rounded-xl transition-all"
+                            className="px-4 py-2 text-[13px] border border-[#E5E5EA] hover:bg-[#F5F5F7] rounded-xl transition"
                             href={linkDownload}
                             target="_blank"
                             download

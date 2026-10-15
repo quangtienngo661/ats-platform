@@ -13,7 +13,7 @@ export function UserHeader({ onAdd }: UserHeaderProps) {
 
                 <button
                     onClick={onAdd}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[13px]"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
                     style={{ fontWeight: 500, fontFamily: SF }}
                 >
                     <Plus className="w-4 h-4" />

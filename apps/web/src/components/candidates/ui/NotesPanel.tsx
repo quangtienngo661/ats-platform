@@ -168,7 +168,7 @@ export function NotesPanel({ applicationId, currentUserId }: NotesPanelProps) {
       </form>
       {saving && (
         <p role="status" className="text-[13px] text-[#6E6E73]">
-          Đang lưu thay đổi...
+          Đang lưu thay đổi…
         </p>
       )}
       {writeError && (
@@ -178,7 +178,7 @@ export function NotesPanel({ applicationId, currentUserId }: NotesPanelProps) {
       )}
       {loading ? (
         <p role="status" className="text-[14px] text-[#6E6E73]">
-          Đang tải ghi chú...
+          Đang tải ghi chú…
         </p>
       ) : loadError ? (
         <div className="bg-white rounded-2xl border border-[#F2F2F7] p-6">

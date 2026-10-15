@@ -34,7 +34,7 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
   return (
     <div
       ref={(el: HTMLDivElement | null) => { drag(el); drop(el); }}
-      className={`group bg-white rounded-2xl border border-[#F2F2F7] p-4 cursor-grab active:cursor-grabbing select-none transition-all duration-200 ${isDragging ? 'opacity-40 scale-[0.97] shadow-lg' : isOver ? 'border-[#0071E3] shadow-md scale-[1.01]' : 'hover:shadow-md hover:border-[#E5E5EA]'
+      className={`group bg-white rounded-2xl border border-[#F2F2F7] p-4 cursor-grab active:cursor-grabbing select-none transition duration-200 ${isDragging ? 'opacity-40 scale-[0.97] shadow-lg' : isOver ? 'border-[#0071E3] shadow-md scale-[1.01]' : 'hover:shadow-md hover:border-[#E5E5EA]'
         }`}
       style={{ fontFamily: SFT }}
     >
@@ -74,7 +74,7 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
           )}
         </div>
         <button type="button" aria-label="Tùy chọn"
-          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 p-1 rounded-lg text-[#AEAEB2] hover:text-[#6E6E73] hover:bg-[#F5F5F7] transition-all flex-shrink-0"
+          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 p-1 rounded-lg text-[#AEAEB2] hover:text-[#6E6E73] hover:bg-[#F5F5F7] transition flex-shrink-0"
           onClick={e => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); onMenu(candidate.id, r.left, r.bottom + 4); }}
         >
           <MoreHorizontal className="w-4 h-4" />

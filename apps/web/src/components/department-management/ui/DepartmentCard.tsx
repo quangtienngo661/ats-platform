@@ -19,7 +19,7 @@ interface DepartmentCardProps {
 export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetail, organizationName }: DepartmentCardProps) {
     // const [showAddModal, setShowAddModal] = useState(false);
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition-all">
+        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition">
             <div className="flex items-start justify-between mb-4">
                 <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -30,6 +30,8 @@ export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetai
 
                 <div className="flex items-center gap-1">
                     <button
+                        type="button"
+                        aria-label={`Sửa phòng ban ${dept.name}`}
                         onClick={() => onEdit(dept)}
                         className="p-2 rounded-lg text-[#0071E3] hover:bg-[#EBF3FD] transition-colors"
                     >

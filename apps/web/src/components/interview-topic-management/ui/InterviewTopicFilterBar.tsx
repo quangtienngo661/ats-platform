@@ -16,12 +16,12 @@ export function InterviewTopicFilterBar({ categories, onSearch, onCategoryChange
                     type="search"
                     onChange={(event) => onSearch(event.target.value)}
                     placeholder="Tìm theo tên chủ đề hoặc danh mục"
-                    className="w-full rounded-xl border border-[#E5E5EA] bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                    className="w-full rounded-xl border border-[#E5E5EA] bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                 />
             </div>
             <select aria-label="Lọc danh mục chủ đề"
                 onChange={(event) => onCategoryChange(event.target.value)}
-                className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition-all bg-white cursor-pointer"
+                className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white cursor-pointer"
             >
                 <option value="">Tất cả danh mục</option>
                 {categories.map((category) => (

@@ -73,7 +73,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                             <div>
                                 <label htmlFor="profileeditmodal-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Họ và tên</label>
                                 <input id="profileeditmodal-field-1" type="text" name="fullName" required defaultValue={profile.user?.fullName}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -81,7 +81,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label htmlFor="profileeditmodal-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Chức danh hiện tại</label>
                                 <input id="profileeditmodal-field-2" type="text" name="currentTitle" defaultValue={profile.currentTitle || ''}
                                     placeholder="Ví dụ: Frontend Developer"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -89,14 +89,14 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label htmlFor="profileeditmodal-field-3" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Số năm kinh nghiệm</label>
                                 <input id="profileeditmodal-field-3" type="number" name="yearsOfExperience" min={0} max={50}
                                     defaultValue={profile.yearsOfExperience || ''}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
                             <div>
                                 <label htmlFor="profileeditmodal-field-4" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Số điện thoại</label>
                                 <input id="profileeditmodal-field-4" type="tel" name="phoneNumber" defaultValue={profile.user?.phoneNumber || ''}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -104,7 +104,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label htmlFor="profileeditmodal-field-5" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Giới thiệu bản thân</label>
                                 <textarea id="profileeditmodal-field-5" name="summary" rows={3} defaultValue={pd?.summary || ''}
                                     placeholder="Mô tả ngắn về bản thân và mục tiêu nghề nghiệp"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] resize-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px] resize-none"
                                 />
                             </div>
 
@@ -112,7 +112,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label htmlFor="profileeditmodal-field-6" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Vị trí</label>
                                 <input id="profileeditmodal-field-6" type="text" name="location" defaultValue={pd?.location || ''}
                                     placeholder="Ví dụ: TP. Hồ Chí Minh"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -121,7 +121,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>LinkedIn</label>
                                 <input type="url" name="linkedin" defaultValue={pd?.linkedin || ''}
                                     placeholder="https://linkedin.com/in/username"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div> */}
 
@@ -129,7 +129,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>GitHub</label>
                                 <input type="url" name="github" defaultValue={pd?.github || ''}
                                     placeholder="https://github.com/username"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div> */}
 
@@ -137,7 +137,7 @@ export function ProfileEditModal({ profile, onClose }: ProfileEditModalProps) {
                                 <label className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Website</label>
                                 <input type="url" name="website" defaultValue={pd?.website || ''}
                                     placeholder="https://yourwebsite.com"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div> */}
 

@@ -88,7 +88,7 @@ export default function VerificationSuccessView() {
                 >
                     <Link
                         href="/sign-in"
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition-all shadow-sm shadow-[#0071E3]/20"
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition shadow-sm shadow-[#0071E3]/20"
                         style={{ fontFamily: SFT, fontWeight: 500 }}
                     >
                         Đến trang Đăng nhập

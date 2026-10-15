@@ -102,7 +102,7 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                                     value={name}
                                     onChange={(event) => setName(event.target.value)}
                                     required
-                                    className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     placeholder="Ví dụ: Frontend React, Java Core, System Design"
                                 />
                             </div>
@@ -115,7 +115,7 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                                     name="categoryId"
                                     value={categoryId}
                                     onChange={(event) => setCategoryId(event.target.value)}
-                                    className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                 >
                                     <option value="">Không gắn danh mục</option>
                                     {jobCategories.map((category) => (
@@ -143,7 +143,7 @@ export function MutateInterviewTopicModal({ topic, jobCategories, onClose }: Mut
                                 className="flex-1 rounded-xl bg-[#0071E3] px-4 py-3 text-[14px] text-white shadow-sm transition-colors hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2]"
                                 style={{ fontWeight: 700 }}
                             >
-                                {isPending ? 'Đang lưu...' : topic ? 'Lưu thay đổi' : 'Tạo chủ đề'}
+                                {isPending ? 'Đang lưu…' : topic ? 'Lưu thay đổi' : 'Tạo chủ đề'}
                             </motion.button>
                         </div>
                     </form>

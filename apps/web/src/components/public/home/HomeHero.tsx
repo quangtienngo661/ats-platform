@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Search, MapPin, ArrowRight, Sparkles } from 'lucide-react';
@@ -47,19 +48,19 @@ export function HomeHero() {
                     {/* Search Form */}
                     <form onSubmit={handleSearch}>
                         <div className="bg-[#F5F5F7] rounded-2xl p-2 flex flex-col sm:flex-row gap-2">
-                            <div className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3 flex-1 shadow-sm">
+                            <div className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3 flex-1 shadow-sm focus-within:ring-2 focus-within:ring-[#0071E3]">
                                 <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                                 <input
                                     type="text"
                                     aria-label="Tìm việc theo từ khóa"
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
-                                    placeholder="Tên vị trí, kỹ năng, công ty..."
+                                    placeholder="Tên vị trí, kỹ năng, công ty…"
                                     className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                                     style={{ fontFamily: SFT }}
                                 />
                             </div>
-                            <div className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3 sm:w-[180px] shadow-sm">
+                            <div className="flex items-center gap-2.5 bg-white rounded-xl px-4 py-3 sm:w-[180px] shadow-sm focus-within:ring-2 focus-within:ring-[#0071E3]">
                                 <MapPin className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                                 <select
                                     aria-label="Hình thức làm việc"
@@ -76,7 +77,7 @@ export function HomeHero() {
                             </div>
                             <button
                                 type="submit"
-                                className="flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-6 py-3 text-[14px] transition-all shadow-sm shadow-[#0071E3]/20 flex-shrink-0"
+                                className="flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-6 py-3 text-[14px] transition shadow-sm shadow-[#0071E3]/20 flex-shrink-0"
                                 style={{ fontFamily: SFT, fontWeight: 500 }}
                             >
                                 <Search className="w-4 h-4" />
@@ -89,15 +90,15 @@ export function HomeHero() {
                     <div className="flex items-center justify-center flex-wrap gap-2 mt-5">
                         <span className="text-[12px] text-[#AEAEB2]">Tìm nhiều:</span>
                         {['Frontend Developer', 'Product Manager', 'Data Science', 'UX Designer'].map(term => (
-                            <button
+                            <Link
                                 key={term}
-                                onClick={() => router.push(`/job-postings?q=${encodeURIComponent(term)}`)}
+                                href={`/job-postings?q=${encodeURIComponent(term)}`}
                                 className="flex items-center gap-1 text-[12px] text-[#0071E3] bg-[#EBF3FD] hover:bg-[#D6E9FA] rounded-full px-3 py-1 transition-colors"
                                 style={{ fontFamily: SFT }}
                             >
                                 {term}
-                                <ArrowRight className="w-3 h-3" />
-                            </button>
+                                <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                            </Link>
                         ))}
                     </div>
                 </motion.div>

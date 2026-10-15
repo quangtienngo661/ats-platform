@@ -39,7 +39,7 @@ export function TopicSelector({ topics, selectedId, onSelect }: TopicSelectorPro
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.03, duration: 0.2 }}
                         onClick={() => onSelect(topic.topicId)}
-                        className={`relative flex flex-col items-start p-3.5 rounded-xl border-2 transition-all duration-200 text-left group ${isSelected
+                        className={`relative flex flex-col items-start p-3.5 rounded-xl border-2 transition duration-200 text-left group ${isSelected
                             ? 'border-[#0071E3] bg-[#EBF3FD] shadow-sm shadow-[#0071E3]/10'
                             : 'border-[#E5E5EA] bg-white hover:border-[#AEAEB2] hover:shadow-sm'
                             }`}

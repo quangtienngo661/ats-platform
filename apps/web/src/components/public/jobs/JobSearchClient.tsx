@@ -149,14 +149,14 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
             <div className="bg-white border-b border-[#E5E5EA] sticky top-[60px] z-30">
                 <div className="max-w-[1200px] mx-auto px-6 py-4">
                     <form onSubmit={handleSearch} className="flex gap-2">
-                        <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 min-w-0 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition-all">
+                        <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 min-w-0 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition">
                             <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
                             <input
                                 aria-label="Tìm việc làm"
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Tên vị trí, kỹ năng, công ty..."
+                                placeholder="Tên vị trí, kỹ năng, công ty…"
                                 className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
                             />
                             {searchQuery && (
@@ -165,7 +165,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                 </button>
                             )}
                         </div>
-                        <button type="submit" className="px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-[14px] transition-all flex-shrink-0" style={{ fontWeight: 500 }}>
+                        <button type="submit" className="px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-[14px] transition flex-shrink-0" style={{ fontWeight: 500 }}>
                             Tìm
                         </button>
                         <button
@@ -173,7 +173,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                             aria-label="Bộ lọc"
                             aria-expanded={showFilters}
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-[13px] transition-all flex-shrink-0 ${showFilters || hasActiveFilters ? 'border-[#0071E3] text-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-[13px] transition flex-shrink-0 ${showFilters || hasActiveFilters ? 'border-[#0071E3] text-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
                         >
                             <SlidersHorizontal className="w-4 h-4" />
                             <span className="hidden sm:inline">Lọc</span>
@@ -219,7 +219,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                                     key={t}
                                                     type="button"
                                                     onClick={() => { setSelectedLocationType(t); applyFilters({ locationType: t }); }}
-                                                    className={`px-3 py-1.5 rounded-lg text-[12px] transition-all ${selectedLocationType === t ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
+                                                    className={`px-3 py-1.5 rounded-lg text-[12px] transition ${selectedLocationType === t ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
                                                 >
                                                     {LOCATION_LABELS[t]}
                                                 </button>
@@ -244,7 +244,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                             {salaryField(salaryMinText, setSalaryMinText, 'Từ', 'jobsearchclient-salary-min')}
                                             <span aria-hidden="true" className="text-[#AEAEB2]">–</span>
                                             {salaryField(salaryMaxText, setSalaryMaxText, 'Đến', 'jobsearchclient-salary-max')}
-                                            <button type="button" onClick={() => applyFilters()} className="px-3 py-2 rounded-xl bg-[#F2F2F7] text-[13px] text-[#1D1D1F] hover:bg-[#EBEBF0] transition-all">
+                                            <button type="button" onClick={() => applyFilters()} className="px-3 py-2 rounded-xl bg-[#F2F2F7] text-[13px] text-[#1D1D1F] hover:bg-[#EBEBF0] transition">
                                                 Áp dụng
                                             </button>
                                         </div>
@@ -265,7 +265,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                                             aria-pressed={selected}
                                                             disabled={!selected && selectedSkills.length >= MAX_SKILLS}
                                                             onClick={() => toggleSkill(skill.skillId)}
-                                                            className={`px-3 py-1.5 rounded-lg text-[12px] transition-all disabled:opacity-40 disabled:cursor-not-allowed ${selected ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
+                                                            className={`px-3 py-1.5 rounded-lg text-[12px] transition disabled:opacity-40 disabled:cursor-not-allowed ${selected ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
                                                         >
                                                             {skill.name}
                                                         </button>
@@ -287,7 +287,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                 <div className="flex items-center justify-between mb-5">
                     <p className="text-[13px] text-[#6E6E73]">
                         <span className="text-[#1D1D1F]" style={{ fontWeight: 500 }}>{total}</span> vị trí phù hợp
-                        {isPending && <span className="ml-2 text-[#AEAEB2] animate-pulse">Đang tải...</span>}
+                        {isPending && <span className="ml-2 text-[#AEAEB2] animate-pulse">Đang tải…</span>}
                     </p>
                 </div>
 
@@ -350,7 +350,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                     <button
                                         key={p}
                                         onClick={() => applyFilters({ page: p as number })}
-                                        className={`w-9 h-9 rounded-xl text-[13px] transition-all ${currentPage === p ? 'bg-[#0071E3] text-white' : 'text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
+                                        className={`w-9 h-9 rounded-xl text-[13px] transition ${currentPage === p ? 'bg-[#0071E3] text-white' : 'text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
                                         style={{ fontWeight: currentPage === p ? 600 : 400 }}
                                     >
                                         {p}

@@ -70,13 +70,13 @@ export default function ForgotPasswordForm() {
                             <div className="relative">
                                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                                 <input id="forgotpasswordform-field-1"
-                                    type="email"
+                                    type="email" autoComplete="email" spellCheck={false}
                                     name="email"
                                     placeholder="your@email.com"
                                     required
                                     value={emailValue}
                                     onChange={(e) => setEmailValue(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition-all focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10"
+                                    className="w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10"
                                     style={{ fontFamily: SFT }}
                                 />
                             </div>
@@ -84,7 +84,7 @@ export default function ForgotPasswordForm() {
 
                         <button
                             type="submit"
-                            className="w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition-all shadow-sm shadow-[#0071E3]/20"
+                            className="w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition shadow-sm shadow-[#0071E3]/20"
                             style={{ fontFamily: SFT, fontWeight: 500 }}
                         >
                             Gửi liên kết đặt lại
@@ -114,7 +114,7 @@ export default function ForgotPasswordForm() {
                         <button
                             type="submit"
                             disabled={cooldown > 0}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F5F5F7] hover:bg-[#EBEBF0] disabled:opacity-50 disabled:cursor-not-allowed text-[#0071E3] text-[13px] transition-all"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F5F5F7] hover:bg-[#EBEBF0] disabled:opacity-50 disabled:cursor-not-allowed text-[#0071E3] text-[13px] transition"
                             style={{ fontFamily: SFT, fontWeight: 500 }}
                         >
                             <Mail className="w-3.5 h-3.5" />

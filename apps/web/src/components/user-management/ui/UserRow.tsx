@@ -31,9 +31,10 @@ function getInitials(name: string) {
     .join('');
 }
 
+const DATE_FORMAT = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
 function formatDate(iso: string) {
-  const d = new Date(iso);
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  return DATE_FORMAT.format(new Date(iso));
 }
 
 interface UserRowProps {

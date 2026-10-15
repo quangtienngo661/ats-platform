@@ -98,7 +98,7 @@ export function EditSkillModal({ skill, existingCategories, onClose }: EditSkill
                                     name="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                     style={{ fontFamily: SF }}
                                     required
                                 />
@@ -114,7 +114,7 @@ export function EditSkillModal({ skill, existingCategories, onClose }: EditSkill
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     list="edit-category-suggestions"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                     style={{ fontFamily: SF }}
                                 />
                                 <datalist id="edit-category-suggestions">
@@ -137,10 +137,10 @@ export function EditSkillModal({ skill, existingCategories, onClose }: EditSkill
                                 type="submit"
                                 disabled={isPending || !isDirty}
                                 whileTap={{ scale: 0.97 }}
-                                className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                                className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                                 style={{ fontWeight: 600 }}
                             >
-                                {isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                {isPending ? 'Đang lưu…' : 'Lưu thay đổi'}
                             </motion.button>
                         </div>
                     </form>

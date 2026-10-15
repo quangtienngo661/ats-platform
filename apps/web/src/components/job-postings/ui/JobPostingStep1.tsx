@@ -28,7 +28,7 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
                     placeholder="Ví dụ: Senior Frontend Developer"
                     value={formData.title}
                     onChange={e => updateField('title', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                 />
             </div>
 
@@ -50,7 +50,7 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
                         name="locationType" aria-label="Hình thức"
                         value={formData.locationType}
                         onChange={e => updateField('locationType', e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition-all text-[14px]"
+                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] outline-none transition text-[14px]"
                     >
                         <option value="onsite">{WORK_TYPE_LABELS.onsite}</option>
                         <option value="remote">{WORK_TYPE_LABELS.remote}</option>
@@ -63,7 +63,7 @@ export function JobPostingStep1({ formData, updateField, department }: JobPostin
                 <label htmlFor="jobpostingstep1-editor-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>Mô tả công việc *</label>
                 <RichTextEditor id="jobpostingstep1-editor-2"
                     ariaLabel="Mô tả công việc"
-                    placeholder="Nhập chi tiết mô tả công việc, quyền lợi, yêu cầu... để AI có thể phân tích chính xác nhất."
+                    placeholder="Nhập chi tiết mô tả công việc, quyền lợi, yêu cầu… để AI có thể phân tích chính xác nhất."
                     value={formData.description || ''}
                     onChange={val => updateField('description', val)}
                 />

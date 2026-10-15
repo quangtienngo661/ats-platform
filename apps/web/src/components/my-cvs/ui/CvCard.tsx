@@ -32,7 +32,7 @@ export function CvCard({ cv, onView, onDelete }: CvCardProps) {
     const projCount = cv.parsedData?.projects?.length ?? 0;
 
     return (
-        <div className="group bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-md hover:shadow-black/5 transition-all">
+        <div className="group bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-md hover:shadow-black/5 transition">
             <div className="flex items-start gap-4">
                 {/* Icon */}
                 <div className="w-12 h-12 rounded-xl bg-[#EBF3FD] flex items-center justify-center flex-shrink-0">

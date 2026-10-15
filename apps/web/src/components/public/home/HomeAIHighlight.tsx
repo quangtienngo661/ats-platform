@@ -42,7 +42,7 @@ export function HomeAIHighlight() {
 
                         <Link
                             href="/my-cvs"
-                            className="inline-flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333336] text-white rounded-xl px-8 py-4 text-[15px] transition-all shadow-md"
+                            className="inline-flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333336] text-white rounded-xl px-8 py-4 text-[15px] transition shadow-md"
                             style={{ fontFamily: SFT, fontWeight: 600 }}
                         >
                             <ScanLine className="w-5 h-5" />
@@ -63,7 +63,7 @@ export function HomeAIHighlight() {
                                     </div>
                                     <div>
                                         <h3 className="text-[17px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>AI Agent Review</h3>
-                                        <p className="text-[13px] text-[#0071E3]">Đang phân tích Frontend Developer CV...</p>
+                                        <p className="text-[13px] text-[#0071E3]">Đang phân tích Frontend Developer CV…</p>
                                     </div>
                                 </div>
                                 <div className="w-12 h-12 rounded-full border-4 border-[#34C759] flex items-center justify-center">
