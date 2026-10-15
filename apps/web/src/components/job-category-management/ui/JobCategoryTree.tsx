@@ -43,6 +43,8 @@ function ChildCategoryRow({
             {/* Actions */}
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
+                    type="button"
+                    aria-label={`Sửa danh mục ${category.name}`}
                     onClick={() => onEdit(category)}
                     className="p-1.5 rounded-lg text-[#6366F1] hover:bg-[#F5F3FF] transition-colors"
                 >
@@ -79,11 +81,14 @@ function ParentCategoryRow({
     const totalJobCount = category.childCategories?.reduce((sum, child) => sum + (child.jobPostings?.length || 0), category.jobPostings?.length || 0) || 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] overflow-hidden hover:shadow-md hover:shadow-black/5 transition-all">
+        <div className="bg-white rounded-2xl border border-[#E5E5EA] overflow-hidden hover:shadow-md hover:shadow-black/5 transition">
             {/* Parent row */}
             <div className="group flex items-center gap-3 px-5 py-4">
                 {/* Expand toggle */}
                 <button
+                    type="button"
+                    aria-label={expanded ? `Thu gọn ${category.name}` : `Mở rộng ${category.name}`}
+                    aria-expanded={childCount > 0 ? expanded : undefined}
                     onClick={() => setExpanded(!expanded)}
                     className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
                     disabled={childCount === 0}

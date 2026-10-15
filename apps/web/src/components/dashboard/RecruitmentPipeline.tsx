@@ -34,7 +34,7 @@ export default function RecruitmentPipeline({ data, maxCount }: RecruitmentPipel
                             </div>
                             <div className="h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
                                 <div
-                                    className="h-full rounded-full transition-all duration-700"
+                                    className="h-full rounded-full transition-[width] duration-700"
                                     style={{
                                         width: maxCount > 0 ? `${(count / maxCount) * 100}%` : '0%',
                                         background: color,
@@ -47,7 +47,7 @@ export default function RecruitmentPipeline({ data, maxCount }: RecruitmentPipel
             )}
             <Link
                 href="/jobs"
-                className="flex items-center justify-center gap-2 w-full mt-5 py-2.5 border border-[#E5E5EA] hover:border-[#D2D2D7] hover:bg-[#F5F5F7] text-[#1D1D1F] rounded-xl text-[13px] transition-all"
+                className="flex items-center justify-center gap-2 w-full mt-5 py-2.5 border border-[#E5E5EA] hover:border-[#D2D2D7] hover:bg-[#F5F5F7] text-[#1D1D1F] rounded-xl text-[13px] transition"
                 style={{ fontFamily: SFT, fontWeight: 500 }}
             >
                 Xem Tin tuyển dụng <ArrowRight className="w-3.5 h-3.5" />

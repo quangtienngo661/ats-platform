@@ -92,7 +92,7 @@ export function AddProfileModal({
                                     name="organizationId"
                                     required
                                     defaultValue={organizations.length === 1 ? organizations[0].organizationId : ''}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
                                 >
                                     <option value="" disabled>Chọn tổ chức áp dụng cấu hình</option>
                                     {organizations.map((organization) => (
@@ -112,7 +112,7 @@ export function AddProfileModal({
                                 name="name"
                                 type="text" placeholder="Vd: Vị trí quản lý"
                                 value={name} onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
+                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
                             />
                         </div>
                         <div>
@@ -123,7 +123,7 @@ export function AddProfileModal({
                                 name="description"
                                 type="text" placeholder="Vd: Dùng cho các vị trí cấp trung và cấp cao"
                                 value={description} onChange={(e) => setDescription(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition-all"
+                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
                             />
                         </div>
                     </div>
@@ -234,7 +234,7 @@ export function AddProfileModal({
                                 { w: experience.weight, color: '#6366F1' },
                                 { w: education.weight, color: '#009900' },
                             ].map(({ w, color }, i) => w > 0 && (
-                                <div key={i} className="h-full transition-all duration-200" style={{ width: `${w}%`, background: color }} />
+                                <div key={i} className="h-full transition-[width] duration-200" style={{ width: `${w}%`, background: color }} />
                             ))}
                         </div>
                     </div>
@@ -290,10 +290,10 @@ export function AddProfileModal({
                     <button
                         type="submit"
                         disabled={!isValid || isPending}
-                        className="flex-1 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                        className="flex-1 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                         style={{ fontWeight: 600 }}
                     >
-                        {isPending ? 'Đang thêm...' : 'Thêm cấu hình'}
+                        {isPending ? 'Đang thêm…' : 'Thêm cấu hình'}
                     </button>
                 </div>
             </motion.form></DialogContent>

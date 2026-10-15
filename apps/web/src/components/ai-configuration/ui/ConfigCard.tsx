@@ -72,7 +72,7 @@ export function ConfigCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={`bg-white rounded-2xl border transition-all ${profile.isDefault ? 'border-[#0071E3] shadow-md shadow-[#0071E3]/10' : 'border-[#E5E5EA]'
+            className={`bg-white rounded-2xl border transition ${profile.isDefault ? 'border-[#0071E3] shadow-md shadow-[#0071E3]/10' : 'border-[#E5E5EA]'
                 }`}
         >
             {/* ── Header ── */}
@@ -88,7 +88,7 @@ export function ConfigCard({
                             disabled={!isEditing}
                             value={isEditing ? (draft.name || '') : (profile.name || '')}
                             onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                            className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
+                            className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] bg-transparent outline-none w-full rounded-md focus-visible:ring-2 focus-visible:ring-[#0071E3]/40 disabled:cursor-default disabled:select-none pb-px"
                             style={{ fontFamily: SF, fontWeight: 600 }}
                         />
                         {isEditing && (
@@ -102,7 +102,7 @@ export function ConfigCard({
                             disabled={!isEditing}
                             value={isEditing ? (draft.description || '') : (profile.description || '')}
                             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                            className="text-[12px] text-[#AEAEB2] bg-transparent outline-none w-full disabled:cursor-default disabled:select-none pb-px"
+                            className="text-[12px] text-[#AEAEB2] bg-transparent outline-none w-full rounded-md focus-visible:ring-2 focus-visible:ring-[#0071E3]/40 disabled:cursor-default disabled:select-none pb-px"
                             style={{ fontFamily: SF }}
                         />
                         {isEditing && (
@@ -200,6 +200,9 @@ export function ConfigCard({
 
                     {/* Collapse */}
                     <button
+                        type="button"
+                        aria-label={isCollapsed ? 'Mở rộng cấu hình' : 'Thu gọn cấu hình'}
+                        aria-expanded={!isCollapsed}
                         onClick={handleCollapse}
                         className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
                     >
@@ -288,7 +291,7 @@ export function ConfigCard({
                                     { key: 'education', w: isEditing ? draft.educationWeight : profile.educationWeight, color: '#009900' },
                                 ].map(({ key, w, color }) => (
                                     w > 0 && (
-                                        <div key={key} className="h-full transition-all duration-300" style={{ width: `${w}%`, background: color }} />
+                                        <div key={key} className="h-full transition-[width] duration-300" style={{ width: `${w}%`, background: color }} />
                                     )
                                 ))}
                             </div>
@@ -312,7 +315,7 @@ export function ConfigCard({
                                 <button
                                     disabled={!isEditing || !isValid}
                                     onClick={handleSave}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[13px]"
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[13px]"
                                     style={{ fontWeight: 600 }}
                                 >
                                     {isEditing ? <Save className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}

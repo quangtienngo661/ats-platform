@@ -62,12 +62,14 @@ describe('HomeHero', () => {
     expect(mocks.push).toHaveBeenCalledWith('/job-postings?q=react');
   });
 
-  it('keeps the popular searches going to the keyword search', async () => {
-    const user = userEvent.setup();
+  it('keeps the popular searches going to the keyword search', () => {
     render(<HomeHero />);
 
-    await user.click(screen.getByRole('button', { name: /Frontend Developer/ }));
-
-    expect(mocks.push).toHaveBeenCalledWith('/job-postings?q=Frontend%20Developer');
+    // A real link: Ctrl/Cmd+click and middle-click open the search in a new tab.
+    expect(screen.getByRole('link', { name: /Frontend Developer/ })).toHaveAttribute(
+      'href',
+      '/job-postings?q=Frontend%20Developer',
+    );
+    expect(screen.queryByRole('button', { name: /Frontend Developer/ })).not.toBeInTheDocument();
   });
 });

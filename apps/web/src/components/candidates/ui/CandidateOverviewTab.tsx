@@ -190,7 +190,7 @@ export function CandidateOverviewTab({
               style={{ fontWeight: 500 }}
             >
               {screeningStatus === 'processing'
-                ? 'Đang sàng lọc CV...'
+                ? 'Đang sàng lọc CV…'
                 : 'Chưa bắt đầu sàng lọc'}
             </p>
             <p className="text-[13px] text-[#AEAEB2] mt-2">
@@ -403,7 +403,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </div>
       <div className="h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all"
+          className="h-full rounded-full transition-[width]"
           style={{ width: `${score}%`, background: getScoreColor(score) }}
         />
       </div>

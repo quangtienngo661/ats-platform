@@ -41,7 +41,7 @@ export default async function CandidateLayout({ children }: { children: ReactNod
                 initialNotifications={notifications.items}
                 initialUnreadCount={unreadCount}
             />
-            <main className="flex flex-col flex-grow pt-[60px]">
+            <main id="main-content" className="flex flex-col flex-grow pt-[60px]">
                 {children}
             </main>
         </div>

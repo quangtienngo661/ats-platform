@@ -31,7 +31,7 @@ export default function InterviewResultClient({ result }: InterviewResultClientP
                 <div className="flex items-center gap-3">
                     <Link
                         href="/mock-interview"
-                        className="p-2 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] text-[#6E6E73] transition-all"
+                        className="p-2 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] text-[#6E6E73] transition"
                     >
                         <ArrowLeft className="w-4 h-4" />
                     </Link>
@@ -47,7 +47,7 @@ export default function InterviewResultClient({ result }: InterviewResultClientP
 
                 <Link
                     href="/mock-interview"
-                    className="flex items-center gap-2 px-3.5 py-2 bg-[#EBF3FD] hover:bg-[#D6E9FA] text-[#0071E3] rounded-xl text-[12px] transition-all"
+                    className="flex items-center gap-2 px-3.5 py-2 bg-[#EBF3FD] hover:bg-[#D6E9FA] text-[#0071E3] rounded-xl text-[12px] transition"
                     style={{ fontWeight: 500 }}
                 >
                     <RotateCcw className="w-3.5 h-3.5" />

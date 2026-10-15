@@ -31,7 +31,7 @@ const STATUSES: { value: UserStatus; label: string }[] = [
 ];
 
 const inputCls =
-  'w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]';
+  'w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]';
 const selectCls = `${inputCls} cursor-pointer appearance-none`;
 
 const INITIAL_STATE: UserActionState = { success: false, message: '' };
@@ -138,7 +138,7 @@ export function AddUserModal({ onClose, onCreated, organizations = [] }: AddUser
                 </label>
                 <input id="addusermodal-field-2"
                   name="email" aria-label="Email"
-                  type="email"
+                  type="email" autoComplete="off" spellCheck={false}
                   required
                   placeholder="email@company.com"
                   className={inputCls}
@@ -250,10 +250,10 @@ export function AddUserModal({ onClose, onCreated, organizations = [] }: AddUser
                 type="submit"
                 disabled={isPending}
                 whileTap={{ scale: 0.97 }}
-                className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                 style={{ fontWeight: 600 }}
               >
-                {isPending ? 'Đang tạo...' : 'Tạo tài khoản'}
+                {isPending ? 'Đang tạo…' : 'Tạo tài khoản'}
               </motion.button>
             </div>
           </form>

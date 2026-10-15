@@ -12,7 +12,7 @@ interface AnswerInputProps {
     placeholder?: string;
 }
 
-export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập câu trả lời...' }: AnswerInputProps) {
+export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập câu trả lời…' }: AnswerInputProps) {
     const [text, setText] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -65,7 +65,7 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
                         className={[
                             'w-full rounded-xl border px-4 py-2.5',
                             'text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2]',
-                            'outline-none transition-all duration-200',
+                            'outline-none transition duration-200',
                             // Ẩn scrollbar trên mọi trình duyệt
                             '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
                             // Bỏ resize handle hoàn toàn
@@ -83,7 +83,7 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
                 <button type="button" aria-label="Gửi"
                     onClick={handleSubmit}
                     disabled={!text.trim() || disabled}
-                    className="flex-shrink-0 mb-[25.5px] w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed bg-[#0071E3] hover:bg-[#0077ED] active:scale-95 text-white shadow-sm shadow-[#0071E3]/20"
+                    className="flex-shrink-0 mb-[25.5px] w-10 h-10 rounded-xl flex items-center justify-center transition duration-200 disabled:opacity-30 disabled:cursor-not-allowed bg-[#0071E3] hover:bg-[#0077ED] active:scale-95 text-white shadow-sm shadow-[#0071E3]/20"
                 >
                     <Send className="w-4 h-4" />
                 </button>

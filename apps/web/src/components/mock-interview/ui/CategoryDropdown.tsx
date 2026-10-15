@@ -35,7 +35,7 @@ export function CategoryDropdown({ categories, selectedCategory, onSelectCategor
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] border transition-all duration-200 ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] border transition duration-200 ${
                     isOpen
                         ? 'border-[#0071E3] bg-[#EBF3FD] text-[#0071E3]'
                         : 'border-[#E5E5EA] bg-white text-[#1D1D1F] hover:border-[#AEAEB2] hover:bg-[#F5F5F7]'

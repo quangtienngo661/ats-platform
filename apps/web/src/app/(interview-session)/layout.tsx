@@ -16,8 +16,8 @@ export default async function InterviewSessionLayout({ children }: { children: R
     }
 
     return (
-        <div className="h-screen w-screen overflow-hidden bg-[#F5F5F7]">
+        <main id="main-content" className="h-screen w-screen overflow-hidden bg-[#F5F5F7]">
             {children}
-        </div>
+        </main>
     );
 }

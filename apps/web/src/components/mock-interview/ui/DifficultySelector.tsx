@@ -60,7 +60,7 @@ export function DifficultySelector({ selected, onSelect }: DifficultySelectorPro
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => onSelect(level)}
-                        className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${isSelected
+                        className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition duration-200 ${isSelected
                             ? `border-current shadow-sm`
                             : 'border-[#E5E5EA] bg-white hover:border-[#AEAEB2]'
                             }`}

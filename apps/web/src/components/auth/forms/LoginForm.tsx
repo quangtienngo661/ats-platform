@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 
 const initialState = { success: false, message: '' };
 
-const INPUT_CLS = "w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition-all focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10";
+const INPUT_CLS = "w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10";
 
 export default function LoginForm() {
     const [showPw, setShowPw] = useState(false);
@@ -62,7 +62,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                         <input id="loginform-field-1"
-                            type="email"
+                            type="email" autoComplete="email" spellCheck={false}
                             name="email"
                             placeholder="your@email.com"
                             className={INPUT_CLS}

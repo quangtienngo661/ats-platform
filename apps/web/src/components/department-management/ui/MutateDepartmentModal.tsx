@@ -106,7 +106,7 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                                         name="organizationId"
                                         required
                                         defaultValue={organizations.length === 1 ? organizations[0].organizationId : ""}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                     >
                                         <option value="" disabled>Chọn tổ chức sở hữu phòng ban</option>
                                         {organizations.map((organization) => (
@@ -132,7 +132,7 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                                     placeholder="Nhập tên phòng ban"
                                     // 3. Đảm bảo fallback về chuỗi rỗng an toàn tuyệt đối
                                     defaultValue={isEdited ? (editingDept?.name ?? "") : ""}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
                                 />
                             </div>
 
@@ -146,7 +146,7 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                                     rows={3}
                                     // 3. Đảm bảo fallback về chuỗi rỗng an toàn
                                     defaultValue={isEdited ? (editingDept?.description ?? "") : ""}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition-all text-[14px] resize-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px] resize-none"
                                 />
                             </div>
 
@@ -161,7 +161,7 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
                                             key={c}
                                             type="button"
                                             onClick={() => setColor(c)}
-                                            className={`w-10 h-10 rounded-xl border-2 transition-all ${color === c ? 'border-[#1D1D1F] scale-110 shadow-sm' : 'border-transparent hover:border-[#E5E5EA]'}`}
+                                            className={`w-10 h-10 rounded-xl border-2 transition ${color === c ? 'border-[#1D1D1F] scale-110 shadow-sm' : 'border-transparent hover:border-[#E5E5EA]'}`}
                                             style={{ background: c }}
                                         />
                                     ))}

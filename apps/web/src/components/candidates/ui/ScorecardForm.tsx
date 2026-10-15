@@ -222,7 +222,7 @@ export function ScorecardForm({
         style={{ fontFamily: SF, fontWeight: 600 }}
       >
         {saving
-          ? 'Đang lưu đánh giá...'
+          ? 'Đang lưu đánh giá…'
           : initial
             ? 'Lưu đánh giá'
             : 'Nộp đánh giá'}

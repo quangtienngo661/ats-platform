@@ -32,7 +32,7 @@ export function RecruiterCard({
     const user = recruiter.user;
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition-all flex flex-col gap-4">
+        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition flex flex-col gap-4">
             {/* Top row: avatar + actions */}
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">

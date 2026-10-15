@@ -22,7 +22,7 @@ export function AuthShell({ children, showTerms = true }: AuthShellProps) {
                 />
             </div>
 
-            <div className="w-full max-w-[440px] relative z-10">
+            <div id="main-content" role="main" className="w-full max-w-[440px] relative z-10">
                 {/* Logo */}
                 <div className="flex justify-center mb-8">
                     <Link href="/" className="flex items-center gap-2">

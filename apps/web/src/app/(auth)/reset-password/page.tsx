@@ -36,7 +36,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
                     </p>
                     <Link
                         href="/forgot-password"
-                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px] hover:bg-[#0077ED] transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px] hover:bg-[#0077ED] transition"
                         style={{ fontFamily: SFT, fontWeight: 500 }}
                     >
                         Yêu cầu link mới

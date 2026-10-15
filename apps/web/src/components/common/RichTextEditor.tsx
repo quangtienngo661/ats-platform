@@ -58,7 +58,7 @@ export function RichTextEditor({ id, value, onChange, placeholder, ariaLabel }: 
     };
 
     return (
-        <div className="w-full rounded-xl border border-[#E5E5EA] overflow-hidden focus-within:border-[#0071E3] focus-within:ring-2 focus-within:ring-[#0071E3]/10 transition-all bg-white flex flex-col">
+        <div className="w-full rounded-xl border border-[#E5E5EA] overflow-hidden focus-within:border-[#0071E3] focus-within:ring-2 focus-within:ring-[#0071E3]/10 transition bg-white flex flex-col">
             <div className="flex items-center gap-1 p-2 border-b border-[#F2F2F7] bg-[#FAFAFC]">
                 <button
                     type="button"

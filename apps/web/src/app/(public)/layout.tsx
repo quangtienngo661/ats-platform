@@ -22,7 +22,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
     return (
         <div className="flex flex-col min-h-screen bg-[#F5F5F7]">
             <PublicHeader userInfo={userInfo} />
-            <main className="flex flex-col flex-grow pt-[60px]">
+            <main id="main-content" className="flex flex-col flex-grow pt-[60px]">
                 {children}
             </main>
         </div>

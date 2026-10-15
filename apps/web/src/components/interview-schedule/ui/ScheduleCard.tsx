@@ -36,7 +36,7 @@ export function ScheduleCard({ schedule, onSelect }: ScheduleCardProps) {
         <button
             type="button"
             onClick={() => onSelect(schedule)}
-            className={`w-full rounded-xl border p-3 text-left shadow-[0_1px_2px_rgba(24,24,27,0.04),0_4px_10px_-4px_rgba(24,24,27,0.08)] transition-all hover:-translate-y-0.5 ${style.card}`}
+            className={`w-full rounded-xl border p-3 text-left shadow-[0_1px_2px_rgba(24,24,27,0.04),0_4px_10px_-4px_rgba(24,24,27,0.08)] transition hover:-translate-y-0.5 ${style.card}`}
         >
             <div className="flex items-center justify-between gap-2">
                 <span className={`inline-flex items-center gap-1 text-[12px] ${style.time}`} style={{ fontWeight: 600 }}>

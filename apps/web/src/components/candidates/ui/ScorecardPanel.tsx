@@ -112,7 +112,7 @@ export function ScorecardPanel({
       )}
       {loading ? (
         <p role="status" className="text-[14px] text-[#6E6E73]">
-          Đang tải đánh giá phỏng vấn...
+          Đang tải đánh giá phỏng vấn…
         </p>
       ) : error ? (
         <div className="bg-white rounded-2xl border border-[#F2F2F7] p-6">

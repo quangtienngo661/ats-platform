@@ -151,7 +151,7 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
                                         placeholder="Nhập tên CV của bạn"
                                         required
                                         minLength={3}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-[#FAFAFA] text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/20 focus:bg-white"
+                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-[#FAFAFA] text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/20 focus:bg-white"
                                         style={{ fontFamily: SFT }}
                                     />
                                 </div>

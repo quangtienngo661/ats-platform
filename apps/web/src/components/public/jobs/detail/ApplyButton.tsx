@@ -65,7 +65,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
         return (
             <Link
                 href={`/sign-in?${new URLSearchParams({ callbackUrl: `/job-postings/${job.jobId}` })}`}
-                className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[15px]"
+                className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[15px]"
                 style={{ fontFamily: SFT, fontWeight: 600 }}
             >
                 <Lock className="w-4 h-4" />
@@ -77,7 +77,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
     return (available ? (<>
         <button
             onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[15px]"
+            className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[15px]"
             style={{ fontFamily: SFT, fontWeight: 600 }}
         >
             <Send className="w-4 h-4" />
@@ -132,7 +132,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                 </span>
 
                                 {loadingCvs ? (
-                                    <div className="text-[13px] text-[#AEAEB2] py-4 text-center">Đang tải CV...</div>
+                                    <div className="text-[13px] text-[#AEAEB2] py-4 text-center">Đang tải CV…</div>
                                 ) : cvsError ? (
                                     <div role="alert" className="text-[13px] py-4 text-center text-[#FF3B30]">
                                         Không thể tải CV. <button type="button" onClick={() => setCvRetry(value => value + 1)} className="text-[#0071E3] hover:underline">Thử lại</button>
@@ -154,7 +154,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                         {cvs.map(cv => (cv.parsedData?.isConfirmed) && (
                                             <label
                                                 key={cv.cvId}
-                                                className={`flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${selectedCvId === cv.cvId ? 'border-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] hover:border-[#AEAEB2]'}`}
+                                                className={`flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition ${selectedCvId === cv.cvId ? 'border-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] hover:border-[#AEAEB2]'}`}
                                             >
                                                 <input
                                                     type="radio"
@@ -199,11 +199,11 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                     type="submit"
                                     disabled={isPending || loadingCvs || cvsError || cvs.length === 0 || !selectedCvId}
                                     whileTap={{ scale: 0.97 }}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                                     style={{ fontWeight: 600 }}
                                 >
                                     <Send className="w-4 h-4" />
-                                    {isPending ? 'Đang nộp...' : 'Nộp đơn ứng tuyển'}
+                                    {isPending ? 'Đang nộp…' : 'Nộp đơn ứng tuyển'}
                                 </motion.button>
                             </div>
                         </form>
@@ -215,7 +215,7 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
         <>
             <Link
                 href="/my-applications"
-                className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#34C759] hover:bg-[#30B350] text-white rounded-xl transition-all shadow-sm text-[15px]"
+                className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#34C759] hover:bg-[#30B350] text-white rounded-xl transition shadow-sm text-[15px]"
                 style={{ fontFamily: SFT, fontWeight: 600 }}
             >
                 <ClipboardList className="w-4 h-4" />

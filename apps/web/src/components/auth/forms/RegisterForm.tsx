@@ -10,7 +10,7 @@ import { registerAction } from '@/servers/auth/auth.action';
 
 const initialState = { success: false, message: '' };
 
-const INPUT_CLS = "w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition-all focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10";
+const INPUT_CLS = "w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10";
 
 // Password requirement checker
 function PasswordRequirement({ met, label }: { met: boolean; label: string }) {
@@ -74,7 +74,7 @@ export default function RegisterForm() {
                     <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
                         <input id="registerform-field-2"
-                            type="email"
+                            type="email" autoComplete="email" spellCheck={false}
                             name="email"
                             placeholder="your@email.com"
                             required
@@ -125,7 +125,7 @@ export default function RegisterForm() {
                 <label className="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" className="sr-only peer" checked={agreed} onChange={(event) => setAgreed(event.target.checked)} />
                     <span aria-hidden="true"
-                        className={`w-5 h-5 rounded-[6px] border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-[#0071E3] ${agreed ? 'bg-[#0071E3] border-[#0071E3]' : 'border-[#D2D2D7]'}`}
+                        className={`w-5 h-5 rounded-[6px] border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-[#0071E3] ${agreed ? 'bg-[#0071E3] border-[#0071E3]' : 'border-[#D2D2D7]'}`}
                     >
                         {agreed && (
                             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -150,7 +150,7 @@ export default function RegisterForm() {
                 <button
                     type="submit"
                     disabled={!agreed || !allMet}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition-all shadow-sm shadow-[#0071E3]/20 disabled:opacity-40 disabled:cursor-not-allowed mt-1"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl text-[14px] transition shadow-sm shadow-[#0071E3]/20 disabled:opacity-40 disabled:cursor-not-allowed mt-1"
                     style={{ fontFamily: SFT, fontWeight: 500 }}
                 >
                     Tạo tài khoản <ArrowRight className="w-4 h-4" />

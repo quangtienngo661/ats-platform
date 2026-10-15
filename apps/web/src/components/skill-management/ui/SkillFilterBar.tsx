@@ -31,8 +31,8 @@ export function SkillFilterBar({ categories, onSearch, onCategoryChange }: Skill
                     type="text"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
-                    placeholder="Tìm kiếm kỹ năng..."
-                    className="w-full pl-9 pr-4 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition-all bg-white"
+                    placeholder="Tìm kiếm kỹ năng…"
+                    className="w-full pl-9 pr-4 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white"
                     style={{ fontFamily: SF }}
                 />
             </div>
@@ -41,7 +41,7 @@ export function SkillFilterBar({ categories, onSearch, onCategoryChange }: Skill
             <div className="relative">
                 <select aria-label="Lọc danh mục kỹ năng"
                     onChange={(e) => onCategoryChange(e.target.value)}
-                    className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition-all bg-white cursor-pointer"
+                    className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white cursor-pointer"
                     style={{ fontFamily: SF }}
                 >
                     <option value="">Tất cả danh mục</option>

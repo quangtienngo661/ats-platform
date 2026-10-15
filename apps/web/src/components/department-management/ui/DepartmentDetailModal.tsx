@@ -212,7 +212,7 @@ export function DepartmentDetailModal({ department, onClose }: DepartmentDetailM
                     {/* Footer */}
                     <div className="p-4 border-t border-[#F2F2F7]">
                         <button
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition-all shadow-sm text-[13px]"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
                             style={{ fontFamily: SF, fontWeight: 600 }}
                         >
                             <UserPlus className="w-4 h-4" />

@@ -59,7 +59,7 @@ export default function DashboardKpiCards({ totalApplications, openJobs, hiredTh
                 return (
                     <div
                         key={label}
-                        className="bg-white rounded-2xl p-4 border border-[#F2F2F7] hover:shadow-md hover:shadow-black/5 transition-all"
+                        className="bg-white rounded-2xl p-4 border border-[#F2F2F7] hover:shadow-md hover:shadow-black/5 transition"
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: bg }}>

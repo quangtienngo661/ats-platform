@@ -42,7 +42,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                             <Link
                                 key={cat.categoryId}
                                 href={`/job-postings?categoryId=${cat.categoryId}`}
-                                className="group flex flex-col gap-3 p-5 bg-white rounded-2xl border border-[#E5E5EA] hover:border-[#0071E3]/30 hover:shadow-lg hover:shadow-black/5 transition-all"
+                                className="group flex flex-col gap-3 p-5 bg-white rounded-2xl border border-[#E5E5EA] hover:border-[#0071E3]/30 hover:shadow-lg hover:shadow-black/5 transition"
                             >
                                 <div
                                     className="w-10 h-10 rounded-xl flex items-center justify-center"

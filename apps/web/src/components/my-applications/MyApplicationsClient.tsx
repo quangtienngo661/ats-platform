@@ -103,7 +103,7 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
                             key={status}
                             type="button"
                             onClick={() => setStatusFilter(status)}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] transition-all whitespace-nowrap ${isActive
+                            className={`px-3 py-1.5 rounded-lg text-[12px] transition whitespace-nowrap ${isActive
                                 ? 'bg-[#0071E3] text-white'
                                 : 'bg-[#F5F5F7] text-[#6E6E73] hover:bg-[#EBEBF0]'
                                 }`}

@@ -38,7 +38,7 @@ export function UserFilterBar({ onSearch, onRoleChange, onStatusChange }: UserFi
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   const selectClass =
-    'appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 transition-all bg-white cursor-pointer';
+    'appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 transition bg-white cursor-pointer';
 
   return (
     <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -49,8 +49,8 @@ export function UserFilterBar({ onSearch, onRoleChange, onStatusChange }: UserFi
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Tìm theo tên, email..."
-          className="w-full pl-9 pr-4 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 transition-all bg-white"
+          placeholder="Tìm theo tên, email…"
+          className="w-full pl-9 pr-4 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 transition bg-white"
           style={{ fontFamily: SF }}
         />
       </div>

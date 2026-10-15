@@ -77,7 +77,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail, organizationNa
                 <Link
                   href={href}
                   onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
                     }`}
                 >
                   <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#0071E3]' : 'text-[#AEAEB2]'}`} />
@@ -109,7 +109,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail, organizationNa
                     <Link
                       href={href}
                       onClick={onClose}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition duration-150 ${isActive ? 'bg-[#EBF3FD] text-[#0071E3]' : 'text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
                         }`}
                     >
                       <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#0071E3]' : 'text-[#AEAEB2]'}`} />
@@ -142,7 +142,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail, organizationNa
                     onClose?.();
                     await logoutAction(href);
                   }}
-                  className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
+                  className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition text-[13px]"
                 >
                   <Icon className="w-[18px] h-[18px] flex-shrink-0" />
                   <span style={{ fontFamily: SFT }}>{label}</span>
@@ -151,7 +151,7 @@ function SidebarContent({ onClose, userRole, userName, userEmail, organizationNa
                 <Link
                   href={href}
                   onClick={onClose}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition-all text-[13px]"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition text-[13px]"
                 >
                   <Icon className="w-[18px] h-[18px] flex-shrink-0" />
                   <span style={{ fontFamily: SFT }}>{label}</span>
@@ -284,7 +284,7 @@ export function DashboardLayout({
           initialNotifications={initialNotifications}
           initialUnreadCount={initialUnreadCount}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main id="main-content" className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

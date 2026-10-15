@@ -86,8 +86,8 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                                     ref={nameRef}
                                     type="text"
                                     name="name"
-                                    placeholder="Ví dụ: TypeScript, React, Docker..."
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px]"
+                                    placeholder="Ví dụ: TypeScript, React, Docker…"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition text-[14px]"
                                     style={{ fontFamily: SF }}
                                     required
                                 />
@@ -100,9 +100,9 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                                 <input id="addskillmodal-field-2"
                                     type="text"
                                     name="category"
-                                    placeholder="Ví dụ: Programming Language, Framework..."
+                                    placeholder="Ví dụ: Programming Language, Framework…"
                                     list="category-suggestions"
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition-all text-[14px]"
+                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 outline-none transition text-[14px]"
                                     style={{ fontFamily: SF }}
                                 />
                                 <datalist id="category-suggestions">
@@ -126,10 +126,10 @@ export function AddSkillModal({ existingCategories, onClose }: AddSkillModalProp
                                 type="submit"
                                 disabled={isPending}
                                 whileTap={{ scale: 0.97 }}
-                                className="flex-1 px-4 py-3 bg-[#6366F1] hover:bg-[#4F52D9] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition-all shadow-sm text-[14px]"
+                                className="flex-1 px-4 py-3 bg-[#6366F1] hover:bg-[#4F52D9] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
                                 style={{ fontWeight: 600 }}
                             >
-                                {isPending ? 'Đang tạo...' : 'Tạo kỹ năng'}
+                                {isPending ? 'Đang tạo…' : 'Tạo kỹ năng'}
                             </motion.button>
                         </div>
                     </form>

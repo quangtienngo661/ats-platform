@@ -163,7 +163,7 @@ export function MutateInterviewScheduleModal({
                                         value={applicationId}
                                         onChange={event => { setApplicationId(event.target.value); setInterviewerId(''); }}
                                         required
-                                        className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                        className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     >
                                         {applications.length === 0 ? (
                                             <option value="">Chưa có ứng viên ở vòng phỏng vấn</option>
@@ -186,7 +186,7 @@ export function MutateInterviewScheduleModal({
                                     value={effectiveInterviewerId}
                                     onChange={event => setInterviewerId(event.target.value)}
                                     required
-                                    className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    className="w-full rounded-xl border border-[#E5E5EA] bg-white px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                 >
                                     {eligible.length === 0 ? (
                                         <option value="">Chưa có recruiter phù hợp trong tổ chức</option>
@@ -210,7 +210,7 @@ export function MutateInterviewScheduleModal({
                                         onChange={event => setScheduledDate(event.target.value)}
                                         min={minDate}
                                         required
-                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                                 <div>
@@ -223,7 +223,7 @@ export function MutateInterviewScheduleModal({
                                         value={scheduledTime}
                                         onChange={event => setScheduledTime(event.target.value)}
                                         required
-                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                             </div>
@@ -242,7 +242,7 @@ export function MutateInterviewScheduleModal({
                                     max={480}
                                     step={15}
                                     required
-                                    className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                    className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                 />
                             </div>
 
@@ -284,7 +284,7 @@ export function MutateInterviewScheduleModal({
                                         maxLength={255}
                                         placeholder="Ví dụ: Tầng 5, 123 Lê Lợi, Quận 1"
                                         required
-                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                             ) : (
@@ -299,7 +299,7 @@ export function MutateInterviewScheduleModal({
                                         onChange={event => setOnlineMeetingLink(event.target.value)}
                                         placeholder="https://meet.google.com/..."
                                         required
-                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition-all focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                                        className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
                                 </div>
                             )}
@@ -321,7 +321,7 @@ export function MutateInterviewScheduleModal({
                                 className="flex-1 rounded-xl bg-[#0071E3] px-4 py-3 text-[14px] text-white shadow-sm transition-colors hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2]"
                                 style={{ fontWeight: 800 }}
                             >
-                                {isPending ? 'Đang lưu...' : schedule ? 'Lưu lịch mới' : 'Đặt lịch'}
+                                {isPending ? 'Đang lưu…' : schedule ? 'Lưu lịch mới' : 'Đặt lịch'}
                             </motion.button>
                         </div>
                     </form>

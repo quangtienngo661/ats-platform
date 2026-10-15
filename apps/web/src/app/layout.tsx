@@ -3,12 +3,17 @@ import { Toaster } from 'sonner';
 import './global.css';
 import { cookies } from 'next/headers';
 import { GlobalSocketInit } from '../components/common/GlobalSocketInit';
+import { MotionProvider } from '../components/common/MotionProvider';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 
 export const metadata = {
   title: 'TalentAI | ATS Platform',
   description: 'Hệ thống quản lý tuyển dụng thông minh',
+};
+
+export const viewport = {
+  themeColor: '#F5F5F7',
 };
 
 export default async function RootLayout({
@@ -30,8 +35,14 @@ export default async function RootLayout({
   return (
     <html lang="vi" data-scroll-behavior="smooth">
       <body className={inter.className}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:text-[13px] focus:text-[#0071E3] focus:shadow-lg focus:outline focus:outline-2 focus:outline-[#0071E3]"
+        >
+          Bỏ qua tới nội dung chính
+        </a>
         <GlobalSocketInit userId={userInfo?.userId || ''} token={token || ''} />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <Toaster
           richColors
           closeButton

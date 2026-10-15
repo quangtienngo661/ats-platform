@@ -17,7 +17,7 @@ export function HomeFeaturedJobs() {
                 </p>
                 <Link
                     href="/job-postings"
-                    className="inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-8 py-4 text-[15px] transition-all shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-8 py-4 text-[15px] transition shadow-sm"
                     style={{ fontFamily: SFT, fontWeight: 600 }}
                 >
                     Xem Các Việc Làm Nổi Bật

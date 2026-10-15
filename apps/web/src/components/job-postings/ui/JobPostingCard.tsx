@@ -68,7 +68,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
     const applicantCount = job.applications?.filter((a: TApplication) => a.status !== 'cancelled').length || 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-md hover:shadow-black/5 transition-all group cursor-pointer p-5">
+        <div className="bg-white rounded-2xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-md hover:shadow-black/5 transition group cursor-pointer p-5">
             <div className="flex items-start gap-4">
                 <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: deptBg }}>
                     <Briefcase className="w-5 h-5" style={{ color: deptColor }} />
@@ -145,7 +145,7 @@ export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                    <button onClick={() => onEdit(job)} className="p-2 rounded-xl text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
+                    <button type="button" aria-label={`Sửa tin ${job.title}`} onClick={() => onEdit(job)} className="p-2 rounded-xl text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
                         <Edit3 className="w-4 h-4" />
                     </button>
                     <button type="button" aria-label="Xóa" onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
