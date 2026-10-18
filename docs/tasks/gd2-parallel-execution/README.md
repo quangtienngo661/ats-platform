@@ -1,5 +1,7 @@
 # GĐ2 — chạy song song SP1, SP2, SP3: điều phối nhiều phiên, Codex viết code, Claude review
 
+> **Trạng thái 2026-10-18:** đã chạy xong. SP1, SP2, SP3 vào `dev` qua PR #68, #69, #70 (14–15/10), CI xanh. Kết quả từng phần ở `docs/deliveries/gd2-sp{1,2,3}-*.md` (mục as-built); cách kiểm tay ở [manual-testing/README.md](manual-testing/README.md). Phần dưới là bản điều phối chụp ngày 2026-10-14, giữ nguyên.
+
 **Cập nhật:** 2026-10-14. Không dùng `/goal` nữa: một **phiên điều phối** nhắn việc cho ba **phiên `-impl`**; mỗi phiên `-impl` gọi Codex viết code theo plan rồi review code đó, và gửi kết quả tổng quát về phiên điều phối. Tài liệu này là điều phối, không phải spec: spec, plan, decision của từng SP nằm ở thư mục riêng. Trạng thái ở §2 chụp bằng lệnh kiểm ngày 2026-10-14.
 
 ## 0. Đọc gì, theo thứ tự

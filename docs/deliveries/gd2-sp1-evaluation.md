@@ -16,3 +16,13 @@ Plan chi tiết: [../tasks/gd2-week2-evaluation/plan.md](../tasks/gd2-week2-eval
 10. Tab "Đánh giá phỏng vấn" và "Ghi chú" trên trang chi tiết ứng viên, kèm form scorecard.
 11. Liên kết "Nộp đánh giá" ở drawer lịch, chọn 2–4 ứng viên ở danh sách và trang so sánh.
 12. Hành trình E2E đầu-cuối và chạy toàn bộ kiểm chứng, ghi kết quả vào README của task.
+
+# GĐ2 SP1 — as-built (14/10/2026)
+
+Vào `dev` qua PR #68 (merge commit `d866103`, 28 commit, CI 2/2 xanh). Chi tiết và log: [../tasks/gd2-week2-evaluation/README.md](../tasks/gd2-week2-evaluation/README.md).
+
+- **Đã có:** bảng `interview_scorecards` và `application_notes` (migration `20261014000000_add_interview_scorecards_and_application_notes`), enum `ScorecardRecommendation`; module `interview-scorecards` và `application-notes`; so sánh 2–4 ứng viên cùng tin (`ApplicationComparisonService`); xoá lịch đã có scorecard trả 409; tổ chức khác trả 404 qua `assertInCallerOrganizationOr404`; web: tab đánh giá và ghi chú, chọn ứng viên và trang so sánh, liên kết từ drawer lịch.
+- **Kiểm chứng trên nhánh:** jest API 69 suite / 609 test; `test:web` 356/356; `typecheck:web`, `lint:web`, `nx lint api`, `nx build api` xanh; E2E 34/34; probe ràng buộc DB đỏ 16/16 → xanh 16/16.
+- **Lệch plan:** plan ghi SQLSTATE 23503 cho FK `RESTRICT`, PostgreSQL trả 23001 (đã sửa probe); 3 lần sửa test đã commit vì giả định sai (không nới assert); 3 file ngoài danh sách ở Task 11 (chỉ cộng thêm).
+- **Lỗi sản phẩm tìm ra khi chạy E2E:** recruiter cùng khoa không phải interviewer/người đặt lịch không thấy scorecard trong tab (sửa ở `080c448` + `b4da299`).
+- **Chưa kiểm:** giao diện bằng mắt; ranh giới khoa ở E2E (chỉ có unit); hai PUT scorecard đồng thời thật; `ScorecardForm.test.tsx` sát trần 5 giây khi máy tải nặng.
