@@ -16,3 +16,13 @@ Plan chi tiết: [../tasks/gd2-sp2-bulk-screening/plan.md](../tasks/gd2-sp2-bulk
 9. Ô chọn đơn dùng chung với SP1, thanh chấm hàng loạt và hộp thoại kết quả.
 10. Nút xuất CSV, tự tải lại danh sách khi có kết quả chấm, nối vào trang danh sách ứng viên.
 11. Trên test stack (có giữ khoá): kiểm file CSV thật, hành trình E2E, chạy toàn bộ kiểm chứng, ghi README kết quả.
+
+# GĐ2 SP2 — as-built (15/10/2026)
+
+Vào `dev` qua PR #69 (merge commit `178043b`, 27 commit, CI 2/2 xanh). Chi tiết và log: [../tasks/gd2-sp2-bulk-screening/results/README.md](../tasks/gd2-sp2-bulk-screening/results/README.md).
+
+- **Đã có:** `POST /applications/job/:jobId/bulk-screening` (1–50 đơn hoặc tự chọn đơn đủ điều kiện, mã lý do bỏ qua, cờ `moveAppliedToScreening`, giới hạn 3 lần/phút theo `userId`); job bulk mang `notify: false`; `checkScreeningEligibility` dùng chung với `trigger-screening`; `GET /applications/job/:jobId/export` (CSV UTF-8 có BOM, chống formula injection, không email/SĐT, tối đa 5000 dòng); web: thanh chấm hàng loạt, hộp thoại kết quả, nút xuất CSV, tự tải lại khi có `cv-screening:completed`. Không migration.
+- **Kiểm chứng trên nhánh:** jest API 67 suite / 615 test; `test:web` 348/348; lint, build, typecheck xanh; probe P1–P6 trên PostgreSQL thật (P3: 50 đơn trong 5531 ms); E2E bulk screening 1 passed.
+- **Sau khi merge `dev` có SP1 (15/10):** giải 6 file xung đột giữ cả hai phía; jest API 74 suite / 679 test; `typecheck:web`, `lint:web`, `nx lint api` (0 lỗi), `nx build api` xanh; `test:web` (chạy tuần tự) 381/383, hai lỗi là timeout của `ScorecardForm.test.tsx` khi máy tải nặng, chạy riêng thì 6/6 xanh. Tách test 52 dòng thành 4 test (`147cb2e`) vì vượt trần 5 giây.
+- **Lệch plan:** commit do phiên `-impl` (Codex không ghi được thư mục git của worktree); sửa setup test controller (`52b14ea`, assert giữ nguyên).
+- **Chưa kiểm:** Gemini thật; CSV mở bằng Excel (A1); export 5000 dòng thật; tự tải lại với sự kiện socket thật; giao diện bằng mắt.

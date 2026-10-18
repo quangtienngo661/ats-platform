@@ -13,3 +13,13 @@ Plan chi tiết: [../tasks/gd2-sp3-email-notifications/plan.md](../tasks/gd2-sp3
 7. Nối vào luồng nộp đơn và đổi trạng thái đơn; từ chối thì liệt kê các lịch vừa bị huỷ.
 8. Nối vào tạo, sửa và xoá lịch phỏng vấn.
 9. Thêm Mailpit riêng vào test stack, chạy hành trình E2E đọc email thật cùng toàn bộ kiểm chứng, ghi kết quả vào README của task.
+
+# GĐ2 SP3 — as-built (15/10/2026)
+
+Vào `dev` qua PR #70 (merge commit `82001dc`, 21 commit, CI 2/2 xanh, lần đầu job E2E chạy với Mailpit). Chi tiết và log: [../tasks/gd2-sp3-email-notifications/README.md](../tasks/gd2-sp3-email-notifications/README.md).
+
+- **Đã có:** 8 email cho ứng viên (nhận đơn; sang `interview`/`offer`/`hired`/`rejected`; lịch tạo/đổi/huỷ), từ chối kèm huỷ lịch gộp vào một email; bảng `email_notifications` (migration `20261015000000_add_email_notifications`); queue `notification-email` (job id = id của row); in-app cho sự kiện lịch; Mailpit riêng trong `docker-compose.test.yml`. Ứng viên `inactive` không nhận email (row `skipped`) — người dùng xác nhận 14/10.
+- **Kiểm chứng trên nhánh:** jest API 68 suite / 630 test; `test:web` 324/324; lint, build, typecheck xanh; probe DB đỏ → xanh 11/11; probe Mailpit 7/7; E2E SP3 6/6, E2E toàn bộ 36/36 trên stack dựng mới.
+- **Sau khi merge `dev` có SP1 + SP2 (15/10):** giải 4 file xung đột (`schema.prisma`, `removeSchedule`, `applications.service.ts`, `interviews.service.spec.ts`); `prisma validate` hợp lệ; jest API 80 suite / 764 test; `typecheck:web`, `lint:web` xanh; `test:web` 381/383, hai lỗi là timeout ở file SP3 không đổi (phần web của SP3 giống hệt `dev`). `nx lint api` / `nx build api` không chạy lại sau merge, để CI kiểm (CI xanh).
+- **Lệch plan:** commit do phiên `-impl`; cờ docker `-e` viết `--env` trong prompt Codex; Codex một lần thử cách khác sau khi bị từ chối `rm -rf` (đã ghi lại, không gây hại).
+- **Chưa kiểm:** Gmail SMTP production; retry với SMTP thật bị lỗi; thứ tự email 2 và 6 tới inbox; recruiter không được báo khi có scorecard vẫn là giả định ngoài phạm vi.

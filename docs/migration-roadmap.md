@@ -7,11 +7,15 @@ Quyết định kiến trúc quan trọng (lý do, trade-off, lựa chọn đã 
 
 ---
 
-## Đối chiếu đề cương và hiện trạng (2026-09-29)
+## Đối chiếu đề cương và hiện trạng (2026-10-18)
 
 Lịch đề cương ĐA2 là: GĐ1 07–27/09 (multi-tenant + ổn định + SRS/UC/ERD/architecture), GĐ2 28/09–25/10 (nghiệp vụ tuyển dụng/candidate/email), GĐ3 26/10–22/11 (RAG), GĐ4 23/11–13/12 (LiveKit). Roadmap July–January bên dưới giữ vai trò định hướng kỹ thuật, không dùng các số Phase đó thay cho GĐ trong đề cương.
 
-[GĐ1 tuần cuối](tasks/gd1-week3/spec.md) triển khai portal org_admin và khép các giả định Recruiter trong FE. Organization/CandidateSkill/enforcement đã nằm trong các commit `cdf1abc`–`8ec4751`; thay đổi mới vẫn chưa commit. PR/production chưa xác minh. [Kiến trúc đang chạy theo code](architecture/system.md) là monolith + queues; chưa có RAG/LiveKit/microservices được kiểm chứng ở gói này.
+**GĐ1 xong:** PR #60 (Tuần 1, 20/09), #62 (Tuần 2, 22/09), #63 (tuần cuối, org_admin portal, 13/10).
+
+**GĐ2: phần việc của đề cương đã vào `dev` (13–15/10), CI xanh:** tuần 1 cho ứng viên — lịch phỏng vấn, timeline đơn, lọc tìm việc (PR #64); [SP1](tasks/gd2-week2-evaluation/README.md) scorecard, ghi chú, so sánh ứng viên (PR #68); [SP2](tasks/gd2-sp2-bulk-screening/results/README.md) chấm CV hàng loạt, xuất CSV (PR #69); [SP3](tasks/gd2-sp3-email-notifications/README.md) email tự động cho ứng viên (PR #70); thêm một lượt sửa UI theo Web Interface Guidelines (PR #71). Kết quả từng phần: `deliveries/gd2-sp{1,2,3}-*.md`. **Còn thiếu để gọi là xong trọn:** luồng end-to-end có AI chưa chạy thật được vì key Gemini hết tiền (E2E trên CI dùng key giả và dữ liệu chấm seed sẵn); chưa nghiệm thu bằng mắt, chưa mở CSV bằng Excel. C-05 (địa điểm dạng chữ cho tin) không nằm trong chữ của đề cương GĐ2, chưa có spec. Hướng dẫn kiểm tay: [tasks/gd2-parallel-execution/manual-testing/README.md](tasks/gd2-parallel-execution/manual-testing/README.md).
+
+**Tiếp theo — GĐ3 (RAG, 26/10–22/11):** chia 5 phần, bắt đầu bằng lớp nhà cung cấp AI (Gemini hoặc OpenAI theo cấu hình) và client embedding OpenAI; spec phần 0 đang chờ duyệt. [Kiến trúc đang chạy theo code](architecture/system.md) vẫn là monolith + queues; chưa có RAG/LiveKit/microservices.
 
 ## Progress Log
 
@@ -23,6 +27,7 @@ Mốc tiến độ quan trọng, cập nhật mỗi khi hoàn thành một phầ
 - **2026-07-12 → 14**: Audit toàn bộ service layer đối chiếu schema (`docs/audit/`) + research so sánh với ATS thật (`docs/research/`) + kiểm chứng lại từng mục Phase 0 trên code. **Kết quả: Phase 0 chưa thật sự xong — vài mục đã tick nhưng không có tác dụng lúc chạy** (chi tiết ở Phase 0 bên dưới). Phát sinh **Phase 0.5 — Stabilization**, chèn trước khi chạy tiếp Phase 1.
 - **2026-07-15**: Research 2 hướng mở rộng: (1) tích hợp voice cho AI mock interview, (2) các tính năng khác biệt hoá so với ATS lớn ngoài phạm vi 2 brief 2026-07-13. Chi tiết: [`docs/research/2026-07-15-voice-video-microservices-differentiators.md`](research/2026-07-15-voice-video-microservices-differentiators.md). Kết luận chính: voice nên dùng **LiveKit Agents + Gemini Live** (tái dùng key Gemini + LiveKit đã định ở Phase 3, không cần vendor thứ 3) và nên làm **sau** Phase 3 vì phụ thuộc server LiveKit đã tồn tại. Thêm **Phase 1.5** (AI co-pilot gợi ý hành động trên Kanban, panel "ứng viên đáng xem lại", Judge0 coding assessment — không phụ thuộc RAG/video/microservices nên làm sớm được) và **Phase 3.5** (Voice AI, sau Phase 3) vào roadmap bên dưới. Số thứ tự Phase 0–5 giữ nguyên, dùng hậu tố `.5` để không phải sửa lại các file khác đang trỏ theo số phase.
 - **2026-07-16**: (1) Refactor `AiRecommendation`: bỏ mức `hire` — sàng lọc CV giờ chỉ đề xuất `interview`/`reject`, quyết định tuyển thật sự chỉ đến từ recruiter tự chuyển trạng thái Kanban tuần tự (`applied → screening → interview → offer → hired`), không suy ra thẳng từ điểm CV nữa. Migration DB + code đã áp dụng và verify (6/6 test pass, build sạch). (2) Vá 2 lỗ hổng tài liệu tự phát hiện: `docs/architecture/*` (chụp 07-11, sai hẳn trạng thái Phase 0/0.5) đã cập nhật lại cho đúng 07-16; viết 3 ADR còn thiếu — [0003](architecture-decisions/0003-microservices-transport-and-migration-strategy.md) (chiến lược NATS+gRPC+Strangler Fig), [0004](architecture-decisions/0004-service-ownership-shared-reference-tables.md) (service sở hữu bảng dùng chung — Accepted sau khi chủ dự án xác nhận), [0005](architecture-decisions/0005-voice-ai-livekit-agents-gemini-live.md) (voice AI). Bảng chỉ mục `docs/architecture-decisions/README.md` cũng được vá (thiếu dòng ADR 0002).
+- **2026-10-13 → 15**: GĐ2 xong phần việc của đề cương trên `dev`: PR #64 (ứng viên: lịch, timeline, lọc việc), #68 (SP1 scorecard/ghi chú/so sánh, migration `20261014000000`), #69 (SP2 chấm hàng loạt + CSV), #70 (SP3 8 email cho ứng viên, bảng `email_notifications`, queue `notification-email`, Mailpit trong test stack, migration `20261015000000`), #71 (sửa UI theo Web Interface Guidelines). SP1–SP3 làm song song trong 3 worktree, merge theo thứ tự SP1 → SP2 → SP3; xung đột giải khi merge `dev` vào nhánh sau. Lỗi sản phẩm tìm ra khi chạy E2E: recruiter cùng khoa không thấy scorecard (sửa trong #68). Chi tiết: `deliveries/gd2-sp{1,2,3}-*.md`.
 
 ---
 
@@ -195,11 +200,11 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ### Recruiter flows
 
 ```
-[ ] ApplicationNote — internal notes per application                ~2 days
-[ ] Interview feedback form (structured post-interview evaluation)  ~2 days
-[ ] Candidate comparison — side-by-side view for a job posting      ~2 days
-[ ] Bulk trigger AI screening for multiple applicants               ~1 day
-[ ] Export candidate list to CSV                                    ~1 day
+[x] ApplicationNote — internal notes per application                ~2 days (GĐ2 SP1, PR #68)
+[x] Interview feedback form (structured post-interview evaluation)  ~2 days (GĐ2 SP1 scorecard, PR #68)
+[x] Candidate comparison — side-by-side view for a job posting      ~2 days (GĐ2 SP1, PR #68)
+[x] Bulk trigger AI screening for multiple applicants               ~1 day (GĐ2 SP2, PR #69)
+[x] Export candidate list to CSV                                    ~1 day (GĐ2 SP2, PR #69)
 ```
 
 ### Technical debt
@@ -217,9 +222,9 @@ Close broken end-to-end flows before adding new features. A demo that fails mid-
 ### Email notifications
 
 ```
-[ ] Email on application status change (interview, offer, rejected)  ~2 days
-[ ] Email on InterviewSchedule creation → send meeting details       ~1 day
-[ ] HTML email templates (nodemailer + inline styles)                ~1 day
+[x] Email on application status change (interview, offer, rejected)  ~2 days (GĐ2 SP3, PR #70 — also hired and application received)
+[x] Email on InterviewSchedule creation → send meeting details       ~1 day (GĐ2 SP3, PR #70 — also update and cancel)
+[x] HTML email templates (nodemailer + inline styles)                ~1 day (GĐ2 SP3, PR #70 — one layout, escaped content)
 ```
 
 ---
