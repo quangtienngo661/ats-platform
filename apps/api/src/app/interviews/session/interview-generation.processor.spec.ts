@@ -5,7 +5,7 @@ import { createPrismaMock, createPrismaTransactionMock, createSocketMock } from 
 describe('InterviewGenerationProcessor', () => {
     let processor: InterviewGenerationProcessor;
     let prisma: ReturnType<typeof createPrismaMock>;
-    let geminiService: { generateInterviewQuestions: jest.Mock };
+    let llmService: { generateInterviewQuestions: jest.Mock };
     let socketIoService: ReturnType<typeof createSocketMock>;
 
     const tenQuestions = Array.from({ length: 10 }, (_, index) => ({
@@ -33,18 +33,18 @@ describe('InterviewGenerationProcessor', () => {
 
     beforeEach(() => {
         prisma = createPrismaMock();
-        geminiService = { generateInterviewQuestions: jest.fn() };
+        llmService = { generateInterviewQuestions: jest.fn() };
         socketIoService = createSocketMock();
         processor = new InterviewGenerationProcessor(
             prisma as any,
-            geminiService as any,
+            llmService as any,
             socketIoService as any,
         );
     });
 
     it('generates questions, flips status to in_progress, and emits session_ready on success', async () => {
         const tx = createPrismaTransactionMock();
-        geminiService.generateInterviewQuestions.mockResolvedValue(tenQuestions);
+        llmService.generateInterviewQuestions.mockResolvedValue(tenQuestions);
         prisma.$transaction.mockImplementation((callback: any) => callback(tx));
 
         await processor.process(buildJob(0));
@@ -66,7 +66,7 @@ describe('InterviewGenerationProcessor', () => {
     });
 
     it('rethrows without touching session state when attempts remain', async () => {
-        geminiService.generateInterviewQuestions.mockRejectedValue(new Error('Gemini timeout'));
+        llmService.generateInterviewQuestions.mockRejectedValue(new Error('Gemini timeout'));
 
         await expect(processor.process(buildJob(0, 3))).rejects.toThrow('Gemini timeout');
 
@@ -75,7 +75,7 @@ describe('InterviewGenerationProcessor', () => {
     });
 
     it('marks the session abandoned, emits session_failed, and still rethrows on the final attempt', async () => {
-        geminiService.generateInterviewQuestions.mockRejectedValue(new Error('Gemini down'));
+        llmService.generateInterviewQuestions.mockRejectedValue(new Error('Gemini down'));
         prisma.interviewSession.update.mockResolvedValue({ sessionId: 'session-1', status: InterviewStatus.abandon });
 
         await expect(processor.process(buildJob(2, 3))).rejects.toThrow('Gemini down');
@@ -92,7 +92,7 @@ describe('InterviewGenerationProcessor', () => {
     });
 
     it('treats fewer than 10 AI questions as a failure, following the same retry rules', async () => {
-        geminiService.generateInterviewQuestions.mockResolvedValue(tenQuestions.slice(0, 3));
+        llmService.generateInterviewQuestions.mockResolvedValue(tenQuestions.slice(0, 3));
 
         await expect(processor.process(buildJob(0, 3))).rejects.toThrow('10');
         expect(prisma.interviewSession.update).not.toHaveBeenCalled();

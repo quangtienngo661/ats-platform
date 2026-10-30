@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+import { LlmService } from '../../../common/external-apis/llm/llm.service';
 import { SocketIoService } from '../../../common/socket-io/socket-io.service';
 import { InterviewStatus, DifficultyLevel } from '@ats-platform/database';
 
@@ -21,7 +21,7 @@ export class InterviewGenerationProcessor extends WorkerHost {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly geminiService: GeminiService,
+        private readonly llmService: LlmService,
         private readonly socketIoService: SocketIoService,
     ) {
         super();
@@ -44,7 +44,7 @@ export class InterviewGenerationProcessor extends WorkerHost {
             });
 
             this.logger.log(`Generating 10 questions for session ${sessionId} (topic: ${topicName}, difficulty: ${difficultyLevel})`);
-            const aiResult = await this.geminiService.generateInterviewQuestions(candidateId, promptContent);
+            const aiResult = await this.llmService.generateInterviewQuestions(candidateId, promptContent);
 
             if (!Array.isArray(aiResult) || aiResult.length < 10) {
                 throw new Error(`AI chỉ tạo được ${aiResult?.length ?? 0} câu hỏi thay vì 10 câu`);

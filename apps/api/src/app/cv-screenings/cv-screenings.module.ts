@@ -4,7 +4,7 @@ import { CvScreeningsController } from './cv-screenings.controller';
 import { CvScreeningProcessor } from './processors/cv-screenings.processor';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
+import { LlmModule } from '../../common/external-apis/llm/llm.module';
 import { AiUsageLogsService } from '../ai-usage-logs/ai-usage-logs.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 
@@ -14,12 +14,12 @@ import { NotificationsModule } from '../notifications/notifications.module';
     // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
     BullModule.registerQueue({ name: 'cv-screening' }),
     NotificationsModule,
+    LlmModule,
   ],
   controllers: [CvScreeningsController],
   providers: [
     CvScreeningsService,
     CvScreeningProcessor,
-    GeminiService,
     AiUsageLogsService,
   ],
   exports: [CvScreeningsService],

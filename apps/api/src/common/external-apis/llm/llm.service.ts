@@ -43,7 +43,7 @@ export class LlmService {
         return this.run('generateInterviewResult', refId, content);
     }
 
-    // Callers validate the shape of the parsed JSON themselves, as they did with GeminiService.
+    // Callers validate the shape of the parsed JSON themselves; this layer only guarantees it parses.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async run(operation: LlmOperation, refId: string | null, content: string): Promise<any> {
         const { tier, reasoning, actionType, systemPrompt } = LLM_OPERATIONS[operation];

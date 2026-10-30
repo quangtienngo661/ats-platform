@@ -19,7 +19,7 @@ import { AiConfigModule } from './ai-config/ai-config.module';
 import { CandidatesModule } from './candidates/candidates.module';
 import { CVsModule } from './cvs/cvs.module';
 import { LocalStorageModule } from '../common/storage/local-storage.module';
-import { GeminiModule } from '../common/external-apis/gemini/gemini.module';
+import { LlmModule } from '../common/external-apis/llm/llm.module';
 import { BullModule } from '@nestjs/bullmq';
 import { AiUsageLogsModule } from './ai-usage-logs/ai-usage-logs.module';
 import { ApplicationsModule } from './applications/applications.module';
@@ -83,7 +83,7 @@ import { Request } from 'express';
     CandidatesModule,
     CVsModule,
     LocalStorageModule,
-    GeminiModule,
+    LlmModule,
     AiUsageLogsModule,
     ApplicationsModule,
     CvScreeningsModule,

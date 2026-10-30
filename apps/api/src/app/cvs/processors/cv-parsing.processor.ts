@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
-import { GeminiService } from "../../../common/external-apis/gemini/gemini.service";
+import { LlmService } from "../../../common/external-apis/llm/llm.service";
 import { Job } from "bullmq";
 import { CvParsedDataService } from "../cv-parsed-data/cv-parsed-data.service";
 import { PrismaService } from "../../../common/prisma/prisma.service";
@@ -16,7 +16,7 @@ export interface ParseCvJobData {
 export class CvParsingProcessor extends WorkerHost {
     constructor(
         private readonly cvParsedDataService: CvParsedDataService,
-        private readonly geminiService: GeminiService,
+        private readonly llmService: LlmService,
         private readonly prisma: PrismaService,
         private readonly socketService: SocketIoService,
         private readonly notificationsService: NotificationsService,
@@ -46,8 +46,8 @@ export class CvParsingProcessor extends WorkerHost {
                     throw new Error(`Không tìm thấy nội dung văn bản của CV ID: ${cvId}`);
                 }
 
-                // 3. Gọi Gemini parse
-                const parsedData = await this.geminiService.parseCV(
+                // 3. Gọi AI parse
+                const parsedData = await this.llmService.parseCV(
                     cvId,
                     cv.rawText,
                 );

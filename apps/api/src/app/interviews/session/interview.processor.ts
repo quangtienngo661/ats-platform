@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+import { LlmService } from '../../../common/external-apis/llm/llm.service';
 import { InterviewStatus } from '@ats-platform/database';
 import { InterviewSessionService } from './interview-session.service';
 
@@ -16,7 +16,7 @@ export class InterviewProcessor extends WorkerHost {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly geminiService: GeminiService,
+        private readonly llmService: LlmService,
         private readonly interviewSessionService: InterviewSessionService,
     ) {
         super();
@@ -41,7 +41,7 @@ export class InterviewProcessor extends WorkerHost {
                     return;
                 }
 
-                // 2. Build content cho Gemini evaluate
+                // 2. Build content cho AI evaluate
                 const evaluateContent = JSON.stringify({
                     question: qna.questionText,
                     expectedPoints: qna.expectedPoints,
@@ -51,7 +51,7 @@ export class InterviewProcessor extends WorkerHost {
                 });
 
                 // 3. Gọi AI chấm điểm
-                const aiResult = await this.geminiService.evaluateInterviewAnswer(
+                const aiResult = await this.llmService.evaluateInterviewAnswer(
                     qnaId,
                     evaluateContent,
                 );

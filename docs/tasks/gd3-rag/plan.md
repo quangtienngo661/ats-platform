@@ -109,14 +109,14 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 - [x] **Step 1: Write the failing test** (P0-C7): `gemini without GOOGLE_API_KEY fails`; `openai without OPENAI_API_KEY fails`; `gemini without OPENAI_API_KEY passes`; `AI_PROVIDER=abc fails`; `OPENAI_MODEL_PRO optional`.
 - [x] **Step 2:** Run → FAIL. **Step 3:** `AI_PROVIDER @IsOptional @IsIn(['gemini','openai'])`; `GOOGLE_API_KEY` `@ValidateIf(provider !== 'openai')`; `OPENAI_API_KEY` `@ValidateIf(provider === 'openai')`; compose truyền `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL_PRO`, `OPENAI_MODEL_FLASH`; test compose thêm `OPENAI_API_KEY: local-verification-no-external-ai`. **Step 4:** Run → PASS.
-- [ ] **Step 5: Commit** — `feat(config): choose the ai provider through ai_provider`.
+- [x] **Step 5: Commit** — `feat(config): choose the ai provider through ai_provider`. (Trừ `docker-compose.yml` prod: chưa sửa, chờ người dùng đồng ý riêng.)
 
 ### Task 0.5: Đổi 9 nơi gọi sang `LlmService`, gỡ `GeminiService`
 
 **Files:** Modify `cv-screenings.module.ts`, `cv-screenings.processor.ts`, `cvs.module.ts`, `cv-parsing.processor.ts`, `interview-generation.processor.ts`, `interview-session.service.ts`, `interview.processor.ts`, `job-postings.module.ts`, `job-postings.service.ts` và spec của chúng; Delete `common/external-apis/gemini/*`, `common/types/enums/gemini-model.enum.ts`; Modify `CLAUDE.md` mục Tech Stack ("always through `GeminiService`" → `LlmService`).
 
-- [ ] **Step 1:** Đổi mock trong các spec từ `GeminiService` sang `LlmService` — **không đổi assert** (P0-C8). Run `npx nx test api --runInBand` → FAIL (import chưa đổi).
-- [ ] **Step 2:** Đổi import/inject, xoá thư mục gemini. Run `npx nx test api --runInBand` → PASS toàn bộ; `npx tsc --build apps/api/tsconfig.app.json` → 0 lỗi; `grep -rn GeminiService apps/api/src` → không còn kết quả.
+- [x] **Step 1:** Đổi mock trong các spec từ `GeminiService` sang `LlmService` — **không đổi assert** (P0-C8). Run `npx nx test api --runInBand` → FAIL (import chưa đổi).
+- [x] **Step 2:** Đổi import/inject, xoá thư mục gemini. Run `npx nx test api --runInBand` → PASS toàn bộ; `npx tsc --build apps/api/tsconfig.app.json` → 0 lỗi; `grep -rn GeminiService apps/api/src` → không còn kết quả.
 - [ ] **Step 3: Commit** — `refactor(api): replace geminiservice with llmservice at every call site`.
 
 ### Task 0.6: `EmbeddingService` + enum `embedding`

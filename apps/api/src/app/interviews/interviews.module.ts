@@ -12,7 +12,7 @@ import {
   SWEEP_STALE_SESSIONS_JOB,
 } from './session/interview-abandon.processor';
 import { PrismaModule } from '../../common/prisma/prisma.module';
-import { GeminiModule } from '../../common/external-apis/gemini/gemini.module';
+import { LlmModule } from '../../common/external-apis/llm/llm.module';
 import { SocketIoModule } from '../../common/socket-io/socket-io.module';
 import { CandidateNotificationsModule } from '../candidate-notifications/candidate-notifications.module';
 
@@ -22,7 +22,7 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 @Module({
   imports: [
     PrismaModule,
-    GeminiModule,
+    LlmModule,
     SocketIoModule,
     CandidateNotificationsModule,
     // No `defaultJobOptions` here on purpose — it would replace, not extend, the
