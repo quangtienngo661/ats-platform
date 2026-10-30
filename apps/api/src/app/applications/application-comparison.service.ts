@@ -145,16 +145,16 @@ export class ApplicationComparisonService {
         candidateName: application.candidate.user.fullName,
         status: application.status,
         appliedAt: application.appliedAt,
-        screening: screening
+        screening: screening && effective
           ? {
-              overallScore: effective!.overall,
-              skillsScore: effective!.skills,
-              experienceScore: effective!.experience,
-              educationScore: effective!.education,
+              overallScore: effective.overall,
+              skillsScore: effective.skills,
+              experienceScore: effective.experience,
+              educationScore: effective.education,
               aiRecommendation: screening.aiRecommendation,
               matchedSkills: screening.matchedSkills,
               missingSkills: screening.missingSkills,
-              isReviewed: effective!.isReviewed,
+              isReviewed: effective.isReviewed,
             }
           : null,
         scorecards: {
