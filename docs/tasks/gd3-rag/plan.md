@@ -67,7 +67,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 - [x] **Step 2:** Run `npx nx test api --runInBand --testPathPatterns=llm/gemini.client` → FAIL (module not found).
 - [x] **Step 3:** Implement `GeminiClient.generateJson` bằng `@google/genai` như `gemini.service.ts` hôm nay; trả `text` thô (parse ở `LlmService`).
 - [x] **Step 4:** Run lại → PASS.
-- [ ] **Step 5: Commit** — `feat(api): add the shared llm types and the gemini client`.
+- [x] **Step 5: Commit** — `feat(api): add the shared llm types and the gemini client`.
 
 ### Task 0.2: `OpenAiClient`
 
@@ -75,14 +75,14 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 **Interfaces:** Produces `class OpenAiClient implements LlmClient` (đọc `OPENAI_API_KEY`, `OPENAI_MODEL_PRO` mặc định `gpt-6.1-sol`, `OPENAI_MODEL_FLASH` mặc định `gpt-6-luna`).
 
-- [ ] **Step 1:** `npm install openai` (ghi version vào commit message body).
-- [ ] **Step 2: Write the failing test** (mock gói `openai`):
+- [x] **Step 1:** `npm install openai` (ghi version vào commit message body).
+- [x] **Step 2: Write the failing test** (mock gói `openai`):
   - `creates the client with maxRetries 0`
   - `sends model per tier, instructions = systemPrompt, input = content, text.format json_object, reasoning effort = req.reasoning, signal`
   - `model env overrides`: `OPENAI_MODEL_PRO=x` → model `x`
   - `reads input/output tokens from usage, output includes reasoning tokens` (tên trường theo tài liệu Responses API đọc ở Step 3; giá trị test: input 200, output 60 → `{ promptTokens: 200, outputTokens: 60 }`)
-- [ ] **Step 3:** Đọc tài liệu chính thức `openai` Node SDK (context7 hoặc developers.openai.com) cho: tên tham số mức suy luận trong Responses API, tên trường usage và trường token suy luận. Ghi URL + ngày vào `docs/tasks/gd3-p0-ai-provider/research.md` (documented). Sửa assert Step 2 nếu tên khác.
-- [ ] **Step 4:** Run `--testPathPatterns=llm/openai.client` → FAIL; implement; run → PASS.
+- [x] **Step 3:** Đọc tài liệu chính thức `openai` Node SDK (context7 hoặc developers.openai.com) cho: tên tham số mức suy luận trong Responses API, tên trường usage và trường token suy luận. Ghi URL + ngày vào `docs/tasks/gd3-p0-ai-provider/research.md` (documented). Sửa assert Step 2 nếu tên khác.
+- [x] **Step 4:** Run `--testPathPatterns=llm/openai.client` → FAIL; implement; run → PASS.
 - [ ] **Step 5: Commit** — `feat(api): add the openai client behind the llm interface`.
 
 ### Task 0.3: `LlmService` + `LlmModule`
