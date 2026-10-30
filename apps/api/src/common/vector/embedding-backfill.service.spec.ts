@@ -18,24 +18,29 @@ describe('EmbeddingBackfillService', () => {
   });
 
   it('enqueues only rows with a null embedding, one job per row, and counts them', async () => {
-    vectorSearch.findMissing.mockImplementation(async (target: string) =>
-      target === 'skill' ? ['s1', 's2'] : ['p1'],
+    const missing: Record<string, string[]> = {
+      skill: ['s1', 's2'],
+      cv_parsed_data: ['p1'],
+      interview_question: ['q1'],
+    };
+    vectorSearch.findMissing.mockImplementation(
+      async (target: string) => missing[target],
     );
 
-    await expect(service.enqueueMissing()).resolves.toBe(3);
+    await expect(service.enqueueMissing()).resolves.toBe(4);
 
-    expect(vectorSearch.findMissing).toHaveBeenCalledWith(
-      'skill',
-      BACKFILL_BATCH_SIZE,
-    );
-    expect(vectorSearch.findMissing).toHaveBeenCalledWith(
-      'cv_parsed_data',
-      BACKFILL_BATCH_SIZE,
-    );
+    for (const target of Object.keys(missing)) {
+      expect(vectorSearch.findMissing).toHaveBeenCalledWith(
+        target,
+        BACKFILL_BATCH_SIZE,
+      );
+    }
+    expect(vectorSearch.findMissing).toHaveBeenCalledTimes(3);
     expect(embeddingQueue.enqueue.mock.calls).toEqual([
       ['skill', 's1'],
       ['skill', 's2'],
       ['cv_parsed_data', 'p1'],
+      ['interview_question', 'q1'],
     ]);
   });
 

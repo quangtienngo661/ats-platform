@@ -6,11 +6,12 @@ import { EMBEDDING_DIMENSIONS } from '../external-apis/embedding/embedding.servi
 /**
  * Every table that holds a vector, with the column that identifies a row. Table and column
  * names cannot be SQL parameters, so they come ONLY from this constant map — a caller picks a
- * key, never a name. `interview_question` joins this map with its table in part 4.
+ * key, never a name.
  */
 export const EMBEDDING_TARGETS = {
     skill: { table: 'skills', key: 'skill_id' },
     cv_parsed_data: { table: 'cv_parsed_data', key: 'id' },
+    interview_question: { table: 'interview_questions', key: 'question_id' },
 } as const;
 
 export type EmbeddingTarget = keyof typeof EMBEDDING_TARGETS;

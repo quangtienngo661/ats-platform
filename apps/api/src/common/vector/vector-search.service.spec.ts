@@ -198,7 +198,16 @@ describe('VectorSearchService', () => {
   it('registers exactly the targets that have a table today', () => {
     expect(Object.keys(EMBEDDING_TARGETS).sort()).toEqual([
       'cv_parsed_data',
+      'interview_question',
       'skill',
     ]);
+  });
+
+  it('addresses the question bank by its own table and key', async () => {
+    await service.writeEmbedding('interview_question', 'q-1', vectorOf(1536));
+
+    const sql = sqlOf(prisma.$executeRaw);
+    expect(sql.sql).toContain('"interview_questions"');
+    expect(sql.sql).toContain('"question_id"');
   });
 });
