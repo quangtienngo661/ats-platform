@@ -63,6 +63,7 @@ export interface IComparisonItem {
         aiRecommendation: AiRecommendation | null;
         matchedSkills: unknown;
         missingSkills: unknown;
+        isReviewed: boolean;
     } | null;
     scorecards: {
         count: number;

@@ -100,6 +100,7 @@ const expectedItems: ComparisonItem[] = [
       aiRecommendation: AiRecommendation.interview,
       matchedSkills: ['TypeScript', 'NestJS'],
       missingSkills: ['Docker'],
+      isReviewed: false,
     },
     scorecards: {
       count: 1,
@@ -128,6 +129,7 @@ const expectedItems: ComparisonItem[] = [
       aiRecommendation: null,
       matchedSkills: [],
       missingSkills: null,
+      isReviewed: false,
     },
     scorecards: {
       count: 1,
@@ -207,6 +209,37 @@ describe('ApplicationComparisonService', () => {
         );
       }
     }
+  });
+
+  it('shows the reviewed scores and says so once a reviewer has confirmed or corrected them', async () => {
+    prisma.application.findMany.mockResolvedValue([
+      {
+        ...applications[0],
+        screening: {
+          ...applications[0].screening,
+          reviewedAt: new Date('2026-10-30T08:00:00.000Z'),
+          reviewedOverallScore: new Prisma.Decimal('77'),
+          reviewedSkillsScore: new Prisma.Decimal('95.5'),
+          reviewedExperienceScore: new Prisma.Decimal('70'),
+          reviewedEducationScore: new Prisma.Decimal('65'),
+        },
+      },
+      applications[1],
+    ]);
+
+    const [first, second] = await service.compare(caller, jobId, applicationIds);
+
+    expect(first.screening).toEqual({
+      ...expectedItems[0].screening,
+      overallScore: 77,
+      skillsScore: 95.5,
+      experienceScore: 70,
+      educationScore: 65,
+      isReviewed: true,
+    });
+    // The AI recommendation is untouched by a review (ADR 0002); the other item stays unreviewed.
+    expect(first.screening?.aiRecommendation).toBe(AiRecommendation.interview);
+    expect(second.screening).toEqual(expectedItems[1].screening);
   });
 
   it('rejects an id that belongs to another job', async () => {

@@ -1,0 +1,23 @@
+# Task 3b.1 probe — 2026-10-30T09:26Z, postgres:18.4-alpine, throwaway container 127.0.0.1:55441
+## migrate deploy
+    └─ migration.sql
+
+All migrations have been successfully applied.
+## rag_mode enum
+none
+skills
+skills_anchors
+## new columns on cv_screenings (name | type | precision,scale | nullable)
+anchor_screening_ids | jsonb |  | YES
+rag_mode | USER-DEFINED |  | YES
+review_note | text |  | YES
+reviewed_at | timestamp without time zone |  | YES
+reviewed_by_id | text |  | YES
+reviewed_education_score | numeric | 5,1 | YES
+reviewed_experience_score | numeric | 5,1 | YES
+reviewed_overall_score | numeric | 5,1 | YES
+reviewed_skills_score | numeric | 5,1 | YES
+## control: an existing column is listed by the same query shape
+overall_score | numeric | 5,1
+## foreign key
+cv_screenings_reviewed_by_id_fkey|n

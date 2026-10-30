@@ -181,7 +181,7 @@ test.describe('GĐ2 SP1 — đánh giá ứng viên', () => {
     const row = (label: string) => table.getByRole('row').filter({
       has: recruiterBPage.getByRole('rowheader', { name: label, exact: true }),
     }).getByRole('cell');
-    await expect(row('Điểm AI tổng thể (gợi ý)')).toHaveText([
+    await expect(row('Điểm tổng thể')).toHaveText([
       `${fixture.screeningA.overallScore} / 100`, `${fixture.screeningB.overallScore} / 100`,
     ]);
     await expect(row('Số đánh giá phỏng vấn')).toHaveText(['1', '0']);
