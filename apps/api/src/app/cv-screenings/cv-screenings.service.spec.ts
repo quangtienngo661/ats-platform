@@ -4,21 +4,29 @@ import {
   UserRole,
 } from '@ats-platform/database';
 import { CvScreeningsService } from './cv-screenings.service';
+import { applicationIncludeOptions } from '../../common/utils/include-options.util';
 import {
   callerOf,
   createPrismaMock,
   createQueueMock,
+  createSocketMock,
 } from '../../test-utils/unit-test-helpers';
 
 describe('CvScreeningsService', () => {
   let service: CvScreeningsService;
   let prisma: ReturnType<typeof createPrismaMock>;
   let queue: ReturnType<typeof createQueueMock>;
+  let socket: ReturnType<typeof createSocketMock>;
 
   beforeEach(() => {
     prisma = createPrismaMock();
     queue = createQueueMock();
-    service = new CvScreeningsService(prisma as any, queue as any);
+    socket = createSocketMock();
+    service = new CvScreeningsService(
+      prisma as any,
+      queue as any,
+      socket as any,
+    );
   });
 
   it('creates or resets a screening record and queues processing', async () => {
@@ -261,6 +269,274 @@ describe('CvScreeningsService', () => {
     expect(service.determineRecommendation(59.9, 0.6)).toBe(
       AiRecommendation.reject,
     );
+  });
+
+  it('re-screening clears every review field (R10)', async () => {
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+    });
+    prisma.cV.findUnique.mockResolvedValue({ cvId: 'cv-1' });
+    prisma.aiConfig.findFirst.mockResolvedValue({ configId: 'cfg-1' });
+    prisma.cVScreening.upsert.mockResolvedValue({ screeningId: 'screen-1' });
+
+    await service.createScreeningRecord('app-1', 'cv-1');
+
+    expect(prisma.cVScreening.upsert.mock.calls[0][0].update).toEqual(
+      expect.objectContaining({
+        reviewedById: null,
+        reviewedAt: null,
+        reviewedSkillsScore: null,
+        reviewedExperienceScore: null,
+        reviewedEducationScore: null,
+        reviewedOverallScore: null,
+        reviewNote: null,
+      }),
+    );
+  });
+
+  describe('reviewScreening', () => {
+    const config = {
+      skillsWeight: 0.5,
+      experienceWeight: 0.3,
+      educationWeight: 0.2,
+    };
+    const completed = (overrides: Record<string, unknown> = {}) => ({
+      screeningId: 'screen-1',
+      applicationId: 'app-1',
+      organizationId: 'org-1',
+      status: ScreeningStatus.completed,
+      skillsScore: '80.0',
+      experienceScore: '70.0',
+      educationScore: '60.0',
+      overallScore: '73.0',
+      aiConfig: config,
+      application: {
+        applicationId: 'app-1',
+        jobId: 'job-1',
+        jobPosting: { departmentId: 'dep-1' },
+      },
+      ...overrides,
+    });
+    const recruiter = callerOf(UserRole.recruiter, { userId: 'rec-1' });
+    const dto = (overrides: Record<string, unknown> = {}) => ({
+      skillsScore: 80,
+      experienceScore: 70,
+      educationScore: 60,
+      ...overrides,
+    });
+    const updateData = () => prisma.cVScreening.update.mock.calls[0][0].data;
+
+    beforeEach(() => {
+      prisma.cVScreening.findUnique.mockResolvedValue(completed());
+      prisma.recruiter.findUnique.mockResolvedValue({ departmentId: 'dep-1' });
+      prisma.cVScreening.update.mockImplementation(async ({ data }) => ({
+        ...completed(),
+        ...data,
+      }));
+      prisma.application.findUnique.mockResolvedValue({
+        applicationId: 'app-1',
+        jobId: 'job-1',
+      });
+    });
+
+    it('a caller without access to the job is refused (403) and nothing is written', async () => {
+      prisma.recruiter.findUnique.mockResolvedValue({ departmentId: 'dep-2' });
+
+      await expect(
+        service.reviewScreening(recruiter, 'app-1', dto()),
+      ).rejects.toThrow('quyền');
+
+      expect(prisma.cVScreening.update).not.toHaveBeenCalled();
+    });
+
+    it('an unknown application is 404', async () => {
+      prisma.cVScreening.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.reviewScreening(recruiter, 'app-9', dto()),
+      ).rejects.toThrow('Không tìm thấy kết quả sàng lọc');
+    });
+
+    it.each([
+      ScreeningStatus.pending,
+      ScreeningStatus.processing,
+      ScreeningStatus.failed,
+    ])('status %s → 400 "Chỉ duyệt được kết quả sàng lọc đã hoàn tất"', async (status) => {
+      prisma.cVScreening.findUnique.mockResolvedValue(completed({ status }));
+
+      await expect(
+        service.reviewScreening(recruiter, 'app-1', dto()),
+      ).rejects.toThrow('Chỉ duyệt được kết quả sàng lọc đã hoàn tất');
+
+      expect(prisma.cVScreening.update).not.toHaveBeenCalled();
+    });
+
+    it('changed score without a note → 400 "Vui lòng nhập lý do khi sửa điểm"', async () => {
+      await expect(
+        service.reviewScreening(recruiter, 'app-1', dto({ skillsScore: 85 })),
+      ).rejects.toThrow('Vui lòng nhập lý do khi sửa điểm');
+      await expect(
+        service.reviewScreening(
+          recruiter,
+          'app-1',
+          dto({ skillsScore: 85, note: '   ' }),
+        ),
+      ).rejects.toThrow('Vui lòng nhập lý do khi sửa điểm');
+
+      expect(prisma.cVScreening.update).not.toHaveBeenCalled();
+    });
+
+    it('all scores equal to the AI scores and no note → confirmed, stored as reviewed with a null note', async () => {
+      await service.reviewScreening(recruiter, 'app-1', dto());
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({
+          reviewedSkillsScore: 80,
+          reviewedExperienceScore: 70,
+          reviewedEducationScore: 60,
+          reviewedOverallScore: 73,
+          reviewNote: null,
+        }),
+      );
+    });
+
+    it('a changed score with a note is stored, with the note trimmed', async () => {
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({ skillsScore: 90, note: '  Có 5 năm kinh nghiệm React  ' }),
+      );
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({
+          reviewedSkillsScore: 90,
+          reviewNote: 'Có 5 năm kinh nghiệm React',
+        }),
+      );
+    });
+
+    it('reviewedOverallScore = calculateOverallScore(reviewed scores, the screening aiConfig): 80/70/60 at 0.5/0.3/0.2 → 73', async () => {
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({ skillsScore: 80, experienceScore: 70, educationScore: 60 }),
+      );
+
+      expect(updateData().reviewedOverallScore).toBe(73);
+
+      prisma.cVScreening.update.mockClear();
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({
+          skillsScore: 100,
+          experienceScore: 100,
+          educationScore: 100,
+          note: 'Xuất sắc',
+        }),
+      );
+
+      expect(updateData().reviewedOverallScore).toBe(100);
+    });
+
+    it('72.55 is stored as 72.6 (half up; (72.55).toFixed(1) would give 72.5)', async () => {
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({ skillsScore: 72.55, note: 'Điều chỉnh nhẹ' }),
+      );
+
+      expect(updateData().reviewedSkillsScore).toBe(72.6);
+    });
+
+    it('the overall score is computed from the already rounded scores', async () => {
+      prisma.cVScreening.findUnique.mockResolvedValue(
+        completed({
+          aiConfig: {
+            skillsWeight: 0.5,
+            experienceWeight: 0.25,
+            educationWeight: 0.25,
+          },
+        }),
+      );
+
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({
+          skillsScore: 72.45,
+          experienceScore: 0,
+          educationScore: 0,
+          note: 'Làm tròn',
+        }),
+      );
+
+      // 72.45 → 72.5 first; 72.5 × 0.5 = 36.25 → 36.3. Using 72.45 directly would give 36.2.
+      expect(updateData().reviewedSkillsScore).toBe(72.5);
+      expect(updateData().reviewedOverallScore).toBe(36.3);
+    });
+
+    it('never touches Application.status or aiRecommendation (ADR 0002)', async () => {
+      await service.reviewScreening(
+        recruiter,
+        'app-1',
+        dto({ skillsScore: 10, experienceScore: 10, educationScore: 10, note: 'Thấp' }),
+      );
+
+      expect(prisma.application.update).not.toHaveBeenCalled();
+      expect(Object.keys(updateData())).not.toContain('aiRecommendation');
+      expect(Object.keys(updateData())).not.toContain('status');
+      expect(Object.keys(updateData())).not.toContain('overallScore');
+    });
+
+    it('sets reviewedById = caller.userId and reviewedAt = now', async () => {
+      const before = Date.now();
+
+      await service.reviewScreening(recruiter, 'app-1', dto());
+
+      expect(updateData().reviewedById).toBe('rec-1');
+      expect(updateData().reviewedAt).toBeInstanceOf(Date);
+      expect(updateData().reviewedAt.getTime()).toBeGreaterThanOrEqual(before);
+    });
+
+    it('the last review wins: a second review overwrites the reviewer and time', async () => {
+      await service.reviewScreening(recruiter, 'app-1', dto());
+      await service.reviewScreening(
+        callerOf(UserRole.recruiter, { userId: 'rec-2' }),
+        'app-1',
+        dto(),
+      );
+
+      expect(prisma.cVScreening.update.mock.calls[1][0].data.reviewedById).toBe(
+        'rec-2',
+      );
+    });
+
+    it('emits cv-screening:reviewed to the job room with the refreshed application', async () => {
+      await service.reviewScreening(recruiter, 'app-1', dto());
+
+      // Same payload shape as cv-screening:completed, so the Kanban can reuse its handler.
+      expect(prisma.application.findUnique).toHaveBeenCalledWith({
+        where: { applicationId: 'app-1' },
+        include: applicationIncludeOptions,
+      });
+      expect(socket.handleEmit).toHaveBeenCalledWith(
+        'cv-screening:reviewed',
+        { applicationId: 'app-1', jobId: 'job-1' },
+        'job_job-1',
+      );
+    });
+
+    it('a failed socket emit does not fail the review', async () => {
+      socket.handleEmit.mockImplementation(() => {
+        throw new Error('socket down');
+      });
+
+      await expect(
+        service.reviewScreening(recruiter, 'app-1', dto()),
+      ).resolves.toEqual(expect.objectContaining({ screeningId: 'screen-1' }));
+    });
   });
 
   it('marks a bulk job as silent', async () => {
