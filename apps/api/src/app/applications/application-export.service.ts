@@ -8,6 +8,7 @@ import {
   ApplicationStatus,
   ScreeningStatus,
 } from '@ats-platform/database';
+import { effectiveScreeningScores } from '@ats-platform/types';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
 import { toCsv } from '../../common/utils/csv.util';
@@ -30,6 +31,8 @@ export const EXPORT_HEADERS = [
   'Gợi ý AI',
   'Kỹ năng khớp',
   'Kỹ năng thiếu',
+  'Điểm AI tổng (gốc)',
+  'Đã duyệt',
 ] as const;
 
 const applicationStatusLabels: Partial<Record<ApplicationStatus, string>> = {
@@ -143,6 +146,11 @@ export class ApplicationExportService {
             aiRecommendation: true,
             matchedSkills: true,
             missingSkills: true,
+            reviewedAt: true,
+            reviewedOverallScore: true,
+            reviewedSkillsScore: true,
+            reviewedExperienceScore: true,
+            reviewedEducationScore: true,
           },
         },
       },
@@ -153,6 +161,8 @@ export class ApplicationExportService {
         application.appliedAt,
       );
       const screening = application.screening;
+      // A reviewer's scores replace the AI's in the score columns; the AI overall stays in its own column.
+      const effective = screening ? effectiveScreeningScores(screening) : null;
 
       return [
         application.applicationId,
@@ -162,15 +172,17 @@ export class ApplicationExportService {
         application.candidate.currentTitle,
         application.candidate.yearsOfExperience,
         screening ? screeningStatusLabels[screening.status] : 'Chưa chấm',
-        formatScore(screening?.overallScore),
-        formatScore(screening?.skillsScore),
-        formatScore(screening?.experienceScore),
-        formatScore(screening?.educationScore),
+        formatScore(effective?.overall),
+        formatScore(effective?.skills),
+        formatScore(effective?.experience),
+        formatScore(effective?.education),
         screening?.aiRecommendation
           ? recommendationLabels[screening.aiRecommendation]
           : '',
         formatMatchedSkills(screening?.matchedSkills),
         joinSkills(screening?.missingSkills),
+        formatScore(screening?.overallScore),
+        effective ? (effective.isReviewed ? 'Có' : 'Không') : '',
       ];
     });
 

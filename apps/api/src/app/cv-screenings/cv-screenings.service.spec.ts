@@ -148,6 +148,38 @@ describe('CvScreeningsService', () => {
     ).rejects.toThrow('ng');
   });
 
+  // The candidate API shows no AI scores today, reviewed or not. Pinning the exact keys
+  // keeps a reviewer's note, identity and scores from ever leaking through it (R11).
+  it('a candidate never receives review data or scores, even for a reviewed screening', async () => {
+    prisma.cVScreening.findUnique.mockResolvedValue({
+      screeningId: 'screen-1',
+      applicationId: 'app-1',
+      status: ScreeningStatus.completed,
+      matchedSkills: ['nestjs'],
+      screenedAt: new Date('2026-01-01T00:00:00.000Z'),
+      overallScore: '70.0',
+      reviewedAt: new Date(),
+      reviewedById: 'rec-1',
+      reviewNote: 'Ghi chú nội bộ',
+      reviewedOverallScore: '77.0',
+      application: { candidateId: 'cand-1' },
+    });
+    prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+
+    const result = await service.getScreeningResultForCandidate(
+      'app-1',
+      'user-1',
+    );
+
+    expect(Object.keys(result).sort()).toEqual([
+      'applicationId',
+      'matchedSkills',
+      'screenedAt',
+      'screeningId',
+      'status',
+    ]);
+  });
+
   it('aggregates screening stats', async () => {
     prisma.jobPosting.findUnique.mockResolvedValue({
       jobId: 'job-1',

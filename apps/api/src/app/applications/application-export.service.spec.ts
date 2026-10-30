@@ -92,6 +92,8 @@ describe('ApplicationExportService', () => {
       'Gợi ý AI',
       'Kỹ năng khớp',
       'Kỹ năng thiếu',
+      'Điểm AI tổng (gốc)',
+      'Đã duyệt',
     ]);
     expect(parseCsvRecords(content)[0]).toEqual(EXPORT_HEADERS);
     expect(content.replace(/^\uFEFF/, '').split('\r\n')[0]).toBe(
@@ -128,6 +130,11 @@ describe('ApplicationExportService', () => {
           aiRecommendation: true,
           matchedSkills: true,
           missingSkills: true,
+          reviewedAt: true,
+          reviewedOverallScore: true,
+          reviewedSkillsScore: true,
+          reviewedExperienceScore: true,
+          reviewedEducationScore: true,
         },
       },
     });
@@ -178,6 +185,8 @@ describe('ApplicationExportService', () => {
       'Nên phỏng vấn',
       'NestJS; SQL',
       'Docker',
+      '82.5',
+      'Không',
     ]);
 
     for (const [status, label] of [
@@ -218,11 +227,55 @@ describe('ApplicationExportService', () => {
       },
     ]);
     const result = await service.exportJobCsv(caller, job.jobId);
-    expect(parseCsvRecords(result.content)[1].slice(11)).toEqual([
+    expect(parseCsvRecords(result.content)[1].slice(11, 14)).toEqual([
       'Không phù hợp',
       '',
       '',
     ]);
+  });
+
+  it('score columns use the reviewed scores once a reviewer has confirmed or corrected them; the AI overall stays in its own column', async () => {
+    prisma.application.findMany.mockResolvedValue([
+      {
+        ...application,
+        screening: {
+          ...application.screening,
+          reviewedAt: new Date('2026-10-30T08:00:00.000Z'),
+          reviewedOverallScore: '77',
+          reviewedSkillsScore: '90',
+          reviewedExperienceScore: 65,
+          reviewedEducationScore: '55.5',
+        },
+      },
+    ]);
+
+    const { content } = await service.exportJobCsv(caller, job.jobId);
+    const row = parseCsvRecords(content)[1];
+
+    expect(row.slice(7, 11)).toEqual(['77.0', '90.0', '65.0', '55.5']);
+    // The AI recommendation is untouched by a review (ADR 0002).
+    expect(row[11]).toBe('Nên phỏng vấn');
+    expect(row.slice(14)).toEqual(['82.5', 'Có']);
+  });
+
+  it('stale reviewed columns on an unreviewed screening are ignored', async () => {
+    prisma.application.findMany.mockResolvedValue([
+      {
+        ...application,
+        screening: {
+          ...application.screening,
+          reviewedAt: null,
+          reviewedOverallScore: '99',
+          reviewedSkillsScore: '99',
+        },
+      },
+    ]);
+
+    const { content } = await service.exportJobCsv(caller, job.jobId);
+    const row = parseCsvRecords(content)[1];
+
+    expect(row.slice(7, 9)).toEqual(['82.5', '80.0']);
+    expect(row.slice(14)).toEqual(['82.5', 'Không']);
   });
 
   it('leaves the AI columns empty and says Chưa chấm without a screening', async () => {
@@ -234,7 +287,7 @@ describe('ApplicationExportService', () => {
     const row = parseCsvRecords(content)[1];
 
     expect(row[6]).toBe('Chưa chấm');
-    expect(row.slice(7)).toEqual(['', '', '', '', '', '', '']);
+    expect(row.slice(7)).toEqual(['', '', '', '', '', '', '', '', '']);
   });
 
   it('writes only the header record for a job without applications', async () => {
