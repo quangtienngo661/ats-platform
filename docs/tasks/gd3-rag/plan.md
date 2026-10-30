@@ -136,7 +136,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 - [x] **Step 1: Write the failing test** (P0-C10): `filter offers the "Embedding" option`; `table renders an embedding row with the label "Embedding"`.
 - [x] **Step 2:** Run `npm run test:web -- src/components/ai-usage-logs` → FAIL. **Step 3:** Implement. **Step 4:** PASS; `npm run typecheck:web`, `npm run lint:web` sạch.
-- [ ] **Step 5: Commit** — `feat(web): show embedding calls in the ai usage log`.
+- [x] **Step 5: Commit** — `feat(web): show embedding calls in the ai usage log`.
 
 ### Task 0.8: Probe API thật và kiểm tay (cần người dùng cho phép)
 
@@ -217,9 +217,9 @@ Nhánh `feat/gd3-p3b-screening-review`, cắt từ `dev` **ngay** (không phụ 
 - Produces: các cột `reviewedById`, `reviewedAt`, `reviewedSkillsScore`, `reviewedExperienceScore`, `reviewedEducationScore`, `reviewedOverallScore` (Decimal(5,1)), `reviewNote`, `ragMode RagMode?`, `anchorScreeningIds Json?` trên `CVScreening`; quan hệ `reviewedBy User?`; enum `RagMode { none skills skills_anchors }`.
 - `effectiveScreeningScores(s: ScreeningScoreFields): { overall: number | null; skills: number | null; experience: number | null; education: number | null; isReviewed: boolean }` — điểm duyệt nếu `reviewedAt` khác null, ngược lại điểm AI; nhận `number | string | null` (Decimal về dạng chuỗi).
 
-- [ ] **Step 1: Write the failing test**: `returns AI scores when not reviewed`; `returns reviewed scores and isReviewed true when reviewedAt is set`; `parses decimal strings ("72.5" → 72.5)`; `all null → all null, isReviewed false`.
-- [ ] **Step 2–4:** FAIL → implement + migration → PASS. Probe DB dùng một lần: migration áp được.
-- [ ] **Step 5: Commit** — `feat(db): add review fields and rag mode to cv screenings`.
+- [x] **Step 1: Write the failing test**: `returns AI scores when not reviewed`; `returns reviewed scores and isReviewed true when reviewedAt is set`; `parses decimal strings ("72.5" → 72.5)`; `all null → all null, isReviewed false`.
+- [x] **Step 2–4:** FAIL → implement + migration → PASS. Probe DB dùng một lần: migration áp được.
+- [x] **Step 5: Commit** — `feat(db): add review fields and rag mode to cv screenings`.
 
 ### Task 3b.2: API duyệt điểm
 
@@ -228,7 +228,7 @@ Nhánh `feat/gd3-p3b-screening-review`, cắt từ `dev` **ngay** (không phụ 
 **Interfaces:**
 - Produces: `PATCH /cv-screenings/:applicationId/review` (`@Roles(UserRole.admin, UserRole.recruiter)`), body `ReviewScreeningDto { skillsScore: number; experienceScore: number; educationScore: number; note?: string }`; `CvScreeningsService.reviewScreening(caller: TenantCaller, applicationId: string, dto: ReviewScreeningDto)` trả bản ghi `CVScreening` sau cập nhật, cùng shape với `GET /cv-screenings/:applicationId`; socket `cv-screening:reviewed` tới `job_${jobId}`.
 
-- [ ] **Step 1: Write the failing test** (C7, C8, Review Focus 5):
+- [x] **Step 1: Write the failing test** (C7, C8, Review Focus 5):
   - `caller without job access → 403` (qua `assertCanAccessJob`)
   - `status !== completed → 400 "Chỉ duyệt được kết quả sàng lọc đã hoàn tất"`
   - DTO: `101 → 400`, `-1 → 400` (`@Min(0) @Max(100)`)
@@ -238,16 +238,16 @@ Nhánh `feat/gd3-p3b-screening-review`, cắt từ `dev` **ngay** (không phụ 
   - `does not update Application.status nor aiRecommendation` (prisma.application.update không được gọi; data không chứa `aiRecommendation`)
   - `sets reviewedById = caller.userId, reviewedAt = now`; `emits cv-screening:reviewed to job room`
   - processor: `rescreening clears all review fields`
-- [ ] **Step 2–4:** FAIL → implement → PASS.
-- [ ] **Step 5: Commit** — `feat(api): let recruiters review each screening score`.
+- [x] **Step 2–4:** FAIL → implement → PASS.
+- [x] **Step 5: Commit** — `feat(api): let recruiters review each screening score`.
 
 ### Task 3b.3: Ứng viên và CSV dùng điểm hiệu lực
 
 **Files:** Modify `cv-screenings.service.ts` (`getScreeningResultForCandidate`), `apps/api/src/app/applications/application-export.service.ts` + spec.
 
-- [ ] **Step 1: Write the failing test** (C9 API): `candidate result returns reviewed scores when reviewed and never includes reviewNote nor reviewedBy`; CSV: `score columns use effective scores`, `adds columns "Điểm AI tổng (gốc)" and "Đã duyệt" ("Có"/"Không")`.
-- [ ] **Step 2–4:** FAIL → implement bằng `effectiveScreeningScores` → PASS.
-- [ ] **Step 5: Commit** — `feat(api): show effective scores to candidates and in the csv export`.
+- [x] **Step 1: Write the failing test** (C9 API): `candidate result returns reviewed scores when reviewed and never includes reviewNote nor reviewedBy`; CSV: `score columns use effective scores`, `adds columns "Điểm AI tổng (gốc)" and "Đã duyệt" ("Có"/"Không")`.
+- [x] **Step 2–4:** FAIL → implement bằng `effectiveScreeningScores` → PASS.
+- [x] **Step 5: Commit** — `feat(api): show effective scores to candidates and in the csv export`.
 
 ### Task 3b.4: Web — dialog duyệt và điểm hiệu lực
 
@@ -255,19 +255,19 @@ Nhánh `feat/gd3-p3b-screening-review`, cắt từ `dev` **ngay** (không phụ 
 
 **Interfaces:** Produces `reviewScreeningAction(applicationId: string, input: { skillsScore: number; experienceScore: number; educationScore: number; note?: string }): Promise<ActionResult>` theo khuôn `lib/action-error.ts`, `revalidatePath` các route candidates/kanban.
 
-- [ ] **Step 1: Write the failing test** (C13, C9 web):
+- [x] **Step 1: Write the failing test** (C13, C9 web):
   - dialog: `opens from the "Duyệt điểm" button and shows AI scores side by side`; `submitting changed scores without a note shows "Vui lòng nhập lý do khi sửa điểm"`; `confirming unchanged scores calls the action without a note`
   - `Kanban card and compare table show the reviewed overall score and the text "Đã duyệt"`; `unreviewed shows the AI score without "Đã duyệt"`
-- [ ] **Step 2:** `npm run test:web -- src/components/candidates src/components/kanban src/servers/cv-screenings` → FAIL. **Step 3:** Implement (dùng `effectiveScreeningScores`; giữ layout, class, màu hiện có). **Step 4:** PASS; `typecheck:web`, `lint:web` sạch; `NODE_ENV=production npx nx build web` rồi `git checkout apps/web/next-env.d.ts`.
-- [ ] **Step 5: Commit** — `feat(web): review screening scores and show effective scores`.
+- [x] **Step 2:** `npm run test:web -- src/components/candidates src/components/kanban src/servers/cv-screenings` → FAIL. **Step 3:** Implement (dùng `effectiveScreeningScores`; giữ layout, class, màu hiện có). **Step 4:** PASS; `typecheck:web`, `lint:web` sạch; `NODE_ENV=production npx nx build web` rồi `git checkout apps/web/next-env.d.ts`.
+- [x] **Step 5: Commit** — `feat(web): review screening scores and show effective scores`.
 
 ### Task 3b.5: E2E duyệt điểm
 
 **Files:** Create `apps/web/e2e/screening-review.spec.ts`; Modify fixture seed trong `apps/web/e2e/support/` để có một lần chấm `completed` chưa duyệt.
 
-- [ ] **Step 1:** Viết journey (C14): recruiter đăng nhập → mở hồ sơ → "Duyệt điểm" → sửa kỹ năng, nhập lý do → lưu → Kanban hiện "Đã duyệt" và điểm tổng mới.
-- [ ] **Step 2:** `docker compose -f docker-compose.test.yml up -d --build --wait`; `node apps/web/e2e/support/prepare-local.mjs`; `npm run test:e2e:web -- screening-review` → PASS; tắt stack.
-- [ ] **Step 3: Commit** — `test(web): cover reviewing a screening score end to end`. PR M3b vào `dev`.
+- [x] **Step 1:** Viết journey (C14): recruiter đăng nhập → mở hồ sơ → "Duyệt điểm" → sửa kỹ năng, nhập lý do → lưu → Kanban hiện "Đã duyệt" và điểm tổng mới.
+- [x] **Step 2:** `docker compose -f docker-compose.test.yml up -d --build --wait`; `node apps/web/e2e/support/prepare-local.mjs`; `npm run test:e2e:web -- screening-review` → PASS; tắt stack.
+- [x] **Step 3: Commit** — `test(web): cover reviewing a screening score end to end`. PR M3b vào `dev`.
 
 ---
 
@@ -436,3 +436,19 @@ M3b (người duyệt) — bắt đầu ngay, song song M0/M1 ──────
 | 2 (2–8/11) | M0 xong (0.6–0.8); M1; M3b xong; soạn nội dung seed (4.4 Step 1, 5.1 Step 3) |
 | 3 (9–15/11) | M2 → M3a; M4 song song |
 | 4 (16–22/11) | M5 |
+
+---
+
+## Ghi chú thực thi (2026-10-30)
+
+Những chỗ code thật khác plan, và quyết định đã đưa ra. Chi tiết nằm trong commit message của từng task.
+
+- **Task 0.3:** thêm `modelFor(tier)` vào `LlmClient` để dòng log lỗi vẫn ghi đúng tên model (spec R7); nới `AiUsageLogsService.create` nhận `refId: string | null` (cột DB vốn nullable); bảng ánh xạ mới nằm cạnh export cũ của `gemini.config.ts` cho đến Task 0.5 (nếu xoá ngay thì `GeminiService` cũ không build).
+- **Task 0.5:** plan liệt kê 9 file nhưng `app.module.ts` và `interviews.module.ts` cũng import `GeminiModule`; đã đổi cả hai. DI của Nest chỉ kiểm được bằng boot thật: đã boot stack test cô lập, `LlmModule dependencies initialized`, API healthy.
+- **Task 0.6:** `EmbeddingService` chia lô 2048 phần tử (giới hạn của OpenAI) và gửi `dimensions: 1536` tường minh.
+- **Task 0.7:** không có thay đổi này thì trang nhật ký AI crash ngay khi có dòng `embedding`; đã thêm `embedding` vào Swagger enum của `GET /ai-usage-logs`.
+- **Task 0.8:** script probe đã viết (`results/probe-openai.mjs`) nhưng **chưa chạy**: chủ dự án hoãn lời gọi AI thật. C11/C12 chưa kiểm; `docker-compose.yml` prod đã sửa sau khi được đồng ý.
+- **Task 3b.2:** route thật là `PATCH /screening/:applicationId/review` (controller prefix `screening`, plan ghi `cv-screenings`); xoá bản duyệt khi chấm lại nằm ở `createScreeningRecord` (nơi các trường điểm khác được đặt lại), không ở processor.
+- **Task 3b.3:** plan giả định API ứng viên đã trả điểm. Thực tế `GET /screening/me/:id` không trả điểm, nhưng `GET /applications/my` và `GET /applications/:id` có (cùng `applicationIncludeOptions.screening`). Chủ dự án chọn: payload ứng viên hiện điểm hiệu lực trong các trường điểm sẵn có và không có trường duyệt nào (`toCandidateScreening`). **Còn mở:** ứng viên vẫn thấy `aiRecommendation` và `aiReasoning` — có từ trước, ngoài phạm vi.
+- **Task 3b.3 (CSV):** hai cột mới thêm vào CUỐI để vị trí cột cũ không đổi; tiêu đề `Điểm tổng (gợi ý AI)` giữ nguyên dù giờ có thể chứa điểm của người duyệt — cần chủ dự án quyết có đổi tên hay không.
+- **Task 3b.4:** nhãn các dòng điểm ở bảng so sánh bỏ hậu tố `AI (gợi ý)` vì giờ có thể là điểm của người duyệt (thêm dòng `Duyệt điểm`); E2E `gd2-evaluation` đã cập nhật nhãn.
