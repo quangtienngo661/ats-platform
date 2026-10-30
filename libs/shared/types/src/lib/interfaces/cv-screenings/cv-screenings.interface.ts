@@ -16,4 +16,11 @@ export interface ICVScreening {
   skillsScore?: number;
   experienceScore?: number;
   educationScore?: number;
+  // Human review (GĐ3 part 3b). Sent to staff only; effectiveScreeningScores picks which set to show.
+  reviewedAt?: string | null;
+  reviewedOverallScore?: number | null;
+  reviewedSkillsScore?: number | null;
+  reviewedExperienceScore?: number | null;
+  reviewedEducationScore?: number | null;
+  reviewNote?: string | null;
 }

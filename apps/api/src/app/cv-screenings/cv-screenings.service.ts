@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -10,7 +12,12 @@ import {
   ScreeningStatus,
 } from '@ats-platform/database';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { cvScreeningIncludeOptions } from '../../common/utils/include-options.util';
+import {
+  applicationIncludeOptions,
+  cvScreeningIncludeOptions,
+} from '../../common/utils/include-options.util';
+import { SocketIoService } from '../../common/socket-io/socket-io.service';
+import { ReviewScreeningDto } from './dto/review-screening.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ProcessCvScreeningJobData } from './processors/cv-screenings.processor';
@@ -65,8 +72,17 @@ interface ScreeningStats {
   averageScore: number | null;
 }
 
+/** Rounds to the one decimal the Decimal(5,1) score columns keep, half up (72.55 → 72.6). */
+function roundScore(value: number): number {
+  return new Prisma.Decimal(value)
+    .toDecimalPlaces(1, Prisma.Decimal.ROUND_HALF_UP)
+    .toNumber();
+}
+
 @Injectable()
 export class CvScreeningsService {
+  private readonly logger = new Logger(CvScreeningsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @InjectQueue('cv-screening')
@@ -75,6 +91,7 @@ export class CvScreeningsService {
       void,
       string
     >,
+    private readonly socketIoService: SocketIoService,
   ) {}
 
   private async assertCanAccessJob(
@@ -151,6 +168,14 @@ export class CvScreeningsService {
         missingSkills: null,
         errorLog: null,
         screenedAt: null,
+        // A new screening replaces the scores a reviewer saw, so their review goes too (R10).
+        reviewedById: null,
+        reviewedAt: null,
+        reviewedSkillsScore: null,
+        reviewedExperienceScore: null,
+        reviewedEducationScore: null,
+        reviewedOverallScore: null,
+        reviewNote: null,
       },
       include: {
         ...cvScreeningIncludeOptions,
@@ -194,6 +219,105 @@ export class CvScreeningsService {
 
     return screening;
   }
+
+  /**
+   * A recruiter confirms or corrects the three AI sub-scores of a completed
+   * screening. Only the last review is kept. The overall score is recomputed from
+   * the reviewed (rounded) sub-scores with the screening's own AI config.
+   * Never touches Application.status or aiRecommendation (ADR 0002).
+   */
+  async reviewScreening(
+    caller: TenantCaller,
+    applicationId: string,
+    dto: ReviewScreeningDto,
+  ) {
+    const screening = await this.prisma.cVScreening.findUnique({
+      where: { applicationId },
+      include: screeningResultIncludeOptions,
+    });
+
+    if (!screening) {
+      throw new NotFoundException(
+        `Không tìm thấy kết quả sàng lọc cho đơn ứng tuyển '${applicationId}'`,
+      );
+    }
+
+    await this.assertCanAccessJob(caller, {
+      organizationId: screening.organizationId,
+      departmentId: screening.application.jobPosting.departmentId,
+    });
+
+    if (screening.status !== ScreeningStatus.completed) {
+      throw new BadRequestException(
+        'Chỉ duyệt được kết quả sàng lọc đã hoàn tất',
+      );
+    }
+
+    const skills = roundScore(dto.skillsScore);
+    const experience = roundScore(dto.experienceScore);
+    const education = roundScore(dto.educationScore);
+    const note = dto.note?.trim() || null;
+
+    const sameAsAi = (reviewed: number, ai: Prisma.Decimal | null) =>
+      ai !== null && roundScore(Number(ai)) === reviewed;
+    const changed = !(
+      sameAsAi(skills, screening.skillsScore) &&
+      sameAsAi(experience, screening.experienceScore) &&
+      sameAsAi(education, screening.educationScore)
+    );
+    if (changed && !note) {
+      throw new BadRequestException('Vui lòng nhập lý do khi sửa điểm');
+    }
+
+    const { aiConfig } = screening;
+    const overall = roundScore(
+      this.calculateOverallScore(skills, experience, education, {
+        skillsWeight: Number(aiConfig.skillsWeight),
+        experienceWeight: Number(aiConfig.experienceWeight),
+        educationWeight: Number(aiConfig.educationWeight),
+      }),
+    );
+
+    const reviewed = await this.prisma.cVScreening.update({
+      where: { applicationId },
+      data: {
+        reviewedById: caller.userId,
+        reviewedAt: new Date(),
+        reviewedSkillsScore: skills,
+        reviewedExperienceScore: experience,
+        reviewedEducationScore: education,
+        reviewedOverallScore: overall,
+        reviewNote: note,
+      },
+      include: screeningResultIncludeOptions,
+    });
+
+    await this.emitReviewed(applicationId, screening.application.jobId);
+
+    return reviewed;
+  }
+
+  // Same payload shape as cv-screening:completed so the Kanban reuses its handler.
+  // A failed emit must not undo a review that is already saved.
+  private async emitReviewed(applicationId: string, jobId: string) {
+    try {
+      const application = await this.prisma.application.findUnique({
+        where: { applicationId },
+        include: applicationIncludeOptions,
+      });
+      if (!application) return;
+      this.socketIoService.handleEmit(
+        'cv-screening:reviewed',
+        application,
+        `job_${jobId}`,
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Could not emit cv-screening:reviewed for application ${applicationId}: ${error.message}`,
+      );
+    }
+  }
+
   async getScreeningResultForCandidate(
     applicationId: string,
     userId: string,

@@ -113,7 +113,7 @@ export const applicationIncludeOptions = {
     },
   },
   screening: {
-    select: { screeningId: true, status: true, overallScore: true, aiRecommendation: true, skillsScore: true, experienceScore: true, educationScore: true, aiReasoning: true, matchedSkills: true, missingSkills: true },
+    select: { screeningId: true, status: true, overallScore: true, aiRecommendation: true, skillsScore: true, experienceScore: true, educationScore: true, aiReasoning: true, matchedSkills: true, missingSkills: true, reviewedAt: true, reviewedOverallScore: true, reviewedSkillsScore: true, reviewedExperienceScore: true, reviewedEducationScore: true },
   },
   history: { orderBy: { changedAt: 'desc' }, take: 1 },
 } satisfies Prisma.ApplicationInclude;

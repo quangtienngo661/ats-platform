@@ -17,43 +17,7 @@ import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { useKanBanStore } from '@/stores/useKanbanStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { ScreeningStatus } from '@ats-platform/types';
-
-// ── Helper: convert API ApplicationDto to UI Candidate card ─────────────────
-function mapApplicationToCandidate(app: IApplicationDto, stage: Stage): Candidate {
-  const name = app.candidate?.user?.fullName || 'N/A';
-  const initials = name.split(' ').filter(Boolean).slice(-2).map(w => w[0]).join('').toUpperCase();
-  const score = app.screening?.overallScore ?? 0;
-  
-  const screeningStatus = app.screening?.status ?? undefined;
-
-  return {
-    id: app.applicationId,
-    name,
-    role: app.jobPosting?.title || '',
-    initials,
-    avatarColor: '#0071E3',
-    rating: score >= 90 ? 5 : score >= 75 ? 4 : score >= 60 ? 3 : score === 0 ? 0 : 2,
-    daysInStage: app.appliedAt
-      ? Math.max(0, Math.floor((Date.now() - new Date(app.appliedAt).getTime()) / 86400000))
-      : 0,
-    source: 'Website',
-    stage,
-    score,
-    location: app.jobPosting?.locationType || '',
-    tags: [],
-    screeningStatus,
-  };
-}
-
-function boardToCandidates(board: Record<string, IApplicationDto[]>): Candidate[] {
-  const result: Candidate[] = [];
-  for (const [status, applications] of Object.entries(board)) {
-    for (const app of applications) {
-      result.push(mapApplicationToCandidate(app, status as Stage));
-    }
-  }
-  return result;
-}
+import { boardToCandidates } from './kanban-mappers';
 
 // ── Component ───────────────────────────────────────────────────────────────
 interface KanbanClientProps {
@@ -201,10 +165,13 @@ export default function KanbanClient({
     }
 
     socket.onEvent("cv-screening:completed", handleUpdateKanban);
+    // Same payload shape: a reviewed screening arrives as the refreshed application.
+    socket.onEvent("cv-screening:reviewed", handleUpdateKanban);
     socket.onEvent("application:application_created", handleAddApplication);
     socket.onEvent("application:application_withdrawn", handleWithdrawnApplication)
     return () => {
       socket.offEvent("cv-screening:completed", handleUpdateKanban);
+      socket.offEvent("cv-screening:reviewed", handleUpdateKanban);
       socket.offEvent("application:application_created", handleAddApplication);
       socket.offEvent("application:application_withdrawn", handleWithdrawnApplication)
     }
