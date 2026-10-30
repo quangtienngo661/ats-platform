@@ -69,6 +69,38 @@ describe('CvScreeningProcessor', () => {
     );
   });
 
+  // B-01: the job posting's skills were fetched but never reached the prompt.
+  it('screening prompt contains a <skill_match> block listing the job\'s required skills', async () => {
+    primeContext();
+    prisma.application.findUnique.mockResolvedValue({
+      applicationId: 'app-1',
+      jobId: 'job-1',
+      jobPosting: {
+        parsedRequirements: {},
+        recruiter: { userId: 'rec-user-1' },
+        jobPostingSkills: [
+          { isRequired: true, skill: { skillId: 'sk-react', name: 'React' } },
+          { isRequired: false, skill: { skillId: 'sk-docker', name: 'Docker' } },
+        ],
+      },
+    });
+    llmService.screeningCV.mockResolvedValue({
+      skills_score: 80,
+      experience_score: 80,
+      education_score: 80,
+      ai_reasoning: 'ok',
+      matched_skills: [],
+      missing_skills: [],
+      matched_nice_to_haves: [],
+    });
+
+    await processor.process(buildJob(0));
+
+    const content: string = llmService.screeningCV.mock.calls[0][1];
+    expect(content).toContain('<skill_match>');
+    expect(content).toContain('React');
+  });
+
   it('rethrows while retries remain, without marking the screening failed', async () => {
     primeContext();
     llmService.screeningCV.mockRejectedValue(new Error('Gemini timeout'));
