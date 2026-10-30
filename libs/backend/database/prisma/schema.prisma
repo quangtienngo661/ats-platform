@@ -87,6 +87,14 @@ enum AiRecommendation {
   @@map("ai_recommendation")
 }
 
+enum RagMode {
+  none
+  skills
+  skills_anchors
+
+  @@map("rag_mode")
+}
+
 enum AiActionType {
   cv_parsing
   cv_scoring
@@ -191,6 +199,7 @@ model User {
   scorecards         InterviewScorecard[]
   applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
+  reviewedScreenings CVScreening[]       @relation("ScreeningReviewer")
 
   @@index([organizationId])
   @@map("users")
@@ -498,10 +507,24 @@ model CVScreening {
   retryCount       Int               @default(0) @map("retry_count")
   screenedAt       DateTime?         @map("screened_at")
 
+  // Human review of the AI scores (GĐ3 part 3b). Only the last review is kept; re-screening clears it.
+  reviewedById            String?   @map("reviewed_by_id")
+  reviewedAt              DateTime? @map("reviewed_at")
+  reviewedSkillsScore     Decimal?  @map("reviewed_skills_score") @db.Decimal(5, 1)
+  reviewedExperienceScore Decimal?  @map("reviewed_experience_score") @db.Decimal(5, 1)
+  reviewedEducationScore  Decimal?  @map("reviewed_education_score") @db.Decimal(5, 1)
+  reviewedOverallScore    Decimal?  @map("reviewed_overall_score") @db.Decimal(5, 1)
+  reviewNote              String?   @map("review_note")
+
+  // Which retrieval aids the AI was given for this screening (null on rows from before RAG).
+  ragMode            RagMode? @map("rag_mode")
+  anchorScreeningIds Json?    @map("anchor_screening_ids")
+
   organization Organization @relation(fields: [organizationId], references: [organizationId])
   application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
   cv           CV           @relation(fields: [cvId], references: [cvId])
   aiConfig     AiConfig     @relation(fields: [configId], references: [configId])
+  reviewedBy   User?        @relation("ScreeningReviewer", fields: [reviewedById], references: [userId])
 
   @@index([organizationId])
   @@map("cv_screenings")
