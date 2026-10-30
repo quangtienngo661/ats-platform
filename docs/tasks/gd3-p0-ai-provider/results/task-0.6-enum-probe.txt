@@ -1,0 +1,21 @@
+# Task 0.6 probe (P0-C9) — 2026-10-30T08:53Z, postgres:18.4-alpine, throwaway container on 127.0.0.1:55440
+## prisma migrate deploy
+  └─ 20261014000000_add_interview_scorecards_and_application_notes/
+    └─ migration.sql
+  └─ 20261015000000_add_email_notifications/
+    └─ migration.sql
+  └─ 20261101000000_add_embedding_ai_action_type/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+## enum values
+cv_parsing
+cv_scoring
+mock_interview
+job_parsing
+embedding
+## count
+5
+## control: a known older value is present (job_parsing) and the migration is recorded
+job_parsing
+20261101000000_add_embedding_ai_action_type

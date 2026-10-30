@@ -9,7 +9,7 @@ describe('CvScreeningProcessor', () => {
     calculateOverallScore: jest.Mock;
     determineRecommendation: jest.Mock;
   };
-  let geminiService: { screeningCV: jest.Mock };
+  let llmService: { screeningCV: jest.Mock };
   let socketIoService: { handleEmit: jest.Mock };
   let notificationsService: { create: jest.Mock };
 
@@ -56,14 +56,14 @@ describe('CvScreeningProcessor', () => {
       calculateOverallScore: jest.fn().mockReturnValue(80),
       determineRecommendation: jest.fn().mockReturnValue('interview'),
     };
-    geminiService = { screeningCV: jest.fn() };
+    llmService = { screeningCV: jest.fn() };
     socketIoService = { handleEmit: jest.fn() };
     notificationsService = { create: jest.fn() };
 
     processor = new CvScreeningProcessor(
       cvScreeningsService as any,
       prisma as any,
-      geminiService as any,
+      llmService as any,
       socketIoService as any,
       notificationsService as any,
     );
@@ -71,7 +71,7 @@ describe('CvScreeningProcessor', () => {
 
   it('rethrows while retries remain, without marking the screening failed', async () => {
     primeContext();
-    geminiService.screeningCV.mockRejectedValue(new Error('Gemini timeout'));
+    llmService.screeningCV.mockRejectedValue(new Error('Gemini timeout'));
 
     // Attempt 1 of 3 — BullMQ must see a rejection so it schedules a retry.
     await expect(processor.process(buildJob(0, 3))).rejects.toThrow(
@@ -87,7 +87,7 @@ describe('CvScreeningProcessor', () => {
 
   it('marks the screening failed on the final attempt and still rethrows', async () => {
     primeContext();
-    geminiService.screeningCV.mockRejectedValue(new Error('Gemini timeout'));
+    llmService.screeningCV.mockRejectedValue(new Error('Gemini timeout'));
 
     // Attempt 3 of 3 — record the failure, but the job must still be recorded as
     // failed by BullMQ, so the error has to propagate.
@@ -104,7 +104,7 @@ describe('CvScreeningProcessor', () => {
 
   it('skips the in-app notification for a silent job but still emits the socket event', async () => {
     primeContext();
-    geminiService.screeningCV.mockResolvedValue({
+    llmService.screeningCV.mockResolvedValue({
       skills_score: 80,
       experience_score: 80,
       education_score: 80,
@@ -128,7 +128,7 @@ describe('CvScreeningProcessor', () => {
 
   it('still notifies for a job without the flag', async () => {
     primeContext();
-    geminiService.screeningCV.mockResolvedValue({
+    llmService.screeningCV.mockResolvedValue({
       skills_score: 80,
       experience_score: 80,
       education_score: 80,

@@ -5,7 +5,7 @@ import { createPrismaMock } from '../../../test-utils/unit-test-helpers';
 describe('CvParsingProcessor — outcomes and retry boundary', () => {
   let prisma: ReturnType<typeof createPrismaMock>;
   let processor: CvParsingProcessor;
-  const gemini = { parseCV: jest.fn() };
+  const llmService = { parseCV: jest.fn() };
   const parsed = { create: jest.fn() };
   const socket = { handleEmit: jest.fn() };
   const notifications = { create: jest.fn() };
@@ -34,7 +34,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
     }));
     processor = new CvParsingProcessor(
       parsed as any,
-      gemini as any,
+      llmService as any,
       prisma as any,
       socket as any,
       notifications as any,
@@ -43,7 +43,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
 
   it('persists parsed data and completed state before notifying the owner', async () => {
     const data = { summary: 'Engineer', skills: ['TypeScript'] };
-    gemini.parseCV.mockResolvedValue(data);
+    llmService.parseCV.mockResolvedValue(data);
 
     await processor.process(job());
 
@@ -66,7 +66,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
 
   it('does not announce terminal failure while automatic retries remain', async () => {
     const error = new Error('Temporary Gemini timeout');
-    gemini.parseCV.mockRejectedValue(error);
+    llmService.parseCV.mockRejectedValue(error);
 
     await expect(processor.process(job(0))).rejects.toBe(error);
 
@@ -79,7 +79,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
 
   it('records the final failure, notifies the owner and rejects the queue job', async () => {
     const error = new Error('Gemini unavailable');
-    gemini.parseCV.mockRejectedValue(error);
+    llmService.parseCV.mockRejectedValue(error);
 
     await expect(processor.process(job(2))).rejects.toBe(error);
 
@@ -104,13 +104,13 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
 
   it('ignores an unrelated queue job', async () => {
     await processor.process({ ...job(), name: 'unknown-job' });
-    expect(gemini.parseCV).not.toHaveBeenCalled();
+    expect(llmService.parseCV).not.toHaveBeenCalled();
     expect(prisma.cV.update).not.toHaveBeenCalled();
   });
 
   it('announces failure immediately when the queue job has no automatic retries', async () => {
     const error = new Error('Invalid CV');
-    gemini.parseCV.mockRejectedValue(error);
+    llmService.parseCV.mockRejectedValue(error);
     await expect(processor.process({ ...job(), opts: {} })).rejects.toBe(error);
     expect(prisma.cV.update).toHaveBeenLastCalledWith(expect.objectContaining({
       data: { parsingStatus: ParsingStatus.failed, errorLog: 'Invalid CV' },
@@ -119,7 +119,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
   });
 
   it('only announces completion when a transient error succeeds on the next attempt', async () => {
-    gemini.parseCV.mockRejectedValueOnce(new Error('temporary'))
+    llmService.parseCV.mockRejectedValueOnce(new Error('temporary'))
       .mockResolvedValueOnce({ skills: ['TypeScript'] });
     await expect(processor.process(job(0))).rejects.toThrow('temporary');
     await processor.process(job(1));

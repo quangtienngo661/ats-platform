@@ -19,7 +19,7 @@ import {
   organizationScope,
   TenantCaller,
 } from '../../common/tenancy/tenant-caller';
-import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
+import { LlmService } from '../../common/external-apis/llm/llm.service';
 import { randomUUID } from 'crypto';
 import { sanitizeJobDescription, sanitizeJobPosting } from './sanitize-job-description';
 import { jobPostingFilters } from './job-posting-filters';
@@ -46,7 +46,7 @@ export class JobPostingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jobPostingSkillsService: JobPostingSkillsService,
-    private readonly geminiService: GeminiService,
+    private readonly llmService: LlmService,
   ) {}
 
   async parseJdPreview(description: string) {
@@ -58,7 +58,7 @@ export class JobPostingsService {
       );
     }
 
-    const result = await this.geminiService.parseJD(
+    const result = await this.llmService.parseJD(
       `jd-preview-${randomUUID()}`,
       normalizedDescription,
     );

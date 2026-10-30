@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { CvScreeningsService } from '../cv-screenings.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+import { LlmService } from '../../../common/external-apis/llm/llm.service';
 import { Logger, NotFoundException } from '@nestjs/common';
 import {
   NotificationType,
@@ -28,7 +28,7 @@ export class CvScreeningProcessor extends WorkerHost {
   constructor(
     private readonly cvScreeningsService: CvScreeningsService,
     private readonly prisma: PrismaService,
-    private readonly geminiService: GeminiService,
+    private readonly llmService: LlmService,
     private readonly socketIoService: SocketIoService,
     private readonly notificationsService: NotificationsService,
   ) {
@@ -61,14 +61,14 @@ export class CvScreeningProcessor extends WorkerHost {
           );
 
         const rawJson = this.getRawJson(cvParsedData, parsedRequirements);
-        const geminiResult = await this.geminiService.screeningCV(
+        const llmResult = await this.llmService.screeningCV(
           screeningId,
           rawJson,
         );
 
         const updatedApplication = await this.handleScreeningResult(
           screeningId,
-          geminiResult,
+          llmResult,
           aiConfig,
         );
 
@@ -167,7 +167,7 @@ ${rawJobJson}
   }
   private async handleScreeningResult(
     screeningId: string,
-    geminiResult,
+    llmResult,
     config: any,
   ): Promise<any> {
     // Fallback only: createScreeningRecord always stores a config. When it is
@@ -189,7 +189,7 @@ ${rawJobJson}
     }
     if (!config)
       throw new NotFoundException('Không tìm thấy cấu hình AI mặc định');
-    // Lưu ý: geminiResult trả về thường là string JSON, bạn cần parse nó trước
+    // Lưu ý: llmResult trả về thường là string JSON, bạn cần parse nó trước
     const {
       skills_score,
       experience_score,
@@ -198,7 +198,7 @@ ${rawJobJson}
       matched_skills,
       missing_skills,
       matched_nice_to_haves,
-    } = geminiResult;
+    } = llmResult;
 
     // 1. Dùng Service để tính điểm tổng hợp
     const overallScore = this.cvScreeningsService.calculateOverallScore(

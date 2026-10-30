@@ -16,7 +16,7 @@ const tenQuestions = Array.from({ length: 10 }, (_, index) => ({
 describe('InterviewSessionService', () => {
   let service: InterviewSessionService;
   let prisma: ReturnType<typeof createPrismaMock>;
-  let gemini: {
+  let llmService: {
     generateInterviewQuestions: jest.Mock;
     checkInterviewFollowup: jest.Mock;
     generateInterviewResult: jest.Mock;
@@ -28,7 +28,7 @@ describe('InterviewSessionService', () => {
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    gemini = {
+    llmService = {
       generateInterviewQuestions: jest.fn(),
       checkInterviewFollowup: jest.fn(),
       generateInterviewResult: jest.fn(),
@@ -39,7 +39,7 @@ describe('InterviewSessionService', () => {
     generationQueue = createQueueMock();
     service = new InterviewSessionService(
       prisma as any,
-      gemini as any,
+      llmService as any,
       socket as any,
       redis as any,
       queue as any,
@@ -95,7 +95,7 @@ describe('InterviewSessionService', () => {
       questionText: 'Question',
       expectedPoints: ['point'],
     });
-    gemini.checkInterviewFollowup.mockResolvedValue({
+    llmService.checkInterviewFollowup.mockResolvedValue({
       hasFollowup: true,
       followupQuestion: 'Can you clarify?',
       reason: 'Need detail',
@@ -120,7 +120,7 @@ describe('InterviewSessionService', () => {
       questionText: 'Question',
       expectedPoints: ['point'],
     });
-    gemini.checkInterviewFollowup.mockResolvedValue({ hasFollowup: false });
+    llmService.checkInterviewFollowup.mockResolvedValue({ hasFollowup: false });
     prisma.interviewQnA.findFirst.mockResolvedValue({
       qnaId: 'qna-2',
       orderIndex: 2,
@@ -174,7 +174,7 @@ describe('InterviewSessionService', () => {
         missedPoints: [],
       },
     ]);
-    gemini.generateInterviewResult.mockResolvedValue({
+    llmService.generateInterviewResult.mockResolvedValue({
       overallScore: 80,
       strengths: ['A'],
       weaknesses: ['B'],

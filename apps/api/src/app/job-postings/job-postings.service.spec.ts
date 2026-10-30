@@ -12,16 +12,16 @@ describe('JobPostingsService', () => {
   let service: JobPostingsService;
   let prisma: ReturnType<typeof createPrismaMock>;
   let jobPostingSkillsService: { create: jest.Mock; deleteByJobId: jest.Mock };
-  let geminiService: { parseJD: jest.Mock };
+  let llmService: { parseJD: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
     jobPostingSkillsService = { create: jest.fn(), deleteByJobId: jest.fn() };
-    geminiService = { parseJD: jest.fn() };
+    llmService = { parseJD: jest.fn() };
     service = new JobPostingsService(
       prisma as any,
       jobPostingSkillsService as any,
-      geminiService as any,
+      llmService as any,
     );
   });
 
@@ -30,11 +30,11 @@ describe('JobPostingsService', () => {
       BadRequestException,
     );
 
-    geminiService.parseJD.mockResolvedValue({ title: 'Backend' });
+    llmService.parseJD.mockResolvedValue({ title: 'Backend' });
     await expect(
       service.parseJdPreview('Need NestJS developer'),
     ).resolves.toEqual({ title: 'Backend' });
-    expect(geminiService.parseJD).toHaveBeenCalledWith(
+    expect(llmService.parseJD).toHaveBeenCalledWith(
       expect.stringMatching(/^jd-preview-/),
       'Need NestJS developer',
     );

@@ -5,7 +5,7 @@ import { createPrismaMock } from '../../../test-utils/unit-test-helpers';
 describe('InterviewProcessor', () => {
     let processor: InterviewProcessor;
     let prisma: ReturnType<typeof createPrismaMock>;
-    let geminiService: { evaluateInterviewAnswer: jest.Mock };
+    let llmService: { evaluateInterviewAnswer: jest.Mock };
     let interviewSessionService: { finalizeSession: jest.Mock };
 
     const baseQna = {
@@ -28,18 +28,18 @@ describe('InterviewProcessor', () => {
 
     beforeEach(() => {
         prisma = createPrismaMock();
-        geminiService = { evaluateInterviewAnswer: jest.fn() };
+        llmService = { evaluateInterviewAnswer: jest.fn() };
         interviewSessionService = { finalizeSession: jest.fn() };
         processor = new InterviewProcessor(
             prisma as any,
-            geminiService as any,
+            llmService as any,
             interviewSessionService as any,
         );
     });
 
     it('evaluates the answer and finalizes the session on success', async () => {
         prisma.interviewQnA.findUnique.mockResolvedValue(baseQna);
-        geminiService.evaluateInterviewAnswer.mockResolvedValue({
+        llmService.evaluateInterviewAnswer.mockResolvedValue({
             score: 80,
             feedback: 'Good',
             coveredPoints: ['p'],
@@ -61,7 +61,7 @@ describe('InterviewProcessor', () => {
 
     it('rethrows without recording [ERROR] or finalizing when attempts remain', async () => {
         prisma.interviewQnA.findUnique.mockResolvedValue(baseQna);
-        geminiService.evaluateInterviewAnswer.mockRejectedValue(new Error('Gemini timeout'));
+        llmService.evaluateInterviewAnswer.mockRejectedValue(new Error('Gemini timeout'));
 
         await expect(processor.process(buildJob(0, 3))).rejects.toThrow('Gemini timeout');
 
@@ -73,7 +73,7 @@ describe('InterviewProcessor', () => {
         prisma.interviewQnA.findUnique
             .mockResolvedValueOnce(baseQna) // fetch inside try
             .mockResolvedValueOnce({ sessionId: 'session-1' }); // re-fetch inside catch
-        geminiService.evaluateInterviewAnswer.mockRejectedValue(new Error('Gemini down'));
+        llmService.evaluateInterviewAnswer.mockRejectedValue(new Error('Gemini down'));
         prisma.interviewSession.findUnique.mockResolvedValue({
             status: InterviewStatus.pending_result,
         });

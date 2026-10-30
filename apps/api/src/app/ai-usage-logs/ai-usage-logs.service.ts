@@ -17,7 +17,7 @@ export class AiUsageLogsService {
         duration,
         status,
     }: {
-        refId: string;
+        refId: string | null;
         actionType: AiActionType;
         model: string;
         promptTokenCount: number;
