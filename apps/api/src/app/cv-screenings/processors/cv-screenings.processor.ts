@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   CandidateSkillSource,
   NotificationType,
+  Prisma,
   RelatedEntityType,
   ScreeningStatus,
 } from '@ats-platform/database';
@@ -23,6 +24,13 @@ import {
   SkillMatch,
   SkillMatchResult,
 } from '../skill-matcher';
+import {
+  Anchor,
+  AnchorRetriever,
+  DEFAULT_ANCHOR_COUNT,
+  selectRagMode,
+} from '../anchor-retriever';
+import { technicalSkills } from '../cv-technical-skills';
 
 export interface ProcessCvScreeningJobData {
   screeningId: string;
@@ -49,30 +57,13 @@ const toPromptMatch = ({ name, cvSkill, similarity }: SkillMatch) => ({
   similarity: Math.round(similarity * 100) / 100,
 });
 
-/** The distinct, non-blank technical skills of a parsed CV. */
-function technicalSkills(cvParsedData: { skills?: unknown } | null): string[] {
-  const skills = cvParsedData?.skills;
-  const technical =
-    skills && typeof skills === 'object' && !Array.isArray(skills)
-      ? (skills as Record<string, unknown>).technical
-      : undefined;
-  const items = Array.isArray(technical)
-    ? technical
-    : typeof technical === 'string'
-      ? technical.split(/[,;\n]/)
-      : [];
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const item of items) {
-    if (typeof item !== 'string') continue;
-    const text = item.trim();
-    if (text && !seen.has(text.toLowerCase())) {
-      seen.add(text.toLowerCase());
-      result.push(text);
-    }
-  }
-  return result;
-}
+const toPromptAnchor = (anchor: Anchor) => ({
+  cv_summary: anchor.cvSummary,
+  cv_skills: anchor.cvSkills,
+  skills_score: anchor.skillsScore,
+  experience_score: anchor.experienceScore,
+  education_score: anchor.educationScore,
+});
 
 @Processor('cv-screening', { concurrency: 5 })
 export class CvScreeningProcessor extends WorkerHost {
@@ -87,6 +78,7 @@ export class CvScreeningProcessor extends WorkerHost {
     private readonly embeddingService: EmbeddingService,
     private readonly vectorSearch: VectorSearchService,
     private readonly configService: ConfigService,
+    private readonly anchorRetriever: AnchorRetriever,
   ) {
     super();
   }
@@ -121,10 +113,17 @@ export class CvScreeningProcessor extends WorkerHost {
           cvParsedData,
           application,
         );
+        const { ragMode, anchors } = await this.chooseMode(
+          job.data,
+          cvParsedData,
+          application,
+          outcome,
+        );
         const rawJson = this.getRawJson(
           cvParsedData,
           parsedRequirements,
           outcome.match,
+          ragMode === 'skills_anchors' ? anchors : [],
         );
         const llmResult = await this.llmService.screeningCV(
           screeningId,
@@ -136,6 +135,8 @@ export class CvScreeningProcessor extends WorkerHost {
           llmResult,
           aiConfig,
           outcome,
+          ragMode,
+          ragMode === 'skills_anchors' ? anchors : [],
         );
         await this.linkMatchedSkills(application.candidateId, outcome.match);
 
@@ -272,6 +273,53 @@ export class CvScreeningProcessor extends WorkerHost {
     }
   }
 
+  /**
+   * The final screening mode (R5). Anchors are searched only when the mode could still become
+   * `skills_anchors`: the skill match worked and nobody forced `none` or `skills`. A failed search
+   * means no anchors — the screening carries on with the skill match alone.
+   */
+  private async chooseMode(
+    data: ProcessCvScreeningJobData,
+    cvParsedData: { id: string },
+    application: { jobId: string },
+    outcome: SkillMatchOutcome,
+  ): Promise<{ ragMode: RagMode; anchors: Anchor[] }> {
+    // The skill match did not run (forced off, or the embeddings failed): the mode is none whatever was asked.
+    if (outcome.ragMode === 'none') return { ragMode: 'none', anchors: [] };
+
+    const k = this.anchorCount();
+    let anchors: Anchor[] = [];
+    if (data.ragMode !== 'skills') {
+      try {
+        anchors = await this.anchorRetriever.retrieve(
+          application.jobId,
+          data.applicationId,
+          cvParsedData.id,
+          k,
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Anchor search failed for screening ${data.screeningId}, screening without anchors: ${error.message}`,
+        );
+      }
+    }
+
+    const ragMode = selectRagMode({
+      forced: data.ragMode,
+      embeddingsAvailable: true,
+      reviewedCount: anchors.length,
+      k,
+    });
+    return { ragMode, anchors };
+  }
+
+  private anchorCount(): number {
+    const configured = Number(this.configService.get('ANCHOR_COUNT'));
+    return Number.isInteger(configured) && configured > 0
+      ? configured
+      : DEFAULT_ANCHOR_COUNT;
+  }
+
   private skillMatchThreshold(): number {
     const configured = Number(this.configService.get('SKILL_MATCH_THRESHOLD'));
     return this.configService.get('SKILL_MATCH_THRESHOLD') === undefined ||
@@ -305,6 +353,7 @@ export class CvScreeningProcessor extends WorkerHost {
     cvData: any,
     jobData: any,
     skillMatch: SkillMatchResult | null = null,
+    anchors: Anchor[] = [],
   ): string {
     const rawCvJson = JSON.stringify(cvData ?? null);
     const rawJobJson = JSON.stringify(jobData ?? null);
@@ -320,19 +369,29 @@ ${JSON.stringify({
 </skill_match>`
       : '';
 
+    const anchorsBlock = anchors.length
+      ? `
+
+<anchors>
+${JSON.stringify(anchors.map(toPromptAnchor))}
+</anchors>`
+      : '';
+
     return `<cv_data>
 ${rawCvJson}
 </cv_data>
 
 <jd_data>
 ${rawJobJson}
-</jd_data>${skillMatchBlock}`;
+</jd_data>${skillMatchBlock}${anchorsBlock}`;
   }
   private async handleScreeningResult(
     screeningId: string,
     llmResult,
     config: any,
     outcome: SkillMatchOutcome,
+    ragMode: RagMode,
+    anchors: Anchor[],
   ): Promise<any> {
     // Fallback only: createScreeningRecord always stores a config. When it is
     // missing, use the default of the SCREENING'S organization — never whichever
@@ -393,7 +452,12 @@ ${rawJobJson}
           matched_nice_to_haves,
           missing_skills,
         }),
-        ragMode: outcome.ragMode,
+        ragMode,
+        // Overwritten on every completion, so a re-screening never keeps the previous run's anchors.
+        anchorScreeningIds:
+          ragMode === 'skills_anchors'
+            ? anchors.map(({ screeningId: id }) => id)
+            : Prisma.DbNull,
         screenedAt: new Date(),
       },
     });
