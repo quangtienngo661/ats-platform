@@ -83,7 +83,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
   - `reads input/output tokens from usage, output includes reasoning tokens` (tên trường theo tài liệu Responses API đọc ở Step 3; giá trị test: input 200, output 60 → `{ promptTokens: 200, outputTokens: 60 }`)
 - [x] **Step 3:** Đọc tài liệu chính thức `openai` Node SDK (context7 hoặc developers.openai.com) cho: tên tham số mức suy luận trong Responses API, tên trường usage và trường token suy luận. Ghi URL + ngày vào `docs/tasks/gd3-p0-ai-provider/research.md` (documented). Sửa assert Step 2 nếu tên khác.
 - [x] **Step 4:** Run `--testPathPatterns=llm/openai.client` → FAIL; implement; run → PASS.
-- [ ] **Step 5: Commit** — `feat(api): add the openai client behind the llm interface`.
+- [x] **Step 5: Commit** — `feat(api): add the openai client behind the llm interface`.
 
 ### Task 0.3: `LlmService` + `LlmModule`
 
@@ -93,14 +93,14 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 - Consumes: `LlmClient`, `LLM_CLIENT` (Task 0.1), `AiUsageLogsService.create`.
 - Produces: `LlmService` với 7 hàm, mỗi hàm `(refId: string | null, content: string) => Promise<any>` trả object JSON đã parse: `parseCV`, `parseJD`, `screeningCV`, `generateInterviewQuestions`, `checkInterviewFollowup`, `evaluateInterviewAnswer`, `generateInterviewResult`. `LlmModule` export `LlmService`; provider `LLM_CLIENT` là factory theo `AI_PROVIDER` (`gemini` mặc định → `GeminiClient`, `openai` → `OpenAiClient`).
 
-- [ ] **Step 1: Write the failing test** `llm.service.spec.ts`:
+- [x] **Step 1: Write the failing test** `llm.service.spec.ts`:
   - `C2 mapping table` (test.each 7 dòng của bảng "Ánh xạ" phần 0: `parseCV` flash/medium/`cv_parsing`, `parseJD` flash/medium/`job_parsing`, `screeningCV` pro/high/`cv_scoring`, `generateInterviewQuestions` pro/high/`mock_interview`, `checkInterviewFollowup` flash/high/`mock_interview`, `evaluateInterviewAnswer` flash/high/`mock_interview`, `generateInterviewResult` pro/high/`mock_interview`) — assert systemPrompt đúng hằng số, `parseJD` bọc `<jd_text>…</jd_text>`
   - `C5 unparseable JSON` → ném lỗi, `aiUsageLogsService.create` gọi một lần với `status: 'failed'`
   - `C5 timeout`: dùng fake timers, client không trả lời 120 000 ms → abort, log `failed`, ném lỗi
   - `success logs model, promptTokens, completionTokens = outputTokens, status success`
   - `log failure does not fail the call` (create reject → hàm vẫn trả kết quả)
   - `C1 factory`: `AI_PROVIDER` không đặt → `GeminiClient`; `openai` → `OpenAiClient`
-- [ ] **Step 2:** Run → FAIL. **Step 3:** Implement (AbortController 120 s, `JSON.parse`, ghi log fire-and-forget như P0-R10). **Step 4:** Run → PASS.
+- [x] **Step 2:** Run → FAIL. **Step 3:** Implement (AbortController 120 s, `JSON.parse`, ghi log fire-and-forget như P0-R10). **Step 4:** Run → PASS.
 - [ ] **Step 5: Commit** — `feat(api): route every ai generation through llmservice`.
 
 ### Task 0.4: Cấu hình môi trường

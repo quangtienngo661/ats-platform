@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAI } from 'openai';
-import { LlmClient, LlmRequest, LlmResult } from './llm.types';
+import { LlmClient, LlmRequest, LlmResult, LlmTier } from './llm.types';
 
 const DEFAULT_MODEL_PRO = 'gpt-6.1-sol';
 const DEFAULT_MODEL_FLASH = 'gpt-6-luna';
@@ -26,8 +26,12 @@ export class OpenAiClient implements LlmClient {
             DEFAULT_MODEL_FLASH;
     }
 
+    modelFor(tier: LlmTier): string {
+        return tier === 'pro' ? this.modelPro : this.modelFlash;
+    }
+
     async generateJson(req: LlmRequest): Promise<LlmResult> {
-        const model = req.tier === 'pro' ? this.modelPro : this.modelFlash;
+        const model = this.modelFor(req.tier);
 
         const response = await this.ai.responses.create(
             {

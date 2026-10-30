@@ -107,6 +107,16 @@ describe('OpenAiClient', () => {
     expect(flash.model).toBe('custom-flash');
   });
 
+  it('modelFor names the model each tier uses, honouring the env overrides', () => {
+    expect(new OpenAiClient(buildConfig()).modelFor('pro')).toBe('gpt-6.1-sol');
+    expect(new OpenAiClient(buildConfig()).modelFor('flash')).toBe(
+      'gpt-6-luna',
+    );
+
+    env.OPENAI_MODEL_PRO = 'custom-pro';
+    expect(new OpenAiClient(buildConfig()).modelFor('pro')).toBe('custom-pro');
+  });
+
   it('returns the raw output_text without parsing it', async () => {
     mockCreate.mockResolvedValue({ output_text: 'not json', usage: {} });
     const client = new OpenAiClient(buildConfig());

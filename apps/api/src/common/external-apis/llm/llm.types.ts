@@ -24,6 +24,8 @@ export interface LlmResult {
 
 export interface LlmClient {
     generateJson(req: LlmRequest): Promise<LlmResult>;
+    /** The model a tier resolves to; lets a failed call still log the real model. */
+    modelFor(tier: LlmTier): string;
 }
 
 export const LLM_CLIENT = Symbol('LLM_CLIENT');

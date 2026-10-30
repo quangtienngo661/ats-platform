@@ -29,8 +29,12 @@ export class GeminiClient implements LlmClient {
         });
     }
 
+    modelFor(tier: LlmTier): string {
+        return GEMINI_MODELS[tier];
+    }
+
     async generateJson(req: LlmRequest): Promise<LlmResult> {
-        const model = GEMINI_MODELS[req.tier];
+        const model = this.modelFor(req.tier);
 
         const response = await this.ai.models.generateContent({
             model,

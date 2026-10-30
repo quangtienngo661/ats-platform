@@ -116,6 +116,11 @@ describe('GeminiClient', () => {
     expect(result.outputTokens).toBe(0);
   });
 
+  it('modelFor names the model each tier uses', () => {
+    expect(client.modelFor('pro')).toBe('gemini-3.1-pro-preview');
+    expect(client.modelFor('flash')).toBe('gemini-3.5-flash');
+  });
+
   it('reads the key from GOOGLE_API_KEY', () => {
     expect(configService.getOrThrow).toHaveBeenCalledWith('GOOGLE_API_KEY');
   });
