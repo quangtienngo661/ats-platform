@@ -272,8 +272,11 @@ Replace direct LLM generation with retrieval-augmented generation where it adds 
 [ ] Decide source-of-truth for candidate structured data before EmbeddingService:
     Candidate.profileData (Json) vs CVParsedData.* currently both exist, no documented precedence ~half day (decision + ADR)
 [ ] Enable pgvector extension on existing PostgreSQL instance        ~2h
-[ ] EmbeddingService — Google text-embedding-004 via existing API key ~1 day
-[ ] RagService — cosine similarity search, configurable top-K        ~2 days
+    (2026-10-30: dev/test chạy image tự build `ats-postgres-pgvector:18.4-0.8.1`, migration + probe trên DB thật đã qua; compose prod chưa đổi image nên chưa tick)
+[ ] EmbeddingService — OpenAI text-embedding-3-small (1536 chiều), không còn Google text-embedding-004
+    (2026-10-30: code + unit test xong; chưa gọi OpenAI thật nên chưa tick — probe `docs/tasks/gd3-p0-ai-provider/results/probe-openai.mjs` còn chờ chạy)
+[x] RagService — cosine similarity search, configurable top-K        ~2 days
+    (2026-10-30: `VectorSearchService`, raw SQL; thứ tự cosine, lọc topic/độ khó, bỏ dòng ẩn / thiếu vector đã kiểm bằng probe SQL trên Postgres thật)
     Note: Prisma has no native vector type — use Unsupported("vector(N)") + raw SQL for similarity queries
 ```
 
@@ -281,9 +284,13 @@ Replace direct LLM generation with retrieval-augmented generation where it adds 
 
 ```
 [ ] Question bank schema + Admin UI (input, embed, store questions)  ~3 days
+    (2026-10-30: schema, API admin, UI xong và có test; ngân hàng còn rỗng — nội dung seed chờ duyệt, embedding chờ key thật)
 [ ] generateInterviewQuestions → inject retrieved questions as context ~2 days
+    (2026-10-30: code + unit test + probe SQL; chưa có phiên phỏng vấn thật nào chạy với bank)
 [ ] CV screening: retrieve similar past screenings for calibration    ~3 days
+    (2026-10-30: `skills_anchors` + người duyệt điểm xong; chưa đo độ nhất quán — script `docs/tasks/gd3-rag/results/consistency/` chờ dataset được duyệt và key thật)
 [ ] Skill taxonomy: embed synonyms, use in fuzzy skill matching       ~2 days
+    (2026-10-30: khớp theo embedding + sửa B-01 xong; ngưỡng τ=0.8 là mặc định chưa chốt bằng số liệu — probe-threshold chưa chạy)
 [ ] AI job recommendation for candidates                             ~3 days
     (embed CVParsedData.skills → match against JobPosting embeddings)
 ```
