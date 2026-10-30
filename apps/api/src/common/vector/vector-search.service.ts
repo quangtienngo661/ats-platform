@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@ats-platform/database';
+import { DifficultyLevel, Prisma } from '@ats-platform/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { EMBEDDING_DIMENSIONS } from '../external-apis/embedding/embedding.service';
+
+/** A question of the interview bank as the similarity search returns it. */
+export interface BankQuestion {
+    questionId: string;
+    questionText: string;
+    expectedPoints: string[];
+    difficulty: DifficultyLevel;
+}
 
 /**
  * Every table that holds a vector, with the column that identifies a row. Table and column
@@ -81,6 +89,34 @@ export class VectorSearchService {
                        LIMIT ${limit}`,
         );
         return rows.map((row) => row.id);
+    }
+
+    /**
+     * The `limit` active bank questions of `topicId` at exactly `difficulty` whose embedding is nearest
+     * (cosine) to `vector`, nearest first. A hidden question or one with no vector yet is never returned.
+     */
+    async nearestQuestions(
+        topicId: string,
+        difficulty: DifficultyLevel,
+        vector: number[],
+        limit: number,
+    ): Promise<BankQuestion[]> {
+        if (!Number.isInteger(limit) || limit <= 0) throw new Error('limit must be a positive integer');
+        const literal = toVectorLiteral(vector);
+
+        return this.prisma.$queryRaw<BankQuestion[]>(
+            Prisma.sql`SELECT "question_id" AS "questionId",
+                              "question_text" AS "questionText",
+                              "expected_points" AS "expectedPoints",
+                              "difficulty"::text AS "difficulty"
+                       FROM "interview_questions"
+                       WHERE "topic_id" = ${topicId}
+                         AND "difficulty" = ${difficulty}::difficulty_level
+                         AND "is_active" = true
+                         AND "embedding" IS NOT NULL
+                       ORDER BY "embedding" <=> ${literal}::vector
+                       LIMIT ${limit}`,
+        );
     }
 
     /**

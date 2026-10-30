@@ -65,6 +65,7 @@ export class InterviewSessionService {
     await this.generationQueue.add('generate_questions', {
       sessionId: session.sessionId,
       candidateId: candidate.candidateId,
+      topicId: topic.topicId,
       topicName: topic.name,
       categoryName: topic.category?.name || 'Không rõ',
       difficultyLevel: dto.difficultyLevel,
