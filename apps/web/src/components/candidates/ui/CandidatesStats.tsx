@@ -1,3 +1,4 @@
+import { effectiveScreeningScores } from '@ats-platform/types';
 import { Users, Star, TrendingUp } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
@@ -9,7 +10,7 @@ interface CandidatesStatsProps {
 export function CandidatesStats({ applications }: CandidatesStatsProps) {
     const newCount = applications.filter(a => a.status === 'applied').length;
     const scores = applications
-        .map(a => a.screening?.overallScore)
+        .map(a => effectiveScreeningScores(a.screening ?? {}).overall)
         .filter((s): s is number => s != null && s > 0);
     const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
     const highScoreCount = scores.filter(s => s >= 90).length;

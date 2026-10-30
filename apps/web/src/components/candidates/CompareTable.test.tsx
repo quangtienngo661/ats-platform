@@ -16,6 +16,7 @@ const items: IComparisonItem[] = [
       aiRecommendation: 'interview',
       matchedSkills: ['TypeScript'],
       missingSkills: ['Kubernetes'],
+      isReviewed: false,
     },
     scorecards: {
       count: 2,
@@ -37,6 +38,7 @@ const items: IComparisonItem[] = [
       aiRecommendation: 'reject',
       matchedSkills: ['SQL'],
       missingSkills: ['TypeScript'],
+      isReviewed: false,
     },
     scorecards: {
       count: 1,
@@ -104,5 +106,40 @@ describe('CompareTable', () => {
       .map(row => row.querySelectorAll('th, td')[3]?.textContent ?? '');
     expect(emptyColumn.filter(text => /chưa có/i.test(text)).length).toBeGreaterThanOrEqual(2);
     expect(table).not.toHaveTextContent(/tốt nhất|xếp hạng|\brank(?:ing)?\b|hạng\s*#?\d/i);
+  });
+
+  describe('effective scores (3b)', () => {
+    const reviewedItems: IComparisonItem[] = [
+      { ...items[0], screening: { ...(items[0].screening as NonNullable<IComparisonItem["screening"]>), overallScore: 77, skillsScore: 90, isReviewed: true } },
+      items[1],
+      items[2],
+    ];
+
+    async function renderTable(list: IComparisonItem[]) {
+      const modulePath = './CompareTable';
+      const { CompareTable } = await import(/* @vite-ignore */ modulePath);
+      render(<CompareTable items={list} jobId="job-1" />);
+      return screen.getByRole('table');
+    }
+
+    const cellsOf = (table: HTMLElement, label: string) => {
+      const row = within(table).getAllByRole('row').find(r => r.querySelector('th')?.textContent === label);
+      expect(row, label).toBeDefined();
+      return Array.from(row?.querySelectorAll('td') ?? []).map(td => td.textContent);
+    };
+
+    it('shows the reviewed score with "Đã duyệt" for a reviewed candidate and the AI score without it for the rest', async () => {
+      const table = await renderTable(reviewedItems);
+
+      expect(cellsOf(table, 'Điểm tổng thể')).toEqual(['77 / 100', '72 / 100', 'Chưa có']);
+      expect(cellsOf(table, 'Điểm kỹ năng')).toEqual(['90 / 100', '69 / 100', 'Chưa có']);
+      expect(cellsOf(table, 'Duyệt điểm')).toEqual(['Đã duyệt', 'Chưa duyệt', 'Chưa có']);
+    });
+
+    it('keeps the AI recommendation labelled as an AI suggestion', async () => {
+      const table = await renderTable(reviewedItems);
+
+      expect(within(table).getByText('Khuyến nghị AI (gợi ý)')).toBeVisible();
+    });
   });
 });

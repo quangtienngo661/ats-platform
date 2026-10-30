@@ -18,7 +18,15 @@ vi.mock('@/stores/useSocketStore', () => ({
   ),
 }));
 
-const eventName = 'cv-screening:completed';
+const eventNames = ['cv-screening:completed', 'cv-screening:reviewed'];
+
+// Both events share one handler, so a burst of mixed events is still one refresh.
+function subscribedHandler() {
+  expect(mocks.state.onEvent.mock.calls.map(([name]) => name)).toEqual(eventNames);
+  const [handler] = new Set(mocks.state.onEvent.mock.calls.map(([, fn]) => fn));
+  expect(new Set(mocks.state.onEvent.mock.calls.map(([, fn]) => fn)).size).toBe(1);
+  return handler;
+}
 
 describe('useScreeningLiveRefresh', () => {
   beforeEach(() => {
@@ -35,8 +43,7 @@ describe('useScreeningLiveRefresh', () => {
 
   it('useScreeningLiveRefresh refreshes once for a burst of events within one second', () => {
     renderHook(() => useScreeningLiveRefresh());
-    expect(mocks.state.onEvent).toHaveBeenCalledExactlyOnceWith(eventName, expect.any(Function));
-    const handler = mocks.state.onEvent.mock.calls[0][1];
+    const handler = subscribedHandler();
 
     act(() => {
       handler(null);
@@ -62,8 +69,7 @@ describe('useScreeningLiveRefresh', () => {
 
     mocks.state.status = 'connected';
     rerender();
-    expect(mocks.state.onEvent).toHaveBeenCalledExactlyOnceWith(eventName, expect.any(Function));
-    const handler = mocks.state.onEvent.mock.calls[0][1];
+    const handler = subscribedHandler();
     act(() => {
       handler(null);
       vi.advanceTimersByTime(1000);
@@ -71,13 +77,24 @@ describe('useScreeningLiveRefresh', () => {
     expect(mocks.router.refresh).toHaveBeenCalledTimes(1);
   });
 
+  it('a reviewed event refreshes the lists too', () => {
+    renderHook(() => useScreeningLiveRefresh());
+    const handler = subscribedHandler();
+
+    act(() => {
+      handler(null);
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(mocks.router.refresh).toHaveBeenCalledTimes(1);
+  });
+
   it('unsubscribes on unmount', () => {
     const { unmount } = renderHook(() => useScreeningLiveRefresh());
-    expect(mocks.state.onEvent).toHaveBeenCalledExactlyOnceWith(eventName, expect.any(Function));
-    const handler = mocks.state.onEvent.mock.calls[0][1];
+    const handler = subscribedHandler();
 
     unmount();
 
-    expect(mocks.state.offEvent).toHaveBeenCalledExactlyOnceWith(eventName, handler);
+    expect(mocks.state.offEvent.mock.calls).toEqual(eventNames.map(name => [name, handler]));
   });
 });

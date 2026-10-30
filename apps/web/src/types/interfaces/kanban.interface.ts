@@ -18,6 +18,8 @@ export interface Candidate {
   location: string;
   tags: string[];
   screeningStatus?: ScreeningStatus;
+  /** True when `score` is a reviewer's score, not the AI's. */
+  reviewed?: boolean;
 }
 
 export interface StageConfig {

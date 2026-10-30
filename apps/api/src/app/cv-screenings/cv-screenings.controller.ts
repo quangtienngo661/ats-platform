@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CvScreeningsService } from './cv-screenings.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,6 +8,7 @@ import { UserRole } from '@ats-platform/database';
 import { Request } from 'express';
 import { CurrentCaller } from '../../common/decorators/current-caller.decorator';
 import { TenantCaller } from '../../common/tenancy/tenant-caller';
+import { ReviewScreeningDto } from './dto/review-screening.dto';
 
 @ApiTags('Sàng lọc CV')
 @ApiBearerAuth()
@@ -35,6 +36,20 @@ export class CvScreeningsController {
   @ApiResponse({ status: 404, description: 'Không tìm thấy kết quả sàng lọc' })
   async getScreeningResultForCandidate(@Req() req: Request & { user: { userId: string } }, @Param('applicationId') applicationId: string) {
     return this.cvScreeningsService.getScreeningResultForCandidate(applicationId, req.user.userId);
+  }
+
+  @Patch(':applicationId/review')
+  @Roles(UserRole.admin, UserRole.recruiter)
+  @ApiOperation({ summary: 'Duyệt điểm sàng lọc (HR)', description: 'Nhà tuyển dụng xác nhận hoặc sửa ba điểm con của AI. Sửa điểm phải kèm lý do. Không đổi trạng thái đơn ứng tuyển.' })
+  @ApiResponse({ status: 200, description: 'Thành công' })
+  @ApiResponse({ status: 400, description: 'Kết quả chưa hoàn tất, điểm không hợp lệ hoặc thiếu lý do khi sửa điểm' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy kết quả sàng lọc' })
+  async reviewScreening(
+    @CurrentCaller() caller: TenantCaller,
+    @Param('applicationId') applicationId: string,
+    @Body() dto: ReviewScreeningDto,
+  ) {
+    return this.cvScreeningsService.reviewScreening(caller, applicationId, dto);
   }
 
   @Get(':applicationId')

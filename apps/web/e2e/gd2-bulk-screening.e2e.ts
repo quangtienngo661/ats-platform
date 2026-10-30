@@ -26,6 +26,8 @@ const EXPORT_HEADERS = [
   'Gợi ý AI',
   'Kỹ năng khớp',
   'Kỹ năng thiếu',
+  'Điểm AI tổng (gốc)',
+  'Đã duyệt',
 ] as const;
 const expectedHeader = EXPORT_HEADERS.map((header) => `"${header}"`).join(',');
 

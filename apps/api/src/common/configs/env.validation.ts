@@ -5,6 +5,7 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  Matches,
   MinLength,
   ValidateIf,
   validateSync,
@@ -55,6 +56,14 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   OPENAI_MODEL_FLASH?: string;
+
+  // Cosine similarity at which a CV skill counts as the job skill (0 to 1). Unset = 0.8 (an ASSUMPTION
+  // until the real-embedding probe of GĐ3 task 2.3 fixes it).
+  @IsOptional()
+  @Matches(/^(0(\.\d+)?|1(\.0+)?)$/, {
+    message: 'SKILL_MATCH_THRESHOLD phải là số từ 0 đến 1',
+  })
+  SKILL_MATCH_THRESHOLD?: string;
 
   @IsNotEmpty()
   @IsString()
