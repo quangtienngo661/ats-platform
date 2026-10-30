@@ -109,7 +109,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 - [x] **Step 1: Write the failing test** (P0-C7): `gemini without GOOGLE_API_KEY fails`; `openai without OPENAI_API_KEY fails`; `gemini without OPENAI_API_KEY passes`; `AI_PROVIDER=abc fails`; `OPENAI_MODEL_PRO optional`.
 - [x] **Step 2:** Run → FAIL. **Step 3:** `AI_PROVIDER @IsOptional @IsIn(['gemini','openai'])`; `GOOGLE_API_KEY` `@ValidateIf(provider !== 'openai')`; `OPENAI_API_KEY` `@ValidateIf(provider === 'openai')`; compose truyền `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL_PRO`, `OPENAI_MODEL_FLASH`; test compose thêm `OPENAI_API_KEY: local-verification-no-external-ai`. **Step 4:** Run → PASS.
-- [x] **Step 5: Commit** — `feat(config): choose the ai provider through ai_provider`. (Trừ `docker-compose.yml` prod: chưa sửa, chờ người dùng đồng ý riêng.)
+- [x] **Step 5: Commit** — `feat(config): choose the ai provider through ai_provider`. (`docker-compose.yml` prod sửa ở commit riêng sau khi người dùng đồng ý, 2026-10-30.)
 
 ### Task 0.5: Đổi 9 nơi gọi sang `LlmService`, gỡ `GeminiService`
 
