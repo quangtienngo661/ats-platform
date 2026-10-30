@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { EmbeddingModule } from '../external-apis/embedding/embedding.module';
+import { EmbeddingBackfillController } from './embedding-backfill.controller';
+import { EmbeddingBackfillService } from './embedding-backfill.service';
 import { EMBEDDING_QUEUE, EmbeddingQueueService } from './embedding-queue.service';
 import { EmbeddingProcessor } from './processors/embedding.processor';
 import { VectorSearchService } from './vector-search.service';
@@ -12,7 +14,8 @@ import { VectorSearchService } from './vector-search.service';
         BullModule.registerQueue({ name: EMBEDDING_QUEUE }),
         EmbeddingModule,
     ],
-    providers: [VectorSearchService, EmbeddingQueueService, EmbeddingProcessor],
+    controllers: [EmbeddingBackfillController],
+    providers: [VectorSearchService, EmbeddingQueueService, EmbeddingProcessor, EmbeddingBackfillService],
     exports: [VectorSearchService, EmbeddingQueueService],
 })
 export class VectorModule {}

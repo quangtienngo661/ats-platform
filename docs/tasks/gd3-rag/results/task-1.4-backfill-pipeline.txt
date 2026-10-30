@@ -1,0 +1,4 @@
+login 201
+backfill 201 {"success":true,"status":201,"data":{"enqueued":1}}
+usage-log rows for the skill: [{"action_type":"embedding","model_name":"text-embedding-3-small","status":"failed","completion_tokens":0},{"action_type":"embedding","model_name":"text-embedding-3-small","status":"failed","completion_tokens":0}]
+skill embedding still null: true
