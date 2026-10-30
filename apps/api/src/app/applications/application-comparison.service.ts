@@ -1,10 +1,10 @@
 import {
   AiRecommendation,
   ApplicationStatus,
-  Prisma,
   ScorecardRecommendation,
 } from '@ats-platform/database';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { effectiveScreeningScores } from '@ats-platform/types';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   assertInCallerOrganizationOr404,
@@ -25,6 +25,8 @@ export type ComparisonItem = {
     aiRecommendation: AiRecommendation | null;
     matchedSkills: unknown;
     missingSkills: unknown;
+    /** True when the four scores above are a reviewer's, not the AI's. */
+    isReviewed: boolean;
   } | null;
   scorecards: {
     count: number;
@@ -41,10 +43,6 @@ export type ComparisonItem = {
   };
   noteCount: number;
 };
-
-function decimalToNumber(value: Prisma.Decimal | null): number | null {
-  return value === null ? null : Number(value);
-}
 
 @Injectable()
 export class ApplicationComparisonService {
@@ -85,6 +83,11 @@ export class ApplicationComparisonService {
             aiRecommendation: true,
             matchedSkills: true,
             missingSkills: true,
+            reviewedAt: true,
+            reviewedOverallScore: true,
+            reviewedSkillsScore: true,
+            reviewedExperienceScore: true,
+            reviewedEducationScore: true,
           },
         },
       },
@@ -127,6 +130,7 @@ export class ApplicationComparisonService {
     return applicationIds.map((applicationId) => {
       const application = applicationsById.get(applicationId)!;
       const { screening } = application;
+      const effective = screening ? effectiveScreeningScores(screening) : null;
       const applicationScorecards = scorecards.filter(
         (scorecard) => scorecard.interview.applicationId === applicationId,
       );
@@ -143,13 +147,14 @@ export class ApplicationComparisonService {
         appliedAt: application.appliedAt,
         screening: screening
           ? {
-              overallScore: decimalToNumber(screening.overallScore),
-              skillsScore: decimalToNumber(screening.skillsScore),
-              experienceScore: decimalToNumber(screening.experienceScore),
-              educationScore: decimalToNumber(screening.educationScore),
+              overallScore: effective!.overall,
+              skillsScore: effective!.skills,
+              experienceScore: effective!.experience,
+              educationScore: effective!.education,
               aiRecommendation: screening.aiRecommendation,
               matchedSkills: screening.matchedSkills,
               missingSkills: screening.missingSkills,
+              isReviewed: effective!.isReviewed,
             }
           : null,
         scorecards: {
