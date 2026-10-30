@@ -16,6 +16,7 @@ const ACTION_OPTIONS: { value: ActionTypeFilter; label: string }[] = [
     { value: 'cv_parsing', label: 'CV Parsing' },
     { value: 'cv_scoring', label: 'CV Scoring' },
     { value: 'job_parsing', label: 'Job Parsing' },
+    { value: 'embedding', label: 'Embedding' },
     { value: 'mock_interview', label: 'Mock Interview' },
 ];
 

@@ -128,14 +128,14 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 - [x] **Step 1: Write the failing test** (P0-C6, P0-E3): `embed([]) returns [] without calling the API or logging`; `returns vectors in input order` (API trả `data` lệch thứ tự theo `index` → kết quả theo thứ tự đầu vào); `logs one embedding row per batch, completionTokens 0`; `missing OPENAI_API_KEY throws an English error naming OPENAI_API_KEY`.
 - [x] **Step 2:** Run → FAIL. **Step 3:** Implement (client `openai` `maxRetries: 0`). Migration chỉ `ALTER TYPE "ai_action_type" ADD VALUE 'embedding'`. **Step 4:** Run → PASS.
 - [x] **Step 5:** Probe DB dùng một lần (P0-C9): `docker run --rm` Postgres cổng riêng, `prisma migrate deploy`, `SELECT unnest(enum_range(NULL::ai_action_type))` → đúng 5 giá trị. Lưu output vào `docs/tasks/gd3-p0-ai-provider/results/`.
-- [ ] **Step 6: Commit** — `feat(api): add the openai embedding service`.
+- [x] **Step 6: Commit** — `feat(api): add the openai embedding service`.
 
 ### Task 0.7: Web — nhật ký AI hiển thị `embedding`
 
 **Files:** Modify `apps/web/src/types/interfaces/ai-usage-log.interface.ts`, `apps/web/src/components/ai-usage-logs/ui/AiUsageLogsFilter.tsx`, `AiUsageLogsTable.tsx` (+ test cạnh chúng).
 
-- [ ] **Step 1: Write the failing test** (P0-C10): `filter offers the "Embedding" option`; `table renders an embedding row with the label "Embedding"`.
-- [ ] **Step 2:** Run `npm run test:web -- src/components/ai-usage-logs` → FAIL. **Step 3:** Implement. **Step 4:** PASS; `npm run typecheck:web`, `npm run lint:web` sạch.
+- [x] **Step 1: Write the failing test** (P0-C10): `filter offers the "Embedding" option`; `table renders an embedding row with the label "Embedding"`.
+- [x] **Step 2:** Run `npm run test:web -- src/components/ai-usage-logs` → FAIL. **Step 3:** Implement. **Step 4:** PASS; `npm run typecheck:web`, `npm run lint:web` sạch.
 - [ ] **Step 5: Commit** — `feat(web): show embedding calls in the ai usage log`.
 
 ### Task 0.8: Probe API thật và kiểm tay (cần người dùng cho phép)

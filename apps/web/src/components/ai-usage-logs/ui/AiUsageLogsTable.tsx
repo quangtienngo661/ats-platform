@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FileText, Target, MessageSquare, Briefcase, Clock, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Target, MessageSquare, Briefcase, Layers, Clock, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IAiUsageLogDto } from '@/types/interfaces/ai-usage-log.interface';
 import { IPaginationMeta } from '@ats-platform/types';
@@ -22,6 +22,7 @@ const ACTION_CONFIG: Record<IAiUsageLogDto['actionType'], {
     cv_scoring: { label: 'CV Scoring', icon: Target, color: '#6366F1', bg: '#F5F3FF' },
     mock_interview: { label: 'Mock Interview', icon: MessageSquare, color: '#EC4899', bg: '#FDF2F8' },
     job_parsing: { label: 'Job Parsing', icon: Briefcase, color: '#F59E0B', bg: '#FFFBEB' },
+    embedding: { label: 'Embedding', icon: Layers, color: '#14B8A6', bg: '#F0FDFA' },
 };
 
 // ── Format helpers ───────────────────────────────────────────────────────────
