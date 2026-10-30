@@ -65,6 +65,14 @@ class EnvironmentVariables {
   })
   SKILL_MATCH_THRESHOLD?: string;
 
+  // How many reviewed screenings of the same posting are shown to the model as calibration anchors
+  // (1 to 10). Unset = 3.
+  @IsOptional()
+  @Matches(/^([1-9]|10)$/, {
+    message: 'ANCHOR_COUNT phải là số nguyên từ 1 đến 10',
+  })
+  ANCHOR_COUNT?: string;
+
   @IsNotEmpty()
   @IsString()
   REDIS_HOST!: string;

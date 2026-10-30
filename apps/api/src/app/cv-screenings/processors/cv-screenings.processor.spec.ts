@@ -1,4 +1,4 @@
-import { ScreeningStatus } from '@ats-platform/database';
+import { Prisma, ScreeningStatus } from '@ats-platform/database';
 import { CvScreeningProcessor } from './cv-screenings.processor';
 import { createPrismaMock } from '../../../test-utils/unit-test-helpers';
 
@@ -14,6 +14,7 @@ describe('CvScreeningProcessor', () => {
   let notificationsService: { create: jest.Mock };
   let embeddingService: { embed: jest.Mock };
   let vectorSearch: { readEmbeddings: jest.Mock };
+  let anchorRetriever: { retrieve: jest.Mock };
   let config: Record<string, string>;
 
   const buildJob = (attemptsMade: number, attempts = 3) =>
@@ -66,6 +67,7 @@ describe('CvScreeningProcessor', () => {
     embeddingService = { embed: jest.fn() };
     vectorSearch = { readEmbeddings: jest.fn().mockResolvedValue(new Map()) };
     config = {};
+    anchorRetriever = { retrieve: jest.fn().mockResolvedValue([]) };
 
     processor = new CvScreeningProcessor(
       cvScreeningsService as any,
@@ -76,6 +78,7 @@ describe('CvScreeningProcessor', () => {
       embeddingService as any,
       vectorSearch as any,
       { get: (key: string) => config[key] } as any,
+      anchorRetriever as any,
     );
   });
 
@@ -106,6 +109,7 @@ describe('CvScreeningProcessor', () => {
     ) => {
       primeContext();
       prisma.cVParsedData.findUnique.mockResolvedValue({
+        id: 'parsed-1',
         cvId: 'cv-1',
         skills: { technical },
       });
@@ -326,6 +330,139 @@ describe('CvScreeningProcessor', () => {
       await processor.process(buildJob(0)); // 0.9 < 0.95
       expect(completedWrite().data.matchedSkills.hardSkills).toEqual([]);
       expect(completedWrite().data.missingSkills).toEqual(['React']);
+    });
+
+    describe('anchors (R5, R6, R8, C6, E3)', () => {
+      const anchor = (id: string, skills: number) => ({
+        screeningId: id,
+        cvSummary: `summary ${id}`,
+        cvSkills: ['NestJS'],
+        skillsScore: skills,
+        experienceScore: skills - 10,
+        educationScore: skills - 20,
+      });
+      const three = [anchor('a1', 90), anchor('a2', 80), anchor('a3', 70)];
+      const primeMatching = () => {
+        prime(['ReactJS'], [jobSkill('sk-react', 'React')], { 'sk-react': X });
+        embeddingService.embed.mockResolvedValue([X]);
+      };
+      const anchorsBlock = () => {
+        const found = promptSent().match(/<anchors>\n([\s\S]*?)\n<\/anchors>/);
+        return found ? JSON.parse(found[1]) : null;
+      };
+
+      it('k reviewed screenings of the posting → skills_anchors: the prompt carries their post-review scores and their ids are stored', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockResolvedValue(three);
+
+        await processor.process(buildJob(0));
+
+        expect(anchorRetriever.retrieve).toHaveBeenCalledWith('job-1', 'app-1', 'parsed-1', 3);
+        expect(anchorsBlock()).toEqual([
+          { cv_summary: 'summary a1', cv_skills: ['NestJS'], skills_score: 90, experience_score: 80, education_score: 70 },
+          { cv_summary: 'summary a2', cv_skills: ['NestJS'], skills_score: 80, experience_score: 70, education_score: 60 },
+          { cv_summary: 'summary a3', cv_skills: ['NestJS'], skills_score: 70, experience_score: 60, education_score: 50 },
+        ]);
+        const data = completedWrite().data;
+        expect(data.ragMode).toBe('skills_anchors');
+        expect(data.anchorScreeningIds).toEqual(['a1', 'a2', 'a3']);
+        // After <skill_match>, and nothing that names the other candidates.
+        expect(promptSent().indexOf('<anchors>')).toBeGreaterThan(promptSent().indexOf('</skill_match>'));
+        expect(promptSent()).not.toContain('"screeningId"');
+      });
+
+      it('k − 1 anchors → skills: no <anchors> block and no ids stored', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockResolvedValue(three.slice(0, 2));
+
+        await processor.process(buildJob(0));
+
+        expect(promptSent()).not.toContain('<anchors>');
+        const data = completedWrite().data;
+        expect(data.ragMode).toBe('skills');
+        expect(data.anchorScreeningIds).toBe(Prisma.DbNull);
+      });
+
+      it('E3: a CV with no vector yet (the retriever finds nothing) is screened with skills only', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockResolvedValue([]);
+
+        await processor.process(buildJob(0));
+
+        expect(completedWrite().data.ragMode).toBe('skills');
+      });
+
+      it('uses ANCHOR_COUNT as k', async () => {
+        primeMatching();
+        config.ANCHOR_COUNT = '2';
+        anchorRetriever.retrieve.mockResolvedValue(three.slice(0, 2));
+
+        await processor.process(buildJob(0));
+
+        expect(anchorRetriever.retrieve).toHaveBeenCalledWith('job-1', 'app-1', 'parsed-1', 2);
+        expect(completedWrite().data.ragMode).toBe('skills_anchors');
+      });
+
+      it('a failing anchor search degrades to skills instead of failing the screening', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockRejectedValue(new Error('db down'));
+
+        await expect(processor.process(buildJob(0))).resolves.toBeUndefined();
+
+        expect(promptSent()).toContain('<skill_match>');
+        expect(promptSent()).not.toContain('<anchors>');
+        expect(completedWrite().data.ragMode).toBe('skills');
+      });
+
+      it('a job forced to "none" looks for no anchors', async () => {
+        primeMatching();
+        const job = buildJob(0);
+        job.data.ragMode = 'none';
+
+        await processor.process(job);
+
+        expect(anchorRetriever.retrieve).not.toHaveBeenCalled();
+        expect(promptSent()).not.toContain('<anchors>');
+      });
+
+      it('a job forced to "skills" looks for no anchors even when the posting has plenty', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockResolvedValue(three);
+        const job = buildJob(0);
+        job.data.ragMode = 'skills';
+
+        await processor.process(job);
+
+        expect(anchorRetriever.retrieve).not.toHaveBeenCalled();
+        expect(promptSent()).not.toContain('<anchors>');
+        expect(completedWrite().data.ragMode).toBe('skills');
+      });
+
+      it('a job forced to "skills_anchors" uses the anchors there are, even fewer than k', async () => {
+        primeMatching();
+        anchorRetriever.retrieve.mockResolvedValue([three[0]]);
+        const job = buildJob(0);
+        job.data.ragMode = 'skills_anchors';
+
+        await processor.process(job);
+
+        expect(anchorsBlock()).toHaveLength(1);
+        const data = completedWrite().data;
+        expect(data.ragMode).toBe('skills_anchors');
+        expect(data.anchorScreeningIds).toEqual(['a1']);
+      });
+
+      it('when the embeddings failed there is no anchor search (the mode is none)', async () => {
+        primeMatching();
+        embeddingService.embed.mockRejectedValue(new Error('no key'));
+        anchorRetriever.retrieve.mockResolvedValue(three);
+
+        await processor.process(buildJob(0));
+
+        expect(anchorRetriever.retrieve).not.toHaveBeenCalled();
+        expect(completedWrite().data.ragMode).toBe('none');
+        expect(completedWrite().data.anchorScreeningIds).toBe(Prisma.DbNull);
+      });
     });
   });
 

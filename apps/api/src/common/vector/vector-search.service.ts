@@ -81,4 +81,34 @@ export class VectorSearchService {
         );
         return rows.map((row) => row.id);
     }
+
+    /**
+     * The ids of the k reviewed screenings of `jobId` whose CV is nearest (cosine) to `cvVector`,
+     * nearest first. Three conditions are what keep anchors honest: the same posting only (so never
+     * another organization), never `excludeApplicationId` (a screening is not its own anchor), and
+     * only screenings that a human has reviewed and whose CV already has a vector.
+     */
+    async nearestAnchorScreenings(
+        jobId: string,
+        excludeApplicationId: string,
+        cvVector: number[],
+        k: number,
+    ): Promise<string[]> {
+        if (!Number.isInteger(k) || k <= 0) throw new Error('k must be a positive integer');
+        const literal = toVectorLiteral(cvVector);
+
+        const rows = await this.prisma.$queryRaw<{ id: string }[]>(
+            Prisma.sql`SELECT s."screening_id" AS "id"
+                       FROM "cv_screenings" s
+                       JOIN "applications" a ON a."application_id" = s."application_id"
+                       JOIN "cv_parsed_data" p ON p."cv_id" = s."cv_id"
+                       WHERE a."job_id" = ${jobId}
+                         AND s."application_id" <> ${excludeApplicationId}
+                         AND s."reviewed_at" IS NOT NULL
+                         AND p."embedding" IS NOT NULL
+                       ORDER BY p."embedding" <=> ${literal}::vector
+                       LIMIT ${k}`,
+        );
+        return rows.map((row) => row.id);
+    }
 }

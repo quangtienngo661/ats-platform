@@ -156,6 +156,45 @@ describe('VectorSearchService', () => {
     });
   });
 
+  describe('nearestAnchorScreenings (C6, Review Focus 2, E3)', () => {
+    const cvVector = vectorOf(1536, 0.25);
+
+    it('returns screening ids in the order the database ranks them', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ id: 's2' }, { id: 's1' }]);
+
+      await expect(
+        service.nearestAnchorScreenings('job-1', 'app-1', cvVector, 3),
+      ).resolves.toEqual(['s2', 's1']);
+    });
+
+    it('filters on the same job, away from this application, and on reviewed screenings with a vector — all as parameters', async () => {
+      await service.nearestAnchorScreenings('job-1', 'app-1', cvVector, 3);
+
+      const sql = sqlOf(prisma.$queryRaw);
+      // Parameters only: the job id, the application id, the vector literal and the limit.
+      expect(sql.values).toEqual(['job-1', 'app-1', toVectorLiteral(cvVector), 3]);
+      expect(sql.text).toMatch(/a\."job_id" = \$1/);
+      expect(sql.text).toMatch(/s\."application_id" <> \$2/);
+      expect(sql.text).toMatch(/s\."reviewed_at" IS NOT NULL/);
+      expect(sql.text).toMatch(/p\."embedding" IS NOT NULL/);
+      expect(sql.text).toMatch(/ORDER BY p\."embedding" <=> \$3::vector/);
+      expect(sql.text).toMatch(/LIMIT \$4/);
+      expect(sql.sql).not.toContain('job-1');
+      expect(sql.sql).not.toContain(toVectorLiteral(cvVector));
+    });
+
+    it('rejects a bad vector or limit before touching the database', async () => {
+      await expect(
+        service.nearestAnchorScreenings('job-1', 'app-1', vectorOf(1535), 3),
+      ).rejects.toThrow(/1536/);
+      await expect(
+        service.nearestAnchorScreenings('job-1', 'app-1', cvVector, 0),
+      ).rejects.toThrow(/positive integer/);
+
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    });
+  });
+
   it('registers exactly the targets that have a table today', () => {
     expect(Object.keys(EMBEDDING_TARGETS).sort()).toEqual([
       'cv_parsed_data',
