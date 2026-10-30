@@ -4,14 +4,25 @@ import { CvScreeningsService } from '../cv-screenings.service';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { LlmService } from '../../../common/external-apis/llm/llm.service';
 import { Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
+  CandidateSkillSource,
   NotificationType,
   RelatedEntityType,
   ScreeningStatus,
 } from '@ats-platform/database';
+import type { RagMode } from '@ats-platform/types';
+import { EmbeddingService } from '../../../common/external-apis/embedding/embedding.service';
+import { VectorSearchService } from '../../../common/vector/vector-search.service';
 import { SocketIoService } from '../../../common/socket-io/socket-io.service';
 import { applicationIncludeOptions } from '../../../common/utils/include-options.util';
 import { NotificationsService } from '../../notifications/notifications.service';
+import {
+  DEFAULT_SKILL_MATCH_THRESHOLD,
+  matchSkills,
+  SkillMatch,
+  SkillMatchResult,
+} from '../skill-matcher';
 
 export interface ProcessCvScreeningJobData {
   screeningId: string;
@@ -19,6 +30,48 @@ export interface ProcessCvScreeningJobData {
   applicationId: string;
   configId: string;
   notify?: boolean;
+  /** Forces a screening mode (the consistency measurement does); normal jobs leave it out. */
+  ragMode?: RagMode;
+}
+
+/** The outcome of matching the CV's skills to the posting's, and the mode that produced it. */
+interface SkillMatchOutcome {
+  ragMode: RagMode;
+  /** Null when the match did not run (forced off, or the embeddings failed). */
+  match: SkillMatchResult | null;
+  /** False for a posting that lists no skills: there is nothing for the matcher to decide. */
+  postingHasSkills: boolean;
+}
+
+const toPromptMatch = ({ name, cvSkill, similarity }: SkillMatch) => ({
+  skill: name,
+  cv_skill: cvSkill,
+  similarity: Math.round(similarity * 100) / 100,
+});
+
+/** The distinct, non-blank technical skills of a parsed CV. */
+function technicalSkills(cvParsedData: { skills?: unknown } | null): string[] {
+  const skills = cvParsedData?.skills;
+  const technical =
+    skills && typeof skills === 'object' && !Array.isArray(skills)
+      ? (skills as Record<string, unknown>).technical
+      : undefined;
+  const items = Array.isArray(technical)
+    ? technical
+    : typeof technical === 'string'
+      ? technical.split(/[,;\n]/)
+      : [];
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of items) {
+    if (typeof item !== 'string') continue;
+    const text = item.trim();
+    if (text && !seen.has(text.toLowerCase())) {
+      seen.add(text.toLowerCase());
+      result.push(text);
+    }
+  }
+  return result;
 }
 
 @Processor('cv-screening', { concurrency: 5 })
@@ -31,6 +84,9 @@ export class CvScreeningProcessor extends WorkerHost {
     private readonly llmService: LlmService,
     private readonly socketIoService: SocketIoService,
     private readonly notificationsService: NotificationsService,
+    private readonly embeddingService: EmbeddingService,
+    private readonly vectorSearch: VectorSearchService,
+    private readonly configService: ConfigService,
   ) {
     super();
   }
@@ -60,7 +116,16 @@ export class CvScreeningProcessor extends WorkerHost {
             `Không tìm thấy dữ liệu CV đã phân tích ${cvId}`,
           );
 
-        const rawJson = this.getRawJson(cvParsedData, parsedRequirements);
+        const outcome = await this.matchSkillsForScreening(
+          job.data,
+          cvParsedData,
+          application,
+        );
+        const rawJson = this.getRawJson(
+          cvParsedData,
+          parsedRequirements,
+          outcome.match,
+        );
         const llmResult = await this.llmService.screeningCV(
           screeningId,
           rawJson,
@@ -70,7 +135,9 @@ export class CvScreeningProcessor extends WorkerHost {
           screeningId,
           llmResult,
           aiConfig,
+          outcome,
         );
+        await this.linkMatchedSkills(application.candidateId, outcome.match);
 
         // 4. Emit Job kết quả
         this.socketIoService.handleEmit(
@@ -153,9 +220,105 @@ export class CvScreeningProcessor extends WorkerHost {
     };
   }
 
-  private getRawJson(cvData: any, jobData: any): string {
+  /**
+   * Which of the posting's skills the CV covers, by embedding similarity. Any failure to get
+   * the embeddings (no OpenAI key, the API down, the database) degrades to the old behaviour —
+   * the model matches skills itself — instead of failing the screening (R16).
+   */
+  private async matchSkillsForScreening(
+    data: ProcessCvScreeningJobData,
+    cvParsedData: { skills?: unknown } | null,
+    application: any,
+  ): Promise<SkillMatchOutcome> {
+    const jobPostingSkills: {
+      isRequired: boolean;
+      skill: { skillId: string; name: string };
+    }[] = application.jobPosting?.jobPostingSkills ?? [];
+    const postingHasSkills = jobPostingSkills.length > 0;
+
+    if (data.ragMode === 'none') {
+      return { ragMode: 'none', match: null, postingHasSkills };
+    }
+
+    try {
+      const cvTexts = technicalSkills(cvParsedData);
+      let cvVectors: number[][] = [];
+      let jobVectors = new Map<string, number[]>();
+      // With nothing to compare there is nothing to embed or read.
+      if (postingHasSkills && cvTexts.length > 0) {
+        cvVectors = await this.embeddingService.embed(data.screeningId, cvTexts);
+        jobVectors = await this.vectorSearch.readEmbeddings(
+          'skill',
+          jobPostingSkills.map(({ skill }) => skill.skillId),
+        );
+      }
+
+      const match = matchSkills(
+        cvTexts.map((text, index) => ({ text, vector: cvVectors[index] ?? [] })),
+        jobPostingSkills.map(({ isRequired, skill }) => ({
+          skillId: skill.skillId,
+          name: skill.name,
+          isRequired,
+          vector: jobVectors.get(skill.skillId) ?? null,
+        })),
+        this.skillMatchThreshold(),
+      );
+      return { ragMode: 'skills', match, postingHasSkills };
+    } catch (error) {
+      this.logger.warn(
+        `Skill match unavailable for screening ${data.screeningId}, screening without it: ${error.message}`,
+      );
+      return { ragMode: 'none', match: null, postingHasSkills };
+    }
+  }
+
+  private skillMatchThreshold(): number {
+    const configured = Number(this.configService.get('SKILL_MATCH_THRESHOLD'));
+    return this.configService.get('SKILL_MATCH_THRESHOLD') === undefined ||
+      !Number.isFinite(configured)
+      ? DEFAULT_SKILL_MATCH_THRESHOLD
+      : configured;
+  }
+
+  /** The candidate now demonstrably has these catalogue skills. A manual entry is never overwritten. */
+  private async linkMatchedSkills(
+    candidateId: string,
+    match: SkillMatchResult | null,
+  ): Promise<void> {
+    if (!match) return;
+    for (const { skillId } of [...match.matchedRequired, ...match.matchedOptional]) {
+      try {
+        await this.prisma.candidateSkill.upsert({
+          where: { candidateId_skillId: { candidateId, skillId } },
+          create: { candidateId, skillId, source: CandidateSkillSource.cv_parsed },
+          update: {},
+        });
+      } catch (error) {
+        this.logger.warn(
+          `Could not link skill ${skillId} to candidate ${candidateId}: ${error.message}`,
+        );
+      }
+    }
+  }
+
+  private getRawJson(
+    cvData: any,
+    jobData: any,
+    skillMatch: SkillMatchResult | null = null,
+  ): string {
     const rawCvJson = JSON.stringify(cvData ?? null);
     const rawJobJson = JSON.stringify(jobData ?? null);
+    const skillMatchBlock = skillMatch
+      ? `
+
+<skill_match>
+${JSON.stringify({
+  matched_required: skillMatch.matchedRequired.map(toPromptMatch),
+  matched_optional: skillMatch.matchedOptional.map(toPromptMatch),
+  missing_required: skillMatch.missingRequired.map(({ name }) => name),
+})}
+</skill_match>`
+      : '';
 
     return `<cv_data>
 ${rawCvJson}
@@ -163,12 +326,13 @@ ${rawCvJson}
 
 <jd_data>
 ${rawJobJson}
-</jd_data>`;
+</jd_data>${skillMatchBlock}`;
   }
   private async handleScreeningResult(
     screeningId: string,
     llmResult,
     config: any,
+    outcome: SkillMatchOutcome,
   ): Promise<any> {
     // Fallback only: createScreeningRecord always stores a config. When it is
     // missing, use the default of the SCREENING'S organization — never whichever
@@ -224,11 +388,12 @@ ${rawJobJson}
         overallScore: overallScore,
         aiRecommendation: recommendation,
         aiReasoning: ai_reasoning,
-        matchedSkills: {
-          hardSkills: matched_skills,
-          niceToHaveSkills: matched_nice_to_haves,
-        },
-        missingSkills: missing_skills,
+        ...this.skillLists(outcome, {
+          matched_skills,
+          matched_nice_to_haves,
+          missing_skills,
+        }),
+        ragMode: outcome.ragMode,
         screenedAt: new Date(),
       },
     });
@@ -246,6 +411,37 @@ ${rawJobJson}
 
     return updatedApplication;
   }
+  /**
+   * The matched / missing lists to store (R7). The matcher's, whenever it ran on a posting that
+   * lists skills; the model's own otherwise (match unavailable, or a posting with no skills to
+   * match), which is what was stored before this feature.
+   */
+  private skillLists(
+    outcome: SkillMatchOutcome,
+    fromModel: {
+      matched_skills: string[];
+      matched_nice_to_haves: string[];
+      missing_skills: string[];
+    },
+  ) {
+    if (outcome.match && outcome.postingHasSkills) {
+      return {
+        matchedSkills: {
+          hardSkills: outcome.match.matchedRequired.map(({ name }) => name),
+          niceToHaveSkills: outcome.match.matchedOptional.map(({ name }) => name),
+        },
+        missingSkills: outcome.match.missingRequired.map(({ name }) => name),
+      };
+    }
+    return {
+      matchedSkills: {
+        hardSkills: fromModel.matched_skills,
+        niceToHaveSkills: fromModel.matched_nice_to_haves,
+      },
+      missingSkills: fromModel.missing_skills,
+    };
+  }
+
   private async handleScreeningFailed(
     screeningId: string,
     error: any,
