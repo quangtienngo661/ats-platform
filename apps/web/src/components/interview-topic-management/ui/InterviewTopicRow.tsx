@@ -5,9 +5,10 @@ import { DeleteInterviewTopicButton } from './DeleteInterviewTopicButton';
 interface InterviewTopicRowProps {
     topic: IInterviewTopic;
     onEdit: (topic: IInterviewTopic) => void;
+    onQuestions: (topic: IInterviewTopic) => void;
 }
 
-export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
+export function InterviewTopicRow({ topic, onEdit, onQuestions }: InterviewTopicRowProps) {
     const sessions = topic._count?.sessions ?? 0;
 
     return (
@@ -23,6 +24,13 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
                 {sessions}
             </div>
             <div className="flex items-center justify-end gap-1.5">
+                <button
+                    type="button"
+                    onClick={() => onQuestions(topic)}
+                    className="inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-[12px] text-[#6E6E73] transition-colors hover:bg-[#EBF3FD] hover:text-[#0071E3]"
+                >
+                    Câu hỏi
+                </button>
                 <button
                     type="button"
                     onClick={() => onEdit(topic)}
