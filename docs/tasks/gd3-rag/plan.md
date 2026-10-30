@@ -117,7 +117,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 - [x] **Step 1:** Đổi mock trong các spec từ `GeminiService` sang `LlmService` — **không đổi assert** (P0-C8). Run `npx nx test api --runInBand` → FAIL (import chưa đổi).
 - [x] **Step 2:** Đổi import/inject, xoá thư mục gemini. Run `npx nx test api --runInBand` → PASS toàn bộ; `npx tsc --build apps/api/tsconfig.app.json` → 0 lỗi; `grep -rn GeminiService apps/api/src` → không còn kết quả.
-- [ ] **Step 3: Commit** — `refactor(api): replace geminiservice with llmservice at every call site`.
+- [x] **Step 3: Commit** — `refactor(api): replace geminiservice with llmservice at every call site`.
 
 ### Task 0.6: `EmbeddingService` + enum `embedding`
 
@@ -125,9 +125,9 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 **Interfaces:** Produces `EmbeddingService.embed(refId: string | null, texts: string[]): Promise<number[][]>`; hằng `EMBEDDING_MODEL = 'text-embedding-3-small'`, `EMBEDDING_DIMENSIONS = 1536`.
 
-- [ ] **Step 1: Write the failing test** (P0-C6, P0-E3): `embed([]) returns [] without calling the API or logging`; `returns vectors in input order` (API trả `data` lệch thứ tự theo `index` → kết quả theo thứ tự đầu vào); `logs one embedding row per batch, completionTokens 0`; `missing OPENAI_API_KEY throws an English error naming OPENAI_API_KEY`.
-- [ ] **Step 2:** Run → FAIL. **Step 3:** Implement (client `openai` `maxRetries: 0`). Migration chỉ `ALTER TYPE "ai_action_type" ADD VALUE 'embedding'`. **Step 4:** Run → PASS.
-- [ ] **Step 5:** Probe DB dùng một lần (P0-C9): `docker run --rm` Postgres cổng riêng, `prisma migrate deploy`, `SELECT unnest(enum_range(NULL::ai_action_type))` → đúng 5 giá trị. Lưu output vào `docs/tasks/gd3-p0-ai-provider/results/`.
+- [x] **Step 1: Write the failing test** (P0-C6, P0-E3): `embed([]) returns [] without calling the API or logging`; `returns vectors in input order` (API trả `data` lệch thứ tự theo `index` → kết quả theo thứ tự đầu vào); `logs one embedding row per batch, completionTokens 0`; `missing OPENAI_API_KEY throws an English error naming OPENAI_API_KEY`.
+- [x] **Step 2:** Run → FAIL. **Step 3:** Implement (client `openai` `maxRetries: 0`). Migration chỉ `ALTER TYPE "ai_action_type" ADD VALUE 'embedding'`. **Step 4:** Run → PASS.
+- [x] **Step 5:** Probe DB dùng một lần (P0-C9): `docker run --rm` Postgres cổng riêng, `prisma migrate deploy`, `SELECT unnest(enum_range(NULL::ai_action_type))` → đúng 5 giá trị. Lưu output vào `docs/tasks/gd3-p0-ai-provider/results/`.
 - [ ] **Step 6: Commit** — `feat(api): add the openai embedding service`.
 
 ### Task 0.7: Web — nhật ký AI hiển thị `embedding`

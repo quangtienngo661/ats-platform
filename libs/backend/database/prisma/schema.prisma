@@ -92,6 +92,7 @@ enum AiActionType {
   cv_scoring
   mock_interview
   job_parsing
+  embedding
 
   @@map("ai_action_type")
 }
