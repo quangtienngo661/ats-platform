@@ -45,7 +45,7 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
 
 - [x] **Step 1:** Đồng bộ nhánh với `dev` (qua `sync_with_base_branch` nếu là worktree của app, ngược lại `git -C E:/wt/ats-gd3-p0 merge dev`). Expected: không xung đột (nhánh chưa có commit riêng).
 - [x] **Step 2:** Sửa dòng trạng thái của `spec.md` thành "đã duyệt 2026-10-30".
-- [ ] **Step 3: Commit** — `docs(tasks): add the gđ3 part 0 spec and decision record`.
+- [x] **Step 3: Commit** — `docs(tasks): add the gđ3 part 0 spec and decision record`.
 
 ### Task 0.1: Kiểu chung và `GeminiClient`
 
@@ -60,13 +60,13 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
   - `interface LlmClient { generateJson(req: LlmRequest): Promise<LlmResult> }`; token DI `LLM_CLIENT`
   - `class GeminiClient implements LlmClient` (constructor nhận `ConfigService`, đọc `GOOGLE_API_KEY`)
 
-- [ ] **Step 1: Write the failing test** `gemini.client.spec.ts` (mock `@google/genai`):
+- [x] **Step 1: Write the failing test** `gemini.client.spec.ts` (mock `@google/genai`):
   - `uses gemini-3.1-pro-preview for pro and gemini-3.5-flash for flash`
   - `maps medium/high to ThinkingLevel.MEDIUM/HIGH and sets responseMimeType application/json and systemInstruction`
   - `outputTokens = candidatesTokenCount + thoughtsTokenCount` — usage `{ promptTokenCount: 120, candidatesTokenCount: 40, thoughtsTokenCount: 15 }` → `{ promptTokens: 120, outputTokens: 55 }`; thiếu `thoughtsTokenCount` → `outputTokens: 40`
-- [ ] **Step 2:** Run `npx nx test api --runInBand --testPathPatterns=llm/gemini.client` → FAIL (module not found).
-- [ ] **Step 3:** Implement `GeminiClient.generateJson` bằng `@google/genai` như `gemini.service.ts` hôm nay; trả `text` thô (parse ở `LlmService`).
-- [ ] **Step 4:** Run lại → PASS.
+- [x] **Step 2:** Run `npx nx test api --runInBand --testPathPatterns=llm/gemini.client` → FAIL (module not found).
+- [x] **Step 3:** Implement `GeminiClient.generateJson` bằng `@google/genai` như `gemini.service.ts` hôm nay; trả `text` thô (parse ở `LlmService`).
+- [x] **Step 4:** Run lại → PASS.
 - [ ] **Step 5: Commit** — `feat(api): add the shared llm types and the gemini client`.
 
 ### Task 0.2: `OpenAiClient`
