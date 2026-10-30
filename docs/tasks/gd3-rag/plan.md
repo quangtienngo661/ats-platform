@@ -101,14 +101,14 @@ Nhánh `feat/gd3-p0-ai-provider`, worktree `E:\wt\ats-gd3-p0` (cắt từ `dev` 
   - `log failure does not fail the call` (create reject → hàm vẫn trả kết quả)
   - `C1 factory`: `AI_PROVIDER` không đặt → `GeminiClient`; `openai` → `OpenAiClient`
 - [x] **Step 2:** Run → FAIL. **Step 3:** Implement (AbortController 120 s, `JSON.parse`, ghi log fire-and-forget như P0-R10). **Step 4:** Run → PASS.
-- [ ] **Step 5: Commit** — `feat(api): route every ai generation through llmservice`.
+- [x] **Step 5: Commit** — `feat(api): route every ai generation through llmservice`.
 
 ### Task 0.4: Cấu hình môi trường
 
 **Files:** Modify `apps/api/src/common/configs/env.validation.ts` (+ spec cạnh nó, tạo nếu chưa có), `.env.example`, `docker-compose-dev.yml`, `docker-compose.test.yml`, `docker-compose.yml` (**hỏi người dùng trước**).
 
-- [ ] **Step 1: Write the failing test** (P0-C7): `gemini without GOOGLE_API_KEY fails`; `openai without OPENAI_API_KEY fails`; `gemini without OPENAI_API_KEY passes`; `AI_PROVIDER=abc fails`; `OPENAI_MODEL_PRO optional`.
-- [ ] **Step 2:** Run → FAIL. **Step 3:** `AI_PROVIDER @IsOptional @IsIn(['gemini','openai'])`; `GOOGLE_API_KEY` `@ValidateIf(provider !== 'openai')`; `OPENAI_API_KEY` `@ValidateIf(provider === 'openai')`; compose truyền `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL_PRO`, `OPENAI_MODEL_FLASH`; test compose thêm `OPENAI_API_KEY: local-verification-no-external-ai`. **Step 4:** Run → PASS.
+- [x] **Step 1: Write the failing test** (P0-C7): `gemini without GOOGLE_API_KEY fails`; `openai without OPENAI_API_KEY fails`; `gemini without OPENAI_API_KEY passes`; `AI_PROVIDER=abc fails`; `OPENAI_MODEL_PRO optional`.
+- [x] **Step 2:** Run → FAIL. **Step 3:** `AI_PROVIDER @IsOptional @IsIn(['gemini','openai'])`; `GOOGLE_API_KEY` `@ValidateIf(provider !== 'openai')`; `OPENAI_API_KEY` `@ValidateIf(provider === 'openai')`; compose truyền `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL_PRO`, `OPENAI_MODEL_FLASH`; test compose thêm `OPENAI_API_KEY: local-verification-no-external-ai`. **Step 4:** Run → PASS.
 - [ ] **Step 5: Commit** — `feat(config): choose the ai provider through ai_provider`.
 
 ### Task 0.5: Đổi 9 nơi gọi sang `LlmService`, gỡ `GeminiService`
