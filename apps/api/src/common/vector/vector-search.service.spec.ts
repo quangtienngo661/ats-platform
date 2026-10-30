@@ -195,10 +195,62 @@ describe('VectorSearchService', () => {
     });
   });
 
+  describe('nearestQuestions (C11, C10)', () => {
+    const vector = vectorOf(1536, 0.25);
+    const row = (id: string) => ({
+      questionId: id,
+      questionText: `Q ${id}`,
+      expectedPoints: ['p'],
+      difficulty: 'medium',
+    });
+
+    it('returns the bank questions in the order the database ranks them', async () => {
+      prisma.$queryRaw.mockResolvedValue([row('q2'), row('q1')]);
+
+      await expect(
+        service.nearestQuestions('topic-1', 'medium', vector, 25),
+      ).resolves.toEqual([row('q2'), row('q1')]);
+    });
+
+    it('keeps to the topic and the difficulty, to active questions that have a vector — all as parameters', async () => {
+      await service.nearestQuestions('topic-1', 'hard', vector, 25);
+
+      const sql = sqlOf(prisma.$queryRaw);
+      expect(sql.values).toEqual(['topic-1', 'hard', toVectorLiteral(vector), 25]);
+      expect(sql.text).toMatch(/"topic_id" = \$1/);
+      expect(sql.text).toMatch(/"difficulty" = \$2::difficulty_level/);
+      expect(sql.text).toMatch(/"is_active" = true/);
+      expect(sql.text).toMatch(/"embedding" IS NOT NULL/);
+      expect(sql.text).toMatch(/ORDER BY "embedding" <=> \$3::vector/);
+      expect(sql.text).toMatch(/LIMIT \$4/);
+      expect(sql.sql).not.toContain('topic-1');
+    });
+
+    it('rejects a bad vector or limit before touching the database', async () => {
+      await expect(
+        service.nearestQuestions('topic-1', 'easy', vectorOf(10), 25),
+      ).rejects.toThrow(/1536/);
+      await expect(
+        service.nearestQuestions('topic-1', 'easy', vector, 0),
+      ).rejects.toThrow(/positive integer/);
+
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    });
+  });
+
   it('registers exactly the targets that have a table today', () => {
     expect(Object.keys(EMBEDDING_TARGETS).sort()).toEqual([
       'cv_parsed_data',
+      'interview_question',
       'skill',
     ]);
+  });
+
+  it('addresses the question bank by its own table and key', async () => {
+    await service.writeEmbedding('interview_question', 'q-1', vectorOf(1536));
+
+    const sql = sqlOf(prisma.$executeRaw);
+    expect(sql.sql).toContain('"interview_questions"');
+    expect(sql.sql).toContain('"question_id"');
   });
 });

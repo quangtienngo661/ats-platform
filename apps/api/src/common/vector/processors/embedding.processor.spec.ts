@@ -4,6 +4,7 @@ describe('EmbeddingProcessor', () => {
   const prisma = {
     skill: { findUnique: jest.fn() },
     cVParsedData: { findUnique: jest.fn() },
+    interviewQuestion: { findUnique: jest.fn() },
   };
   const embeddingService = { embed: jest.fn() };
   const vectorSearch = { writeEmbedding: jest.fn() };
@@ -64,6 +65,25 @@ describe('EmbeddingProcessor', () => {
     expect(vectorSearch.writeEmbedding).toHaveBeenCalledWith(
       'cv_parsed_data',
       'p-1',
+      vector,
+    );
+  });
+
+  it('embeds and writes the vector for an interview question, using its text', async () => {
+    prisma.interviewQuestion.findUnique.mockResolvedValue({
+      questionText: 'REST là gì?',
+    });
+
+    await processor.process(job('interview_question', 'q-1'));
+
+    expect(prisma.interviewQuestion.findUnique).toHaveBeenCalledWith({
+      where: { questionId: 'q-1' },
+      select: { questionText: true },
+    });
+    expect(embeddingService.embed).toHaveBeenCalledWith('q-1', ['REST là gì?']);
+    expect(vectorSearch.writeEmbedding).toHaveBeenCalledWith(
+      'interview_question',
+      'q-1',
       vector,
     );
   });

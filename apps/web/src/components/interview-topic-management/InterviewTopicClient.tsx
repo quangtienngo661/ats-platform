@@ -9,6 +9,7 @@ import { InterviewTopicStats } from './ui/InterviewTopicStats';
 import { InterviewTopicTable } from './ui/InterviewTopicTable';
 import { MutateInterviewTopicModal } from './ui/MutateInterviewTopicModal';
 import { InterviewTopicFilterBar } from './ui/InterviewTopicFilterBar';
+import { TopicQuestionsPanel } from './ui/TopicQuestionsPanel';
 
 interface InterviewTopicClientProps {
     topics: IInterviewTopic[];
@@ -24,6 +25,7 @@ export default function InterviewTopicClient({ topics, jobCategories }: Intervie
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingTopic, setEditingTopic] = useState<IInterviewTopic | null>(null);
+    const [questionsTopic, setQuestionsTopic] = useState<IInterviewTopic | null>(null);
 
     const filteredTopics = useMemo(() => {
         const q = searchQuery.trim().toLowerCase();
@@ -47,6 +49,7 @@ export default function InterviewTopicClient({ topics, jobCategories }: Intervie
             <InterviewTopicTable
                 topics={filteredTopics}
                 onEdit={setEditingTopic}
+                onQuestions={setQuestionsTopic}
             />
 
             {showCreateModal && (
@@ -61,6 +64,13 @@ export default function InterviewTopicClient({ topics, jobCategories }: Intervie
                     topic={editingTopic}
                     jobCategories={jobCategories}
                     onClose={() => setEditingTopic(null)}
+                />
+            )}
+
+            {questionsTopic && (
+                <TopicQuestionsPanel
+                    topic={questionsTopic}
+                    onClose={() => setQuestionsTopic(null)}
                 />
             )}
         </div>

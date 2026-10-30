@@ -41,9 +41,15 @@ function cvParsedDataText(row: Row): string | null {
     return parts.length ? parts.join('\n') : null;
 }
 
+function interviewQuestionText(row: Row): string | null {
+    const text = typeof row.questionText === 'string' ? row.questionText.trim() : '';
+    return text || null;
+}
+
 const BUILDERS: Record<EmbeddingTarget, (row: Row) => string | null> = {
     skill: skillText,
     cv_parsed_data: cvParsedDataText,
+    interview_question: interviewQuestionText,
 };
 
 /**

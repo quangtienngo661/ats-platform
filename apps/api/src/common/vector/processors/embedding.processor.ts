@@ -62,6 +62,12 @@ export class EmbeddingProcessor extends WorkerHost {
                     where: { id },
                     select: { summary: true, skills: true, experience: true },
                 });
+            case 'interview_question':
+                // Hidden questions are embedded too, so showing one again needs no extra work.
+                return this.prisma.interviewQuestion.findUnique({
+                    where: { questionId: id },
+                    select: { questionText: true },
+                });
         }
     }
 }

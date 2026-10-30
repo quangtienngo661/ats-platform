@@ -101,6 +101,24 @@ describe('buildEmbeddingText', () => {
     });
   });
 
+  describe('interview_question', () => {
+    it('is the question text, trimmed', () => {
+      expect(
+        buildEmbeddingText('interview_question', {
+          questionText: '  REST là gì?  ',
+          expectedPoints: ['Stateless'],
+        }),
+      ).toBe('REST là gì?');
+    });
+
+    it.each([{}, { questionText: '' }, { questionText: '   ' }, { questionText: 5 }])(
+      'is null for %p',
+      (row) => {
+        expect(buildEmbeddingText('interview_question', row)).toBeNull();
+      },
+    );
+  });
+
   it('refuses a target it does not know', () => {
     expect(() => buildEmbeddingText('nope' as never, {})).toThrow(
       'Unknown embedding target',

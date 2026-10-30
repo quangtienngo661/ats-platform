@@ -100,6 +100,14 @@ export const createPrismaMock = () => ({
     'update',
     'updateMany',
   ]),
+  interviewQuestion: model([
+    'count',
+    'create',
+    'delete',
+    'findMany',
+    'findUnique',
+    'update',
+  ]),
   interviewTopic: model([
     'create',
     'delete',
