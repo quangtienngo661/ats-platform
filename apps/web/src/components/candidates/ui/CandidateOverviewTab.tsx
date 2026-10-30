@@ -1,4 +1,6 @@
 import { Briefcase, CalendarDays, Clock, MapPin } from 'lucide-react';
+import { effectiveScreeningScores } from '@ats-platform/types';
+import { ReviewScreeningButton } from './ReviewScreeningButton';
 import { SF, SFT } from '@/types/fonts/fonts';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
@@ -22,10 +24,12 @@ export function CandidateOverviewTab({
   application,
 }: CandidateOverviewTabProps) {
   const screening = application.screening;
-  const skillsScore = screening?.skillsScore || 0;
-  const experienceScore = screening?.experienceScore || 0;
-  const educationScore = screening?.educationScore || 0;
-  const overallScore = screening?.overallScore || 0;
+  // The reviewer's scores once the screening is reviewed, the AI's otherwise.
+  const effective = effectiveScreeningScores(screening ?? {});
+  const skillsScore = effective.skills || 0;
+  const experienceScore = effective.experience || 0;
+  const educationScore = effective.education || 0;
+  const overallScore = effective.overall || 0;
   const recommendation = screening?.aiRecommendation;
   const aiReasoning = screening?.aiReasoning;
 
@@ -167,12 +171,23 @@ export function CandidateOverviewTab({
 
             {/* Score breakdown */}
             <div className="bg-white rounded-2xl border border-[#F2F2F7] p-6">
-              <h2
-                className="text-[16px] text-[#1D1D1F] mb-4"
-                style={{ fontFamily: SF, fontWeight: 600 }}
-              >
-                Chi tiết đánh giá
-              </h2>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h2
+                  className="text-[16px] text-[#1D1D1F]"
+                  style={{ fontFamily: SF, fontWeight: 600 }}
+                >
+                  Chi tiết đánh giá
+                  {effective.isReviewed && (
+                    <span className="ml-2 align-middle text-[10px] bg-[#EBF3FD] text-[#0071E3] px-1.5 py-0.5 rounded-md border border-[#0071E3]/20 font-medium">
+                      Đã duyệt
+                    </span>
+                  )}
+                </h2>
+                <ReviewScreeningButton
+                  applicationId={application.applicationId}
+                  screening={screening}
+                />
+              </div>
               <div className="space-y-4">
                 <ScoreBar label="Kỹ năng" score={skillsScore} />
                 <ScoreBar label="Kinh nghiệm" score={experienceScore} />

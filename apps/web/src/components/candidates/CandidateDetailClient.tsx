@@ -1,5 +1,6 @@
 'use client';
 
+import { effectiveScreeningScores } from '@ats-platform/types';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -63,7 +64,8 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
     const email = application.candidate?.user?.email || '';
     const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
     const status = statusConfig[application.status] || statusConfig.applied;
-    const aiScore = application.screening?.overallScore;
+    const screeningScores = effectiveScreeningScores(application.screening ?? {});
+    const aiScore = screeningScores.overall;
     const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${name}`;
 
     return (
@@ -103,7 +105,7 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
                             {aiScore != null && aiScore > 0 && (
                                 <span className="flex items-center gap-1.5">
                                     <Star className="w-3.5 h-3.5 text-[#F59E0B]" />
-                                    Điểm AI: <span style={{ fontWeight: 600 }}>{aiScore}</span>
+                                    {screeningScores.isReviewed ? 'Điểm đã duyệt' : 'Điểm AI'}: <span style={{ fontWeight: 600 }}>{aiScore}</span>
                                 </span>
                             )}
                             <span className="flex items-center gap-1.5">

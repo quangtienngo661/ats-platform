@@ -1,5 +1,6 @@
 'use client';
 
+import { effectiveScreeningScores } from '@ats-platform/types';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
@@ -47,7 +48,8 @@ export function CandidateRow({ application, jobId, selected, onToggle }: Candida
     const jobTitle = application.jobPosting?.title || '';
     const deptName = application.jobPosting?.department?.name || '';
     const status = statusConfig[application.status] || statusConfig.applied;
-    const aiScore = application.screening?.overallScore;
+    const screeningScores = effectiveScreeningScores(application.screening ?? {});
+    const aiScore = screeningScores.overall;
 
     return (
         <tr className="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group">
@@ -82,6 +84,9 @@ export function CandidateRow({ application, jobId, selected, onToggle }: Candida
                             <div className="h-full rounded-full" style={{ width: `${aiScore}%`, background: getScoreColor(aiScore) }} />
                         </div>
                         <span className="text-[13px] font-medium" style={{ color: getScoreColor(aiScore) }}>{aiScore}</span>
+                        {screeningScores.isReviewed && (
+                            <span className="text-[10px] text-[#0071E3] bg-[#EBF3FD] px-1.5 py-0.5 rounded-md font-medium">Đã duyệt</span>
+                        )}
                     </div>
                 ) : (
                     <span className="text-[12px] text-[#AEAEB2]">Chưa có</span>
