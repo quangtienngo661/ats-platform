@@ -54,19 +54,19 @@ gợi ý từ chối bằng một cú bấm (ADR 0002). Thống kê theo thời 
 
 | Thứ tự | `ruleId` | Khi | Gợi ý | Action |
 |---|---|---|---|---|
-| 1 | `screening_missing` | trạng thái `applied`/`screening`, chưa có kết quả chấm hoặc chấm `failed` | "Chạy sàng lọc AI" | `run_screening` |
-| 2 | `screening_running` | chấm `pending`/`processing` | không gợi ý | — |
-| 3 | `advance_after_screening` | `applied`, chấm `completed`, điểm hiệu lực ≥ ngưỡng | "Chuyển sang Sàng lọc" | `move_status → screening` |
+| 1 | `below_threshold` | `applied`/`screening`, chấm `completed`, điểm hiệu lực < ngưỡng | "Xem lại hồ sơ: điểm dưới ngưỡng" | `open_profile` |
+| 2 | `move_to_screening` | `applied` (không rơi vào luật 1) | "Chuyển sang vòng Sàng lọc" | `move_status → screening` |
+| 3 | `screening_missing` | `screening`, chưa có kết quả chấm hoặc chấm `failed` | "Chạy sàng lọc AI" | `run_screening` |
+| — | (đang chấm) | `screening`, chấm `pending`/`processing` | không gợi ý | — |
 | 4 | `invite_interview` | `screening`, chấm `completed`, điểm ≥ ngưỡng | "Mời phỏng vấn" | `move_status → interview` |
-| 5 | `below_threshold` | `applied`/`screening`, chấm `completed`, điểm < ngưỡng | "Xem lại hồ sơ: điểm dưới ngưỡng" | `open_profile` |
-| 6 | `schedule_needed` | `interview`, không có lịch `scheduled` hay `completed` | "Đặt lịch phỏng vấn" | `schedule_interview` |
-| 7 | `scorecard_needed` | `interview`, có lịch `completed` hoặc lịch `scheduled` đã qua giờ kết thúc, chưa có scorecard | "Nhập đánh giá buổi phỏng vấn" | `open_profile` |
-| 8 | `offer_ready` | `interview`, mọi scorecard đã có đều `yes`/`strong_yes` | "Gửi đề nghị (Offer)" | `move_status → offer` |
-| 9 | `interview_concerns` | `interview`, có scorecard `no`/`strong_no` | "Xem lại: người phỏng vấn không đề xuất" | `open_profile` |
-| 10 | `offer_waiting` | `offer`, ở giai đoạn ≥ 7 ngày | "Theo dõi đề nghị đã chờ N ngày" | `open_profile` |
+| 5 | `schedule_needed` | `interview`, không có lịch nào chưa huỷ | "Đặt lịch phỏng vấn" | `schedule_interview` |
+| 6 | `scorecard_needed` | `interview`, có lịch `completed` hoặc lịch `scheduled` đã qua giờ kết thúc mà chưa có scorecard | "Nhập đánh giá buổi phỏng vấn" | `open_profile` |
+| 7 | `interview_concerns` | `interview`, có scorecard `no`/`strong_no` | "Xem lại: người phỏng vấn không đề xuất" | `open_profile` |
+| 8 | `offer_ready` | `interview`, mọi lịch đã kết thúc và mọi scorecard đều `yes`/`strong_yes` | "Gửi đề nghị (Offer)" | `move_status → offer` |
+| 9 | `offer_waiting` | `offer`, ở giai đoạn ≥ 7 ngày | "Theo dõi đề nghị đã chờ N ngày" | `open_profile` |
 | — | (mọi luật trên) | đơn đứng yên ≥ 14 ngày ở giai đoạn đang mở | thêm lý do "Hồ sơ đứng yên N ngày" | — |
 
-Trạng thái cuối (`hired`, `rejected`, `cancelled`) và lịch `interview` sắp diễn ra → không gợi ý. Điểm hiệu lực lấy
+Trạng thái cuối (`hired`, `rejected`, `cancelled`) và lịch `interview` sắp diễn ra → không gợi ý. Bảng này sửa ở M2 so với bản đầu: API chỉ cho chạy sàng lọc AI khi đơn ở `screening` (`checkScreeningEligibility`), nên đơn `applied` được gợi ý chuyển sang Sàng lọc thay vì chạy AI. Điểm hiệu lực lấy
 `effectiveScreeningScores` (GĐ3); ngưỡng là `minimumScoreThreshold` của cấu hình đã chấm. Gợi ý không bao giờ đổi trạng
 thái tự động; từ chối luôn qua luồng từ chối có lý do sẵn có.
 

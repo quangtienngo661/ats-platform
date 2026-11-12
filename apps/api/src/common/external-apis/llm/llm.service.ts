@@ -43,6 +43,11 @@ export class LlmService {
         return this.run('generateInterviewResult', refId, content);
     }
 
+    /** GĐ4 co-pilot: put a suggestion the rules already decided into words. `facts` is JSON. */
+    explainSuggestion(refId: string | null, facts: string) {
+        return this.run('explainSuggestion', refId, `<application_facts>\n${facts}\n</application_facts>`);
+    }
+
     // Callers validate the shape of the parsed JSON themselves; this layer only guarantees it parses.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async run(operation: LlmOperation, refId: string | null, content: string): Promise<any> {
