@@ -73,6 +73,8 @@
   },
   "dependencies": {
     "@google/genai": "^1.46.0",
+    "@livekit/components-react": "2.9.24",
+    "@livekit/components-styles": "1.2.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.3",
@@ -101,6 +103,8 @@
     "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
+    "livekit-client": "2.23.0",
+    "livekit-server-sdk": "2.19.2",
     "lucide-react": "^1.7.0",
     "motion": "^12.38.0",
     "multer": "^2.1.1",

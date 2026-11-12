@@ -170,6 +170,21 @@ describe('proxy — the candidate interview schedule page (C6, E18)', () => {
   });
 });
 
+describe('proxy — the online interview room (GĐ4 R6)', () => {
+  it('sends a guest to the sign-in page with the room as callback', async () => {
+    const response = await proxy(requestFor('/interview-room/int-1'));
+    expect(response.headers.get('location')).toBe(
+      'http://localhost:3000/sign-in?callbackUrl=%2Finterview-room%2Fint-1',
+    );
+  });
+
+  it.each(['candidate', 'recruiter', 'org_admin', 'admin'])('lets a signed-in %s open the room page', async (role) => {
+    const response = await proxy(requestFor('/interview-room/int-1', tokenFor(role)));
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+    expect(response.headers.get('location')).toBeNull();
+  });
+});
+
 describe('proxy — the candidate application page (D9)', () => {
   it('sends a guest from an application page to the candidate sign-in with a callback', async () => {
     const response = await proxy(requestFor('/my-applications/app-1'));

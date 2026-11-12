@@ -4,7 +4,10 @@ name: ats-platform-tests
 
 services:
   postgres:
-    image: postgres:18.4-alpine
+    # postgres:18.4-alpine plus the pgvector extension (docker/postgres/Dockerfile).
+    build:
+      context: ./docker/postgres
+    image: ats-postgres-pgvector:18.4-0.8.1
     environment:
       POSTGRES_USER: ats_test
       POSTGRES_PASSWORD: ats-local-test
@@ -66,6 +69,9 @@ services:
       SMTP_FROM: "ATS Test <no-reply@ats.test>"
       ADMIN_EMAIL: admin@ats.local
       ADMIN_PASSWORD: Admin@123
+      LIVEKIT_API_KEY: ats-test
+      LIVEKIT_API_SECRET: ats-local-livekit-secret-not-for-production
+      LIVEKIT_PUBLIC_URL: ws://localhost:57880
     volumes:
       - test_uploads:/app/uploads
     healthcheck:
@@ -81,6 +87,26 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_healthy
+
+  # WebRTC server for the online interview room (GĐ4). The browser runs on the host and
+  # dials the ports this server advertises, so the media ports (57881 TCP, 57882 UDP)
+  # keep the same number inside and outside the container.
+  livekit:
+    image: livekit/livekit-server:v1.13.10
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        rtc:
+          tcp_port: 57881
+          udp_port: 57882
+          node_ip: 127.0.0.1
+          use_external_ip: false
+        keys:
+          ats-test: ats-local-livekit-secret-not-for-production
+    ports:
+      - "127.0.0.1:57880:7880"
+      - "127.0.0.1:57881:57881"
+      - "127.0.0.1:57882:57882/udp"
 
 volumes:
   test_database:

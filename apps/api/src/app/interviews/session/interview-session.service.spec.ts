@@ -80,6 +80,7 @@ describe('InterviewSessionService', () => {
       expect.objectContaining({
         sessionId: 'session-1',
         candidateId: 'cand-1',
+        topicId: 'topic-1',
         topicName: 'Backend',
         categoryName: 'IT',
         difficultyLevel: 'medium',
