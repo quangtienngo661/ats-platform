@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { cn } from './cn';
 
 const COUNT_MS = 600;
+const noop = () => undefined;
+const subscribe = () => noop;
 
 function format(n: number): string {
     return Math.round(n)
@@ -25,26 +27,32 @@ export function Stat({
     delta?: string;
     className?: string;
 }) {
-    // First render (server and client) shows the final value; the count-up starts after mount.
-    const [shown, setShown] = useState(value);
+    // Server and hydration render use the server snapshot (false): show the final value, no animation.
+    // A client-only mount (in-app navigation) sees true and counts up once, unless motion is reduced.
+    const isClientMount = useSyncExternalStore(subscribe, () => true, () => false);
+    const [animate] = useState(
+        () => isClientMount && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    );
+    const [shown, setShown] = useState(animate ? 0 : value);
+    const initialValue = useRef(value);
+    const finished = useRef(false);
 
     useEffect(() => {
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reduce || value === 0) {
+        if (!animate || finished.current || value !== initialValue.current) {
             setShown(value);
             return;
         }
         let frame = 0;
         const start = performance.now();
-        setShown(0);
         const tick = (now: number) => {
             const t = Math.min(1, (now - start) / COUNT_MS);
             setShown(value * (1 - Math.pow(1 - t, 3)));
             if (t < 1) frame = requestAnimationFrame(tick);
+            else finished.current = true;
         };
         frame = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(frame);
-    }, [value]);
+    }, [animate, value]);
 
     return (
         <div className={cn('min-w-0', className)}>
