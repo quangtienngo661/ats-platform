@@ -73,7 +73,7 @@ src/servers · src/stores · src/lib · src/types  →  dùng chung
 - Thêm `src/app/(auth)/layout.tsx` (mới) để nhóm auth cũng có chỗ chuyển giao diện ở mức layout.
 
 ### 4.3 Bao bọc giao diện cũ
-- `LegacyFrame` gắn class font Inter cho bản cũ. Root layout không còn gắn Inter ở chế độ mới.
+- Root layout gắn class font Inter lên `<body>` chỉ khi đang ở bản cũ; bản mới dùng Geist.
 - `LegacyFrame` hiển thị một pill nổi góc dưới trái "Dùng giao diện mới" (client component, gọi action).
 - `LegacyFrame` thuộc code mới (`src/components/ui-variant/`), không nằm trong `src/legacy`.
 
@@ -235,8 +235,8 @@ Icon: giữ `lucide-react` (124 file đang dùng), chuẩn hóa `strokeWidth 1.7
 
 | Khung | Nội dung |
 |---|---|
-| **Public/ứng viên** | Header dính cao 60 px, kính mờ (`bg-canvas/75` + `backdrop-blur`), viền dưới `line`. Bên trái là logo mới (khối mực + chữ "TalentAI", không dùng Sparkles). Ở giữa là nav ứng viên: Tìm việc · Đơn của tôi · Lịch phỏng vấn · CV của tôi · Phỏng vấn thử; khách chỉ thấy Tìm việc + Đăng nhập/Đăng ký. Bên phải có chuông và menu tài khoản (Hồ sơ · Giao diện cũ · Đăng xuất). Dưới 768 px: ứng viên đã đăng nhập có bottom bar 5 tab chừa safe-area; nav giữa ẩn. Nội dung rộng tối đa 1200 px. |
-| **Staff/admin** | Sidebar 248 px: nhóm "Tuyển dụng" (Bảng điều khiển, Tin tuyển dụng, Lịch phỏng vấn), đường kẻ, rồi nhóm "Quản trị" (8 mục lọc bằng `mayVisit`). Chân sidebar là tài khoản kèm tên tổ chức và menu (Hồ sơ của tôi · Giao diện cũ · Đăng xuất). Nút thu gọn có `aria-expanded` chuyển sidebar về rail 64 px. Trạng thái thu gọn lưu ở cookie `talentai-sidebar` để render server không bị nháy. Ở rail, nhãn vẫn nằm trong DOM (sr-only) và hiện bằng tooltip khi hover/focus. Top bar 56 px gồm breadcrumb, nút "Tìm hoặc đi tới… Ctrl K" và chuông. Dưới 1024 px sidebar thành drawer. |
+| **Public/ứng viên** | Header dính cao 60 px, kính mờ (`bg-canvas/75` + `backdrop-blur`), viền dưới `line`. Bên trái là logo mới (khối mực + chữ "TalentAI", không dùng Sparkles). Ở giữa là nav ứng viên: Tìm việc · Đơn của tôi · Lịch phỏng vấn · CV của tôi · Phỏng vấn thử; khách chỉ thấy Tìm việc + Đăng nhập/Đăng ký. Bên phải có chuông và menu tài khoản (Hồ sơ · Dùng giao diện cũ · Đăng xuất). Dưới 768 px: ứng viên đã đăng nhập có bottom bar 5 tab chừa safe-area; nav giữa ẩn. Nội dung rộng tối đa 1200 px. |
+| **Staff/admin** | Sidebar 248 px: nhóm "Tuyển dụng" (Bảng điều khiển, Tin tuyển dụng, Lịch phỏng vấn), đường kẻ, rồi nhóm "Quản trị" (8 mục lọc bằng `mayVisit`). Chân sidebar là tài khoản kèm tên tổ chức và menu (Hồ sơ của tôi · Dùng giao diện cũ · Đăng xuất). Nút thu gọn có `aria-expanded` chuyển sidebar về rail 64 px. Trạng thái thu gọn lưu ở cookie `talentai-sidebar` để render server không bị nháy. Ở rail, nhãn vẫn nằm trong DOM (sr-only) và hiện bằng tooltip khi hover/focus. Top bar 56 px gồm breadcrumb, nút "Tìm hoặc đi tới… Ctrl K" và chuông. Dưới 1024 px sidebar thành drawer. |
 | **Command palette** | Mở bằng Ctrl/Cmd+K hoặc nút ở top bar. Ô nhập là combobox; danh sách nhóm "Đi tới" (mục nav theo role) và "Giao diện" (Dùng giao diện cũ). Dùng ↑ ↓ Enter Esc. Lọc không phân biệt dấu tiếng Việt bằng hàm thuần có test. |
 | **Auth** | ≥ 1024 px chia đôi: bên trái form rộng tối đa 400 px; bên phải panel `night` có grain và một vệt sáng tỏa tròn, kèm 3 dòng giá trị sản phẩm. Mobile chỉ có form. Bản staff đổi nội dung panel cho recruiter. |
 | **Phỏng vấn thử** | Toàn màn hình nền `night`. Top bar có tiến độ "Câu x/y" và nút thoát. Cột chat rộng tối đa 760 px. Bong bóng AI dùng `night-2`, bong bóng ứng viên dùng `night-ink` với chữ `night`. Có chấm "đang gõ". |
