@@ -98,9 +98,43 @@ module.exports = {
           from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'none' },
         },
+        'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
+        'fade-out': { from: { opacity: '1' }, to: { opacity: '0' } },
+        'dialog-in': {
+          from: { opacity: '0', transform: 'translate(-50%, -50%) scale(.97)' },
+          to: { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
+        },
+        'dialog-out': {
+          from: { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
+          to: { opacity: '0', transform: 'translate(-50%, -50%) scale(.97)' },
+        },
+        'sheet-in': {
+          from: { transform: 'translateX(100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        'sheet-out': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(100%)' },
+        },
+        'pop-in': {
+          from: { opacity: '0', transform: 'scale(.97)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        'pop-out': {
+          from: { opacity: '1', transform: 'scale(1)' },
+          to: { opacity: '0', transform: 'scale(.97)' },
+        },
       },
       animation: {
         rise: 'rise 280ms cubic-bezier(.16,1,.3,1) both',
+        'fade-in': 'fade-in 280ms cubic-bezier(.16,1,.3,1) both',
+        'fade-out': 'fade-out 196ms cubic-bezier(.5,0,.75,0) both',
+        'dialog-in': 'dialog-in 280ms cubic-bezier(.16,1,.3,1) both',
+        'dialog-out': 'dialog-out 196ms cubic-bezier(.5,0,.75,0) both',
+        'sheet-in': 'sheet-in 280ms cubic-bezier(.16,1,.3,1) both',
+        'sheet-out': 'sheet-out 196ms cubic-bezier(.5,0,.75,0) both',
+        'pop-in': 'pop-in 200ms cubic-bezier(.16,1,.3,1) both',
+        'pop-out': 'pop-out 140ms cubic-bezier(.5,0,.75,0) both',
       },
     }
   },

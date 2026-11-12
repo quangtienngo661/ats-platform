@@ -33,3 +33,20 @@ export { Table, THead, TBody, TR, TH, TD } from './Table';
 export { PageToolbar } from './PageToolbar';
 export { Breadcrumbs } from './Breadcrumbs';
 export { statusTone, type StatusKind, type Tone } from '@/lib/status-tones';
+
+// Task 7 — overlay and navigation primitives.
+export { Dialog, type DialogProps } from './Dialog';
+export { Sheet, type SheetProps } from './Sheet';
+export {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+    DropdownMenuSeparator,
+} from './DropdownMenu';
+export { Tooltip, TooltipProvider, type TooltipProps } from './Tooltip';
+export { Segmented, type SegmentedProps } from './Segmented';
+export { Tabs, type TabsProps } from './Tabs';
