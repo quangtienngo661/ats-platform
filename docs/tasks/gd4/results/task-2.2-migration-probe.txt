@@ -1,0 +1,26 @@
+# Task 2.2 — migration 20261113000000_add_copilot_decisions on a throwaway pgvector Postgres (2026-11-12T14:20:30Z)
+Applying migration `20261113000000_add_copilot_decisions`
+The following migration(s) have been applied:
+All migrations have been successfully applied.
+enum ai_action_type has copilot: true
+copilot_decision_type: accepted,dismissed
+ERROR:  operator is not unique: text || "char"
+LINE 1: SELECT 'fk '||conname||' on delete '||confdeltype FROM pg_co...
+                                            ^
+HINT:  Could not choose a best candidate operator. You might need to add explicit type casts.
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+decisions before delete: 1
+DELETE 1
+decisions after deleting the application (cascade): 0
+fk copilot_decisions_application_id_fkey on delete c
+fk copilot_decisions_decided_by_id_fkey on delete r
+fk copilot_decisions_organization_id_fkey on delete r
+(confdeltype: c = cascade, r = restrict)

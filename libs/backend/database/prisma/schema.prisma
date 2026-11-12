@@ -108,8 +108,19 @@ enum AiActionType {
   mock_interview
   job_parsing
   embedding
+  // AI co-pilot explanation of a suggestion (GĐ4 part 2).
+  copilot
 
   @@map("ai_action_type")
+}
+
+// What a recruiter did with an AI co-pilot suggestion (GĐ4 part 2). The suggestion itself is
+// recomputed from the application, never stored; only the human decision is.
+enum CopilotDecisionType {
+  accepted
+  dismissed
+
+  @@map("copilot_decision_type")
 }
 
 enum AiLogStatus {
@@ -207,6 +218,7 @@ model User {
   scorecards         InterviewScorecard[]
   applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
+  copilotDecisions   CopilotDecision[]
   reviewedScreenings CVScreening[]       @relation("ScreeningReviewer")
   createdInterviewQuestions InterviewQuestion[] @relation("QuestionAuthor")
 
@@ -254,6 +266,7 @@ model Organization {
   scorecards         InterviewScorecard[]
   applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
+  copilotDecisions   CopilotDecision[]
 
   @@map("organizations")
 }
@@ -474,6 +487,7 @@ model Application {
   screening    CVScreening?
   notes        ApplicationNote[]
   emailNotifications EmailNotification[]
+  copilotDecisions   CopilotDecision[]
 
   @@index([organizationId])
   @@map("applications")
@@ -827,4 +841,25 @@ model EmailNotification {
   @@index([organizationId])
   @@index([applicationId])
   @@map("email_notifications")
+}
+
+// A recruiter's decision on one AI co-pilot suggestion (GĐ4 part 2): the human-in-the-loop record.
+model CopilotDecision {
+  id             String              @id @default(uuid())
+  organizationId String              @map("organization_id")
+  applicationId  String              @map("application_id")
+  ruleId         String              @map("rule_id") @db.VarChar(64)
+  // ruleId:status:currentStageSince — a dismissal hides the suggestion until this changes.
+  suggestionKey  String              @map("suggestion_key") @db.VarChar(200)
+  decision       CopilotDecisionType
+  decidedById    String              @map("decided_by_id")
+  decidedAt      DateTime            @default(now()) @map("decided_at")
+
+  organization Organization @relation(fields: [organizationId], references: [organizationId])
+  application  Application  @relation(fields: [applicationId], references: [applicationId], onDelete: Cascade)
+  decidedBy    User         @relation(fields: [decidedById], references: [userId])
+
+  @@index([organizationId])
+  @@index([applicationId, suggestionKey])
+  @@map("copilot_decisions")
 }
