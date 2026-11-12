@@ -85,6 +85,28 @@ M3 `feat/gd4-p3-analytics` từ M2. Mỗi PR base `dev`.
 - [x] Journey (C19): seed đơn ở nhiều giai đoạn → dashboard hiện đúng số funnel.
 - [x] Toàn bộ kiểm tra; PR M3.
 
+## M4 — Phòng chờ và thông báo (bổ sung 13/11)
+
+Nhánh `feat/gd4-p4-waiting-room` từ M3, PR base `dev`.
+
+### Task 4.1: Schema trạng thái chờ
+- [ ] Migration thêm `candidate_waiting_at`, `candidate_admitted_at` vào `interview_schedules`.
+
+### Task 4.2: API phòng chờ
+- [ ] Test đỏ (C20, C21, R28): `join` hai trạng thái, sự kiện và thông báo lần đầu; `admit` quyền, khung giờ, idempotent; sửa giờ xoá trạng thái chờ.
+- [ ] Implement `InterviewRoomService.join`/`admit`, route `POST /interviews/schedules/:id/admit`. Xanh.
+
+### Task 4.3: Nhắc lịch và phòng đã mở
+- [ ] Test đỏ (C22): thời điểm job, bỏ job khi đã qua, onsite, job cũ bị bỏ qua, người nhận.
+- [ ] Implement queue `interview-reminders`, `InterviewRemindersService`, processor; gọi khi tạo/sửa lịch. Xanh.
+
+### Task 4.4: Web phòng chờ
+- [ ] Test đỏ (C23): màn chờ, chuyển sang kiểm tra thiết bị khi được cho vào; banner + nút Cho vào.
+- [ ] Implement. Xanh.
+
+### Task 4.5: E2E + PR
+- [ ] Journey (C24) trong `gd4-interview-room.e2e.ts`; toàn bộ kiểm tra; PR vào `dev`.
+
 ## Kết thúc
 
 - [x] `operation.md`: chạy thật từng vai trò, các đường lỗi, bước deploy prod cho LiveKit (chờ đồng ý).

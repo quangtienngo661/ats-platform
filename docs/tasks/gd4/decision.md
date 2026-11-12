@@ -7,6 +7,9 @@
 triển khai toàn bộ giai đoạn 4"*. Vì vậy D2–D12 do Claude chốt theo phương án đề xuất. Các phương án của D3–D12 là phương án
 Claude cân nhắc khi viết spec, **chưa từng trình bày trong chat**; ghi lại để người dùng xem và đổi nếu cần.
 
+D13–D15 bổ sung ngày 13/11: đối chiếu đề cương cho thấy thiếu phòng chờ và thông báo Socket.IO; người dùng trả lời
+"Làm bổ sung ngay". Claude chốt theo phương án đề xuất; các phương án khác chưa trình bày trong chat.
+
 ## Tóm tắt
 
 | # | Quyết định | Phương án chọn | Ai chốt |
@@ -23,6 +26,9 @@ Claude cân nhắc khi viết spec, **chưa từng trình bày trong chat**; ghi
 | D10 | Lấy giá model từ đâu | Bảng giá do admin nhập trong DB | Claude (`/goal`) |
 | D11 | Nhánh và PR | Chuỗi 3 nhánh trên đỉnh GĐ3, mỗi PR vào `dev` | Claude (`/goal`) |
 | D12 | Funnel tính thế nào | Nhóm đơn theo ngày nộp, "đạt" theo lịch sử | Claude (`/goal`) |
+| D13 | Phòng chờ hoạt động thế nào | API giữ token tới khi người phỏng vấn cho vào; trạng thái lưu trên lịch | Claude ("Làm bổ sung ngay") |
+| D14 | Thông báo qua kênh nào | Thông báo trong ứng dụng + Socket.IO, không thêm email | Claude ("Làm bổ sung ngay") |
+| D15 | Nhắc lịch thế nào khi lịch đổi | Job trễ BullMQ (−24h, −15'); job tự bỏ qua nếu lịch đã đổi | Claude ("Làm bổ sung ngay") |
 
 ## D1 — Viết spec theo cách nào
 
@@ -125,6 +131,28 @@ Bối cảnh: `AiUsageLog` chỉ có `referenceId`. Phân tích JD dùng id tạ
 |---|---|---|
 | Nhóm đơn có `appliedAt` trong kỳ; "đạt giai đoạn S" = lịch sử từng có `toStatus = S` hoặc đang ở S | Đúng nghĩa tỉ lệ chuyển đổi, chịu được revert và nhảy cóc | ✅ |
 | Đếm theo trạng thái hiện tại | Đơn giản; không phải funnel (đơn đã qua giai đoạn không được tính) | |
+
+## D13 — Phòng chờ hoạt động thế nào
+
+| Phương án | Trade-off | |
+|---|---|---|
+| API không cấp token cho ứng viên tới khi người phỏng vấn bấm Cho vào; `candidateWaitingAt`/`candidateAdmittedAt` trên lịch; báo qua Socket.IO | Chặn ở server, giữ được qua tải lại trang, có dấu vết; thêm 2 cột và một route | ✅ |
+| Ứng viên vào LiveKit với quyền rỗng, người phỏng vấn nâng quyền qua `RoomServiceClient.updateParticipant` | Dùng tính năng của LiveKit; API phải gọi được LiveKit server (thêm URL nội bộ), ứng viên đã ở trong phòng khi chưa được nhận | |
+| Chỉ màn chờ phía web tới giờ hẹn | Ít code nhất; không có "người phỏng vấn cho vào", không chặn ở server | |
+
+## D14 — Thông báo qua kênh nào
+
+| Phương án | Trade-off | |
+|---|---|---|
+| Thông báo trong ứng dụng (lưu DB) + sự kiện Socket.IO, qua `NotificationsService` sẵn có | Đúng đề cương ("thông báo qua Socket.IO"); chuông thông báo hiện ngay | ✅ |
+| Thêm email nhắc lịch | Tới được người không mở web; thêm loại email, mẫu, test; email tạo lịch đã có | |
+
+## D15 — Nhắc lịch thế nào khi lịch đổi
+
+| Phương án | Trade-off | |
+|---|---|---|
+| Job trễ BullMQ lúc `startAt − 24h` và (online) `startAt − 15'`; job mang `startAt`, lịch đã đổi/huỷ thì bỏ qua | Không phải tìm và xoá job cũ; đúng giờ | ✅ |
+| Job lặp mỗi phút quét lịch sắp tới | Không quản job theo lịch; chạy liên tục, phải nhớ lịch nào đã nhắc | |
 
 ## Đề xuất kỹ thuật đi cùng spec
 

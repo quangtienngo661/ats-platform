@@ -11,12 +11,13 @@ Nền code: nhánh GĐ3 cuối (`feat/gd3-consistency-measurement`), vì GĐ3 ch
 | Phần | Nội dung | Milestone |
 |---|---|---|
 | 1 | Phòng phỏng vấn trực tuyến: LiveKit server trong compose dev/test, API cấp token theo lịch, trang phòng họp cho recruiter và ứng viên | M1 |
+| 1b | Phòng chờ (người phỏng vấn cho ứng viên vào), thông báo qua Socket.IO: nhắc lịch, phòng đã mở, ứng viên đang chờ (bổ sung 13/11) | M4 |
 | 2 | AI co-pilot: luật gợi ý bước tiếp theo, hiện trên thẻ Kanban, áp dụng hoặc bỏ qua có ghi nhận, giải thích bằng LLM theo yêu cầu | M2 |
 | 3 | Thống kê: API funnel, thời gian ở mỗi giai đoạn, đơn mới nhất (A-04); chi phí AI theo tổ chức với bảng giá do admin nhập | M3 |
 
 ## Ngoài phạm vi
 
-Ghi hình cuộc gọi, phòng chờ, voice AI cho phỏng vấn thử, Judge0 (GĐ5 tuỳ chọn). Sửa `docker-compose.yml` prod và
+Ghi hình cuộc gọi, voice AI cho phỏng vấn thử, Judge0 (GĐ5 tuỳ chọn). Sửa `docker-compose.yml` prod và
 `nginx/` cho LiveKit (cần chủ dự án đồng ý, ghi trong `operation.md` như bước deploy). Co-pilot tự đổi trạng thái hoặc
 gợi ý từ chối bằng một cú bấm (ADR 0002). Thống kê theo thời gian thực qua socket.
 
@@ -34,6 +35,23 @@ gợi ý từ chối bằng một cú bấm (ADR 0002). Thống kê theo thời 
 | R6 | Trang `/interview-room/[interviewId]` (ứng viên và staff): màn kiểm tra thiết bị (`PreJoin`), rồi phòng họp (`VideoConference`: camera, mic, chia sẻ màn hình, chat). Lỗi R2/R3/R5 hiện thông báo tiếng Việt kèm nút quay lại. Rời phòng → về trang lịch của vai trò. |
 | R7 | Nút "Vào phòng phỏng vấn" trên thẻ lịch của ứng viên và drawer lịch của recruiter khi lịch online dùng phòng nội bộ; nút chỉ bật trong khung giờ R3. |
 | R8 | Compose dev và test thêm service `livekit` (image `livekit/livekit-server` ghim phiên bản), khoá dev; API trong compose đọc 3 biến R5. |
+
+## Phần 1b — Phòng chờ và thông báo (bổ sung 13/11, M4)
+
+Đối chiếu đề cương ngày 13/11 cho thấy bản đầu thiếu hai ý của GĐ4: "phòng chờ" và "thông báo qua Socket.IO" (nhắc lịch
+phỏng vấn, thông báo khi phòng họp sẵn sàng). Quyết định: D13–D15.
+
+### Yêu cầu
+
+| # | Yêu cầu |
+|---|---|
+| R24 | Ứng viên gọi `join` khi chưa được cho vào: API **không** cấp token, trả `{ status: 'waiting', since }` và ghi `candidateWaitingAt` (lần đầu). Người phỏng vấn và người tạo lịch luôn nhận token, `status: 'admitted'`, kèm `waitingCandidate { name, since }` khi ứng viên đang chờ. Thứ tự kiểm: tồn tại → người tham gia → khung giờ → cấu hình → chờ. |
+| R25 | Mỗi lần ứng viên gọi `join` mà phải chờ: phát `interview-room:waiting { interviewId, candidateName, since }` tới `user_<id>` của người phỏng vấn và người tạo lịch. Lần chờ đầu tiên thêm thông báo trong ứng dụng "Ứng viên đang chờ". |
+| R26 | `POST /interviews/schedules/:id/admit` (người phỏng vấn hoặc người tạo lịch, trong khung giờ): ghi `candidateAdmittedAt` nếu chưa có, phát `interview-room:admitted { interviewId }` tới ứng viên, người phỏng vấn và người tạo lịch. Gọi lại không đổi `candidateAdmittedAt`. Ứng viên hoặc người ngoài → 403. |
+| R27 | Web: ứng viên chưa được cho vào thấy "Đang chờ người phỏng vấn cho vào"; nhận `interview-room:admitted` (hoặc tự kiểm tra lại mỗi 20 giây, hoặc bấm "Kiểm tra lại") thì sang bước kiểm tra thiết bị. Người phỏng vấn trong phòng thấy "<tên> đang chờ" và nút **Cho vào**; banner tắt khi đã cho vào. |
+| R28 | Sửa lịch đổi giờ bắt đầu hoặc hình thức → xoá `candidateWaitingAt` và `candidateAdmittedAt`. |
+| R29 | Tạo hoặc sửa lịch đang `scheduled`: đặt job trễ trong queue `interview-reminders`: `reminder` lúc `startAt − 24h` (bỏ nếu đã qua) và, với lịch online, `room-open` lúc `startAt − 15'` (chạy ngay nếu đã qua mà phòng chưa đóng). Job mang `startAt` lúc đặt; `jobId` gồm lịch và `startAt` nên đặt lại cùng giờ không tạo job trùng. Lỗi đặt job chỉ ghi log, không làm hỏng việc tạo/sửa lịch. |
+| R30 | Job chạy: lịch không còn, không còn `scheduled`, đã đổi giờ (hoặc `room-open` mà lịch không còn online) → bỏ qua. Ngược lại tạo thông báo trong ứng dụng (lưu DB và phát `notification:new`) cho ứng viên, người phỏng vấn và người tạo lịch (mỗi người một lần): "Nhắc lịch phỏng vấn" / "Phòng phỏng vấn đã mở". Không thêm email. |
 
 ## Phần 2 — AI co-pilot
 
@@ -107,6 +125,11 @@ thái tự động; từ chối luôn qua luồng từ chối có lý do sẵn c
 | C17 | Migration `organizationId` điền ngược đúng cho `cv_scoring`, dòng khác giữ null | Probe DB |
 | C18 | Dashboard hiện funnel và đơn mới nhất từ API mới; khối chi phí AI chỉ với org_admin/admin; admin sửa giá model | Web unit |
 | C19 | Dashboard trên stack test: số funnel khớp dữ liệu seed | E2E |
+| C20 | `join` của ứng viên chưa được cho vào: không token, ghi `candidateWaitingAt` lần đầu, phát `waiting` tới đúng hai người, thông báo chỉ lần đầu; người phỏng vấn nhận token kèm người đang chờ; ứng viên đã được cho vào nhận token | API unit |
+| C21 | `admit`: người phỏng vấn, người tạo lịch được; ứng viên, staff khác → 403; ngoài khung giờ → 400; gọi lại không ghi đè thời điểm; phát `admitted` tới ứng viên | API unit |
+| C22 | Thời điểm job (biên −24h, −15', phòng đã đóng), lịch onsite không có `room-open`, đổi giờ xoá trạng thái chờ; job cũ (giờ đã đổi, huỷ) bỏ qua; người nhận không trùng | API unit |
+| C23 | Trang phòng: màn chờ của ứng viên, chuyển sang kiểm tra thiết bị khi được cho vào; banner và nút Cho vào của người phỏng vấn | Web unit |
+| C24 | Ứng viên chờ → người phỏng vấn thấy "đang chờ", bấm Cho vào → ứng viên vào phòng, hai bên thấy tên nhau | E2E |
 
 ## Biên và lỗi
 
@@ -121,7 +144,7 @@ thái tự động; từ chối luôn qua luồng từ chối có lý do sẵn c
 
 - API unit: hàm thuần (khung giờ, luật co-pilot, funnel, chi phí) bằng `test.each` có biên; service với `createPrismaMock`.
 - Web unit (Vitest + Testing Library): query theo role/chữ hiển thị; LiveKit components được mock ở biên module.
-- E2E (Playwright, `docker-compose.test.yml` có LiveKit): C7, C13, C19.
+- E2E (Playwright, `docker-compose.test.yml` có LiveKit): C7 + C24, C13, C19.
 - Probe DB dùng một lần: C17.
 - Lệnh mặc định không cần dịch vụ; E2E và probe là lệnh riêng như hiện có.
 
