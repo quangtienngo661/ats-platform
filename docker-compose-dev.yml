@@ -85,6 +85,13 @@ services:
     #   CLIENT_URL: ${CLIENT_URL}
     env_file:
       - .env
+    # The interview room (GĐ4). Defaults match the livekit service below; set the three
+    # LIVEKIT_* variables in .env to use another server. LIVEKIT_PUBLIC_URL is what the
+    # BROWSER connects to, so it names the host port, not the container.
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-devkey}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-ats-local-livekit-secret-not-for-production}
+      LIVEKIT_PUBLIC_URL: ${LIVEKIT_PUBLIC_URL:-ws://localhost:7880}
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,6 +101,33 @@ services:
       - gateway_net
     volumes:
       - ./uploads:/app/uploads
+
+  # ----------------------------------------
+  # 3b. LiveKit (WebRTC server for the online interview room, GĐ4)
+  # ----------------------------------------
+  # Local only: the browser and this server are on the same machine, so it advertises
+  # 127.0.0.1. Host and container ports must be the SAME numbers for the media ports
+  # (7881 TCP, 7882 UDP), because the server tells the browser which port to dial.
+  livekit:
+    image: livekit/livekit-server:v1.13.10
+    container_name: ats-livekit
+    restart: unless-stopped
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        rtc:
+          tcp_port: 7881
+          udp_port: 7882
+          node_ip: 127.0.0.1
+          use_external_ip: false
+        keys:
+          ${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-ats-local-livekit-secret-not-for-production}
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    networks:
+      - gateway_net
 
   # # ----------------------------------------
   # # 4. Frontend Next.js Web
