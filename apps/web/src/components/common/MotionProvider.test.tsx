@@ -8,6 +8,7 @@ const recorded = vi.hoisted(() => ({
 
 vi.mock('motion/react', () => ({
     domAnimation: { marker: 'domAnimation' },
+    domMax: { marker: 'domMax' },
     MotionConfig: (props: Record<string, unknown> & { children?: React.ReactNode }) => {
         recorded.config = props;
         return <>{props.children}</>;
@@ -21,7 +22,8 @@ vi.mock('motion/react', () => ({
 import { MotionProvider } from './MotionProvider';
 
 describe('MotionProvider', () => {
-    it('honors the OS reduced-motion setting and lazy-loads non-strict features', () => {
+    // domMax, not domAnimation: only domMax carries the layout feature that `layoutId` indicators need to slide.
+    it('honors the OS reduced-motion setting and lazy-loads the full, non-strict feature set', () => {
         render(
             <MotionProvider>
                 <p>child</p>
@@ -29,7 +31,7 @@ describe('MotionProvider', () => {
         );
         expect(screen.getByText('child')).toBeInTheDocument();
         expect(recorded.config?.reducedMotion).toBe('user');
-        expect(recorded.lazy?.features).toEqual({ marker: 'domAnimation' });
+        expect(recorded.lazy?.features).toEqual({ marker: 'domMax' });
         expect(recorded.lazy?.strict).toBeFalsy();
     });
 });

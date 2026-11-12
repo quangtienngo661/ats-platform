@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './global.css';
+import type { Viewport } from 'next';
 import { cookies } from 'next/headers';
 import { GlobalSocketInit } from '../components/common/GlobalSocketInit';
 import { MotionProvider } from '../components/common/MotionProvider';
@@ -23,9 +24,12 @@ export const metadata = {
   description: 'Hệ thống quản lý tuyển dụng thông minh',
 };
 
-export const viewport = {
-  themeColor: '#fafafa',
-};
+// The modern UI pads its fixed bars with env(safe-area-inset-*), which stays 0 without viewport-fit=cover.
+// The legacy UI never accounts for safe areas, so it keeps the default viewport.
+export async function generateViewport(): Promise<Viewport> {
+  const variant = await getUiVariant();
+  return variant === 'modern' ? { themeColor: '#fafafa', viewportFit: 'cover' } : { themeColor: '#fafafa' };
+}
 
 export default async function RootLayout({
   children,

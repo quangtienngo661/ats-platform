@@ -74,6 +74,13 @@ describe('(public) layout, modern variant', () => {
         render(await PublicLayout({ children: null }));
         expect(tabBar()).toBeNull();
     });
+
+    it('gives a session without a role no candidate tab bar', async () => {
+        signIn({ sub: 'u3', fullName: 'Ẩn Danh' });
+        render(await PublicLayout({ children: null }));
+        expect(tabBar()).toBeNull();
+        expect(state.headerProps.at(-1)).toMatchObject({ userInfo: { fullName: 'Ẩn Danh' } });
+    });
 });
 
 describe('(candidate) layout, modern variant', () => {

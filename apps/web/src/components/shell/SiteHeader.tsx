@@ -57,7 +57,8 @@ export function SiteHeader({
     const pathname = usePathname();
     const disconnectSocket = useSocketStore((state) => state.disconnect);
     const staff = isStaffRole(userInfo?.role);
-    const candidate = !!userInfo && !staff;
+    // Only role "candidate": the layouts give the tab bar to that role alone, and the candidate links hide under it.
+    const candidate = userInfo?.role === 'candidate';
     const items = candidate ? CANDIDATE_NAV : PUBLIC_NAV;
 
     return (
@@ -104,7 +105,7 @@ export function SiteHeader({
                             <AccountMenu
                                 variant="header"
                                 name={userInfo.fullName || 'Tài khoản'}
-                                subtitle={staff ? staffRoleLabel(userInfo.role) : 'Ứng viên'}
+                                subtitle={staff ? staffRoleLabel(userInfo.role) : candidate ? 'Ứng viên' : undefined}
                                 profileHref={staff ? '/my-profile' : '/profile'}
                                 profileLabel={staff ? 'Hồ sơ của tôi' : 'Hồ sơ'}
                                 logoutRedirect={staff ? '/sign-in/admin' : '/sign-in'}

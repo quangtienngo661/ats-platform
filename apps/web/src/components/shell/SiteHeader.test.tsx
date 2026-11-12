@@ -186,6 +186,17 @@ describe('SiteHeader — candidate', () => {
     });
 });
 
+describe('SiteHeader — signed in without a known role', () => {
+    // The layouts give the tab bar to role "candidate" only; candidate links here would vanish under 768 px.
+    it('gets the guest nav and the account menu, without candidate links', () => {
+        render(<SiteHeader userInfo={{ fullName: 'Ẩn Danh' }} />);
+        expect(linksOf(mainNav())).toEqual([['Tìm việc', '/job-postings']]);
+        expect(screen.queryByRole('link', { name: 'Đơn của tôi' })).toBeNull();
+        expect(screen.getByRole('button', { name: /^Ẩn Danh/ })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Đăng nhập' })).toBeNull();
+    });
+});
+
 describe('SiteHeader — staff visiting public pages', () => {
     it.each([
         ['recruiter', '/dashboard', 'Nhà tuyển dụng'],
