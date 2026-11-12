@@ -56,3 +56,33 @@ describe('KanbanCard — reviewed score', () => {
     expect(screen.queryByText('Đã duyệt')).not.toBeInTheDocument();
   });
 });
+
+describe('KanbanCard — AI co-pilot suggestion (GĐ4 C12)', () => {
+  const suggestion = {
+    ruleId: 'invite_interview',
+    key: 'invite_interview:screening:2026-11-18T03:00:00.000Z',
+    title: 'Mời phỏng vấn',
+    reasons: ['Điểm sàng lọc 77 (AI), ngưỡng 60.'],
+    action: { type: 'move_status' as const, to: 'interview' as const },
+  };
+
+  it('offers the suggestion as a button that opens it', async () => {
+    const onSuggestion = vi.fn();
+    render(
+      <DndProvider backend={HTML5Backend}>
+        <KanbanCard candidate={candidate} jobId="job-1" onMenu={vi.fn()} onDrop={vi.fn()}
+          suggestion={suggestion} onSuggestion={onSuggestion} />
+      </DndProvider>,
+    );
+
+    screen.getByRole('button', { name: 'Gợi ý: Mời phỏng vấn' }).click();
+
+    expect(onSuggestion).toHaveBeenCalledWith('app-1');
+  });
+
+  it('shows no suggestion line when there is none', () => {
+    renderCard({});
+
+    expect(screen.queryByRole('button', { name: /^Gợi ý:/ })).toBeNull();
+  });
+});

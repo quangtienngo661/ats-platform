@@ -18,6 +18,9 @@ import { useKanBanStore } from '@/stores/useKanbanStore';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { ScreeningStatus } from '@ats-platform/types';
 import { boardToCandidates } from './kanban-mappers';
+import { CopilotSuggestionDialog } from './CopilotSuggestionDialog';
+import { getCopilotSuggestionsAction } from '@/servers/applications/copilot.action';
+import type { ICopilotSuggestion } from '@/types/interfaces/copilot.interface';
 
 // ── Component ───────────────────────────────────────────────────────────────
 interface KanbanClientProps {
@@ -47,6 +50,16 @@ export default function KanbanClient({
   const addNewApplicationToKanban = useKanBanStore(s => s.addNewApplicationToKanban);
 
   const pendingDrops = useRef<Record<string, NodeJS.Timeout>>({});
+
+  // AI co-pilot (GĐ4): refreshed whenever the board changes, so a moved card gets its next suggestion.
+  const [suggestions, setSuggestions] = useState<Record<string, ICopilotSuggestion>>({});
+  const [openSuggestionId, setOpenSuggestionId] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    getCopilotSuggestionsAction(jobId).then(next => { if (alive) setSuggestions(next); });
+    return () => { alive = false; };
+  }, [jobId, kanbanBoard]);
+  const openSuggestion = openSuggestionId ? suggestions[openSuggestionId] : undefined;
 
   const handleDropToColumn = (id: string, stage: Stage) => {
     const prevCandidate = candidates.find(c => c.id === id);
@@ -319,10 +332,37 @@ export default function KanbanClient({
                 onMenuOpen={(id, x, y) => {
                   const c = candidates.find(c => c.id === id);
                   if (c) setContextMenu({ id, x, y, stage: c.stage, screeningStatus: c.screeningStatus });
-                }} />
+                }}
+                suggestions={suggestions}
+                onSuggestion={setOpenSuggestionId} />
             ))}
           </div>
         </div>
+
+        {/* ── AI co-pilot suggestion ─────────────────────────────────────── */}
+        {openSuggestionId && openSuggestion && (
+          <CopilotSuggestionDialog
+            applicationId={openSuggestionId}
+            candidateName={candidates.find(c => c.id === openSuggestionId)?.name ?? 'ứng viên'}
+            jobId={jobId}
+            suggestion={openSuggestion}
+            onClose={() => setOpenSuggestionId(null)}
+            onApplied={(application) => {
+              setOpenSuggestionId(null);
+              if (application) updateKanbanBoard(application);
+              toast.success('Đã áp dụng gợi ý');
+            }}
+            onDismissed={() => {
+              const dismissedId = openSuggestionId;
+              setSuggestions(prev => {
+                const next = { ...prev };
+                delete next[dismissedId];
+                return next;
+              });
+              setOpenSuggestionId(null);
+            }}
+          />
+        )}
 
         {/* ── Screening Config Modal ────────────────────────────────────── */}
         {showScreeningModal && (
