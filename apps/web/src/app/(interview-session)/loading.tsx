@@ -1,1 +1,5 @@
-export { default } from '@/components/common/RouteLoading';
+import RouteLoading from '@/components/common/RouteLoading';
+
+export default function InterviewLoading() {
+    return <RouteLoading tone="night" />;
+}
