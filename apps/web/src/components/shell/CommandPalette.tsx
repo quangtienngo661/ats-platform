@@ -3,7 +3,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { IconButton, Kbd } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
 import { useSwitchUiVariant } from '@/components/ui-variant/useSwitchUiVariant';
@@ -16,6 +16,7 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     const router = useRouter();
     const { switchTo } = useSwitchUiVariant();
     const [open, setOpen] = useState(false);
+    const openRef = useRef(false);
     const [query, setQuery] = useState('');
     const [active, setActive] = useState(0);
     const [isMac, setIsMac] = useState(false);
@@ -33,24 +34,26 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     // Computed after mount so the server and first client render agree.
     useEffect(() => setIsMac(/mac/i.test(navigator.platform)), []);
 
-    useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-                e.preventDefault();
-                setOpen((o) => !o);
-            }
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, []);
-
+    // Every open and close goes through here, so a close by any route (Esc, outside click, hotkey, run) resets.
     const changeOpen = useCallback((next: boolean) => {
+        openRef.current = next;
         setOpen(next);
         if (!next) {
             setQuery('');
             setActive(0);
         }
     }, []);
+
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                changeOpen(!openRef.current);
+            }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [changeOpen]);
 
     const run = (command: Command | undefined) => {
         if (!command) return;
@@ -62,6 +65,11 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
 
     const optionId = (command: Command) => `${uid}-opt-${command.id}`;
     const activeCommand = results[active];
+    const activeId = activeCommand ? optionId(activeCommand) : undefined;
+
+    useEffect(() => {
+        if (activeId) document.getElementById(activeId)?.scrollIntoView({ block: 'nearest' });
+    }, [activeId]);
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -70,6 +78,7 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
             const step = e.key === 'ArrowDown' ? 1 : -1;
             setActive((i) => (i + step + results.length) % results.length);
         } else if (e.key === 'Enter') {
+            if (e.nativeEvent.isComposing) return;
             e.preventDefault();
             run(activeCommand);
         }
@@ -81,21 +90,21 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
         <>
             <button
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={() => changeOpen(true)}
                 className="hidden h-8 items-center gap-2 rounded-ctl bg-surface px-2.5 text-body-sm text-ink-3 shadow-e1 hover:text-ink md:inline-flex"
             >
                 <Search aria-hidden="true" className="size-4" strokeWidth={1.75} />
                 <span>{TITLE}…</span>
                 <Kbd>{shortcut}</Kbd>
             </button>
-            <IconButton aria-label={TITLE} onClick={() => setOpen(true)} className="md:hidden">
+            <IconButton aria-label={TITLE} onClick={() => changeOpen(true)} className="md:hidden">
                 <Search aria-hidden="true" strokeWidth={1.75} />
             </IconButton>
             <RadixDialog.Root open={open} onOpenChange={changeOpen}>
                 <RadixDialog.Portal>
                     <RadixDialog.Overlay
                         className={cn(
-                            'fixed inset-0 z-overlay bg-ink/40 backdrop-blur-[2px]',
+                            'fixed inset-0 z-palette bg-ink/40 backdrop-blur-[2px]',
                             'data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out',
                         )}
                     />
@@ -115,7 +124,7 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
                                 aria-expanded="true"
                                 aria-controls={listId}
                                 aria-autocomplete="list"
-                                aria-activedescendant={activeCommand ? optionId(activeCommand) : undefined}
+                                aria-activedescendant={activeId}
                                 aria-label={TITLE}
                                 value={query}
                                 onChange={(e) => {

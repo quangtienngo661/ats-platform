@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { setUiVariantAction } from '@/servers/ui/ui-variant.action';
@@ -9,7 +9,12 @@ const router = vi.hoisted(() => ({ refresh: vi.fn(), push: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 vi.mock('@/servers/ui/ui-variant.action', () => ({ setUiVariantAction: vi.fn(async () => undefined) }));
 
+// jsdom has no scrollIntoView.
+const scrollIntoView = vi.fn();
+
 beforeEach(() => {
+    scrollIntoView.mockClear();
+    Element.prototype.scrollIntoView = scrollIntoView;
     router.push.mockClear();
     router.refresh.mockClear();
     vi.mocked(setUiVariantAction).mockClear();
@@ -85,5 +90,33 @@ describe('CommandPalette', () => {
         const { user } = await openPalette();
         await user.click(screen.getByRole('option', { name: 'Tin tuyển dụng' }));
         expect(router.push).toHaveBeenCalledWith('/jobs');
+    });
+
+    it('resets the query and the list when the hotkey closes it', async () => {
+        const { user } = await openPalette();
+        await user.keyboard('lich');
+        await user.keyboard('{Control>}k{/Control}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        await user.keyboard('{Control>}k{/Control}');
+        expect(await screen.findByRole('combobox')).toHaveValue('');
+        expect(screen.getAllByRole('option').length).toBeGreaterThan(1);
+    });
+
+    it('scrolls the active option into view', async () => {
+        const spy = scrollIntoView;
+        const { user } = await openPalette();
+        spy.mockClear();
+        await user.keyboard('{ArrowDown}');
+        const id = screen.getByRole('combobox').getAttribute('aria-activedescendant');
+        expect(id).toBeTruthy();
+        expect(spy).toHaveBeenCalledWith({ block: 'nearest' });
+        expect(spy.mock.contexts.at(-1)).toBe(document.getElementById(id as string));
+    });
+
+    it('ignores Enter during an IME composition', async () => {
+        await openPalette();
+        fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter', isComposing: true });
+        expect(router.push).not.toHaveBeenCalled();
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 });
