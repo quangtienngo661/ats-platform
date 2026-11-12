@@ -153,7 +153,7 @@ Nhánh `feat/gd3-p1-vector-infra`, cắt từ `dev` **sau khi M0 vào `dev`**.
 
 ### Task 1.1: Image có pgvector, extension, cột vector
 
-**Files:** Modify `docker-compose-dev.yml`, `docker-compose.test.yml`, `docker-compose.yml` (**hỏi người dùng**), `schema.prisma` (`Skill.embedding`, `CVParsedData.embedding` kiểu `Unsupported("vector(1536)")?`), migration `20261102000000_enable_pgvector_and_embedding_columns`; Create `docs/tasks/gd3-rag/research.md`.
+**Files:** Modify `docker-compose-dev.yml`, `docker-compose.test.yml`, `docker-compose.yml` (**hỏi người dùng**), `schema.prisma` (`Skill.embedding`, `CVParsedData.embedding` kiểu `Unsupported("vector(1536)")?`), migration `20261102200000_enable_pgvector_and_embedding_columns` (đổi từ `20261102000000` ngày 12/11/2026 để đứng sau migration M3b `20261102100000` đã vào `dev`; `results/task-1.1-pgvector.txt` giữ tên cũ vì là log của lần chạy đó); Create `docs/tasks/gd3-rag/research.md`.
 
 - [x] **Step 1:** Đọc tài liệu chính thức pgvector (README GitHub `pgvector/pgvector` và Docker Hub `pgvector/pgvector`): có tag cho PostgreSQL 18 không, có bản alpine không; đọc tài liệu Prisma 7 về `Unsupported` trong migrate. Ghi URL, ngày, kết luận vào `research.md` (documented). Nếu không có tag PG18 → **dừng, hỏi người dùng** (đổi major version DB là quyết định riêng).
 - [x] **Step 2:** Đổi image ở compose dev/test; migration: `CREATE EXTENSION IF NOT EXISTS vector;` + `ALTER TABLE skills ADD COLUMN embedding vector(1536);` + tương tự `cv_parsed_data`.
