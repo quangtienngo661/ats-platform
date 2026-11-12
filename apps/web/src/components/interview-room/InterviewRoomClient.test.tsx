@@ -36,7 +36,13 @@ vi.mock('@livekit/components-react', () => ({
 }));
 vi.mock('@livekit/components-styles', () => ({}));
 
+vi.mock('@/servers/interviews/interview-room.action', () => ({ admitCandidateAction: vi.fn() }));
+vi.mock('@/stores/useSocketStore', () => ({
+  useSocketStore: () => ({ status: 'disconnected', onEvent: vi.fn(), offEvent: vi.fn() }),
+}));
+
 const access = {
+  status: 'admitted' as const,
   serverUrl: 'ws://localhost:7880',
   token: 'jwt-token',
   roomName: 'interview-int-1',
@@ -44,6 +50,7 @@ const access = {
   displayName: 'Nguyễn Ứng Viên',
   role: 'candidate' as const,
   expiresAt: '2026-11-20T03:30:00.000Z',
+  waitingCandidate: null,
 };
 
 describe('InterviewRoomClient', () => {
@@ -53,7 +60,7 @@ describe('InterviewRoomClient', () => {
   });
 
   it('checks the devices first and says when the room closes', () => {
-    render(<InterviewRoomClient access={access} backHref="/my-interviews" />);
+    render(<InterviewRoomClient interviewId="int-1" access={access} backHref="/my-interviews" />);
 
     expect(screen.getByText('Thiết bị của Nguyễn Ứng Viên')).toBeInTheDocument();
     expect(screen.getByText('Phòng đóng lúc 10:30')).toBeInTheDocument();
@@ -62,7 +69,7 @@ describe('InterviewRoomClient', () => {
 
   it('joins with the token and the devices chosen', async () => {
     const user = userEvent.setup();
-    render(<InterviewRoomClient access={access} backHref="/my-interviews" />);
+    render(<InterviewRoomClient interviewId="int-1" access={access} backHref="/my-interviews" />);
 
     await user.click(screen.getByRole('button', { name: 'Vào phòng' }));
 
@@ -80,7 +87,7 @@ describe('InterviewRoomClient', () => {
 
   it('goes back to the schedule list when the call ends', async () => {
     const user = userEvent.setup();
-    render(<InterviewRoomClient access={access} backHref="/interviews" />);
+    render(<InterviewRoomClient interviewId="int-1" access={access} backHref="/interviews" />);
     await user.click(screen.getByRole('button', { name: 'Vào phòng' }));
 
     (livekit.roomProps?.onDisconnected as () => void)();

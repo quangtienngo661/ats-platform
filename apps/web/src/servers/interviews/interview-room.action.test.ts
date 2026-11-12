@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
-import { joinInterviewRoomAction } from './interview-room.action';
+import { admitCandidateAction, joinInterviewRoomAction } from './interview-room.action';
 
 const mocks = vi.hoisted(() => ({ post: vi.fn() }));
 vi.mock('@/lib/http', () => ({ default: { post: mocks.post } }));
@@ -9,6 +9,7 @@ vi.mock('@/lib/http', () => ({ default: { post: mocks.post } }));
 vi.mock('next/navigation', () => ({ unstable_rethrow: vi.fn() }));
 
 const access = {
+  status: 'admitted',
   serverUrl: 'ws://localhost:7880',
   token: 'jwt',
   roomName: 'interview-int-1',
@@ -16,14 +17,27 @@ const access = {
   displayName: 'Nguyễn Ứng Viên',
   role: 'candidate',
   expiresAt: '2026-11-20T03:30:00.000Z',
+  waitingCandidate: null,
 };
 
 describe('joinInterviewRoomAction', () => {
   it('asks the API for a token of that interview', async () => {
     mocks.post.mockResolvedValue({ data: access });
 
-    await expect(joinInterviewRoomAction('int-1')).resolves.toEqual({ ok: true, access });
+    await expect(joinInterviewRoomAction('int-1')).resolves.toEqual({ ok: true, room: access });
     expect(mocks.post).toHaveBeenCalledWith('/interviews/schedules/int-1/join');
+  });
+
+  it('passes a waiting answer through', async () => {
+    const waiting = {
+      status: 'waiting',
+      displayName: 'Nguyễn Ứng Viên',
+      since: '2026-11-20T02:05:00.000Z',
+      closesAt: '2026-11-20T03:30:00.000Z',
+    };
+    mocks.post.mockResolvedValue({ data: waiting });
+
+    await expect(joinInterviewRoomAction('int-1')).resolves.toEqual({ ok: true, room: waiting });
   });
 
   it.each([
@@ -42,6 +56,30 @@ describe('joinInterviewRoomAction', () => {
     await expect(joinInterviewRoomAction('int-1')).resolves.toEqual({
       ok: false,
       message: 'Không vào được phòng phỏng vấn. Thử lại sau.',
+    });
+  });
+});
+
+describe('admitCandidateAction', () => {
+  it('lets the candidate of that interview in', async () => {
+    mocks.post.mockResolvedValue({ data: { admittedAt: '2026-11-20T02:10:00.000Z' } });
+
+    await expect(admitCandidateAction('int-1')).resolves.toEqual({ ok: true });
+    expect(mocks.post).toHaveBeenCalledWith('/interviews/schedules/int-1/admit');
+  });
+
+  it('passes the API refusal through', async () => {
+    mocks.post.mockRejectedValue({ response: { status: 400, data: { message: 'Buổi phỏng vấn đã kết thúc' } } });
+
+    await expect(admitCandidateAction('int-1')).resolves.toEqual({ ok: false, message: 'Buổi phỏng vấn đã kết thúc' });
+  });
+
+  it('falls back to a generic message', async () => {
+    mocks.post.mockRejectedValue(new Error('socket hang up'));
+
+    await expect(admitCandidateAction('int-1')).resolves.toEqual({
+      ok: false,
+      message: 'Không cho ứng viên vào được. Thử lại.',
     });
   });
 });
