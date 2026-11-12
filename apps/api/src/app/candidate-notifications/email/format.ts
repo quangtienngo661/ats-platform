@@ -29,6 +29,10 @@ export function formatInterviewTime(
   return `${timeFormatter.format(start)}–${timeFormatter.format(end)}, ${weekdayFormatter.format(start)}, ${formatVietnamDate(start)} (giờ Việt Nam)`;
 }
 
+export function formatVietnamTime(at: Date | string): string {
+  return timeFormatter.format(new Date(at));
+}
+
 export function formatVietnamDate(at: Date | string): string {
   return dateFormatter.format(new Date(at));
 }

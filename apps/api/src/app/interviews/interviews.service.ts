@@ -33,7 +33,9 @@ import {
   interviewTopicIncludeOptions,
   scheduleIncludeOptions,
 } from '../../common/utils/include-options.util';
+import { randomUUID } from 'crypto';
 import { resolveInterviewPlace, trimToNull } from './interview-schedule.rules';
+import { interviewRoomUrl } from './room/interview-room.rules';
 
 /**
  * Mirrors the `VALID_TRANSITIONS` map in `applications.service.ts`. Both `completed`
@@ -319,8 +321,11 @@ export class InterviewsService {
       dto.durationMinutes,
     );
 
+    // Generated here, not by the database, so the built-in room link can name it.
+    const interviewId = randomUUID();
     const created = await this.prisma.interviewSchedule.create({
       data: {
+        interviewId,
         // The schedule belongs to the organization that owns the application.
         organizationId: application.organizationId,
         applicationId: dto.applicationId,
@@ -329,10 +334,11 @@ export class InterviewsService {
         interviewType: dto.interviewType,
         startAt,
         durationMinutes: dto.durationMinutes,
-        // Only the field that belongs to the type is kept (the DTO already required it).
+        // Only the field that belongs to the type is kept. An online interview without
+        // an external link uses its built-in room (GĐ4 R1).
         onlineMeetingLink:
           dto.interviewType === InterviewType.online
-            ? trimToNull(dto.onlineMeetingLink)
+            ? (trimToNull(dto.onlineMeetingLink) ?? interviewRoomUrl(interviewId))
             : null,
         location:
           dto.interviewType === InterviewType.onsite
@@ -466,7 +472,10 @@ export class InterviewsService {
     ) {
       // Untouched otherwise, so a legacy onsite schedule with no location can
       // still change only its time or duration.
-      Object.assign(updateData, resolveInterviewPlace(schedule, dto));
+      Object.assign(
+        updateData,
+        resolveInterviewPlace(schedule, dto, interviewRoomUrl(interviewId)),
+      );
     }
     if (dto.startAt) updateData.startAt = new Date(dto.startAt);
     if (dto.durationMinutes !== undefined)
