@@ -1,4 +1,4 @@
-import { Inter } from 'next/font/google';
+import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './global.css';
 import { cookies } from 'next/headers';
@@ -7,6 +7,16 @@ import { MotionProvider } from '../components/common/MotionProvider';
 import { getUiVariant } from '@/lib/ui-variant';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
+const geist = Geist({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const geistMono = Geist_Mono({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'TalentAI | ATS Platform',
@@ -14,7 +24,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#F5F5F7',
+  themeColor: '#fafafa',
 };
 
 export default async function RootLayout({
@@ -35,7 +45,12 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="vi" data-ui={variant} data-scroll-behavior="smooth">
+    <html
+      lang="vi"
+      data-ui={variant}
+      data-scroll-behavior="smooth"
+      className={`${geist.variable} ${geistMono.variable}`}
+    >
       <body className={variant === 'legacy' ? inter.className : undefined}>
         <a
           href="#main-content"
