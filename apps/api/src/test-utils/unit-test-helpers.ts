@@ -26,6 +26,7 @@ export const createPrismaMock = () => ({
     'delete',
   ]),
   aiUsageLog: model(['create', 'findMany', 'count']),
+  aiModelPrice: model(['findMany', 'upsert']),
   application: model(['create', 'findMany', 'findUnique', 'count', 'update']),
   applicationHistory: model(['create', 'findMany']),
   applicationNote: model([
