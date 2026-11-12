@@ -1,0 +1,92 @@
+# GĐ4 — implementation plan
+
+> Spec: [spec.md](spec.md) · Quyết định: [decision.md](decision.md) · Research: [research.md](research.md).
+> Mỗi task: test đỏ trước, rồi code, rồi xanh (rule testing-boundaries). Mỗi milestone kết thúc bằng
+> `npx nx test api --runInBand --skip-nx-cache`, `npx tsc --build apps/api/tsconfig.app.json`, `npx nx lint api`,
+> `npm run test:web`, `npm run typecheck:web`, `npm run lint:web`, `NODE_ENV=production npx nx build web` (rồi
+> `git checkout apps/web/next-env.d.ts`), và E2E của milestone trên `docker-compose.test.yml`.
+
+**Global constraints:** user-facing strings tiếng Việt, log tiếng Anh; enum Prisma mới chép tay sang `enums.ts` cùng
+commit; không `defaultJobOptions` trong `registerQueue`; co-pilot không bao giờ tự đổi trạng thái (ADR 0002); không sửa
+`docker-compose.yml` prod hay `nginx/`; migration mới có timestamp sau `20261109000000`.
+
+**Nhánh (D11):** M1 `feat/gd4-p1-video-interview` từ `feat/gd3-consistency-measurement`; M2 `feat/gd4-p2-copilot` từ M1;
+M3 `feat/gd4-p3-analytics` từ M2. Mỗi PR base `dev`.
+
+## M1 — Phòng phỏng vấn trực tuyến
+
+### Task 1.1: Khung giờ và quyền vào phòng (hàm thuần)
+- [ ] Test đỏ (C3): `joinWindow(startAt, duration)` trả `[start−15', end+30']`; `assertCanJoinNow` đúng biên ±1 giây, onsite / huỷ / xong → đúng thông báo.
+- [ ] Implement `apps/api/src/app/interviews/room/interview-room.rules.ts`. Xanh.
+
+### Task 1.2: Link phòng nội bộ khi tạo/sửa lịch
+- [ ] Test đỏ (C1): `resolveInterviewPlace` cho online không link; `createSchedule` sinh `interviewId` trước và ghi link phòng; có link ngoài giữ nguyên; sửa onsite → online không link → link nội bộ.
+- [ ] Implement (DTO bỏ bắt buộc link khi online, link có thì vẫn phải http(s)). Xanh; cập nhật test web của modal nếu đổi chữ.
+
+### Task 1.3: `LiveKitService` + endpoint `join`
+- [ ] Cài `livekit-server-sdk@2.19.2`; đọc `.d.ts` của `AccessToken`, ghi vào `research.md`.
+- [ ] Test đỏ (C2, C4, C5): ai được vào; token giải mã bằng secret đúng room/identity/quyền/exp; thiếu cấu hình → 503.
+- [ ] Implement `LiveKitService` (đọc `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVEKIT_PUBLIC_URL`, tuỳ chọn trong env validation), `InterviewRoomService.join`, route `POST /interviews/schedules/:id/join`. Xanh.
+
+### Task 1.4: LiveKit trong compose dev/test
+- [ ] Thêm service `livekit` (`livekit/livekit-server:v1.13.10`, `--dev`, cổng 7880/7881/7882-udp, `NODE_IP=127.0.0.1`) vào `docker-compose-dev.yml` và `docker-compose.test.yml` (cổng test riêng); API nhận 3 biến; `.env.example` ghi biến mới.
+- [ ] Boot stack test: API healthy, `GET http://localhost:<port>` của LiveKit trả 200.
+
+### Task 1.5: Web — trang phòng họp và nút vào phòng
+- [ ] Cài `livekit-client@2.23.0`, `@livekit/components-react@2.9.24`, `@livekit/components-styles@1.2.0`.
+- [ ] Test đỏ (C6): trang hiện lỗi đúng chữ cho 403/400/503; có token → render phòng (LiveKit mock ở biên module); nút "Vào phòng phỏng vấn" bật trong khung giờ, tắt ngoài khung.
+- [ ] Implement server action `joinInterviewRoomAction`, route group `(interview-room)/interview-room/[interviewId]`, `InterviewRoomClient` (`PreJoin` → `LiveKitRoom` + `VideoConference`), nút trong `MyInterviewsClient` và `ScheduleDetailDrawer`; `role-policy` thêm `/interview-room` cho staff và ứng viên. Xanh.
+
+### Task 1.6: E2E hai người trong một phòng
+- [ ] Fixture: một lịch online đang trong khung giờ giữa recruiter và ứng viên mẫu.
+- [ ] Journey (C7): hai browser context có thiết bị giả, recruiter và ứng viên vào phòng, mỗi bên thấy tên người kia trong phòng.
+- [ ] Toàn bộ kiểm tra của milestone; PR M1.
+
+## M2 — AI co-pilot
+
+### Task 2.1: Luật gợi ý (hàm thuần)
+- [ ] Test đỏ (C8): mỗi luật một ca khớp và ca biên (điểm = ngưỡng, 6/7 ngày, 13/14 ngày), trạng thái cuối, lịch sắp tới, điểm/ngưỡng null.
+- [ ] Implement `apps/api/src/app/copilot/copilot-rules.ts`. Xanh.
+
+### Task 2.2: Schema `CopilotDecision` + loại log `copilot`
+- [ ] Migration: bảng `copilot_decisions`, enum `CopilotDecisionType` (`accepted`, `dismissed`), thêm `copilot` vào `AiActionType`; chép enum sang `enums.ts`. Probe migration trên Postgres dùng một lần.
+
+### Task 2.3: API co-pilot
+- [ ] Test đỏ (C9, C10, C11): danh sách theo tin bỏ gợi ý đã bỏ qua; `apply` 409/400/403, đi qua `updateStatus`, ghi decision; `run_screening` gọi luồng sàng lọc; `dismiss`; `explain` lỗi → 503.
+- [ ] Implement `CopilotModule` (facts loader, service, controller), `LlmService.explainSuggestion` + prompt. Xanh.
+
+### Task 2.4: Web — gợi ý trên Kanban
+- [ ] Test đỏ (C12): thẻ hiện "Gợi ý: …"; dialog có lý do, nút chính đúng action, "Bỏ qua", "AI giải thích"; áp dụng gọi action.
+- [ ] Implement server actions, `CopilotSuggestionDialog`, nối vào `KanbanClient`/`KanbanCard`. Xanh.
+
+### Task 2.5: E2E áp dụng gợi ý
+- [ ] Journey (C13): đơn ở `screening` có điểm ≥ ngưỡng → thẻ có "Gợi ý: Mời phỏng vấn" → áp dụng → thẻ sang cột Phỏng vấn.
+- [ ] Toàn bộ kiểm tra; PR M2.
+
+## M3 — Thống kê và chi phí AI
+
+### Task 3.1: Funnel, thời gian ở giai đoạn, chi phí (hàm thuần)
+- [ ] Test đỏ (C14, C16): funnel rỗng/một đơn/revert/nhảy cóc; thời gian ở giai đoạn bỏ lượt chưa kết thúc; chi phí đúng 6 chữ số thập phân, thiếu giá → null.
+- [ ] Implement `apps/api/src/app/analytics/recruitment-metrics.ts`, `ai-cost.ts`. Xanh.
+
+### Task 3.2: Schema `AiUsageLog.organizationId` + `AiModelPrice`
+- [ ] Migration (cột, index, điền ngược `cv_scoring` qua `cv_screenings`, bảng giá). Probe DB (C17).
+- [ ] Test đỏ rồi sửa `LlmService.run`/`AiUsageLogsService.create`/`EmbeddingService.embed` nhận `organizationId`; truyền ở chấm CV, embedding của lần chấm, phân tích JD, giải thích co-pilot.
+
+### Task 3.3: API thống kê
+- [ ] Test đỏ (C15): phạm vi recruiter/org_admin/admin; `from > to` → 400; `organizationId` khác của org_admin → 403; đơn mới nhất lấy bằng `take 6`.
+- [ ] Implement `AnalyticsModule` (`GET /analytics/recruitment`), `GET /ai-usage-logs/summary`, `GET/PUT /ai-usage-logs/prices`. Xanh.
+
+### Task 3.4: Web — dashboard và bảng giá
+- [ ] Test đỏ (C18): dashboard hiện KPI, funnel, thời gian ở giai đoạn, đơn mới nhất; khối chi phí chỉ org_admin/admin; admin sửa giá.
+- [ ] Implement server actions, nâng cấp `components/dashboard/*`, `AiModelPricesPanel`. Bỏ `dashboard.action.ts` cũ (A-04). Xanh.
+
+### Task 3.5: E2E dashboard
+- [ ] Journey (C19): seed đơn ở nhiều giai đoạn → dashboard hiện đúng số funnel.
+- [ ] Toàn bộ kiểm tra; PR M3.
+
+## Kết thúc
+
+- [ ] `operation.md`: chạy thật từng vai trò, các đường lỗi, bước deploy prod cho LiveKit (chờ đồng ý).
+- [ ] `docs/deliveries/gd4.md` thêm mục as-built; roadmap thêm GĐ5 vào khối đối chiếu đề cương, cập nhật GĐ4.
+- [ ] Báo cáo cuối + checklist kiểm thử tay.
