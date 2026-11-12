@@ -108,6 +108,38 @@ describe('MyInterviewsClient (C5)', () => {
     expect(within(running).getByRole('link', { name: 'Tham gia phòng họp' })).toBeInTheDocument();
   });
 
+  it('offers the built-in room instead of an external link while it is open (GĐ4 R7)', () => {
+    // Clock: 10:00 Vietnam time. Started 09:30 → the room is open.
+    renderPage([
+      candidateSchedule({
+        interviewId: 'int-live',
+        startAt: '2026-10-05T02:30:00.000Z',
+        onlineMeetingLink: 'http://localhost:3001/interview-room/int-live',
+        application: job('Data Engineer'),
+      }),
+    ]);
+
+    const live = card('Data Engineer');
+    expect(within(live).getByRole('link', { name: 'Vào phòng phỏng vấn' })).toHaveAttribute('href', '/interview-room/int-live');
+    expect(within(live).queryByRole('link', { name: 'Tham gia phòng họp' })).toBeNull();
+  });
+
+  it('keeps the built-in room closed before it opens and says when it will (GĐ4 R7)', () => {
+    // Starts 11:00 Vietnam time → opens 10:45.
+    renderPage([
+      candidateSchedule({
+        interviewId: 'int-later',
+        startAt: '2026-10-05T04:00:00.000Z',
+        onlineMeetingLink: 'http://localhost:3001/interview-room/int-later',
+        application: job('ML Engineer'),
+      }),
+    ]);
+
+    const later = card('ML Engineer');
+    expect(within(later).getByRole('button', { name: 'Vào phòng phỏng vấn' })).toBeDisabled();
+    expect(within(later).getByText('Phòng mở lúc 10:45')).toBeInTheDocument();
+  });
+
   it('shows a non-http(s) meeting link as plain text, never as a link (E10)', () => {
     renderPage([candidateSchedule({ onlineMeetingLink: 'javascript:alert(1)', application: job('Security Engineer') })]);
     const unsafe = card('Security Engineer');
