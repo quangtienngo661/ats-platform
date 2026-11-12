@@ -44,14 +44,14 @@ describe('CreateInterviewScheduleDto — interview type rules (R3)', () => {
     ).resolves.toEqual([]);
   });
 
-  it('requires a meeting link for an online interview', async () => {
-    const errors = await createErrors({ interviewType: InterviewType.online });
-    expect(messagesFor(errors, 'onlineMeetingLink')).toContain('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
+  it('accepts an online interview without a link: it uses the built-in room (GĐ4 R1)', async () => {
+    await expect(createErrors({ interviewType: InterviewType.online })).resolves.toEqual([]);
+    await expect(createErrors({ interviewType: InterviewType.online, onlineMeetingLink: '   ' })).resolves.toEqual([]);
   });
 
   it('refuses a non-http(s) meeting link', async () => {
     const errors = await createErrors({ interviewType: InterviewType.online, onlineMeetingLink: 'javascript:alert(1)' });
-    expect(messagesFor(errors, 'onlineMeetingLink')).toContain('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
+    expect(messagesFor(errors, 'onlineMeetingLink')).toContain('Đường dẫn phòng họp phải là địa chỉ http(s) hợp lệ');
   });
 
   it('accepts a meeting link with surrounding spaces and an upper-case scheme', async () => {
@@ -62,13 +62,17 @@ describe('CreateInterviewScheduleDto — interview type rules (R3)', () => {
 });
 
 describe('UpdateInterviewScheduleDto — interview type rules (R3)', () => {
+  it('accepts an empty link, which falls back to the built-in room', async () => {
+    await expect(validate(plainToInstance(UpdateInterviewScheduleDto, { onlineMeetingLink: '' }))).resolves.toEqual([]);
+  });
+
   it('accepts a change of duration alone', async () => {
     await expect(validate(plainToInstance(UpdateInterviewScheduleDto, { durationMinutes: 90 }))).resolves.toEqual([]);
   });
 
   it('refuses a non-http(s) meeting link', async () => {
     const errors = await validate(plainToInstance(UpdateInterviewScheduleDto, { onlineMeetingLink: 'ftp://files.example.com' }));
-    expect(messagesFor(errors, 'onlineMeetingLink')).toContain('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
+    expect(messagesFor(errors, 'onlineMeetingLink')).toContain('Đường dẫn phòng họp phải là địa chỉ http(s) hợp lệ');
   });
 
   it('refuses a location longer than 255 characters', async () => {

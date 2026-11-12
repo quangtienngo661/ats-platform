@@ -153,12 +153,12 @@ Nhánh `feat/gd3-p1-vector-infra`, cắt từ `dev` **sau khi M0 vào `dev`**.
 
 ### Task 1.1: Image có pgvector, extension, cột vector
 
-**Files:** Modify `docker-compose-dev.yml`, `docker-compose.test.yml`, `docker-compose.yml` (**hỏi người dùng**), `schema.prisma` (`Skill.embedding`, `CVParsedData.embedding` kiểu `Unsupported("vector(1536)")?`), migration `20261102000000_enable_pgvector_and_embedding_columns`; Create `docs/tasks/gd3-rag/research.md`.
+**Files:** Modify `docker-compose-dev.yml`, `docker-compose.test.yml`, `docker-compose.yml` (**hỏi người dùng**), `schema.prisma` (`Skill.embedding`, `CVParsedData.embedding` kiểu `Unsupported("vector(1536)")?`), migration `20261102200000_enable_pgvector_and_embedding_columns` (đổi từ `20261102000000` ngày 12/11/2026 để đứng sau migration M3b `20261102100000` đã vào `dev`; `results/task-1.1-pgvector.txt` giữ tên cũ vì là log của lần chạy đó); Create `docs/tasks/gd3-rag/research.md`.
 
-- [ ] **Step 1:** Đọc tài liệu chính thức pgvector (README GitHub `pgvector/pgvector` và Docker Hub `pgvector/pgvector`): có tag cho PostgreSQL 18 không, có bản alpine không; đọc tài liệu Prisma 7 về `Unsupported` trong migrate. Ghi URL, ngày, kết luận vào `research.md` (documented). Nếu không có tag PG18 → **dừng, hỏi người dùng** (đổi major version DB là quyết định riêng).
-- [ ] **Step 2:** Đổi image ở compose dev/test; migration: `CREATE EXTENSION IF NOT EXISTS vector;` + `ALTER TABLE skills ADD COLUMN embedding vector(1536);` + tương tự `cv_parsed_data`.
-- [ ] **Step 3: Verify** (C1 phần cấu trúc): `docker compose -f docker-compose.test.yml up -d --build --wait`; `docker exec` psql `SELECT extversion FROM pg_extension WHERE extname='vector'` → một dòng; `\d skills` có cột `embedding vector(1536)`. Lưu output `docs/tasks/gd3-rag/results/task-1.1-pgvector.txt`. `npx nx test api --runInBand` vẫn PASS (Prisma client bỏ qua cột Unsupported).
-- [ ] **Step 4: Commit** — `build(db): enable pgvector and add embedding columns`.
+- [x] **Step 1:** Đọc tài liệu chính thức pgvector (README GitHub `pgvector/pgvector` và Docker Hub `pgvector/pgvector`): có tag cho PostgreSQL 18 không, có bản alpine không; đọc tài liệu Prisma 7 về `Unsupported` trong migrate. Ghi URL, ngày, kết luận vào `research.md` (documented). Nếu không có tag PG18 → **dừng, hỏi người dùng** (đổi major version DB là quyết định riêng).
+- [x] **Step 2:** Đổi image ở compose dev/test; migration: `CREATE EXTENSION IF NOT EXISTS vector;` + `ALTER TABLE skills ADD COLUMN embedding vector(1536);` + tương tự `cv_parsed_data`.
+- [x] **Step 3: Verify** (C1 phần cấu trúc): `docker compose -f docker-compose.test.yml up -d --build --wait`; `docker exec` psql `SELECT extversion FROM pg_extension WHERE extname='vector'` → một dòng; `\d skills` có cột `embedding vector(1536)`. Lưu output `docs/tasks/gd3-rag/results/task-1.1-pgvector.txt`. `npx nx test api --runInBand` vẫn PASS (Prisma client bỏ qua cột Unsupported).
+- [x] **Step 4: Commit** — `build(db): enable pgvector and add embedding columns`.
 
 ### Task 1.2: `VectorSearchService`
 
@@ -172,10 +172,10 @@ Nhánh `feat/gd3-p1-vector-infra`, cắt từ `dev` **sau khi M0 vào `dev`**.
   - `VectorSearchService.readEmbeddings(target: EmbeddingTarget, ids: string[]): Promise<Map<string, number[]>>` (bỏ qua dòng null)
   - `VectorSearchService.findMissing(target: EmbeddingTarget, limit: number): Promise<string[]>`
 
-- [ ] **Step 1: Write the failing test**: `toVectorLiteral formats 1536 numbers as [a,b,…]`; `rejects 1535 values`; `rejects NaN and Infinity` (Review Focus 1); `writeEmbedding uses $executeRaw with the literal as a parameter, never string-concatenated`; `readEmbeddings([]) returns an empty map without querying`.
-- [ ] **Step 2:** Run → FAIL. **Step 3:** Implement bằng `prisma.$executeRaw` / `$queryRaw` tagged template, cast `::vector`, đọc về bằng `embedding::text`. **Step 4:** PASS.
-- [ ] **Step 5: Verify** (C1): probe trên Postgres có pgvector dùng một lần — ghi 3 vector biết trước, `readEmbeddings` trả đúng; truy vấn `ORDER BY embedding <=> $1` trả đúng thứ tự. Lưu output vào `results/`.
-- [ ] **Step 6: Commit** — `feat(api): add the vector search service over raw sql`.
+- [x] **Step 1: Write the failing test**: `toVectorLiteral formats 1536 numbers as [a,b,…]`; `rejects 1535 values`; `rejects NaN and Infinity` (Review Focus 1); `writeEmbedding uses $executeRaw with the literal as a parameter, never string-concatenated`; `readEmbeddings([]) returns an empty map without querying`.
+- [x] **Step 2:** Run → FAIL. **Step 3:** Implement bằng `prisma.$executeRaw` / `$queryRaw` tagged template, cast `::vector`, đọc về bằng `embedding::text`. **Step 4:** PASS.
+- [x] **Step 5: Verify** (C1): probe trên Postgres có pgvector dùng một lần — ghi 3 vector biết trước, `readEmbeddings` trả đúng; truy vấn `ORDER BY embedding <=> $1` trả đúng thứ tự. Lưu output vào `results/`.
+- [x] **Step 6: Commit** — `feat(api): add the vector search service over raw sql`.
 
 ### Task 1.3: Queue embedding
 
@@ -185,12 +185,12 @@ Nhánh `feat/gd3-p1-vector-infra`, cắt từ `dev` **sau khi M0 vào `dev`**.
 - Produces: `EmbeddingQueueService.enqueue(target: EmbeddingTarget, id: string): Promise<void>` (job name `embed`, data `{ target, id }`); `buildEmbeddingText(target, row): string | null` (hàm thuần).
 - Consumes: `EmbeddingService.embed` (0.6), `VectorSearchService.writeEmbedding` (1.2).
 
-- [ ] **Step 1: Write the failing test**:
+- [x] **Step 1: Write the failing test**:
   - `buildEmbeddingText`: skill `{ name: 'React', synonyms: ['ReactJS','React.js'] }` → `"React; ReactJS; React.js"`; skill `synonyms: null` → `"React"`; CV `{ summary: 'S', skills: { technical: ['NestJS'] }, experience: [{ position: 'Backend Developer' }] }` → chứa `S`, `NestJS`, `Backend Developer`; CV mọi trường rỗng → `null`; question → `questionText`
   - processor: `embeds and writes the vector for the row`; `text null → skips without calling the API`; `row deleted → completes without error`; `API error → rethrows`
   - C2: `SkillsService.create/update enqueue('skill', id)`; `CvParsingProcessor enqueues('cv_parsed_data', id) after saving parsed data`; enqueue lỗi không làm hỏng việc lưu (log warn)
-- [ ] **Step 2:** Run → FAIL. **Step 3:** Implement. **Step 4:** PASS.
-- [ ] **Step 5: Commit** — `feat(api): embed skills and parsed cvs through a queue`.
+- [x] **Step 2:** Run → FAIL. **Step 3:** Implement. **Step 4:** PASS.
+- [x] **Step 5: Commit** — `feat(api): embed skills and parsed cvs through a queue`.
 
 ### Task 1.4: Backfill
 
@@ -198,10 +198,10 @@ Nhánh `feat/gd3-p1-vector-infra`, cắt từ `dev` **sau khi M0 vào `dev`**.
 
 **Interfaces:** Produces `POST /embeddings/backfill` (`@Roles(UserRole.admin)`) → `{ enqueued: number }`; `EmbeddingBackfillService.enqueueMissing(): Promise<number>` duyệt cả ba target qua `findMissing`.
 
-- [ ] **Step 1: Write the failing test** (C3): `enqueues only rows with a null embedding`; `second run after completion enqueues 0`; `non-admin → 403` (controller spec theo khuôn `cv-screenings.controller.spec.ts`).
-- [ ] **Step 2–4:** FAIL → implement → PASS.
-- [ ] **Step 5:** Toàn bộ test/lint/build như Task 0.8 Step 4. PR M1 vào `dev`.
-- [ ] **Step 6: Commit** — `feat(api): add an admin backfill for missing embeddings`.
+- [x] **Step 1: Write the failing test** (C3): `enqueues only rows with a null embedding`; `second run after completion enqueues 0`; `non-admin → 403` (controller spec theo khuôn `cv-screenings.controller.spec.ts`).
+- [x] **Step 2–4:** FAIL → implement → PASS.
+- [x] **Step 5:** Toàn bộ test/lint/build như Task 0.8 Step 4. PR M1 vào `dev`.
+- [x] **Step 6: Commit** — `feat(api): add an admin backfill for missing embeddings`.
 
 ---
 
@@ -284,15 +284,15 @@ Nhánh `feat/gd3-p2-skill-match`, cắt từ `dev` sau khi M1 **và** M3b vào `
 - `matchSkills(cvSkills: { text: string; vector: number[] }[], jobSkills: { skillId: string; name: string; isRequired: boolean; vector: number[] | null }[], threshold: number): SkillMatchResult`
 - `interface SkillMatchResult { matchedRequired: SkillMatch[]; matchedOptional: SkillMatch[]; missingRequired: { skillId: string; name: string }[] }`; `interface SkillMatch { skillId: string; name: string; cvSkill: string; similarity: number }`
 
-- [ ] **Step 1: Write the failing test** (C4, test.each với vector 3 chiều dựng tay):
+- [x] **Step 1: Write the failing test** (C4, test.each với vector 3 chiều dựng tay):
   - `cosine` của hai vector giống nhau = 1, vuông góc = 0
   - CV rỗng → mọi kỹ năng required vào `missingRequired`; tin rỗng → mọi mảng rỗng
   - similarity đúng bằng threshold → khớp; ngay dưới (threshold − 1e-9) → thiếu
   - hai kỹ năng CV cùng khớp một kỹ năng tin → khớp một lần, `cvSkill` là cái có similarity cao nhất
   - kỹ năng CV trùng chữ → không nhân đôi
   - kỹ năng tin `vector: null` → so khớp theo tên không phân biệt hoa thường; không trùng tên → thiếu
-- [ ] **Step 2–4:** FAIL → implement → PASS.
-- [ ] **Step 5: Commit** — `feat(api): match cv skills to job skills by embedding similarity`.
+- [x] **Step 2–4:** FAIL → implement → PASS.
+- [x] **Step 5: Commit** — `feat(api): match cv skills to job skills by embedding similarity`.
 
 ### Task 2.2: Đưa kỹ năng của tin vào chấm (B-01) — hai commit
 
@@ -300,17 +300,17 @@ Nhánh `feat/gd3-p2-skill-match`, cắt từ `dev` sau khi M1 **và** M3b vào `
 
 **Interfaces:** Consumes `matchSkills` (2.1), `EmbeddingService.embed`, `VectorSearchService.readEmbeddings('skill', ids)`. Produces job data tuỳ chọn `ragMode?: RagMode` trên `process-cv-screening` (dùng ở 3a và M5).
 
-- [ ] **Step 1: Write the failing test (B-01, commit riêng)** `screening prompt contains a <skill_match> block listing the job's required skills` — tin có `jobPostingSkills` [React required, Docker optional] → content gửi `llmService.screeningCV` chứa `<skill_match>` với "React". Run → FAIL.
-- [ ] **Step 2: Commit đỏ** — `test(api): expect job posting skills in the screening prompt`.
-- [ ] **Step 3: Thêm test** (C5, C12, E1, E2, Review Focus 4):
+- [x] **Step 1: Write the failing test (B-01, commit riêng)** `screening prompt contains a <skill_match> block listing the job's required skills` — tin có `jobPostingSkills` [React required, Docker optional] → content gửi `llmService.screeningCV` chứa `<skill_match>` với "React". Run → FAIL.
+- [x] **Step 2: Commit đỏ** — `test(api): expect job posting skills in the screening prompt`.
+- [x] **Step 3: Thêm test** (C5, C12, E1, E2, Review Focus 4):
   - `matchedSkills = { hardSkills: matchedRequired names, niceToHaveSkills: matchedOptional names }`, `missingSkills = missingRequired names` — không lấy từ LLM
   - `ragMode = 'skills'` được lưu
   - `CandidateSkill` upsert cho mọi kỹ năng khớp, `source: 'cv_parsed'`, không tạo `Skill`
   - E1: tin không có kỹ năng → `<skill_match>` rỗng, LLM vẫn được gọi
   - Review Focus 4: `skills.technical` null/rỗng → không gọi `embed`, mọi required vào missing
   - C12: `embed` ném lỗi → `ragMode = 'none'`, prompt không có `<skill_match>`, `matchedSkills/missingSkills` lấy từ LLM như hôm nay, log warn, job vẫn completed
-- [ ] **Step 4:** Implement: embed `skills.technical` theo một lô; đọc vector kỹ năng tin; `matchSkills`; thêm khối `<skill_match>` vào `getRawJson`; thêm vào `CV_SCREENING_PROMPT` mục mô tả `<skill_match>` ("system-computed; do not re-match skills yourself; base skills_score on it"), giữ quy tắc dữ liệu không tin cậy. Run → PASS.
-- [ ] **Step 5: Commit fix** — `fix(api): feed job posting skills into cv screening through the skill matcher`.
+- [x] **Step 4:** Implement: embed `skills.technical` theo một lô; đọc vector kỹ năng tin; `matchSkills`; thêm khối `<skill_match>` vào `getRawJson`; thêm vào `CV_SCREENING_PROMPT` mục mô tả `<skill_match>` ("system-computed; do not re-match skills yourself; base skills_score on it"), giữ quy tắc dữ liệu không tin cậy. Run → PASS.
+- [x] **Step 5: Commit fix** — `fix(api): feed job posting skills into cv screening through the skill matcher`.
 
 ### Task 2.3: Probe ngưỡng τ (cần người dùng cho phép)
 
@@ -331,14 +331,14 @@ Nhánh `feat/gd3-p3a-anchors`, cắt từ `dev` sau M2.
 **Interfaces:**
 - Produces: `selectRagMode(input: { forced?: RagMode; embeddingsAvailable: boolean; reviewedCount: number; k: number }): RagMode` (thuần); `VectorSearchService.nearestAnchorScreenings(jobId: string, excludeApplicationId: string, cvVector: number[], k: number): Promise<string[]>` (chỉ `reviewed_at IS NOT NULL`, cùng `job_id`, `cv_parsed_data.embedding IS NOT NULL`); `AnchorRetriever.retrieve(jobId, applicationId, cvParsedDataId, k): Promise<Anchor[]>`; `interface Anchor { screeningId: string; cvSummary: string | null; cvSkills: string[]; skillsScore: number; experienceScore: number; educationScore: number }` (điểm sau duyệt).
 
-- [ ] **Step 1: Write the failing test** (C6, E3, Review Focus 2):
+- [x] **Step 1: Write the failing test** (C6, E3, Review Focus 2):
   - `selectRagMode`: `forced` luôn thắng; embeddings không dùng được → `none`; reviewedCount 2, k 3 → `skills`; reviewedCount 3 → `skills_anchors`
   - `nearestAnchorScreenings` SQL có `job_id = $jobId`, `application_id <> $exclude`, `reviewed_at IS NOT NULL` (assert trên tham số `$queryRaw`)
   - processor: `skills_anchors` → prompt có `<anchors>` với đúng điểm sau duyệt của 3 mốc; `anchorScreeningIds` lưu 3 id; chỉ còn 2 mốc có vector → chạy `skills`; CV đang chấm chưa có vector → `skills`
   - job data `ragMode: 'none'` → không `<skill_match>`, không `<anchors>`
-- [ ] **Step 2–4:** FAIL → implement (thêm mục `<anchors>` vào prompt: "reviewed examples for calibration; do not copy scores") → PASS.
-- [ ] **Step 5: Verify:** probe DB — 4 lần chấm cùng tin (1 là hồ sơ hiện tại đã duyệt) + 1 lần chấm tin khác đã duyệt → `nearestAnchorScreenings` không trả hồ sơ hiện tại và không trả tin khác. Lưu output.
-- [ ] **Step 6: Commit** — `feat(api): calibrate cv screening with reviewed anchors from the same job`. PR M3a vào `dev`.
+- [x] **Step 2–4:** FAIL → implement (thêm mục `<anchors>` vào prompt: "reviewed examples for calibration; do not copy scores") → PASS.
+- [x] **Step 5: Verify:** probe DB — 4 lần chấm cùng tin (1 là hồ sơ hiện tại đã duyệt) + 1 lần chấm tin khác đã duyệt → `nearestAnchorScreenings` không trả hồ sơ hiện tại và không trả tin khác. Lưu output.
+- [x] **Step 6: Commit** — `feat(api): calibrate cv screening with reviewed anchors from the same job`. PR M3a vào `dev`.
 
 ---
 
@@ -357,9 +357,9 @@ Nhánh `feat/gd3-p4-question-bank`, cắt từ `dev` sau M1 (song song với M2/
 - `DELETE /interviews/questions/:questionId` → đặt `isActive = false`
 - Lưu (tạo/sửa text) → `EmbeddingQueueService.enqueue('interview_question', id)`
 
-- [ ] **Step 1: Write the failing test** (C10): `non-admin → 403`; `create enqueues embedding`; `update without text change does not enqueue`; `delete sets isActive false and keeps the row`; `topic not found → 404 "Không tìm thấy chủ đề phỏng vấn"`; `expectedPoints empty → 400`.
-- [ ] **Step 2–4:** FAIL → implement → PASS. Probe DB: migration áp được, dòng `interview_qnas` cũ có `source = 'generated'`.
-- [ ] **Step 5: Commit** — `feat(api): add an admin-managed interview question bank`.
+- [x] **Step 1: Write the failing test** (C10): `non-admin → 403`; `create enqueues embedding`; `update without text change does not enqueue`; `delete sets isActive false and keeps the row`; `topic not found → 404 "Không tìm thấy chủ đề phỏng vấn"`; `expectedPoints empty → 400`.
+- [x] **Step 2–4:** FAIL → implement → PASS. Probe DB: migration áp được, dòng `interview_qnas` cũ có `source = 'generated'`.
+- [x] **Step 5: Commit** — `feat(api): add an admin-managed interview question bank`.
 
 ### Task 4.2: Sinh câu hỏi từ ngân hàng
 
@@ -368,21 +368,21 @@ Nhánh `feat/gd3-p4-question-bank`, cắt từ `dev` sau M1 (song song với M2/
 **Interfaces:**
 - Produces: `GenerateQuestionsJobData.topicId: string`; `VectorSearchService.nearestQuestions(topicId: string, difficulty: DifficultyLevel, vector: number[], limit: number): Promise<BankQuestion[]>` (`is_active`, `embedding IS NOT NULL`); `interface BankQuestion { questionId: string; questionText: string; expectedPoints: string[]; difficulty: DifficultyLevel }`; `reconcileSelection(items: LlmQuestionItem[], retrieved: BankQuestion[]): QnaDraft[]`; `interface LlmQuestionItem { bankQuestionId?: string | null; questionText: string; expectedPoints: string[]; difficulty: DifficultyLevel }`; `interface QnaDraft extends LlmQuestionItem { source: QuestionSource }`.
 
-- [ ] **Step 1: Write the failing test** (C11, E6, C12, Review Focus 3):
+- [x] **Step 1: Write the failing test** (C11, E6, C12, Review Focus 3):
   - `reconcileSelection`: id thuộc tập → `bank`; id ngoài tập → `generated`, id thành null; cùng id hai lần → lần đầu `bank`, lần sau `generated` không id; id null → `generated`
   - processor: truy hồi gọi `nearestQuestions(topicId, difficultyLevel, vec, 25)`; prompt chứa danh sách câu kèm id và số câu cần sinh bù = `max(0, 10 − retrieved.length)`; 12 câu truy hồi → 10 câu `bank` lưu với `bankQuestionId`; 6 câu → 6 `bank` + 4 `generated`; 0 câu (E6) → 10 `generated`
   - C12: `embed` ném lỗi → bỏ truy hồi, prompt như hôm nay, 10 câu `generated`, log warn
   - ít hơn 10 câu sau `reconcileSelection` → ném lỗi như hôm nay (để BullMQ thử lại)
-- [ ] **Step 2–4:** FAIL → implement (prompt: chọn ưu tiên từ `<question_bank>`, được viết lại nhẹ giữ ý, trả `bankQuestionId`; chỉ sinh câu mới khi bank không đủ) → PASS.
-- [ ] **Step 5: Commit** — `feat(api): draw mock interview questions from the question bank`.
+- [x] **Step 2–4:** FAIL → implement (prompt: chọn ưu tiên từ `<question_bank>`, được viết lại nhẹ giữ ý, trả `bankQuestionId`; chỉ sinh câu mới khi bank không đủ) → PASS.
+- [x] **Step 5: Commit** — `feat(api): draw mock interview questions from the question bank`.
 
 ### Task 4.3: Web — quản lý câu hỏi của topic
 
 **Files:** Create `apps/web/src/components/interview-topic-management/ui/TopicQuestionsPanel.tsx` + `.test.tsx`, `apps/web/src/servers/interviews/interview-questions.action.ts` + test; Modify `InterviewTopicClient.tsx`.
 
-- [ ] **Step 1: Write the failing test** (C13): `admin opens "Câu hỏi" on a topic and sees its questions grouped by difficulty`; `adding a question with empty expected points shows "Cần ít nhất một ý mong đợi"`; `hiding a question removes it from the active list and shows it under "Đã ẩn"`.
-- [ ] **Step 2–4:** FAIL → implement (`AccessibleDialog`, toast) → PASS; typecheck/lint web sạch.
-- [ ] **Step 5: Commit** — `feat(web): manage interview questions per topic`.
+- [x] **Step 1: Write the failing test** (C13): `admin opens "Câu hỏi" on a topic and sees its questions grouped by difficulty`; `adding a question with empty expected points shows "Cần ít nhất một ý mong đợi"`; `hiding a question removes it from the active list and shows it under "Đã ẩn"`.
+- [x] **Step 2–4:** FAIL → implement (`AccessibleDialog`, toast) → PASS; typecheck/lint web sạch.
+- [x] **Step 5: Commit** — `feat(web): manage interview questions per topic`.
 
 ### Task 4.4: Nội dung seed ngân hàng câu hỏi
 
@@ -405,11 +405,11 @@ Nhánh `feat/gd3-consistency-measurement`, cắt từ `dev` sau M2, M3a, M4.
 
 **Interfaces:** `summarize(runs: { pairId: string; mode: RagMode; skills: number; experience: number; education: number; overall: number }[]): { mode: RagMode; field: string; meanStdev: number; maxStdev: number }[]` (độ lệch chuẩn tổng thể theo từng cặp, rồi trung bình và lớn nhất theo chế độ).
 
-- [ ] **Step 1: Write the failing test** `stats.test.mjs`: hai cặp, chế độ `none`, overall [70,70,70] và [60,70,80] → stdev cặp 0 và 8.165 (±0.001) → `meanStdev 4.082`, `maxStdev 8.165`; một lần chạy → stdev 0.
-- [ ] **Step 2:** `node --test docs/tasks/gd3-rag/results/consistency/stats.test.mjs` → FAIL; implement; → PASS.
+- [x] **Step 1: Write the failing test** `stats.test.mjs`: hai cặp, chế độ `none`, overall [70,70,70] và [60,70,80] → stdev cặp 0 và 8.165 (±0.001) → `meanStdev 4.082`, `maxStdev 8.165`; một lần chạy → stdev 0.
+- [x] **Step 2:** `node --test docs/tasks/gd3-rag/results/consistency/stats.test.mjs` → FAIL; implement; → PASS.
 - [ ] **Step 3:** Seed: 2 tin có `jobPostingSkills`, 10 cặp CV–tin, mỗi tin ≥ 3 lần chấm đã duyệt làm mốc (CV khác 10 cặp). CV lấy từ dữ liệu demo đã có; nội dung cho người dùng duyệt.
-- [ ] **Step 4:** `run-consistency.mjs`: với mỗi cặp × chế độ × 5 lần, thêm job `process-cv-screening` (data có `ragMode`, `notify: false`) vào queue `cv-screening` qua BullMQ, chờ `status` về `completed`, đọc điểm; tuần tự; ghi `runs.json` rồi `summary.md` (bảng `summarize`, kèm τ, k, model, ngày). `--dry-run` chỉ in kế hoạch 150 lần chạy.
-- [ ] **Step 5: Commit** — `test(api): add the cv screening consistency measurement`.
+- [x] **Step 4:** `run-consistency.mjs`: với mỗi cặp × chế độ × 5 lần, thêm job `process-cv-screening` (data có `ragMode`, `notify: false`) vào queue `cv-screening` qua BullMQ, chờ `status` về `completed`, đọc điểm; tuần tự; ghi `runs.json` rồi `summary.md` (bảng `summarize`, kèm τ, k, model, ngày). `--dry-run` chỉ in kế hoạch 150 lần chạy.
+- [x] **Step 5: Commit** — `test(api): add the cv screening consistency measurement`.
 
 ### Task 5.2: Chạy đo, chốt τ/k, nghiệm thu (cần người dùng cho phép)
 
@@ -452,3 +452,11 @@ Những chỗ code thật khác plan, và quyết định đã đưa ra. Chi ti�
 - **Task 3b.3:** plan giả định API ứng viên đã trả điểm. Thực tế `GET /screening/me/:id` không trả điểm, nhưng `GET /applications/my` và `GET /applications/:id` có (cùng `applicationIncludeOptions.screening`). Chủ dự án chọn: payload ứng viên hiện điểm hiệu lực trong các trường điểm sẵn có và không có trường duyệt nào (`toCandidateScreening`). **Còn mở:** ứng viên vẫn thấy `aiRecommendation` và `aiReasoning` — có từ trước, ngoài phạm vi.
 - **Task 3b.3 (CSV):** hai cột mới thêm vào CUỐI để vị trí cột cũ không đổi; tiêu đề `Điểm tổng (gợi ý AI)` giữ nguyên dù giờ có thể chứa điểm của người duyệt — cần chủ dự án quyết có đổi tên hay không.
 - **Task 3b.4:** nhãn các dòng điểm ở bảng so sánh bỏ hậu tố `AI (gợi ý)` vì giờ có thể là điểm của người duyệt (thêm dòng `Duyệt điểm`); E2E `gd2-evaluation` đã cập nhật nhãn.
+- **Task 1.1:** không có tag `pgvector/pgvector` cho PostgreSQL 18, nên `docker/postgres/Dockerfile` tự build pgvector 0.8.1 trên image Alpine (musl) để không đổi collation của volume sẵn có (không dùng Debian). Tag nội bộ `ats-postgres-pgvector:18.4-0.8.1` dùng ở compose dev/test. **Compose prod chưa đổi image** (quyết định riêng) nên DB prod chưa có extension `vector`.
+- **Probe (Task 1.2, 3a.1, 4.2):** viết thành file `*.probe.ts` chạy bằng jest trên DB thật, loại khỏi tsconfig app; output nằm ở `results/`.
+- **Task 2.3:** chưa chạy (`probe-threshold.mjs` đã viết, cần embed thật). `SKILL_MATCH_THRESHOLD` giữ mặc định 0.8, chưa chốt bằng số liệu.
+- **Task 4.2:** `reconcileSelection` (`interviews/session/question-selection.ts`) quyết định câu nào *thật sự* từ bank: chỉ id nằm trong tập vừa truy hồi và dùng một lần; điểm mong đợi và độ khó lấy từ bank, không từ model.
+- **Task 4.4:** chưa làm — cần chọn topic, duyệt nội dung seed và key thật để nạp embedding. Ngân hàng rỗng nên hành vi phiên phỏng vấn không đổi.
+- **Task 5.1:** làm bước 1, 2, 4, 5 (script đo + 22 test + `--dry-run`); **bước 3 (dataset) chưa làm**, chờ chủ dự án duyệt, nên `run-consistency.mjs` hiện chỉ chạy được `--dry-run`. Commit dùng `chore(docs)` thay `test(api)` vì các file nằm dưới `docs/tasks/`. Script không đọc `.env`: `DATABASE_URL`/`REDIS_URL` truyền qua môi trường, thư viện (`bullmq`, `ioredis`, `pg`) resolve từ thư mục chạy lệnh. Lượt chạy xếp xen kẽ theo run (run 1 của mọi cặp × chế độ trước run 2) để trôi lệch theo thời gian ảnh hưởng đều ba chế độ, và script dừng nếu processor hạ chế độ (ví dụ `skills_anchors` → `skills`) thay vì ghi số sai vào ô đó.
+- **Task 5.2:** chưa làm (gọi AI thật, tốn tiền). Roadmap và bản as-built đã ghi trạng thái thật; dòng `text-embedding-004` đã sửa.
+- **Chuỗi PR:** #74 (M0) → #75 (M1) → #73 (M3b) → #76 (M2) → #77 (M3a) → #78 (M4) → PR M5, xếp chồng, chưa merge. Các dấu tick của M1–M5 ghi một lần ở nhánh M5 (cuối chuỗi) để không phải đẩy lại năm nhánh.

@@ -15,6 +15,17 @@ import { PrismaModule } from '../../common/prisma/prisma.module';
 import { LlmModule } from '../../common/external-apis/llm/llm.module';
 import { SocketIoModule } from '../../common/socket-io/socket-io.module';
 import { CandidateNotificationsModule } from '../candidate-notifications/candidate-notifications.module';
+import { EmbeddingModule } from '../../common/external-apis/embedding/embedding.module';
+import { VectorModule } from '../../common/vector/vector.module';
+import { InterviewQuestionsController } from './questions/interview-questions.controller';
+import { InterviewQuestionsService } from './questions/interview-questions.service';
+import { LiveKitModule } from '../../common/external-apis/livekit/livekit.module';
+import { InterviewRoomController } from './room/interview-room.controller';
+import { InterviewRoomService } from './room/interview-room.service';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { InterviewRemindersService } from './reminders/interview-reminders.service';
+import { InterviewRemindersProcessor } from './reminders/interview-reminders.processor';
+import { INTERVIEW_REMINDERS_QUEUE } from './reminders/interview-reminders.rules';
 
 /** How often to look for interview sessions nobody is working on any more. */
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -25,17 +36,30 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
     LlmModule,
     SocketIoModule,
     CandidateNotificationsModule,
+    EmbeddingModule,
+    VectorModule,
+    LiveKitModule,
+    NotificationsModule,
     // No `defaultJobOptions` here on purpose — it would replace, not extend, the
     // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
     BullModule.registerQueue(
       { name: 'interview-evaluation' },
       { name: 'interview-generation' },
       { name: 'interview-maintenance' },
+      { name: INTERVIEW_REMINDERS_QUEUE },
     ),
   ],
-  controllers: [InterviewsController],
+  controllers: [
+    InterviewsController,
+    InterviewQuestionsController,
+    InterviewRoomController,
+  ],
   providers: [
     InterviewsService,
+    InterviewRoomService,
+    InterviewRemindersService,
+    InterviewRemindersProcessor,
+    InterviewQuestionsService,
     InterviewSessionService,
     InterviewGateway,
     InterviewProcessor,

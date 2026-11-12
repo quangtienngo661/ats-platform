@@ -16,6 +16,7 @@ export class AiUsageLogsService {
         candidatesTokenCount,
         duration,
         status,
+        organizationId = null,
     }: {
         refId: string | null;
         actionType: AiActionType;
@@ -24,6 +25,8 @@ export class AiUsageLogsService {
         candidatesTokenCount: number;
         duration: number;
         status: AiLogStatus;
+        /** The organization the call was made for; null when it belongs to none (GĐ4 R20). */
+        organizationId?: string | null;
     }) {
         try {
             return await this.prisma.aiUsageLog.create({
@@ -35,6 +38,7 @@ export class AiUsageLogsService {
                     completionTokens: candidatesTokenCount,
                     durationMs: duration,
                     status,
+                    organizationId,
                 },
             });
         } catch (error) {

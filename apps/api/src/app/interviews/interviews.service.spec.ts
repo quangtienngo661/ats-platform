@@ -21,6 +21,9 @@ import {
 const platformAdmin = callerOf(UserRole.admin, { userId: 'admin-1' });
 const orgAdmin = callerOf(UserRole.org_admin); // organization 'org-1'
 
+// The built-in interview room link is built from the web origin (trailing slash dropped).
+process.env.CLIENT_URL = 'http://localhost:3001/';
+
 describe('InterviewsService', () => {
   let service: InterviewsService;
   let prisma: ReturnType<typeof createPrismaMock>;
@@ -31,6 +34,7 @@ describe('InterviewsService', () => {
     scheduleChanged: jest.Mock;
     scheduleRemoved: jest.Mock;
   };
+  let reminders: { schedule: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -43,8 +47,9 @@ describe('InterviewsService', () => {
       scheduleChanged: jest.fn().mockResolvedValue(undefined),
       scheduleRemoved: jest.fn().mockResolvedValue(undefined),
     };
+    reminders = { schedule: jest.fn().mockResolvedValue(undefined) };
     service = new InterviewsService(
-      ...([prisma, candidateNotifications] as unknown as ConstructorParameters<
+      ...([prisma, candidateNotifications, reminders] as unknown as ConstructorParameters<
         typeof InterviewsService
       >),
     );
@@ -876,13 +881,30 @@ describe('InterviewsService', () => {
       expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
     });
 
-    it('refuses switching to online without a meeting link', async () => {
+    it('switching to online without a meeting link uses the built-in room of that interview', async () => {
       prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
 
-      await expect(
-        service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.online } as any),
-      ).rejects.toThrow('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
-      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+      await service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.online } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({
+          interviewType: 'online',
+          onlineMeetingLink: 'http://localhost:3001/interview-room/int-1',
+          location: null,
+        }),
+      );
+    });
+
+    it('clearing the external link of an online interview falls back to the built-in room', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        existingSchedule({ interviewType: InterviewType.online, onlineMeetingLink: 'https://meet.example.com/old' }),
+      );
+
+      await service.updateSchedule('int-1', platformAdmin, { onlineMeetingLink: '' } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({ onlineMeetingLink: 'http://localhost:3001/interview-room/int-1' }),
+      );
     });
 
     it('lets a legacy onsite schedule without location change only its duration', async () => {
@@ -893,6 +915,46 @@ describe('InterviewsService', () => {
       expect(prisma.interviewSchedule.update).toHaveBeenCalled();
       expect(updateData()).not.toHaveProperty('location');
       expect(updateData()).not.toHaveProperty('onlineMeetingLink');
+    });
+
+    describe('reminders (R29)', () => {
+      it('plans the reminders of a schedule as updated', async () => {
+        const updated = { interviewId: 'int-1', startAt: new Date('2026-10-05T03:00:00Z') };
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+        prisma.interviewSchedule.update.mockResolvedValue(updated);
+
+        await service.updateSchedule('int-1', platformAdmin, { startAt: '2026-10-05T03:00:00.000Z' } as any);
+
+        expect(reminders.schedule).toHaveBeenCalledWith(updated);
+      });
+    });
+
+    describe('waiting room reset (R28)', () => {
+      const cleared = { candidateWaitingAt: null, candidateAdmittedAt: null };
+
+      it.each([
+        ['a new start time', { startAt: '2026-10-05T03:00:00.000Z' }],
+        ['a new type', { interviewType: InterviewType.online }],
+      ])('makes the candidate wait again after %s', async (_label, dto) => {
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+        await service.updateSchedule('int-1', platformAdmin, dto as any);
+
+        expect(updateData()).toEqual(expect.objectContaining(cleared));
+      });
+
+      it.each([
+        ['the same start time', { startAt: '2026-10-05T02:00:00.000Z' }],
+        ['only the duration', { durationMinutes: 90 }],
+        ['the same type', { interviewType: InterviewType.onsite, location: 'Tầng 6' }],
+      ])('keeps the waiting room after %s', async (_label, dto) => {
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+        await service.updateSchedule('int-1', platformAdmin, dto as any);
+
+        expect(updateData()).not.toHaveProperty('candidateWaitingAt');
+        expect(updateData()).not.toHaveProperty('candidateAdmittedAt');
+      });
     });
 
     describe('when creating', () => {
@@ -920,6 +982,15 @@ describe('InterviewsService', () => {
         durationMinutes: 60,
       };
 
+      it('plans the reminders of the new schedule', async () => {
+        const created = { interviewId: 'int-1', startAt: new Date(base.startAt) };
+        prisma.interviewSchedule.create.mockResolvedValue(created);
+
+        await service.createSchedule(platformAdmin, { ...base, interviewType: InterviewType.online } as any);
+
+        expect(reminders.schedule).toHaveBeenCalledWith(created);
+      });
+
       it('stores the trimmed location of a new onsite schedule', async () => {
         await service.createSchedule(platformAdmin, {
           ...base,
@@ -930,6 +1001,18 @@ describe('InterviewsService', () => {
         expect(createData()).toEqual(
           expect.objectContaining({ location: 'Tầng 5, 123 Lê Lợi, Q.1', onlineMeetingLink: null }),
         );
+      });
+
+      it('gives a new online schedule without a link the built-in room of its own id', async () => {
+        await service.createSchedule(platformAdmin, {
+          ...base,
+          interviewType: InterviewType.online,
+        } as any);
+
+        const data = createData();
+        expect(data.interviewId).toMatch(/^[0-9a-f-]{36}$/);
+        expect(data.onlineMeetingLink).toBe(`http://localhost:3001/interview-room/${data.interviewId}`);
+        expect(data.location).toBeNull();
       });
 
       it('stores the trimmed meeting link of a new online schedule', async () => {

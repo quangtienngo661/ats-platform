@@ -9,7 +9,8 @@ import { Ban, Building2, Briefcase, CalendarDays, CheckCircle2, Clock, RefreshCw
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import { cancelInterviewScheduleAction, completeInterviewScheduleAction } from '@/servers/interviews/interviews.action';
 import { toast } from '@/lib/toast';
-import { isHttpUrl } from '@/lib/meeting-link';
+import { isBuiltInRoomLink, isHttpUrl } from '@/lib/meeting-link';
+import { JoinRoomButton } from '@/components/interview-room/JoinRoomButton';
 import { ScheduleStatus } from '@ats-platform/types';
 
 interface ScheduleDetailDrawerProps {
@@ -104,7 +105,21 @@ export function ScheduleDetailDrawer({ schedule, currentUserId, onClose, onChang
                             {isOnline ? 'Phỏng vấn trực tuyến' : 'Phỏng vấn trực tiếp'}
                         </p>
                         <div className="mt-1 break-all text-[13px] text-[#1D1D1F]">
-                            {isOnline
+                            {isOnline && isBuiltInRoomLink(schedule.onlineMeetingLink, schedule.interviewId) ? (
+                                <div className="flex flex-col items-start gap-2">
+                                    <span>Phòng phỏng vấn trực tuyến của hệ thống</span>
+                                    {/* Only the people in the interview may enter (the API checks it too). */}
+                                    {(currentUserId === schedule.interviewerId || currentUserId === schedule.scheduledBy) && (
+                                        <JoinRoomButton
+                                            interviewId={schedule.interviewId}
+                                            startAt={schedule.startAt}
+                                            durationMinutes={schedule.durationMinutes}
+                                            status={schedule.status}
+                                            now={new Date()}
+                                        />
+                                    )}
+                                </div>
+                            ) : isOnline
                                 ? schedule.onlineMeetingLink && (isHttpUrl(schedule.onlineMeetingLink) ? (
                                     <a
                                         href={schedule.onlineMeetingLink}

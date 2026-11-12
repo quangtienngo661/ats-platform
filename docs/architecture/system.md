@@ -62,7 +62,7 @@ Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `d
 - **Bất đồng bộ (BullMQ)**: service dispatch job → processor xử lý nền → ghi kết quả DB → emit Socket.IO. Dùng cho các pipeline gọi Gemini; preview JD là ngoại lệ đồng bộ (CV parse, CV screening, sinh câu hỏi phỏng vấn, chấm điểm) để không block HTTP thread.
 - **Real-time (Socket.IO)**: JWT xác thực lúc handshake, room scoped theo `job_{id}` (kanban) hoặc `interview_{sessionId}` (mock interview).
 
-## 4. BullMQ — 6 queue thực tế
+## 4. BullMQ — 7 queue thực tế
 
 | Queue                     | Xử lý                                               | Concurrency/Rate limit |
 | ------------------------- | --------------------------------------------------- | ---------------------- |
@@ -72,6 +72,7 @@ Mỗi module theo khuôn `*.module.ts` / `*.controller.ts` / `*.service.ts` / `d
 | `interview-evaluation`    | Chấm từng câu hỏi/trả lời phỏng vấn                 | concurrency 3          |
 | `interview-generation`    | Sinh 10 câu hỏi phỏng vấn (batch, 1 lần gọi Gemini) | concurrency 3          |
 | `interview-maintenance`   | Quét định kỳ, đánh dấu `abandon` cho phiên `in_progress` bị treo (thêm 2026-07-14, Phase 0.5) | repeat 5 phút/lần (`upsertJobScheduler`, `interviews.module.ts`) |
+| `interview-reminders`     | Thông báo trong ứng dụng: nhắc lịch trước 24 giờ, phòng online đã mở (thêm 2026-11-13, GĐ4) | job trễ, đặt khi tạo/sửa lịch |
 
 Global default retry: `attempts: 3` + exponential backoff (`app.module.ts:39`) — mọi `.add()` không override sẽ theo default này. **Cập nhật 2026-07-14 (Phase 0.5):** trước đó điều này chỉ đúng trên giấy — 3 module (`cv-processing`, `cv-screening`, `send-verification-email`) gọi `registerQueue()` kèm `defaultJobOptions` riêng, bị `@nestjs/bullmq` gộp NÔNG nên ĐÈ CHẾT default toàn cục; `cv-processing`/`cv-screening` (2 pipeline AI, dễ lỗi nhất) thực chạy chỉ 1 lần, không retry. Đã gỡ hết `defaultJobOptions` khỏi mọi `registerQueue()`, verify bằng log thật (3 lần thử, backoff ~10s/~20s trên `cv-processing`). Chi tiết: `.claude/rules/apis/anti-patterns.md` mục "The registerQueue trap".
 

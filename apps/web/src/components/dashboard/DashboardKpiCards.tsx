@@ -16,16 +16,15 @@ interface KpiItem {
 }
 
 interface DashboardKpiCardsProps {
-    totalApplications: number;
-    openJobs: number;
-    hiredThisMonth: number;
+    /** From GET /analytics/recruitment (GĐ4 R18): the period's numbers, not a slice of the board. */
+    totals: { applications: number; openJobs: number; hired: number; averageDaysToHire: number | null };
 }
 
-export default function DashboardKpiCards({ totalApplications, openJobs, hiredThisMonth }: DashboardKpiCardsProps) {
+export default function DashboardKpiCards({ totals }: DashboardKpiCardsProps) {
     const kpis: KpiItem[] = [
         {
-            label: 'Tổng ứng viên',
-            value: totalApplications.toLocaleString('vi-VN'),
+            label: 'Đơn ứng tuyển trong kỳ',
+            value: totals.applications.toLocaleString('vi-VN'),
             change: '',
             up: null,
             iconKey: 'Users',
@@ -33,8 +32,8 @@ export default function DashboardKpiCards({ totalApplications, openJobs, hiredTh
             bg: '#EBF3FD',
         },
         {
-            label: 'Vị trí mở',
-            value: openJobs.toString(),
+            label: 'Tin đang tuyển',
+            value: totals.openJobs.toString(),
             change: '',
             up: null,
             iconKey: 'Briefcase',
@@ -42,18 +41,27 @@ export default function DashboardKpiCards({ totalApplications, openJobs, hiredTh
             bg: '#F5F3FF',
         },
         {
-            label: 'Đã tuyển tháng này',
-            value: hiredThisMonth.toString(),
+            label: 'Đã tuyển trong kỳ',
+            value: totals.hired.toString(),
             change: '',
             up: null,
             iconKey: 'UserCheck',
             color: '#34C759',
             bg: '#F0FDF4',
         },
+        {
+            label: 'Số ngày tuyển trung bình',
+            value: totals.averageDaysToHire === null ? '—' : totals.averageDaysToHire.toLocaleString('vi-VN'),
+            change: '',
+            up: null,
+            iconKey: 'CalendarCheck',
+            color: '#F59E0B',
+            bg: '#FFFBEB',
+        },
     ];
 
     return (
-        <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
             {kpis.map(({ label, value, up, change, iconKey, color, bg }) => {
                 const Icon = ICONS[iconKey];
                 return (

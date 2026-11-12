@@ -49,7 +49,7 @@ export class JobPostingsService {
     private readonly llmService: LlmService,
   ) {}
 
-  async parseJdPreview(description: string) {
+  async parseJdPreview(description: string, organizationId: string | null = null) {
     const normalizedDescription = description?.trim();
 
     if (!normalizedDescription) {
@@ -61,6 +61,7 @@ export class JobPostingsService {
     const result = await this.llmService.parseJD(
       `jd-preview-${randomUUID()}`,
       normalizedDescription,
+      organizationId,
     );
 
     return result;

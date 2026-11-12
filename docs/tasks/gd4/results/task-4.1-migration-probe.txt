@@ -1,0 +1,22 @@
+# Task 4.1 — migration 20261113200000_add_interview_waiting_room, probe trên Postgres của stack test (ats-gd4-test, 13/11/2026)
+
+## prisma migrate deploy
+Datasource "db": PostgreSQL database "ats_test", schema "public" at "127.0.0.1:55432"
+41 migrations found in prisma/migrations
+No pending migrations to apply.
+
+## migrate diff: DB -> schema M4 (kỳ vọng rỗng)
+
+-- This is an empty migration.
+
+
+## Đối chứng: DB -> schema M3 (chưa có 2 cột; kỳ vọng DROP COLUMN)
+
+-- AlterTable
+ALTER TABLE "interview_schedules" DROP COLUMN "candidate_admitted_at",
+DROP COLUMN "candidate_waiting_at";
+
+
+## Cột trong DB
+candidate_admitted_at|timestamp without time zone|YES
+candidate_waiting_at|timestamp without time zone|YES

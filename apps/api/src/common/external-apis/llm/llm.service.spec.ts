@@ -97,7 +97,20 @@ describe('LlmService', () => {
       candidatesTokenCount: 8,
       duration: expect.any(Number),
       status: AiLogStatus.success,
+      organizationId: null,
     });
+  });
+
+  it('records the organization the call was made for (GĐ4 R20), on success and on failure', async () => {
+    await service.screeningCV('scr-1', 'text', 'org-7');
+    expect(usageLogs.create).toHaveBeenLastCalledWith(expect.objectContaining({ organizationId: 'org-7', status: AiLogStatus.success }));
+
+    client.generateJson.mockRejectedValueOnce(new Error('provider down'));
+    await expect(service.parseJD(null, 'jd', 'org-8')).rejects.toThrow('provider down');
+    expect(usageLogs.create).toHaveBeenLastCalledWith(expect.objectContaining({ organizationId: 'org-8', status: AiLogStatus.failed }));
+
+    await service.explainSuggestion('app-1', '{}', 'org-9');
+    expect(usageLogs.create).toHaveBeenLastCalledWith(expect.objectContaining({ organizationId: 'org-9', actionType: AiActionType.copilot }));
   });
 
   it('accepts a null refId', async () => {
@@ -130,6 +143,7 @@ describe('LlmService', () => {
       candidatesTokenCount: 0,
       duration: expect.any(Number),
       status: AiLogStatus.failed,
+      organizationId: null,
     });
   });
 

@@ -101,16 +101,24 @@ describe('schedule actions — interview type (C4, R3)', () => {
     expect(payload).not.toHaveProperty('onlineMeetingLink');
   });
 
-  it.each([
-    ['without a link', ''],
-    ['with a non-http(s) link', 'javascript:alert(1)'],
-  ])('refuses an online interview %s', async (_label, link) => {
-    const result = await createInterviewScheduleAction(
+  it('sends an online interview without a link as an empty link, so the API uses the built-in room', async () => {
+    await createInterviewScheduleAction(
       initialState,
-      scheduleForm({ interviewType: 'online', onlineMeetingLink: link, location: null }),
+      scheduleForm({ interviewType: 'online', onlineMeetingLink: '   ', location: null }),
     );
 
-    expect(result).toEqual({ success: false, message: 'Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ' });
+    const payload = mocks.post.mock.calls[0][1];
+    expect(payload).toMatchObject({ interviewType: 'online', onlineMeetingLink: '' });
+    expect(payload).not.toHaveProperty('location');
+  });
+
+  it('refuses an online interview with a non-http(s) link', async () => {
+    const result = await createInterviewScheduleAction(
+      initialState,
+      scheduleForm({ interviewType: 'online', onlineMeetingLink: 'javascript:alert(1)', location: null }),
+    );
+
+    expect(result).toEqual({ success: false, message: 'Đường dẫn phòng họp phải là địa chỉ http(s) hợp lệ' });
     expect(mocks.post).not.toHaveBeenCalled();
   });
 

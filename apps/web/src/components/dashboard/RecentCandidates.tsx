@@ -1,11 +1,11 @@
-import { effectiveScreeningScores } from '@ats-platform/types';
 import Link from 'next/link';
-import { Clock, Star, ChevronRight } from 'lucide-react';
+import { Clock, ChevronRight } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
-import { IApplicationDto } from '@/types/interfaces/application.interface';
+import type { IRecruitmentAnalytics } from '@/types/interfaces/analytics.interface';
 
 interface RecentCandidatesProps {
-    applications: IApplicationDto[];
+    /** The six newest applications in the caller's scope, read with a database query (A-04). */
+    applications: IRecruitmentAnalytics['recent'];
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -70,7 +70,7 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
             ) : (
                 <div className="divide-y divide-[#F2F2F7]">
                     {applications.map((app, idx) => {
-                        const fullName = app.candidate?.user?.fullName ?? 'Ứng viên';
+                        const fullName = app.candidateName || 'Ứng viên';
                         const initials = getInitials(fullName);
                         const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length];
                         const status = app.status?.toLowerCase() ?? 'applied';
@@ -78,7 +78,6 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
                         const stageColor = STATUS_COLORS[status] ?? '#94A3B8';
                         const stageBg = STATUS_BG[status] ?? '#F5F5F7';
                         const days = getDaysAgo(app.appliedAt);
-                        const aiScore = effectiveScreeningScores(app.screening ?? {}).overall;
 
                         return (
                             <Link
@@ -96,20 +95,12 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
                                     <p className="text-[13px] text-[#1D1D1F] truncate tracking-[-0.01em]" style={{ fontWeight: 500 }}>
                                         {fullName}
                                     </p>
-                                    <p className="text-[11px] text-[#AEAEB2] truncate">{app.jobPosting?.title ?? 'N/A'}</p>
+                                    <p className="text-[11px] text-[#AEAEB2] truncate">{app.jobTitle}</p>
                                 </div>
                                 <div className="hidden sm:flex items-center gap-1.5">
                                     <Clock className="w-3 h-3 text-[#AEAEB2]" />
                                     <span className="text-[11px] text-[#AEAEB2]">{days}d</span>
                                 </div>
-                                {aiScore != null && Number(aiScore) > 0 && (
-                                    <div className="hidden md:flex items-center gap-1">
-                                        <Star className="w-3 h-3 fill-[#0071E3] text-[#0071E3]" />
-                                        <span className="text-[12px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
-                                            {Number(aiScore).toFixed(1)}
-                                        </span>
-                                    </div>
-                                )}
                                 <span
                                     className="text-[11px] rounded-full px-2.5 py-1 flex-shrink-0"
                                     style={{ background: stageBg, color: stageColor, fontWeight: 500 }}

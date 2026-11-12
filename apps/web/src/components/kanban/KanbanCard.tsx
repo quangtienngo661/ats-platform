@@ -1,9 +1,10 @@
 'use client';
 
 import { useDrag, useDrop } from 'react-dnd';
-import { MoreHorizontal, Star, Clock, MapPin, ExternalLink } from 'lucide-react';
+import { MoreHorizontal, Star, Clock, MapPin, ExternalLink, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Candidate } from '@/types/interfaces/kanban.interface';
+import type { ICopilotSuggestion } from '@/types/interfaces/copilot.interface';
 import { DRAG_TYPE, SF, SFT } from '../../types/constants/kanban.constants';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
@@ -12,9 +13,12 @@ interface KanbanCardProps {
   jobId: string;
   onMenu: (id: string, x: number, y: number) => void;
   onDrop: (dragId: string, dropId: string) => void;
+  /** The AI co-pilot's next step for this application (GĐ4), if it has one. */
+  suggestion?: ICopilotSuggestion;
+  onSuggestion?: (id: string) => void;
 }
 
-export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanCardProps) {
+export default function KanbanCard({ candidate, jobId, onMenu, onDrop, suggestion, onSuggestion }: KanbanCardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: DRAG_TYPE,
     item: { id: candidate.id },
@@ -83,6 +87,19 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
+
+      {/* AI co-pilot: nothing happens until the recruiter opens and decides (ADR 0002) */}
+      {suggestion && onSuggestion && (
+        <button
+          type="button"
+          onClick={() => onSuggestion(candidate.id)}
+          className="mb-3 flex w-full items-center gap-1.5 rounded-lg border border-[#0071E3]/20 bg-[#EBF3FD] px-2 py-1.5 text-left text-[11px] text-[#0071E3] hover:bg-[#DCEBFC] transition-colors"
+          style={{ fontWeight: 600 }}
+        >
+          <Sparkles className="h-3 w-3 shrink-0" aria-hidden="true" />
+          <span className="truncate">Gợi ý: {suggestion.title}</span>
+        </button>
+      )}
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1 mb-3">

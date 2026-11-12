@@ -90,12 +90,20 @@ export const RagMode = {
 } as const;
 export type RagMode = (typeof RagMode)[keyof typeof RagMode];
 
+export const QuestionSource = {
+  bank: 'bank',
+  generated: 'generated',
+} as const;
+export type QuestionSource =
+  (typeof QuestionSource)[keyof typeof QuestionSource];
+
 export const AiActionType = {
   cv_parsing: 'cv_parsing',
   cv_scoring: 'cv_scoring',
   mock_interview: 'mock_interview',
   job_parsing: 'job_parsing',
   embedding: 'embedding',
+  copilot: 'copilot',
 } as const;
 export type AiActionType = (typeof AiActionType)[keyof typeof AiActionType];
 
@@ -104,6 +112,14 @@ export const AiLogStatus = {
   failed: 'failed',
 } as const;
 export type AiLogStatus = (typeof AiLogStatus)[keyof typeof AiLogStatus];
+
+// What a recruiter did with an AI co-pilot suggestion (GĐ4 part 2).
+export const CopilotDecisionType = {
+  accepted: 'accepted',
+  dismissed: 'dismissed',
+} as const;
+export type CopilotDecisionType =
+  (typeof CopilotDecisionType)[keyof typeof CopilotDecisionType];
 
 // ============================================================
 // Interview enums

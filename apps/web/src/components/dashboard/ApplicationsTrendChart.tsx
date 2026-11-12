@@ -6,6 +6,8 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 
 interface ApplicationsTrendChartProps {
     data: { month: string; value: number }[];
+    /** What the points cover, e.g. the selected period. */
+    subtitle: string;
 }
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number | string }[]; label?: string | number }) {
@@ -20,7 +22,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
     );
 }
 
-export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartProps) {
+export default function ApplicationsTrendChart({ data, subtitle }: ApplicationsTrendChartProps) {
     return (
         <div className="bg-white rounded-2xl p-5 border border-[#F2F2F7] mb-4">
             <div className="flex items-center justify-between mb-4">
@@ -28,7 +30,7 @@ export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartP
                     <h3 className="text-[14px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>
                         Ứng tuyển theo thời gian
                     </h3>
-                    <p className="text-[12px] text-[#6E6E73] mt-0.5">6 tháng gần nhất</p>
+                    <p className="text-[12px] text-[#6E6E73] mt-0.5">{subtitle}</p>
                 </div>
             </div>
             {data.length > 0 ? (
