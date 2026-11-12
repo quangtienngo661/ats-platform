@@ -1,16 +1,26 @@
 import { ChevronDown } from 'lucide-react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 import { cn } from './cn';
-import { controlClasses } from './Input';
+import { controlClasses, controlHeights, controlText, type ControlFieldProps, type ControlSize } from './Input';
 
-export type SelectProps = ComponentPropsWithoutRef<'select'> & {
-    /** Sets `aria-invalid` and the error outline. */
-    invalid?: boolean;
-};
+// `size` is the native visible-rows attribute on <select>; ours is the control size.
+export type SelectProps = Omit<ComponentPropsWithoutRef<'select'>, 'size'> &
+    ControlFieldProps & {
+        size?: ControlSize;
+    };
 
 /** A styled native `<select>` (keyboard and mobile pickers stay native). `className` goes on the wrapper. */
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-    { invalid, className, 'aria-invalid': ariaInvalid, children, ...props },
+    {
+        invalid,
+        describedBy,
+        size = 'md',
+        className,
+        'aria-invalid': ariaInvalid,
+        'aria-describedby': ariaDescribedBy,
+        children,
+        ...props
+    },
     ref,
 ) {
     return (
@@ -18,7 +28,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
             <select
                 ref={ref}
                 aria-invalid={invalid || ariaInvalid || undefined}
-                className={cn(controlClasses, 'h-9 cursor-pointer appearance-none truncate pl-3 pr-9')}
+                aria-describedby={ariaDescribedBy ?? describedBy}
+                className={cn(
+                    controlClasses,
+                    controlHeights[size],
+                    controlText[size],
+                    'cursor-pointer appearance-none truncate pl-3 pr-9',
+                )}
                 {...props}
             >
                 {children}

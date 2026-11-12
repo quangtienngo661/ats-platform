@@ -1,10 +1,8 @@
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 import { cn } from './cn';
+import type { ControlFieldProps } from './Input';
 
-export type CheckboxProps = Omit<ComponentPropsWithoutRef<'input'>, 'type'> & {
-    /** Sets `aria-invalid` and the error outline. */
-    invalid?: boolean;
-};
+export type CheckboxProps = Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size'> & ControlFieldProps;
 
 /**
  * A native checkbox (keyboard, form and label behaviour stay native) drawn as a 16 px box with a custom check.
@@ -12,7 +10,7 @@ export type CheckboxProps = Omit<ComponentPropsWithoutRef<'input'>, 'type'> & {
  * `className` goes on the wrapper; label it with `<label htmlFor>` or `aria-label`.
  */
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-    { invalid, className, 'aria-invalid': ariaInvalid, ...props },
+    { invalid, describedBy, className, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy, ...props },
     ref,
 ) {
     return (
@@ -21,6 +19,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
                 ref={ref}
                 type="checkbox"
                 aria-invalid={invalid || ariaInvalid || undefined}
+                aria-describedby={ariaDescribedBy ?? describedBy}
                 className="peer absolute -inset-1 m-0 cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed"
                 {...props}
             />

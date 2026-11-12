@@ -2,8 +2,11 @@ import { CircleAlert } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
 import { cn } from './cn';
 
-/** What `Field` hands its control: spread these onto `Input`, `Textarea` or `Select`. */
-export type FieldControl = { id: string; describedBy?: string; invalid: boolean };
+/**
+ * What `Field` hands its control. `Input`, `Textarea`, `Select` and `Checkbox` accept every key, so spread it:
+ * `{(f) => <Input {...f} />}`. A test makes tsc fail if a key is added that a control does not accept.
+ */
+export type FieldControl = { id: string; describedBy?: string; invalid: boolean; required: boolean };
 
 export type FieldProps = {
     label: ReactNode;
@@ -11,7 +14,7 @@ export type FieldProps = {
     hint?: ReactNode;
     /** What went wrong and what to do. Marks the control invalid. */
     error?: ReactNode;
-    /** Shows a marker next to the label; also pass `required` to the control itself. */
+    /** Marks the control `required` and shows a `*` next to the label (hidden from the accessible name). */
     required?: boolean;
     className?: string;
     children: (control: FieldControl) => ReactNode;
@@ -41,7 +44,7 @@ export function Field({ label, hint, error, required, className, children }: Fie
                     </span>
                 ) : null}
             </div>
-            {children({ id, describedBy, invalid: Boolean(error) })}
+            {children({ id, describedBy, invalid: Boolean(error), required: Boolean(required) })}
             {hint ? (
                 <p id={hintId} className="text-caption text-ink-3">
                     {hint}

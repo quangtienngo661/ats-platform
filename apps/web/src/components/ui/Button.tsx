@@ -46,6 +46,25 @@ export function buttonClasses({
     return cn(base, variants[variant], sizes[size], className);
 }
 
+export type IconButtonSize = 'sm' | 'md';
+
+/** Square sizes for an icon-only button: 32 / 36 px, icon 16 / 18 px. */
+const iconSizes: Record<IconButtonSize, string> = {
+    sm: 'size-8 [&_svg]:size-4',
+    md: 'size-9 [&_svg]:size-[18px]',
+};
+
+/** Classes for `IconButton`: the ghost variant from the same builder, on a square. */
+export function iconButtonClasses({
+    size = 'md',
+    className,
+}: {
+    size?: IconButtonSize;
+    className?: string;
+} = {}): string {
+    return cn(base, variants.ghost, disabledLook.ghost, iconSizes[size], className);
+}
+
 export type ButtonProps = ComponentPropsWithoutRef<'button'> & {
     variant?: ButtonVariant;
     size?: ButtonSize;
