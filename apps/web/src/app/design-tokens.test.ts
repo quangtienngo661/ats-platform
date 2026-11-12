@@ -64,4 +64,15 @@ describe('design tokens', () => {
     expect(body).toMatch(/animation-duration:\s*0\.01ms/);
     expect(body).toMatch(/transition-duration:\s*0\.01ms/);
   });
+
+  it('keeps the tailwind motion durations equal to the spec', () => {
+    const config = require(resolve(__dirname, '../../tailwind.config.js'));
+    expect(config.theme.extend.transitionDuration).toEqual({
+      press: '120ms',
+      hover: '200ms',
+      base: '280ms',
+      slow: '420ms',
+    });
+    expect(config.theme.extend.animation.rise).toContain('280ms');
+  });
 });

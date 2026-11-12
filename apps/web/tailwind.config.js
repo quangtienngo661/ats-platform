@@ -84,10 +84,10 @@ module.exports = {
         palette: '80',
       },
       transitionDuration: {
-        press: '100ms',
-        hover: '150ms',
-        base: '200ms',
-        slow: '300ms',
+        press: '120ms',
+        hover: '200ms',
+        base: '280ms',
+        slow: '420ms',
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(.16,1,.3,1)',
