@@ -143,6 +143,15 @@ html[data-ui="modern"] :focus-visible {
 html[data-ui="modern"]:has([data-shell="staff"]) {
   scroll-padding-top: 4rem;
 }
+/* The same for the 60 px public/candidate header, and for the candidate tab bar at the bottom of phones. */
+html[data-ui="modern"]:has([data-shell="site"]) {
+  scroll-padding-top: 4.5rem;
+}
+@media (max-width: 767px) {
+  html[data-ui="modern"]:has([data-tab-bar]) {
+    scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
 html[data-ui="modern"] h1,
 html[data-ui="modern"] h2,
 html[data-ui="modern"] h3 {

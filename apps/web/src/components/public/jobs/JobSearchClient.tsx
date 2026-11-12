@@ -146,7 +146,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
     return (
         <div className="min-h-screen" style={{ fontFamily: SFT }}>
             {/* Search Header */}
-            <div className="bg-white border-b border-[#E5E5EA] sticky top-[60px] z-30">
+            <div className="bg-white border-b border-[#E5E5EA] sticky top-[60px] z-sticky">
                 <div className="max-w-[1200px] mx-auto px-6 py-4">
                     <form onSubmit={handleSearch} className="flex gap-2">
                         <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 min-w-0 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition">

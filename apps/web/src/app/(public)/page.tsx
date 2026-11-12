@@ -2,7 +2,6 @@ import { getUiVariant } from '@/lib/ui-variant';
 import LegacyHomePage from '@/legacy/app/(public)/page';
 import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { HomeHero } from '@/components/public/home/HomeHero';
-import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { HomeStats } from '@/components/public/home/HomeStats';
 import { HomeCategories } from '@/components/public/home/HomeCategories';
 import { HomeFeaturedJobs } from '@/components/public/home/HomeFeaturedJobs';
@@ -33,8 +32,6 @@ export default async function HomePage() {
 
             {/* Featured Jobs CTA */}
             <HomeFeaturedJobs />
-
-            <PublicFooter />
         </>
     );
 }

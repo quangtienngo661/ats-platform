@@ -6,7 +6,6 @@ import { JobDetailHero } from '@/components/public/jobs/detail/JobDetailHero';
 import { JobDetailBody } from '@/components/public/jobs/detail/JobDetailBody';
 import { JobDetailSidebar } from '@/components/public/jobs/detail/JobDetailSidebar';
 import { ApplyButton } from '@/components/public/jobs/detail/ApplyButton';
-import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -69,7 +68,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     </div>
                 </div>
             </div>
-            <PublicFooter />
         </>
     );
 }
