@@ -12,4 +12,6 @@ Mỗi dòng ghi **documented** (đọc ở nguồn chính thức, có URL và ng
 | 6 | Cờ CLI và biến môi trường tương ứng: `--keys` ↔ `LIVEKIT_KEYS` (dạng `"key: secret"`), `--node-ip` ↔ `NODE_IP`, `--udp-port` ↔ `UDP_PORT`, `--bind`, `--config-body` ↔ `LIVEKIT_CONFIG`, `--dev`. | documented | https://raw.githubusercontent.com/livekit/livekit/master/cmd/server/main.go (12/11/2026) |
 | 7 | Ở chế độ dev, dải cổng TURN relay mặc định là 30000–30002 ("to make it easier to run in dev mode/docker"). | documented | https://raw.githubusercontent.com/livekit/livekit/master/pkg/config/config.go (12/11/2026) |
 
-Các dòng về API của SDK (tên lớp, tham số token) được bổ sung khi cài package ở M1, đọc từ file `.d.ts` của bản đã cài.
+
+| 8 | `livekit-server-sdk` 2.19.2 là ESM có bản CJS (`dist/*.cjs`); bản CJS `require("jose")`, và SDK kèm `jose` 5.10.0 riêng có export `require`. Tạo và kiểm token bằng `require` trong Node 24 chạy được (`AccessToken` → `toJwt` → `TokenVerifier.verify` trả `sub`, `video.room`). | verified | `node -e` với package đã cài, 12/11/2026 |
+| 9 | `AccessToken(apiKey, apiSecret, { identity, name, metadata, ttl })`, `ttl` là số giây hoặc chuỗi; `addGrant(VideoGrant)` với `roomJoin`, `room`, `canPublish`, `canSubscribe`, `canPublishData`; `toJwt()` trả Promise. `exp` của token = **đồng hồ thật** + `ttl` (test phải cố định đồng hồ để kiểm `exp`). | verified | `node_modules/livekit-server-sdk/dist/AccessToken.d.ts`, `grants.d.ts`; test `interview-room.service.spec.ts` |

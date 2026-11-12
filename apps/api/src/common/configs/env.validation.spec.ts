@@ -107,4 +107,45 @@ describe('env validation — AI provider', () => {
       },
     );
   });
+
+  describe('LiveKit (GĐ4 R5)', () => {
+    const geminiEnv = { ...baseEnv, GOOGLE_API_KEY: 'g' };
+    const livekit = {
+      LIVEKIT_API_KEY: 'devkey',
+      LIVEKIT_API_SECRET: 'secret',
+      LIVEKIT_PUBLIC_URL: 'ws://localhost:7880',
+    };
+
+    it('is optional as a whole: the API boots without an interview room', () => {
+      expect(validate(geminiEnv)).toBe(geminiEnv);
+    });
+
+    it.each(['ws://localhost:7880', 'wss://rtc.example.com', 'https://rtc.example.com'])(
+      'accepts the public url %s',
+      (url) => {
+        const env = { ...geminiEnv, ...livekit, LIVEKIT_PUBLIC_URL: url };
+
+        expect(validate(env)).toBe(env);
+      },
+    );
+
+    it.each(['localhost:7880', 'ftp://rtc.example.com', ''])(
+      'rejects the public url %p and names LIVEKIT_PUBLIC_URL',
+      (url) => {
+        expect(() =>
+          validate({ ...geminiEnv, ...livekit, LIVEKIT_PUBLIC_URL: url }),
+        ).toThrow(/LIVEKIT_PUBLIC_URL/);
+      },
+    );
+
+    it.each(['LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET', 'LIVEKIT_PUBLIC_URL'])(
+      'a partial setup without %s fails and names it',
+      (missing) => {
+        const env: Record<string, string> = { ...geminiEnv, ...livekit };
+        delete env[missing];
+
+        expect(() => validate(env)).toThrow(new RegExp(missing));
+      },
+    );
+  });
 });

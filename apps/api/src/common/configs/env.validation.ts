@@ -123,6 +123,30 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   SMTP_FROM?: string;
+
+  // LiveKit (GĐ4): all three or none. None → the API boots and the interview room answers 503.
+  @ValidateIf(usesLiveKit)
+  @IsNotEmpty()
+  @IsString()
+  LIVEKIT_API_KEY?: string;
+
+  @ValidateIf(usesLiveKit)
+  @IsNotEmpty()
+  @IsString()
+  LIVEKIT_API_SECRET?: string;
+
+  // The address BROWSERS use to reach LiveKit, not the one the API would use.
+  @ValidateIf(usesLiveKit)
+  @Matches(/^(wss?|https?):\/\/\S+$/, {
+    message: 'LIVEKIT_PUBLIC_URL phải bắt đầu bằng ws://, wss://, http:// hoặc https://',
+  })
+  LIVEKIT_PUBLIC_URL?: string;
+}
+
+function usesLiveKit(o: Record<string, unknown>): boolean {
+  return ['LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET', 'LIVEKIT_PUBLIC_URL'].some(
+    (key) => o[key] !== undefined,
+  );
 }
 
 export function validate(config: Record<string, unknown>) {

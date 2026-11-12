@@ -19,6 +19,9 @@ import { EmbeddingModule } from '../../common/external-apis/embedding/embedding.
 import { VectorModule } from '../../common/vector/vector.module';
 import { InterviewQuestionsController } from './questions/interview-questions.controller';
 import { InterviewQuestionsService } from './questions/interview-questions.service';
+import { LiveKitModule } from '../../common/external-apis/livekit/livekit.module';
+import { InterviewRoomController } from './room/interview-room.controller';
+import { InterviewRoomService } from './room/interview-room.service';
 
 /** How often to look for interview sessions nobody is working on any more. */
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -31,6 +34,7 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
     CandidateNotificationsModule,
     EmbeddingModule,
     VectorModule,
+    LiveKitModule,
     // No `defaultJobOptions` here on purpose — it would replace, not extend, the
     // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
     BullModule.registerQueue(
@@ -39,9 +43,14 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
       { name: 'interview-maintenance' },
     ),
   ],
-  controllers: [InterviewsController, InterviewQuestionsController],
+  controllers: [
+    InterviewsController,
+    InterviewQuestionsController,
+    InterviewRoomController,
+  ],
   providers: [
     InterviewsService,
+    InterviewRoomService,
     InterviewQuestionsService,
     InterviewSessionService,
     InterviewGateway,
