@@ -82,14 +82,23 @@ describe('MutateInterviewScheduleModal — interview type (C4)', () => {
     expect(screen.queryByRole('textbox', { name: 'Đường dẫn phòng họp' })).toBeNull();
   });
 
-  it('asks for a meeting link when the interview is online', async () => {
+  it('offers an optional external link when the interview is online (GĐ4 R1)', async () => {
     const user = userEvent.setup();
     renderModal();
 
     await user.click(screen.getByRole('radio', { name: 'Trực tuyến' }));
 
-    expect(screen.getByRole('textbox', { name: 'Đường dẫn phòng họp' })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Đường dẫn phòng họp' })).not.toBeRequired();
+    expect(screen.getByText('Không bắt buộc. Để trống: dùng phòng phỏng vấn trực tuyến của hệ thống.')).toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: 'Địa điểm' })).toBeNull();
+  });
+
+  it('shows an empty link field when the interview already uses its built-in room', () => {
+    renderModal(
+      editedSchedule({ interviewType: 'online', onlineMeetingLink: 'http://localhost:3001/interview-room/int-1' }),
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Đường dẫn phòng họp' })).toHaveValue('');
   });
 
   it('prefills the type and link when editing an online interview', () => {

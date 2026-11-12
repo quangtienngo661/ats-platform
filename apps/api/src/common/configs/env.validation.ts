@@ -5,6 +5,7 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  Matches,
   MinLength,
   ValidateIf,
   validateSync,
@@ -56,6 +57,22 @@ class EnvironmentVariables {
   @IsString()
   OPENAI_MODEL_FLASH?: string;
 
+  // Cosine similarity at which a CV skill counts as the job skill (0 to 1). Unset = 0.8 (an ASSUMPTION
+  // until the real-embedding probe of GĐ3 task 2.3 fixes it).
+  @IsOptional()
+  @Matches(/^(0(\.\d+)?|1(\.0+)?)$/, {
+    message: 'SKILL_MATCH_THRESHOLD phải là số từ 0 đến 1',
+  })
+  SKILL_MATCH_THRESHOLD?: string;
+
+  // How many reviewed screenings of the same posting are shown to the model as calibration anchors
+  // (1 to 10). Unset = 3.
+  @IsOptional()
+  @Matches(/^([1-9]|10)$/, {
+    message: 'ANCHOR_COUNT phải là số nguyên từ 1 đến 10',
+  })
+  ANCHOR_COUNT?: string;
+
   @IsNotEmpty()
   @IsString()
   REDIS_HOST!: string;
@@ -106,6 +123,30 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   SMTP_FROM?: string;
+
+  // LiveKit (GĐ4): all three or none. None → the API boots and the interview room answers 503.
+  @ValidateIf(usesLiveKit)
+  @IsNotEmpty()
+  @IsString()
+  LIVEKIT_API_KEY?: string;
+
+  @ValidateIf(usesLiveKit)
+  @IsNotEmpty()
+  @IsString()
+  LIVEKIT_API_SECRET?: string;
+
+  // The address BROWSERS use to reach LiveKit, not the one the API would use.
+  @ValidateIf(usesLiveKit)
+  @Matches(/^(wss?|https?):\/\/\S+$/, {
+    message: 'LIVEKIT_PUBLIC_URL phải bắt đầu bằng ws://, wss://, http:// hoặc https://',
+  })
+  LIVEKIT_PUBLIC_URL?: string;
+}
+
+function usesLiveKit(o: Record<string, unknown>): boolean {
+  return ['LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET', 'LIVEKIT_PUBLIC_URL'].some(
+    (key) => o[key] !== undefined,
+  );
 }
 
 export function validate(config: Record<string, unknown>) {

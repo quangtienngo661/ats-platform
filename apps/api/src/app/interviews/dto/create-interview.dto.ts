@@ -39,8 +39,12 @@ export class CreateInterviewScheduleDto {
     @Max(480)
     durationMinutes: number;
 
-    // Checked only for an online interview; for an onsite one the link is not stored.
-    @ValidateIf((dto: CreateInterviewScheduleDto) => dto.interviewType === InterviewType.online)
+    // Optional external link, checked only when given for an online interview: without one
+    // the interview uses its built-in room. For an onsite interview the link is not stored.
+    @ValidateIf(
+        (dto: CreateInterviewScheduleDto) =>
+            dto.interviewType === InterviewType.online && !!dto.onlineMeetingLink,
+    )
     @Transform(trimString)
     @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: MEETING_LINK_INVALID_MESSAGE })
     onlineMeetingLink?: string;

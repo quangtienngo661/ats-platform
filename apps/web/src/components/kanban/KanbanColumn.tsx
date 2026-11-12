@@ -4,6 +4,7 @@ import { useDrop } from 'react-dnd';
 import { motion, AnimatePresence } from 'motion/react';
 import KanbanCard from './KanbanCard';
 import { Candidate, Stage, StageConfig } from '@/types/interfaces/kanban.interface';
+import type { ICopilotSuggestion } from '@/types/interfaces/copilot.interface';
 import { DRAG_TYPE, SF } from '../../types/constants/kanban.constants';
 
 interface KanbanColumnProps {
@@ -13,6 +14,9 @@ interface KanbanColumnProps {
   onDropToColumn: (id: string, s: Stage) => void;
   onReorder: (dragId: string, dropId: string) => void;
   onMenuOpen: (id: string, x: number, y: number) => void;
+  /** AI co-pilot suggestions by application id (GĐ4). */
+  suggestions?: Record<string, ICopilotSuggestion>;
+  onSuggestion?: (id: string) => void;
 }
 
 export default function KanbanColumn({
@@ -22,6 +26,8 @@ export default function KanbanColumn({
   onDropToColumn,
   onReorder,
   onMenuOpen,
+  suggestions = {},
+  onSuggestion,
 }: KanbanColumnProps) {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: DRAG_TYPE,
@@ -58,7 +64,8 @@ export default function KanbanColumn({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}>
-                <KanbanCard candidate={c} jobId={jobId} onMenu={onMenuOpen} onDrop={onReorder} />
+                <KanbanCard candidate={c} jobId={jobId} onMenu={onMenuOpen} onDrop={onReorder}
+                  suggestion={suggestions[c.id]} onSuggestion={onSuggestion} />
               </motion.div>
             ))}
           </AnimatePresence>

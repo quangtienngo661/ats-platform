@@ -45,8 +45,10 @@ export const createPrismaMock = () => ({
     'count',
     'update',
   ]),
+  candidateSkill: model(['upsert']),
   cV: model(['create', 'findMany', 'findUnique', 'update', 'delete']),
   cVParsedData: model(['create', 'findUnique', 'update']),
+  copilotDecision: model(['create', 'findMany']),
   cVScreening: model(['count', 'findMany', 'findUnique', 'update', 'upsert']),
   department: model([
     'create',
@@ -98,6 +100,14 @@ export const createPrismaMock = () => ({
     'findUnique',
     'update',
     'updateMany',
+  ]),
+  interviewQuestion: model([
+    'count',
+    'create',
+    'delete',
+    'findMany',
+    'findUnique',
+    'update',
   ]),
   interviewTopic: model([
     'create',

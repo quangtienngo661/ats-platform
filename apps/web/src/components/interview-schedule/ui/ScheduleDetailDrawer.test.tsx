@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IApplicationDto } from '@/types/interfaces/application.interface';
 import type { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import { ScheduleDetailDrawer } from './ScheduleDetailDrawer';
@@ -48,6 +48,38 @@ describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
     expect(link).toHaveAttribute('href', 'https://meet.example.com/abc');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  describe('the built-in room (GĐ4 R7)', () => {
+    const builtIn = schedule({
+      interviewType: 'online',
+      onlineMeetingLink: 'http://localhost:3001/interview-room/int-1',
+      interviewerId: 'user-2',
+      scheduledBy: 'user-3',
+    });
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date('2026-10-05T02:10:00.000Z')); // ten minutes in
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it.each([
+      ['the interviewer', 'user-2'],
+      ['the recruiter who scheduled it', 'user-3'],
+    ])('lets %s enter it while it is open', (_label, viewer) => {
+      renderDrawer(builtIn, viewer);
+
+      expect(screen.getByText('Phòng phỏng vấn trực tuyến của hệ thống')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Vào phòng phỏng vấn' })).toHaveAttribute('href', '/interview-room/int-1');
+    });
+
+    it('does not offer it to staff who are not in the interview', () => {
+      renderDrawer(builtIn, 'user-9');
+
+      expect(screen.getByText('Phòng phỏng vấn trực tuyến của hệ thống')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Vào phòng phỏng vấn' })).toBeNull();
+    });
   });
 
   it('shows a stored non-http(s) link as text, never as a link', () => {

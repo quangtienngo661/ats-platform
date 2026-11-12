@@ -26,6 +26,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { CvScreeningsModule } from './cv-screenings/cv-screenings.module';
 import { SocketIoModule } from '../common/socket-io/socket-io.module';
 import { InterviewsModule } from './interviews/interviews.module';
+import { CopilotModule } from './copilot/copilot.module';
 import { InterviewScorecardsModule } from './interview-scorecards/interview-scorecards.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -89,6 +90,7 @@ import { Request } from 'express';
     CvScreeningsModule,
     SocketIoModule,
     InterviewsModule,
+    CopilotModule,
     InterviewScorecardsModule,
     ApplicationNotesModule,
     NotificationsModule,

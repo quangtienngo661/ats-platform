@@ -1,6 +1,6 @@
 export interface IAiUsageLogDto {
     logId: string;
-    actionType: 'cv_parsing' | 'cv_scoring' | 'mock_interview' | 'job_parsing' | 'embedding';
+    actionType: 'cv_parsing' | 'cv_scoring' | 'mock_interview' | 'job_parsing' | 'embedding' | 'copilot';
     referenceId: string | null;
     modelName: string;
     promptTokens: number;

@@ -91,9 +91,10 @@ function normalizeSchedulePayload(formData: FormData): NormalizedSchedulePayload
         getString(formData, 'interviewType') === InterviewType.online ? InterviewType.online : InterviewType.onsite;
     let place: SchedulePlace;
     if (interviewType === InterviewType.online) {
+        // Optional: an empty link makes the API use the interview's built-in room (GĐ4 R1).
         const onlineMeetingLink = getString(formData, 'onlineMeetingLink');
-        if (!isHttpUrl(onlineMeetingLink)) {
-            return { ok: false, error: 'Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ' };
+        if (onlineMeetingLink && !isHttpUrl(onlineMeetingLink)) {
+            return { ok: false, error: 'Đường dẫn phòng họp phải là địa chỉ http(s) hợp lệ' };
         }
         place = { onlineMeetingLink };
     } else {

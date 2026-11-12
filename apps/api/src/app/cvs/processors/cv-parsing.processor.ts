@@ -7,6 +7,7 @@ import { NotificationType, ParsingStatus } from "@ats-platform/database";
 import { Logger } from "@nestjs/common";
 import { SocketIoService } from "../../../common/socket-io/socket-io.service";
 import { NotificationsService } from "../../notifications/notifications.service";
+import { EmbeddingQueueService } from "../../../common/vector/embedding-queue.service";
 
 export interface ParseCvJobData {
     cvId: string;
@@ -20,6 +21,7 @@ export class CvParsingProcessor extends WorkerHost {
         private readonly prisma: PrismaService,
         private readonly socketService: SocketIoService,
         private readonly notificationsService: NotificationsService,
+        private readonly embeddingQueue: EmbeddingQueueService,
     ) {
         super();
     }
@@ -61,6 +63,19 @@ export class CvParsingProcessor extends WorkerHost {
                         include: { parsedData: true }
                     });
                 });
+
+                // The parsed data is committed; embed it for the semantic skill match. A queue
+                // failure is repaired by the admin backfill, so it must not fail a parsed CV.
+                if (result.parsedData) {
+                    try {
+                        await this.embeddingQueue.enqueue('cv_parsed_data', result.parsedData.id);
+                    } catch (queueError) {
+                        Logger.warn(
+                            `Could not queue the embedding of the parsed data of CV ${cvId}: ${queueError.message}`,
+                            'CvParsingProcessor',
+                        );
+                    }
+                }
 
                 const userId = cv.candidate.userId;
                 this.socketService.handleEmit("cvs:parsed_successfully", { cvId, updatedCv: result }, `user_${userId}`);
