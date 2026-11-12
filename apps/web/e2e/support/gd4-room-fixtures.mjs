@@ -85,11 +85,13 @@ export async function createGd4RoomFixtures(apiUrl, webUrl) {
          VALUES ($1,$2,$3,$4,$5,'interview',$6)`,
         [fixture.applicationId, fixture.org.id, fixture.job.id, candidateId, cvId, new Date(Date.now() - 86_400_000)],
       );
+      // start_at is a timestamp WITHOUT time zone holding UTC (as Prisma writes it). node-postgres sends a Date
+      // with the machine's offset, which such a column would drop: convert to UTC explicitly.
       // The link the API itself would store for an online interview without an external link (GĐ4 R1).
       await client.query(
         `INSERT INTO interview_schedules (interview_id,organization_id,application_id,scheduled_by,interviewer_id,
                                           interview_type,start_at,duration_minutes,online_meeting_link,status)
-         VALUES ($1,$2,$3,$4,$4,'online',$5,60,$6,'scheduled')`,
+         VALUES ($1,$2,$3,$4,$4,'online',($5::timestamptz AT TIME ZONE 'UTC'),60,$6,'scheduled')`,
         [fixture.interviewId, fixture.org.id, fixture.applicationId, fixture.recruiter.userId, startAt,
           `${webUrl.replace(/\/+$/, '')}/interview-room/${fixture.interviewId}`],
       );
