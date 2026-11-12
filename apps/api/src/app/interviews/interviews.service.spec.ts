@@ -915,6 +915,34 @@ describe('InterviewsService', () => {
       expect(updateData()).not.toHaveProperty('onlineMeetingLink');
     });
 
+    describe('waiting room reset (R28)', () => {
+      const cleared = { candidateWaitingAt: null, candidateAdmittedAt: null };
+
+      it.each([
+        ['a new start time', { startAt: '2026-10-05T03:00:00.000Z' }],
+        ['a new type', { interviewType: InterviewType.online }],
+      ])('makes the candidate wait again after %s', async (_label, dto) => {
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+        await service.updateSchedule('int-1', platformAdmin, dto as any);
+
+        expect(updateData()).toEqual(expect.objectContaining(cleared));
+      });
+
+      it.each([
+        ['the same start time', { startAt: '2026-10-05T02:00:00.000Z' }],
+        ['only the duration', { durationMinutes: 90 }],
+        ['the same type', { interviewType: InterviewType.onsite, location: 'Tầng 6' }],
+      ])('keeps the waiting room after %s', async (_label, dto) => {
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+
+        await service.updateSchedule('int-1', platformAdmin, dto as any);
+
+        expect(updateData()).not.toHaveProperty('candidateWaitingAt');
+        expect(updateData()).not.toHaveProperty('candidateAdmittedAt');
+      });
+    });
+
     describe('when creating', () => {
       beforeEach(() => {
         prisma.application.findUnique.mockResolvedValue({

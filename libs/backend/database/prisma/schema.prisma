@@ -730,6 +730,10 @@ model InterviewSchedule {
   // existed have none, and the API requires it only when the type is onsite.
   location          String?        @db.VarChar(255)
   status            ScheduleStatus @default(scheduled)
+  // Waiting room (GĐ4 R24–R28): when the candidate first asked to join, and when the
+  // interviewer let them in. Both reset when the start time or the type changes.
+  candidateWaitingAt  DateTime? @map("candidate_waiting_at")
+  candidateAdmittedAt DateTime? @map("candidate_admitted_at")
 
   organization Organization @relation(fields: [organizationId], references: [organizationId])
   application  Application  @relation(fields: [applicationId], references: [applicationId])

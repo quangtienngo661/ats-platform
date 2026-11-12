@@ -23,7 +23,7 @@ export class InterviewRoomController {
   @ApiOperation({
     summary: 'Vào phòng phỏng vấn trực tuyến',
     description:
-      'Cấp token LiveKit cho ứng viên, người phỏng vấn hoặc người tạo lịch, từ 15 phút trước giờ hẹn đến 30 phút sau giờ kết thúc.',
+      'Cấp token LiveKit cho người phỏng vấn, người tạo lịch, và ứng viên đã được cho vào, từ 15 phút trước giờ hẹn đến 30 phút sau giờ kết thúc. Ứng viên chưa được cho vào nhận trạng thái chờ.',
   })
   @ApiResponse({ status: 200, description: 'Thông tin kết nối phòng' })
   @ApiResponse({ status: 400, description: 'Ngoài khung giờ, lịch trực tiếp hoặc đã huỷ' })
@@ -31,5 +31,21 @@ export class InterviewRoomController {
   @ApiResponse({ status: 503, description: 'Chưa cấu hình LiveKit' })
   join(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
     return this.interviewRoomService.join(id, caller);
+  }
+
+  // Candidates never admit; the service also checks the caller interviews or scheduled it.
+  @Roles(UserRole.recruiter, UserRole.admin)
+  @Post('schedules/:id/admit')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Cho ứng viên vào phòng phỏng vấn',
+    description:
+      'Người phỏng vấn hoặc người tạo lịch cho ứng viên đang chờ vào phòng, trong khung giờ của phòng.',
+  })
+  @ApiResponse({ status: 200, description: 'Thời điểm ứng viên được cho vào' })
+  @ApiResponse({ status: 400, description: 'Ngoài khung giờ, lịch trực tiếp hoặc đã huỷ' })
+  @ApiResponse({ status: 403, description: 'Không phải người phỏng vấn của buổi này' })
+  admit(@Param('id') id: string, @CurrentCaller() caller: TenantCaller) {
+    return this.interviewRoomService.admit(id, caller);
   }
 }

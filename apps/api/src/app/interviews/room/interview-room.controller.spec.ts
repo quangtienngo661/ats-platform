@@ -18,4 +18,19 @@ describe('InterviewRoomController', () => {
 
     expect(roles).toEqual([UserRole.candidate, UserRole.recruiter, UserRole.admin]);
   });
+
+  it('passes the caller to admit', async () => {
+    const roomService = { admit: jest.fn().mockResolvedValue({ admittedAt: '2026-11-20T02:10:00.000Z' }) };
+    const controller = new InterviewRoomController(roomService as any);
+    const caller = callerOf(UserRole.recruiter, { userId: 'interviewer-1' });
+
+    await expect(controller.admit('int-1', caller)).resolves.toEqual({ admittedAt: '2026-11-20T02:10:00.000Z' });
+    expect(roomService.admit).toHaveBeenCalledWith('int-1', caller);
+  });
+
+  it('keeps candidates away from admit', () => {
+    const roles = Reflect.getMetadata(ROLES_KEY, InterviewRoomController.prototype.admit);
+
+    expect(roles).toEqual([UserRole.recruiter, UserRole.admin]);
+  });
 });

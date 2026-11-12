@@ -478,6 +478,17 @@ export class InterviewsService {
       );
     }
     if (dto.startAt) updateData.startAt = new Date(dto.startAt);
+    // A new time or type is a new meeting: the candidate waits to be let in again (R28).
+    const movedTime =
+      updateData.startAt !== undefined &&
+      updateData.startAt.getTime() !== schedule.startAt.getTime();
+    const changedType =
+      updateData.interviewType !== undefined &&
+      updateData.interviewType !== schedule.interviewType;
+    if (movedTime || changedType) {
+      updateData.candidateWaitingAt = null;
+      updateData.candidateAdmittedAt = null;
+    }
     if (dto.durationMinutes !== undefined)
       updateData.durationMinutes = dto.durationMinutes;
 
