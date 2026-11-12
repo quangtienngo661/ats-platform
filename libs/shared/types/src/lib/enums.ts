@@ -88,6 +88,7 @@ export const AiActionType = {
   cv_scoring: 'cv_scoring',
   mock_interview: 'mock_interview',
   job_parsing: 'job_parsing',
+  embedding: 'embedding',
 } as const;
 export type AiActionType = (typeof AiActionType)[keyof typeof AiActionType];
 

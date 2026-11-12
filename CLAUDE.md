@@ -27,7 +27,7 @@ Current phase: take it from the status block at the top of `docs/migration-roadm
 - **libs/backend/database** — Prisma ^7.8 schema/migrations, the only copy in the repo (`@ats-platform/database`). See `libs/CLAUDE.md`.
 - **libs/shared/types** — framework-agnostic enums/interfaces shared between API and web (`@ats-platform/types`). See `libs/CLAUDE.md`.
 - **PostgreSQL 15 + Redis** via `docker-compose-dev.yml` locally; **BullMQ** (`@nestjs/bullmq`) for async queues; **Socket.IO** for real-time.
-- **Google Gemini** (`@google/genai`) for CV parsing/screening/mock-interview generation, always through `GeminiService` — see `apps/api/CLAUDE.md`.
+- **Google Gemini** (`@google/genai`) or **OpenAI** (`openai`), chosen by `AI_PROVIDER` (default `gemini`), for CV parsing/screening/mock-interview generation, always through `LlmService`; embeddings are OpenAI `text-embedding-3-small` (1536 dims) through `EmbeddingService` — see `apps/api/CLAUDE.md`.
 - **TypeScript ~5.9.2** everywhere; **ESLint 9** via `@nx/eslint-plugin`; **Jest ^30** via `@nx/jest` — only `apps/api` currently has a jest config (see §9).
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) runs `nx affected` lint/build plus `nx test api` and `npm run test:web` on every PR into `dev`. `.github/workflows/cd.yml` exists but is **empty** — no deploy automation yet (that's Phase 5).
 

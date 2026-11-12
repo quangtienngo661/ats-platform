@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { GeminiService } from '../../../common/external-apis/gemini/gemini.service';
+import { LlmService } from '../../../common/external-apis/llm/llm.service';
 import { StartSessionDto } from './dto/start-session.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -30,7 +30,7 @@ export class InterviewSessionService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly geminiService: GeminiService,
+    private readonly llmService: LlmService,
     private readonly socketIoService: SocketIoService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
     @InjectQueue('interview-evaluation')
@@ -155,7 +155,7 @@ export class InterviewSessionService {
       candidateAnswer: answerText,
     });
 
-    const followupResult = await this.geminiService.checkInterviewFollowup(
+    const followupResult = await this.llmService.checkInterviewFollowup(
       qnaId,
       followupContent,
     );
@@ -305,7 +305,7 @@ export class InterviewSessionService {
     this.logger.log(
       `Generating final result for session ${sessionId} — weightedScore: ${weightedOverallScore}`,
     );
-    const aiResult = await this.geminiService.generateInterviewResult(
+    const aiResult = await this.llmService.generateInterviewResult(
       sessionId,
       resultContent,
     );

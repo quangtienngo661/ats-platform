@@ -3,7 +3,7 @@ import { CandidatesModule } from '../candidates/candidates.module';
 import { CVsController } from './cvs.controller';
 import { CVsService } from './cvs.service';
 import { PdfService } from '../../common/pdf/pdf.service';
-import { GeminiService } from '../../common/external-apis/gemini/gemini.service';
+import { LlmModule } from '../../common/external-apis/llm/llm.module';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { CvParsingProcessor } from './processors/cv-parsing.processor';
@@ -19,13 +19,13 @@ import { NotificationsModule } from '../notifications/notifications.module';
     BullModule.registerQueue({ name: 'cv-processing' }),
     AiUsageLogsModule,
     NotificationsModule,
+    LlmModule,
   ],
   controllers: [CVsController],
   providers: [
     CvParsingProcessor,
     CVsService,
     PdfService,
-    GeminiService,
     CvParsedDataService,
   ],
   exports: [CVsService],

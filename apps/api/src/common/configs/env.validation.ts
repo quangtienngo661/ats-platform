@@ -30,9 +30,31 @@ class EnvironmentVariables {
   @MinLength(16, { message: 'JWT_SECRET phải dài ít nhất 16 ký tự' })
   JWT_SECRET!: string;
 
+  // Text-generation provider; unset means gemini.
+  @IsOptional()
+  @IsIn(['gemini', 'openai'], {
+    message: 'AI_PROVIDER phải là gemini hoặc openai',
+  })
+  AI_PROVIDER?: string;
+
+  // Each provider's key is only required while that provider is selected.
+  @ValidateIf((o) => o.AI_PROVIDER !== 'openai')
   @IsNotEmpty()
   @IsString()
-  GOOGLE_API_KEY!: string;
+  GOOGLE_API_KEY?: string;
+
+  @ValidateIf((o) => o.AI_PROVIDER === 'openai')
+  @IsNotEmpty()
+  @IsString()
+  OPENAI_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  OPENAI_MODEL_PRO?: string;
+
+  @IsOptional()
+  @IsString()
+  OPENAI_MODEL_FLASH?: string;
 
   @IsNotEmpty()
   @IsString()
