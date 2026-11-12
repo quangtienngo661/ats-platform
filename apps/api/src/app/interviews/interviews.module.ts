@@ -15,6 +15,10 @@ import { PrismaModule } from '../../common/prisma/prisma.module';
 import { LlmModule } from '../../common/external-apis/llm/llm.module';
 import { SocketIoModule } from '../../common/socket-io/socket-io.module';
 import { CandidateNotificationsModule } from '../candidate-notifications/candidate-notifications.module';
+import { EmbeddingModule } from '../../common/external-apis/embedding/embedding.module';
+import { VectorModule } from '../../common/vector/vector.module';
+import { InterviewQuestionsController } from './questions/interview-questions.controller';
+import { InterviewQuestionsService } from './questions/interview-questions.service';
 
 /** How often to look for interview sessions nobody is working on any more. */
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -25,6 +29,8 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
     LlmModule,
     SocketIoModule,
     CandidateNotificationsModule,
+    EmbeddingModule,
+    VectorModule,
     // No `defaultJobOptions` here on purpose — it would replace, not extend, the
     // global defaults in app.module.ts (attempts/backoff/removeOnComplete).
     BullModule.registerQueue(
@@ -33,9 +39,10 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
       { name: 'interview-maintenance' },
     ),
   ],
-  controllers: [InterviewsController],
+  controllers: [InterviewsController, InterviewQuestionsController],
   providers: [
     InterviewsService,
+    InterviewQuestionsService,
     InterviewSessionService,
     InterviewGateway,
     InterviewProcessor,

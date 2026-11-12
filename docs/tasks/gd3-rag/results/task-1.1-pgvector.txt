@@ -1,0 +1,13 @@
+# Task 1.1 — 2026-10-30T13:30Z, docker-compose.test.yml (project ats-gd3-p1-test), image ats-postgres-pgvector:18.4-0.8.1
+## extension
+vector|0.8.1
+## server
+PostgreSQL 18.4 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+## embedding columns
+cv_parsed_data | embedding | vector | YES
+skills | embedding | vector | YES
+vector(1536)
+## migration recorded
+20261102000000_enable_pgvector_and_embedding_columns|t
+## control: the table the API already uses answers
+0

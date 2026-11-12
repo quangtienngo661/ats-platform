@@ -9,6 +9,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
   const parsed = { create: jest.fn() };
   const socket = { handleEmit: jest.fn() };
   const notifications = { create: jest.fn() };
+  const embeddingQueue = { enqueue: jest.fn() };
   const job = (attemptsMade = 0) =>
     ({
       name: 'parse-cv',
@@ -19,6 +20,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    embeddingQueue.enqueue.mockReset().mockResolvedValue(undefined);
     prisma = createPrismaMock();
     prisma.$transaction.mockImplementation((callback: any) => callback(prisma));
     prisma.cV.findUnique.mockResolvedValue({
@@ -38,6 +40,7 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
       prisma as any,
       socket as any,
       notifications as any,
+      embeddingQueue as any,
     );
   });
 
@@ -62,6 +65,55 @@ describe('CvParsingProcessor — outcomes and retry boundary', () => {
       'user_candidate-1',
     );
     expect(notifications.create).toHaveBeenCalledTimes(1);
+  });
+
+  describe('embedding (C2)', () => {
+    const withParsedRow = () =>
+      prisma.cV.update.mockImplementation(async ({ data }) => ({
+        cvId: 'cv-1',
+        fileName: 'CV.pdf',
+        candidate: { userId: 'candidate-1' },
+        parsedData: { id: 'parsed-1' },
+        ...data,
+      }));
+
+    it('queues the saved parsed data for embedding, after the transaction committed', async () => {
+      withParsedRow();
+      llmService.parseCV.mockResolvedValue({ summary: 'Engineer' });
+
+      await processor.process(job());
+
+      expect(embeddingQueue.enqueue).toHaveBeenCalledTimes(1);
+      expect(embeddingQueue.enqueue).toHaveBeenCalledWith('cv_parsed_data', 'parsed-1');
+      expect(prisma.$transaction.mock.invocationCallOrder[0]).toBeLessThan(
+        embeddingQueue.enqueue.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('a queue failure does not turn a parsed CV into a failed one', async () => {
+      withParsedRow();
+      llmService.parseCV.mockResolvedValue({ summary: 'Engineer' });
+      embeddingQueue.enqueue.mockRejectedValue(new Error('redis down'));
+
+      await expect(processor.process(job())).resolves.toBeUndefined();
+
+      expect(socket.handleEmit).toHaveBeenCalledWith(
+        'cvs:parsed_successfully',
+        expect.anything(),
+        'user_candidate-1',
+      );
+      expect(prisma.cV.update).not.toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ parsingStatus: ParsingStatus.failed }) }),
+      );
+    });
+
+    it('queues nothing when parsing fails', async () => {
+      llmService.parseCV.mockRejectedValue(new Error('boom'));
+
+      await expect(processor.process(job(0))).rejects.toThrow('boom');
+
+      expect(embeddingQueue.enqueue).not.toHaveBeenCalled();
+    });
   });
 
   it('does not announce terminal failure while automatic retries remain', async () => {

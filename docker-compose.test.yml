@@ -4,7 +4,10 @@ name: ats-platform-tests
 
 services:
   postgres:
-    image: postgres:18.4-alpine
+    # postgres:18.4-alpine plus the pgvector extension (docker/postgres/Dockerfile).
+    build:
+      context: ./docker/postgres
+    image: ats-postgres-pgvector:18.4-0.8.1
     environment:
       POSTGRES_USER: ats_test
       POSTGRES_PASSWORD: ats-local-test

@@ -4,10 +4,56 @@ import { createPrismaMock } from '../../test-utils/unit-test-helpers';
 describe('SkillsService', () => {
   let service: SkillsService;
   let prisma: ReturnType<typeof createPrismaMock>;
+  let embeddingQueue: { enqueue: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
-    service = new SkillsService(prisma as any);
+    embeddingQueue = { enqueue: jest.fn().mockResolvedValue(undefined) };
+    service = new SkillsService(prisma as any, embeddingQueue as any);
+  });
+
+  describe('embedding (C2)', () => {
+    it('create queues the new skill for embedding, after it is saved', async () => {
+      prisma.skill.findUnique.mockResolvedValue(null);
+      prisma.skill.create.mockResolvedValue({ skillId: 'skill-1', name: 'NestJS' });
+
+      await service.create({ name: 'NestJS', category: 'Backend' });
+
+      expect(embeddingQueue.enqueue).toHaveBeenCalledTimes(1);
+      expect(embeddingQueue.enqueue).toHaveBeenCalledWith('skill', 'skill-1');
+      expect(prisma.skill.create.mock.invocationCallOrder[0]).toBeLessThan(
+        embeddingQueue.enqueue.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('update queues the skill again, because its name may have changed', async () => {
+      prisma.skill.findUnique.mockResolvedValue({ skillId: 'skill-1', name: 'React' });
+      prisma.skill.update.mockResolvedValue({ skillId: 'skill-1', name: 'React.js' });
+
+      await service.update('skill-1', { name: 'React.js' });
+
+      expect(embeddingQueue.enqueue).toHaveBeenCalledWith('skill', 'skill-1');
+    });
+
+    it('a duplicate or a missing skill queues nothing', async () => {
+      prisma.skill.findUnique.mockResolvedValue({ skillId: 'skill-1' });
+      await expect(service.create({ name: 'NestJS', category: 'Backend' })).rejects.toThrow();
+
+      prisma.skill.findUnique.mockResolvedValue(null);
+      await expect(service.update('missing', { name: 'React' })).rejects.toThrow();
+
+      expect(embeddingQueue.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('a queue failure does not undo or fail the save', async () => {
+      prisma.skill.findUnique.mockResolvedValue(null);
+      prisma.skill.create.mockResolvedValue({ skillId: 'skill-1', name: 'NestJS' });
+      embeddingQueue.enqueue.mockRejectedValue(new Error('redis down'));
+
+      await expect(
+        service.create({ name: 'NestJS', category: 'Backend' }),
+      ).resolves.toEqual({ skillId: 'skill-1', name: 'NestJS' });
+    });
   });
 
   it('creates a skill when the name is unique, checking by name alone', async () => {
