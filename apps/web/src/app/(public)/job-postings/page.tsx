@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobsPage from '@/legacy/app/(public)/job-postings/page';
 import { positivePage } from '@/lib/pagination';
 import { parseJobFilterParams } from '@/lib/job-filter-params';
 import { getJobFilterOptionsAction, getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
@@ -23,6 +25,7 @@ export const metadata = {
 };
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobsPage searchParams={searchParams} />;
     const params = await searchParams;
     const page = positivePage(params.page);
     const filters = parseJobFilterParams(params);

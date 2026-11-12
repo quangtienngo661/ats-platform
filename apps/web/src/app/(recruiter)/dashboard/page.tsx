@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyHRDashboard from '@/legacy/app/(recruiter)/dashboard/page';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { SFT } from '@/types/fonts/fonts';
@@ -12,6 +14,7 @@ import OpenJobsList from '@/components/dashboard/OpenJobsList';
 export const dynamic = 'force-dynamic';
 
 export default async function HRDashboard() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyHRDashboard />;
     const stats = await getDashboardStatsAction();
 
     const allApps = stats.recentApplications; // top 6 đã sort

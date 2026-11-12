@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyResetPasswordPage from '@/legacy/app/(auth)/reset-password/page';
 import ResetPasswordForm from '@/components/auth/forms/ResetPasswordForm';
 import { AuthShell } from '@/components/auth/ui/AuthShell';
 import Link from 'next/link';
@@ -16,6 +18,7 @@ interface ResetPasswordPageProps {
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyResetPasswordPage searchParams={searchParams} />;
     const { token } = await searchParams;
 
     return (

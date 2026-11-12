@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobCandidateListPage from '@/legacy/app/(recruiter)/jobs/[jobId]/candidates/page';
 import { CandidatesHeader } from '@/components/candidates/ui/CandidatesHeader';
 import { CandidatesStats } from '@/components/candidates/ui/CandidatesStats';
 import { CandidatesFilters } from '@/components/candidates/ui/CandidatesFilters';
@@ -11,6 +13,7 @@ interface JobCandidateListPageProps {
 }
 
 export default async function JobCandidateListPage({ params }: JobCandidateListPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobCandidateListPage params={params} />;
     const { jobId } = await params;
     const [applicationsResult, aiProfiles] = await Promise.all([
         getApplicationsByJobAction(jobId, { includeCancelled: false }),

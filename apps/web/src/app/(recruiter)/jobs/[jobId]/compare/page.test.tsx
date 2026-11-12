@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { compareApplicationsAction } from '@/servers/applications/applications.action';
 
+vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
 vi.mock('@/servers/applications/applications.action', () => ({ compareApplicationsAction: vi.fn() }));
 
 const compare = vi.mocked(compareApplicationsAction);

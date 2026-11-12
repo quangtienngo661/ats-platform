@@ -1,3 +1,6 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import { LegacyFrame } from '@/components/ui-variant/LegacyFrame';
+import LegacyAdminLayout from '@/legacy/app/(admin)/layout';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { getMeAction } from '@/servers/users/users.action';
 import { getCurrentOrganizationAction } from '@/servers/organizations/organizations.action';
@@ -14,6 +17,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if ((await getUiVariant()) === 'legacy') {
+    return (
+      <LegacyFrame>
+        <LegacyAdminLayout>{children}</LegacyAdminLayout>
+      </LegacyFrame>
+    );
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
   let userRole: string | undefined;

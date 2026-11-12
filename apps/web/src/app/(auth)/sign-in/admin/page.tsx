@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyStaffSignInPage from '@/legacy/app/(auth)/sign-in/admin/page';
 import StaffLoginForm from '@/components/auth/forms/StaffLoginForm';
 import { StaffAuthShell } from '@/components/auth/ui/StaffAuthShell';
 import { Suspense } from 'react';
@@ -14,6 +16,7 @@ interface Props {
 }
 
 export default async function StaffSignInPage({ searchParams }: Props) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyStaffSignInPage searchParams={searchParams} />;
     const { isRoleDifferent } = await searchParams;
     return (
         <StaffAuthShell>

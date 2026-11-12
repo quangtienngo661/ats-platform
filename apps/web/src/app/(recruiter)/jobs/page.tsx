@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobPostingsPage from '@/legacy/app/(recruiter)/jobs/page';
 import JobPostingsClient from '@/components/job-postings/JobPostingsClient';
 import { getJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
@@ -6,6 +8,7 @@ import { getMyRecruiterProfileAction, getRecruitersAction } from '@/servers/recr
 import { getSkillsAction } from '@/servers/skills/skills.action';
 
 export default async function JobPostingsPage() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobPostingsPage />;
     const result = await getJobPostingsAction();
     const { items: jobs } = result;
     const skillsDb = await getSkillsAction();

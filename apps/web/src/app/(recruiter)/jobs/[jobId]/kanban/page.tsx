@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobKanbanPage from '@/legacy/app/(recruiter)/jobs/[jobId]/kanban/page';
 import { CandidatesHeader } from '@/components/candidates/ui/CandidatesHeader';
 import KanbanClient from '@/components/kanban/KanbanClient';
 import { getApplicationsByJobAction, getKanbanBoardAction } from '@/servers/applications/applications.action';
@@ -10,6 +12,7 @@ interface JobKanbanPageProps {
 }
 
 export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobKanbanPage params={params} />;
     const { jobId } = await params;
 
     const [kanbanResult, applicationsResult, aiProfiles] = await Promise.all([

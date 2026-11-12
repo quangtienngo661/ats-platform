@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobDetailPage from '@/legacy/app/(public)/job-postings/[id]/page';
 import { notFound } from 'next/navigation';
 import { getJobPostingByIdAction } from '@/servers/job-postings/job-postings.action';
 import { JobDetailHero } from '@/components/public/jobs/detail/JobDetailHero';
@@ -26,6 +28,7 @@ export async function generateMetadata({ params }: JobDetailPageProps) {
 }
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobDetailPage params={params} />;
     const { id } = await params;
     const [result, cookieStore] = await Promise.all([
         getJobPostingByIdAction(id),

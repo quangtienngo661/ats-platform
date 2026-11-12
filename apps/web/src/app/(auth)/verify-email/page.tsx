@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyVerifyEmailPage from '@/legacy/app/(auth)/verify-email/page';
 import VerifyEmailView from '@/components/auth/forms/VerifyEmailView';
 import { AuthShell } from '@/components/auth/ui/AuthShell';
 
@@ -13,6 +15,7 @@ interface VerifyEmailPageProps {
 }
 
 export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyVerifyEmailPage searchParams={searchParams} />;
     const { email } = await searchParams;
 
     return (

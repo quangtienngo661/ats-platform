@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyRecruiterProfilePage from '@/legacy/app/(recruiter)/my-profile/page';
 import RecruiterProfileClient from '@/components/recruiter-profile/RecruiterProfileClient';
 import { getMyRecruiterProfileAction } from '@/servers/recruiters/recruiters.action';
 import { getMeAction } from '@/servers/users/users.action';
@@ -5,6 +7,7 @@ import { getCurrentOrganizationAction } from '@/servers/organizations/organizati
 import StaffProfileClient from '@/components/user-management/StaffProfileClient';
 
 export default async function RecruiterProfilePage() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyRecruiterProfilePage />;
     const user = await getMeAction();
     if (user && (user.role === 'org_admin' || user.role === 'admin')) {
         const organization = user.role === 'org_admin' ? await getCurrentOrganizationAction() : null;

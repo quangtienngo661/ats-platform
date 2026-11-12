@@ -1,3 +1,6 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import { LegacyFrame } from '@/components/ui-variant/LegacyFrame';
+import LegacyHRRouteLayout from '@/legacy/app/(recruiter)/layout';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { getMeAction } from '@/servers/users/users.action';
 import { getCurrentOrganizationAction } from '@/servers/organizations/organizations.action';
@@ -10,6 +13,14 @@ export const metadata = {
 };
 
 export default async function HRRouteLayout({ children }: { children: React.ReactNode }) {
+  if ((await getUiVariant()) === 'legacy') {
+    return (
+      <LegacyFrame>
+        <LegacyHRRouteLayout>{children}</LegacyHRRouteLayout>
+      </LegacyFrame>
+    );
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
   let userRole: string | undefined;

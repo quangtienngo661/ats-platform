@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyRecruiterManagementPage from '@/legacy/app/(admin)/recruiter-management/page';
 import RecruiterClient from '@/components/recruiter-management/RecruiterClient';
 import { getDepartmentsAction } from '@/servers/departments/departments.action';
 import { getRecruitersAction } from '@/servers/recruiters/recruiters.action';
@@ -9,6 +11,7 @@ export const metadata = {
 };
 
 export default async function RecruiterManagementPage() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyRecruiterManagementPage />;
     const recruiters = await getRecruitersAction();
     const departments = await getDepartmentsAction();
     const me = await getMeAction();

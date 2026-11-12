@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyComparePage from '@/legacy/app/(recruiter)/jobs/[jobId]/compare/page';
 import Link from 'next/link';
 import { CompareTable } from '@/components/candidates/CompareTable';
 import { compareApplicationsAction } from '@/servers/applications/applications.action';
@@ -12,6 +14,7 @@ interface ComparePageProps {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function ComparePage({ params, searchParams }: ComparePageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyComparePage params={params} searchParams={searchParams} />;
     const { jobId } = await params;
     const query = await searchParams;
     const ids = typeof query.ids === 'string' ? query.ids.split(',') : [];

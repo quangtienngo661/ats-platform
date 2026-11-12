@@ -4,6 +4,7 @@ import './global.css';
 import { cookies } from 'next/headers';
 import { GlobalSocketInit } from '../components/common/GlobalSocketInit';
 import { MotionProvider } from '../components/common/MotionProvider';
+import { getUiVariant } from '@/lib/ui-variant';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 
@@ -21,6 +22,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const variant = await getUiVariant();
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
 
@@ -33,8 +35,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="vi" data-scroll-behavior="smooth">
-      <body className={inter.className}>
+    <html lang="vi" data-ui={variant} data-scroll-behavior="smooth">
+      <body className={variant === 'legacy' ? inter.className : undefined}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:text-[13px] focus:text-[#0071E3] focus:shadow-lg focus:outline focus:outline-2 focus:outline-[#0071E3]"

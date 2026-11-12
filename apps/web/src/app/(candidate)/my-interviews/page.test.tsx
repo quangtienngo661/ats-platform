@@ -7,6 +7,7 @@ import { getCandidateInterviewSchedulesAction } from '@/servers/interviews/inter
 import { candidateSchedule } from '@/test/fixtures/candidate-schedule';
 import MyInterviewsPage from './page';
 
+vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
 vi.mock('@/servers/interviews/interviews.action', () => ({
   getCandidateInterviewSchedulesAction: vi.fn(),
 }));

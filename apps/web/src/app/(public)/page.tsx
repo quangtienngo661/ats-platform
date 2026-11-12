@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyHomePage from '@/legacy/app/(public)/page';
 import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
 import { HomeHero } from '@/components/public/home/HomeHero';
 import { PublicFooter } from '@/components/public/layout/PublicFooter';
@@ -12,6 +14,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyHomePage />;
     const categories = await getViewerJobCategoriesAction();
 
     return (

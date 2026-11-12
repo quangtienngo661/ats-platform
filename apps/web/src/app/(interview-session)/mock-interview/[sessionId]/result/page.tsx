@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyInterviewResultPage from '@/legacy/app/(interview-session)/mock-interview/[sessionId]/result/page';
 import InterviewResultClient from '@/components/mock-interview/InterviewResultClient';
 import InterviewPendingResultClient from '@/components/mock-interview/InterviewPendingResultClient';
 import { getInterviewById, getInterviewResultAction } from '@/servers/interviews/interviews.action';
@@ -9,6 +11,7 @@ export const metadata = {
 };
 
 export default async function InterviewResultPage({ params }: { params: Promise<{ sessionId: string }> }) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyInterviewResultPage params={params} />;
     const { sessionId } = await params;
     const result = await getInterviewResultAction(sessionId);
 

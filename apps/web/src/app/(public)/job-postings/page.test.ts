@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getJobFilterOptionsAction, getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
 import JobsPage from './page';
 
+vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
 vi.mock('@/servers/job-postings/job-postings.action', () => ({
   getJobPostingsAction: vi.fn(),
   getJobFilterOptionsAction: vi.fn(),

@@ -5,6 +5,7 @@ import type { IApplicationDto } from '@/types/interfaces/application.interface';
 import { getApplicationByIdAction } from '@/servers/applications/applications.action';
 import ApplicationPage from './page';
 
+vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
 vi.mock('@/servers/applications/applications.action', () => ({ getApplicationByIdAction: vi.fn() }));
 
 const originalTz = process.env.TZ;

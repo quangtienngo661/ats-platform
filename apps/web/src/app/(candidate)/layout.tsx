@@ -1,3 +1,6 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import { LegacyFrame } from '@/components/ui-variant/LegacyFrame';
+import LegacyCandidateLayout from '@/legacy/app/(candidate)/layout';
 import type { ReactNode } from 'react';
 import { PublicHeader } from '@/components/public/layout/PublicHeader';
 import { cookies } from 'next/headers';
@@ -11,6 +14,14 @@ export const metadata = {
 };
 
 export default async function CandidateLayout({ children }: { children: ReactNode }) {
+  if ((await getUiVariant()) === 'legacy') {
+    return (
+      <LegacyFrame>
+        <LegacyCandidateLayout>{children}</LegacyCandidateLayout>
+      </LegacyFrame>
+    );
+  }
+
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value || "";
 
