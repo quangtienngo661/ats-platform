@@ -24,6 +24,13 @@ Plan chi tiết: [`docs/tasks/gd4/plan.md`](../tasks/gd4/plan.md). Spec: [`docs/
 4. Nâng cấp dashboard và bảng giá model cho admin.
 5. E2E dashboard hiện đúng số funnel.
 
+## M4 — Phòng chờ và thông báo (bổ sung 13/11)
+1. Thêm trạng thái chờ và đã cho vào trên lịch phỏng vấn.
+2. API giữ ứng viên ở phòng chờ, báo người phỏng vấn, cho vào; đổi giờ thì phải chờ lại.
+3. Nhắc lịch trước 24 giờ và báo phòng đã mở qua queue, thông báo trong ứng dụng.
+4. Màn chờ của ứng viên, dải "đang chờ" và nút Cho vào của người phỏng vấn.
+5. E2E chờ → cho vào → thấy nhau, và thông báo phòng đã mở qua queue thật.
+
 ---
 
 # GĐ4 — as-built (12/11/2026, chưa merge)
@@ -47,6 +54,13 @@ M3 `feat/gd4-p3-analytics`. Merge sau chuỗi GĐ3 (#75–#79), theo thứ tự 
   một lần (`results/task-2.2-*.txt`, `results/task-3.2-*.txt`); E2E thật trên stack test: phòng LiveKit hai người, co-pilot
   áp dụng/bỏ qua, dashboard ba vai trò (`operation.md`).
 
+- **M4 — phòng chờ và thông báo (13/11, nhánh `feat/gd4-p4-waiting-room` từ M3):** ứng viên chưa được cho vào không
+  nhận token, thấy màn chờ; người phỏng vấn/người tạo lịch nhận sự kiện Socket.IO `interview-room:waiting` và thông
+  báo "Ứng viên đang chờ", bấm **Cho vào** (`POST /interviews/schedules/:id/admit`); đổi giờ/hình thức thì chờ lại.
+  Queue `interview-reminders`: "Nhắc lịch phỏng vấn" trước 24 giờ, "Phòng phỏng vấn đã mở" lúc phòng mở, gửi cho ứng
+  viên, người phỏng vấn, người tạo lịch qua thông báo trong ứng dụng (`notification:new`). Probe migration:
+  `results/task-4.1-migration-probe.txt`. E2E: `operation.md`.
+
 ## Chưa làm / chưa kiểm
 
 | Mục | Lý do |
@@ -55,3 +69,5 @@ M3 `feat/gd4-p3-analytics`. Merge sau chuỗi GĐ3 (#75–#79), theo thứ tự 
 | "AI giải thích" với LLM thật | Không có key AI thật trong phiên; chỉ kiểm bằng unit test (thành công và 503) |
 | Hai người ở hai mạng khác nhau (qua NAT/TURN) | Chỉ chạy được trên một máy; cần môi trường prod |
 | Build image API của stack test trên máy này | Đứng ở `npm ci` hai lần; E2E chạy với API trên máy, cùng biến môi trường |
+| "Nhắc lịch phỏng vấn" (−24h) chạy thật | Chỉ unit test; E2E chỉ chạy được job "phòng đã mở" (chạy ngay). Kiểm tay: checklist 1b.9 |
+| Bấm vào thông báo để mở phòng | Thông báo hiện tại chỉ đánh dấu đã đọc, không dẫn tới trang nào (hành vi sẵn có của chuông thông báo) |

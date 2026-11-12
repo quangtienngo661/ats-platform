@@ -17,7 +17,7 @@ Lịch đề cương ĐA2 là: GĐ1 07–27/09 (multi-tenant + ổn định + SR
 
 **GĐ3 (RAG, 26/10–22/11):** code xong theo spec, 7 PR (#73–#79). #73 và #74 đã vào `dev` (12/11); #75–#79 chờ merge. Còn nghiệm thu cần AI thật: probe OpenAI, chọn ngưỡng τ, seed ngân hàng câu hỏi, đo độ nhất quán ([delivery](deliveries/gd3-rag.md)).
 
-**GĐ4 (23/11–13/12) — phỏng vấn trực tuyến, AI co-pilot, thống kê:** code và E2E xong trước lịch, 3 PR nối tiếp trên đỉnh GĐ3, chờ merge sau GĐ3 ([spec](tasks/gd4/spec.md), [delivery](deliveries/gd4.md)). Còn: deploy LiveKit lên prod (cần đồng ý sửa compose prod + nginx), kiểm tay giải thích AI của co-pilot với key thật.
+**GĐ4 (23/11–13/12) — phỏng vấn trực tuyến, AI co-pilot, thống kê:** code và E2E xong trước lịch, 4 PR nối tiếp trên đỉnh GĐ3 (PR thứ tư bổ sung phòng chờ và thông báo Socket.IO sau khi đối chiếu đề cương), chờ merge sau GĐ3 ([spec](tasks/gd4/spec.md), [delivery](deliveries/gd4.md)). Còn: deploy LiveKit lên prod (cần đồng ý sửa compose prod + nginx), kiểm tay giải thích AI của co-pilot với key thật.
 
 **GĐ5 (14–26/12):** kiểm thử, tối ưu, deploy, báo cáo; Judge0 tuỳ chọn. Chưa bắt đầu.
 

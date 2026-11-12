@@ -1,6 +1,6 @@
 # GĐ4 — checklist kiểm thử tay
 
-Dùng nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2; nếu chuỗi PR đã merge thì dùng `dev`). Mỗi mục ghi **làm gì** và
+Dùng nhánh `feat/gd4-p4-waiting-room` (đã gồm M1, M2, M3; nếu chuỗi PR đã merge thì dùng `dev`). Mỗi mục ghi **làm gì** và
 **phải thấy gì**. Đánh dấu ✅/❌ và ghi chú cạnh mục nào khác kỳ vọng.
 
 ## 0. Chuẩn bị (một lần)
@@ -9,7 +9,8 @@ Dùng nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2; nếu chuỗi PR đ�
 2. Chạy stack dev: `docker-compose -f docker-compose-dev.yml up -d --build`. Stack có thêm service `livekit` (cổng 7880,
    7881/TCP, 7882/UDP). API tự nhận `LIVEKIT_*` mặc định nếu `.env` không đặt.
 3. Container API tự chạy `prisma migrate deploy` khi khởi động (CMD của image). Xem `docker logs ats-api`: phải có các
-   migration GĐ3 và 2 migration GĐ4 (`20261113000000_add_copilot_decisions`, `20261113100000_add_ai_cost_tracking`).
+   migration GĐ3 và 3 migration GĐ4 (`20261113000000_add_copilot_decisions`, `20261113100000_add_ai_cost_tracking`,
+   `20261113200000_add_interview_waiting_room`).
    Lưu ý: trong phiên làm GĐ4, build image API trên máy này hai lần đứng ở bước `npm ci`; nếu gặp lại, dừng rồi build lại,
    hoặc chạy API trên máy bằng `npx nx build api` + `node dist/apps/api/main.js` với biến môi trường trỏ `localhost`.
 4. Kiểm nhanh: mở `http://localhost:7880` → trả `OK`. `GET http://localhost:5000/api/health` → `up`.
@@ -26,13 +27,31 @@ Dùng nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2; nếu chuỗi PR đ�
 | 1.4 | Đăng nhập ứng viên (trình duyệt/hồ sơ khác) → Lịch phỏng vấn của tôi | Thẻ lịch 1.1 có nút **Vào phòng phỏng vấn**, không hiện link thô |
 | 1.5 | Email "lịch phỏng vấn" trong hộp thư (Mailpit nếu dùng) | "Link phòng họp: http://…/interview-room/<id>" |
 | 1.6 | Recruiter bấm **Vào phòng phỏng vấn** | Màn kiểm thiết bị (camera, micro), nút **Vào phòng**; góc trên "Phòng đóng lúc HH:mm" = giờ kết thúc + 30' |
-| 1.7 | Bấm **Vào phòng**, rồi ứng viên cũng vào | Mỗi bên thấy video và tên người kia; bật/tắt mic, camera, chia sẻ màn hình, chat được |
+| 1.7 | Bấm **Vào phòng**, rồi ứng viên cũng vào (ứng viên phải chờ được cho vào, xem mục 1b) | Mỗi bên thấy video và tên người kia; bật/tắt mic, camera, chia sẻ màn hình, chat được |
 | 1.8 | Một bên bấm rời phòng | Quay về trang lịch của vai trò đó (recruiter: `/interviews`, ứng viên: `/my-interviews`) |
 | 1.9 | Đăng nhập một recruiter khác (không phải người tạo, không phải người phỏng vấn), mở thẳng `/interview-room/<id>` | "Không vào được phòng phỏng vấn" + "Bạn không tham gia buổi phỏng vấn này" |
 | 1.10 | Mở link phòng của lịch 1.3 (chưa tới giờ) | "Phòng phỏng vấn mở lúc HH:mm ngày dd/mm/yyyy" |
 | 1.11 | Huỷ lịch 1.1 rồi mở lại link phòng | "Lịch phỏng vấn đã bị huỷ" |
 | 1.12 | Sửa lịch online đang có link ngoài (Google Meet), xoá trống ô link, lưu | Lịch chuyển sang dùng phòng của hệ thống (bước 1.2) |
 | 1.13 | (Tuỳ chọn) Dừng service `livekit` và bỏ 3 biến `LIVEKIT_*` khỏi API, vào phòng | "Phòng phỏng vấn trực tuyến chưa được cấu hình"; API vẫn chạy |
+
+## 1b. Phòng chờ và thông báo (M4)
+
+Dùng hai trình duyệt (hoặc một cửa sổ ẩn danh): recruiter và ứng viên. Lịch online bắt đầu sau 5 phút.
+
+| # | Làm gì | Phải thấy |
+|---|---|---|
+| 1b.1 | Recruiter vào phòng (bấm **Vào phòng**) trước | Phòng họp, chưa có ai khác |
+| 1b.2 | Ứng viên → Lịch phỏng vấn của tôi → **Vào phòng phỏng vấn** | Màn "Đang chờ người phỏng vấn cho vào", nút **Kiểm tra lại**, **không** có màn kiểm tra thiết bị |
+| 1b.3 | Nhìn màn của recruiter | Dải xanh "<tên ứng viên> đang chờ từ HH:mm" + nút **Cho vào** (trong vài giây; chậm nhất 20 giây) |
+| 1b.4 | Recruiter mở chuông thông báo ở trang khác (ví dụ `/interviews`) | Thông báo "Ứng viên đang chờ" — "<tên> đang chờ trong phòng phỏng vấn vị trí <tin>." (một lần, tải lại trang chờ không tạo thêm) |
+| 1b.5 | Recruiter bấm **Cho vào** | Dải xanh biến mất; màn ứng viên tự sang bước kiểm tra thiết bị (chậm nhất 20 giây) |
+| 1b.6 | Ứng viên bấm **Vào phòng** | Hai bên thấy nhau. Ứng viên rời rồi vào lại: không phải chờ nữa |
+| 1b.7 | Recruiter sửa giờ của lịch đó, ứng viên mở lại link phòng (trong khung giờ mới) | Phải chờ cho vào lại |
+| 1b.8 | Tạo lịch online bắt đầu sau 5 phút | Trong vài giây, ứng viên và recruiter có thông báo "Phòng phỏng vấn đã mở" — "… Buổi phỏng vấn bắt đầu lúc HH:mm." |
+| 1b.9 | Tạo lịch bắt đầu sau ~24 giờ 2 phút; đợi 2 phút | Thông báo "Nhắc lịch phỏng vấn" với giờ và ngày (giờ Việt Nam). Lịch onsite: chỉ có nhắc lịch, không có "Phòng phỏng vấn đã mở" |
+| 1b.10 | Tạo lịch sau ~24 giờ 2 phút rồi huỷ (hoặc dời giờ) ngay | Không có "Nhắc lịch phỏng vấn" cho giờ cũ |
+| 1b.11 | Ứng viên gọi thẳng `POST /api/interviews/schedules/<id>/admit` | 403 |
 
 ## 2. AI co-pilot trên Kanban (M2)
 
@@ -71,4 +90,5 @@ Dùng nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2; nếu chuỗi PR đ�
 
 - Co-pilot tự đổi trạng thái hoặc tự từ chối hồ sơ khi chưa bấm.
 - Người ngoài buổi phỏng vấn vào được phòng.
+- Ứng viên nhận được token LiveKit (vào được phòng họp) trước khi người phỏng vấn bấm **Cho vào**.
 - Recruiter thấy số liệu của phòng ban hay tổ chức khác.

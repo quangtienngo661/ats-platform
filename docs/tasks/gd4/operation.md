@@ -20,6 +20,8 @@ chủ dự án, nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2).
 |---|---|---|---|
 | Hai người vào cùng phòng LiveKit thật, thiết bị giả, mỗi bên thấy tên người kia (C7) | recruiter (người tạo + người phỏng vấn), ứng viên | 2/2 pass | `apps/web/e2e/gd4-interview-room.e2e.ts` |
 | Ứng viên không thuộc buổi phỏng vấn mở link phòng → trang "Không vào được phòng phỏng vấn", không có nút vào phòng (R2) | ứng viên khác | pass (cùng file) | như trên |
+| **M4 (13/11):** ứng viên vào → màn "Đang chờ người phỏng vấn cho vào", không có bước kiểm tra thiết bị; recruiter đang trong phòng thấy "<tên> đang chờ từ HH:mm", API có đúng một thông báo "Ứng viên đang chờ"; bấm **Cho vào** → màn ứng viên tự sang kiểm tra thiết bị → hai bên thấy nhau (C24) | recruiter, ứng viên | 3/3 pass (cả file) | `apps/web/e2e/gd4-interview-room.e2e.ts` |
+| **M4:** huỷ lịch cũ, tạo lịch online bắt đầu sau 5 phút qua API → job `room-open` chạy ngay qua Redis + processor thật → ứng viên và recruiter mỗi người đúng một thông báo "Phòng phỏng vấn đã mở", không có "Nhắc lịch phỏng vấn" (R29, R30) | recruiter, ứng viên | pass (cùng file) | như trên |
 | Áp dụng "Mời phỏng vấn" trên Kanban → đơn sang `interview`, lịch sử ghi "Áp dụng gợi ý co-pilot: Mời phỏng vấn", `copilot_decisions` = accepted; gợi ý kế tiếp "Đặt lịch phỏng vấn" (C13) | recruiter | 2/2 pass | `apps/web/e2e/gd4-copilot.e2e.ts` |
 | Bỏ qua gợi ý → ẩn, tải lại vẫn ẩn, đơn không đổi trạng thái | recruiter | pass (cùng file) | như trên |
 | Dashboard: funnel 5/4/3/2/1 của một tin, KPI, 5 đơn mới nhất, không có khối chi phí AI (C19) | recruiter | 3/3 pass | `apps/web/e2e/gd4-dashboard.e2e.ts` |
@@ -27,6 +29,10 @@ chủ dự án, nhánh `feat/gd4-p3-analytics` (đã gồm M1 và M2).
 | Admin nhập giá model còn thiếu ở trang Nhật ký AI → tổng của org_admin thành $2.50001 | admin, org_admin | pass (cùng file) | như trên |
 
 ## Đường lỗi đã thấy khi chạy thật
+
+- **M4, giới hạn đăng nhập:** lần chạy đầu của file phòng phỏng vấn sau khi thêm M4, test R2 nhận `429` ở `/auth/login`
+  (các test mới đăng nhập thêm 3 lần trong một phút). Lỗi của test, không phải của app: sửa bằng một lần đăng nhập API
+  cho mỗi người trong `beforeAll`.
 
 - **Lỗi thật tìm thấy:** lần chạy đầu của dashboard, trang sập vào màn lỗi vì server component lấy hằng `DASHBOARD_PERIODS`
   từ module `'use client'` (chỉ nhận được client reference). E2E đỏ được commit trước (`78ef629`), sửa ở `532f13f`.

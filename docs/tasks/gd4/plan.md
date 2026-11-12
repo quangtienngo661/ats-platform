@@ -90,22 +90,22 @@ M3 `feat/gd4-p3-analytics` từ M2. Mỗi PR base `dev`.
 Nhánh `feat/gd4-p4-waiting-room` từ M3, PR base `dev`.
 
 ### Task 4.1: Schema trạng thái chờ
-- [ ] Migration thêm `candidate_waiting_at`, `candidate_admitted_at` vào `interview_schedules`.
+- [x] Migration thêm `candidate_waiting_at`, `candidate_admitted_at` vào `interview_schedules`.
 
 ### Task 4.2: API phòng chờ
-- [ ] Test đỏ (C20, C21, R28): `join` hai trạng thái, sự kiện và thông báo lần đầu; `admit` quyền, khung giờ, idempotent; sửa giờ xoá trạng thái chờ.
-- [ ] Implement `InterviewRoomService.join`/`admit`, route `POST /interviews/schedules/:id/admit`. Xanh.
+- [x] Test đỏ (C20, C21, R28): `join` hai trạng thái, sự kiện và thông báo lần đầu; `admit` quyền, khung giờ, idempotent; sửa giờ xoá trạng thái chờ.
+- [x] Implement `InterviewRoomService.join`/`admit`, route `POST /interviews/schedules/:id/admit`. Xanh.
 
 ### Task 4.3: Nhắc lịch và phòng đã mở
-- [ ] Test đỏ (C22): thời điểm job, bỏ job khi đã qua, onsite, job cũ bị bỏ qua, người nhận.
-- [ ] Implement queue `interview-reminders`, `InterviewRemindersService`, processor; gọi khi tạo/sửa lịch. Xanh.
+- [x] Test đỏ (C22): thời điểm job, bỏ job khi đã qua, onsite, job cũ bị bỏ qua, người nhận.
+- [x] Implement queue `interview-reminders`, `InterviewRemindersService`, processor; gọi khi tạo/sửa lịch. Xanh.
 
 ### Task 4.4: Web phòng chờ
-- [ ] Test đỏ (C23): màn chờ, chuyển sang kiểm tra thiết bị khi được cho vào; banner + nút Cho vào.
-- [ ] Implement. Xanh.
+- [x] Test đỏ (C23): màn chờ, chuyển sang kiểm tra thiết bị khi được cho vào; banner + nút Cho vào.
+- [x] Implement. Xanh.
 
 ### Task 4.5: E2E + PR
-- [ ] Journey (C24) trong `gd4-interview-room.e2e.ts`; toàn bộ kiểm tra; PR vào `dev`.
+- [x] Journey (C24) trong `gd4-interview-room.e2e.ts`; toàn bộ kiểm tra; PR vào `dev`.
 
 ## Kết thúc
 
@@ -124,3 +124,10 @@ Nhánh `feat/gd4-p4-waiting-room` từ M3, PR base `dev`.
 - **Task 3.3:** API chi phí và bảng giá đặt dưới `/analytics/ai-cost` và `/analytics/ai-model-prices` (spec đã sửa) vì `GET /ai-usage-logs/:referenceId` sẽ bắt mất đường dẫn.
 - **Task 3.4:** lỗi thật tìm bởi E2E: server component lấy hằng từ module `'use client'`; sửa bằng `lib/dashboard-periods.ts` (test đỏ `78ef629`, sửa `532f13f`).
 - **E2E:** API chạy trên máy thay vì container (image build đứng ở `npm ci`); xem `operation.md`.
+
+## Ghi chú thực thi M4 (13/11/2026)
+
+- **Task 4.2:** thứ tự kiểm của `join` thêm bước cuối "chờ": ứng viên không bị đưa vào phòng chờ khi LiveKit chưa cấu hình (503 trước).
+- **Task 4.3:** `jobId` dùng `-` vì BullMQ 5.76.5 từ chối id có `:` (đọc trong `node_modules/bullmq/dist/cjs/classes/job.js`).
+- **Task 4.4:** thêm tự hỏi lại mỗi 20 giây ở phía người phỏng vấn (spec R27 đã sửa): nếu socket rớt, ứng viên không bị kẹt ở phòng chờ.
+- **Task 4.5:** lần chạy đầu R2 nhận 429 ở `/auth/login` do test mới đăng nhập thêm; gom đăng nhập vào `beforeAll`. Full web suite trên máy đang 100% CPU: 3 test cũ timeout 5 s (đối chứng trên M3 cũng timeout); chạy lại với `--testTimeout=20000` thì 84/84 file pass.
