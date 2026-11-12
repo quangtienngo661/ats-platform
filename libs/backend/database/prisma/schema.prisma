@@ -352,6 +352,9 @@ model Skill {
   jobPostingSkills JobPostingSkill[]
   candidateSkills  CandidateSkill[]
 
+  // pgvector column, written and searched only through raw SQL (VectorSearchService); the Prisma client ignores it.
+  embedding Unsupported("vector(1536)")?
+
   @@map("skills")
 }
 
@@ -431,6 +434,9 @@ model CVParsedData {
   projects     Json?
   certificates Json?
   isConfirmed  Boolean @default(false) @map("is_confirmed")
+
+  // pgvector column, written and searched only through raw SQL (VectorSearchService); the Prisma client ignores it.
+  embedding Unsupported("vector(1536)")?
 
   cv CV @relation(fields: [cvId], references: [cvId], onDelete: Cascade)
 
