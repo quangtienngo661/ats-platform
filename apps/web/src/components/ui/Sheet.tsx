@@ -7,7 +7,7 @@ import { cn } from './cn';
 import { useRestoreFocus } from './restore-focus';
 import { IconButton } from './IconButton';
 
-const WIDTH = { md: 'sm:w-[420px]', lg: 'sm:w-[560px]' } as const;
+const WIDTH = { md: 'min-[480px]:w-[420px]', lg: 'min-[480px]:w-[560px]' } as const;
 
 export type SheetProps = {
     open: boolean;

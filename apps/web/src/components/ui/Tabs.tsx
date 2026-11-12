@@ -54,11 +54,11 @@ export function Tabs({ tabs, value, onValueChange }: TabsProps) {
                             ref={(el) => {
                                 refs.current[i] = el;
                             }}
-                            id={`${id}-tab-${t.value}`}
+                            id={`${id}-tab-${i}`}
                             type="button"
                             role="tab"
                             aria-selected={selected}
-                            aria-controls={`${id}-panel-${t.value}`}
+                            aria-controls={selected ? `${id}-panel-${i}` : undefined}
                             tabIndex={selected ? 0 : -1}
                             onClick={() => select(i)}
                             onKeyDown={(e) => onKeyDown(e, i)}
@@ -82,8 +82,8 @@ export function Tabs({ tabs, value, onValueChange }: TabsProps) {
             {active ? (
                 <div
                     role="tabpanel"
-                    id={`${id}-panel-${active.value}`}
-                    aria-labelledby={`${id}-tab-${active.value}`}
+                    id={`${id}-panel-${activeIndex}`}
+                    aria-labelledby={`${id}-tab-${activeIndex}`}
                     tabIndex={0}
                     className="pt-4"
                 >

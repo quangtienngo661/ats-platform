@@ -22,6 +22,16 @@ function SheetHarness() {
 }
 
 describe('Sheet', () => {
+    it('is full width only under 480 px, not under the 640 px sm breakpoint', async () => {
+        const user = userEvent.setup();
+        render(<SheetHarness />);
+        await user.click(screen.getByRole('button', { name: 'Mở' }));
+        const cls = screen.getByRole('dialog', { name: 'Hồ sơ ứng viên' }).className;
+        expect(cls).toContain('min-[480px]:w-[420px]');
+        expect(cls).not.toMatch(/(^|\s)sm:w-/);
+        expect(cls).toContain('h-dvh');
+    });
+
     it('opens as a named dialog, closes on Esc and returns focus to the opener', async () => {
         const user = userEvent.setup();
         render(<SheetHarness />);
@@ -43,7 +53,30 @@ describe('Sheet', () => {
     });
 });
 
+function DialogHarness() {
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <button onClick={() => setOpen(true)}>Mở hộp thoại</button>
+            <Dialog open={open} onOpenChange={setOpen} title="Xóa việc làm">
+                <p>Nội dung</p>
+            </Dialog>
+        </>
+    );
+}
+
 describe('Dialog', () => {
+    it('returns focus to its opener after Esc (controlled open, no Trigger)', async () => {
+        const user = userEvent.setup();
+        render(<DialogHarness />);
+        const opener = screen.getByRole('button', { name: 'Mở hộp thoại' });
+        await user.click(opener);
+        expect(screen.getByRole('dialog', { name: 'Xóa việc làm' })).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(opener).toHaveFocus();
+    });
+
     it('renders title, description, body and footer, and closes on Esc', async () => {
         const user = userEvent.setup();
         const onOpenChange = vi.fn();
@@ -140,6 +173,22 @@ describe('Tabs', () => {
         expect(t1).toHaveAttribute('aria-selected', 'true');
     });
 
+    it('only links the selected tab to its panel, and copes with values containing spaces', () => {
+        const odd = [
+            { value: 'Ghi chú nội bộ', label: 'Ghi chú', content: <p>Panel ghi chú</p> },
+            { value: 'b', label: 'Hồ sơ', content: <p>Panel B</p> },
+        ];
+        render(<Tabs tabs={odd} />);
+        const [t1, t2] = screen.getAllByRole('tab');
+        expect(t2).not.toHaveAttribute('aria-controls');
+        const panel = screen.getByRole('tabpanel');
+        expect(t1.getAttribute('aria-controls')).toBe(panel.id);
+        expect(panel.getAttribute('aria-labelledby')).toBe(t1.id);
+        expect(panel.id).not.toMatch(/\s/);
+        expect(t1.id).not.toMatch(/\s/);
+        expect(panel).toHaveAccessibleName('Ghi chú');
+    });
+
     it('is controllable', async () => {
         const user = userEvent.setup();
         const onValueChange = vi.fn();
@@ -164,6 +213,21 @@ describe('Segmented', () => {
         expect(screen.getByRole('radio', { name: 'Danh sách' })).toHaveAttribute('aria-checked', 'true');
         await user.click(screen.getByRole('radio', { name: 'Kanban' }));
         expect(onValueChange).toHaveBeenCalledWith('kanban');
+    });
+
+    it('wraps around at both ends', async () => {
+        const user = userEvent.setup();
+        const onValueChange = vi.fn();
+        const { rerender } = render(
+            <Segmented options={options} value="kanban" onValueChange={onValueChange} label="Kiểu xem" />,
+        );
+        screen.getByRole('radio', { name: 'Kanban' }).focus();
+        await user.keyboard('{ArrowRight}');
+        expect(onValueChange).toHaveBeenLastCalledWith('list');
+        rerender(<Segmented options={options} value="list" onValueChange={onValueChange} label="Kiểu xem" />);
+        screen.getByRole('radio', { name: 'Danh sách' }).focus();
+        await user.keyboard('{ArrowLeft}');
+        expect(onValueChange).toHaveBeenLastCalledWith('kanban');
     });
 
     it('moves and selects with arrow keys', async () => {
