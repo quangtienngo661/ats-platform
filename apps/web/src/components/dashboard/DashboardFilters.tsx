@@ -1,8 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-
-export const DASHBOARD_PERIODS = [7, 30, 90] as const;
+import { DASHBOARD_PERIODS } from '@/lib/dashboard-periods';
 
 interface DashboardFiltersProps {
     days: number;

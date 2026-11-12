@@ -11,7 +11,8 @@ import RecentCandidates from '@/components/dashboard/RecentCandidates';
 import OpenJobsList from '@/components/dashboard/OpenJobsList';
 import { RecruitmentFunnel, TimeInStage } from '@/components/dashboard/RecruitmentFunnel';
 import { AiCostPanel } from '@/components/dashboard/AiCostPanel';
-import { DASHBOARD_PERIODS, DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { dashboardPeriod } from '@/lib/dashboard-periods';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ function dayLabel(isoDate: string) {
 // caller's scope (A-04: the old page sliced the first six cards of a whole board).
 export default async function HRDashboard({ searchParams }: DashboardPageProps) {
     const { days: daysParam, jobId } = await searchParams;
-    const days = (DASHBOARD_PERIODS as readonly number[]).includes(Number(daysParam)) ? Number(daysParam) : 30;
+    const days = dashboardPeriod(daysParam);
     const to = new Date();
     const from = new Date(to.getTime() - days * DAY);
     const range = { from: from.toISOString(), to: to.toISOString() };
