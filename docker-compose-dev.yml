@@ -7,7 +7,10 @@ services:
   # 1. Cơ sở dữ liệu PostgreSQL
   # ----------------------------------------
   postgres:
-    image: postgres:18.4-alpine
+    # postgres:18.4-alpine plus the pgvector extension (docker/postgres/Dockerfile).
+    build:
+      context: ./docker/postgres
+    image: ats-postgres-pgvector:18.4-0.8.1
     container_name: ats-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}

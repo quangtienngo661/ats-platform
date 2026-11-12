@@ -1,0 +1,10 @@
+  console.log
+    nearest first: Question near > Question mid > Question far — skipped: hidden, novector, harder, otherTopic
+      at Object.<anonymous> (src/common/vector/question-search.probe.ts:86:17)
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        8.12 s
+Ran all test suites.
+Jest did not exit one second after the test run has completed.
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.

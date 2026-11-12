@@ -90,6 +90,13 @@ export const RagMode = {
 } as const;
 export type RagMode = (typeof RagMode)[keyof typeof RagMode];
 
+export const QuestionSource = {
+  bank: 'bank',
+  generated: 'generated',
+} as const;
+export type QuestionSource =
+  (typeof QuestionSource)[keyof typeof QuestionSource];
+
 export const AiActionType = {
   cv_parsing: 'cv_parsing',
   cv_scoring: 'cv_scoring',

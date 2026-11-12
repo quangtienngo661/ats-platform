@@ -61,4 +61,50 @@ describe('env validation — AI provider', () => {
     expect(validate(without)).toBe(without);
     expect(validate(withModels)).toBe(withModels);
   });
+
+  describe('SKILL_MATCH_THRESHOLD', () => {
+    const geminiEnv = { ...baseEnv, GOOGLE_API_KEY: 'g' };
+
+    it('is optional', () => {
+      expect(validate(geminiEnv)).toBe(geminiEnv);
+    });
+
+    it.each(['0', '0.8', '0.75', '1', '1.0'])('accepts %s', (value) => {
+      const env = { ...geminiEnv, SKILL_MATCH_THRESHOLD: value };
+
+      expect(validate(env)).toBe(env);
+    });
+
+    it.each(['abc', '1.5', '-0.1', '2', '0.8.1', ''])(
+      'rejects %p and names SKILL_MATCH_THRESHOLD',
+      (value) => {
+        expect(() =>
+          validate({ ...geminiEnv, SKILL_MATCH_THRESHOLD: value }),
+        ).toThrow(/SKILL_MATCH_THRESHOLD/);
+      },
+    );
+  });
+
+  describe('ANCHOR_COUNT', () => {
+    const geminiEnv = { ...baseEnv, GOOGLE_API_KEY: 'g' };
+
+    it('is optional', () => {
+      expect(validate(geminiEnv)).toBe(geminiEnv);
+    });
+
+    it.each(['1', '3', '10'])('accepts %s', (value) => {
+      const env = { ...geminiEnv, ANCHOR_COUNT: value };
+
+      expect(validate(env)).toBe(env);
+    });
+
+    it.each(['0', '11', '-1', '2.5', 'abc', ''])(
+      'rejects %p and names ANCHOR_COUNT',
+      (value) => {
+        expect(() => validate({ ...geminiEnv, ANCHOR_COUNT: value })).toThrow(
+          /ANCHOR_COUNT/,
+        );
+      },
+    );
+  });
 });
