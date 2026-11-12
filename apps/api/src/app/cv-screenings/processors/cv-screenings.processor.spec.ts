@@ -115,6 +115,7 @@ describe('CvScreeningProcessor', () => {
       });
       prisma.application.findUnique.mockResolvedValue({
         applicationId: 'app-1',
+        organizationId: 'org-1',
         jobId: 'job-1',
         candidateId: 'cand-1',
         jobPosting: {
@@ -183,7 +184,9 @@ describe('CvScreeningProcessor', () => {
       await processor.process(buildJob(0));
 
       expect(embeddingService.embed).toHaveBeenCalledTimes(1);
-      expect(embeddingService.embed).toHaveBeenCalledWith('scr-1', ['ReactJS', 'NestJS']);
+      // The usage log of this embedding belongs to the application's organization (GĐ4 R20).
+      expect(embeddingService.embed).toHaveBeenCalledWith('scr-1', ['ReactJS', 'NestJS'], 'org-1');
+      expect(llmService.screeningCV).toHaveBeenCalledWith('scr-1', expect.any(String), 'org-1');
       expect(vectorSearch.readEmbeddings).toHaveBeenCalledWith('skill', ['sk-react']);
     });
 

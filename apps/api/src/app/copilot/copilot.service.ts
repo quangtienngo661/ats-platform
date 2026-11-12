@@ -160,6 +160,7 @@ export class CopilotService {
       const result = await this.llm.explainSuggestion(
         applicationId,
         JSON.stringify({ suggestion: { title: suggestion.title, reasons: suggestion.reasons }, status: facts.status }),
+        row.organizationId,
       );
       const explanation = typeof result?.explanation === 'string' ? result.explanation.trim() : '';
       if (!explanation) throw new Error('empty explanation');

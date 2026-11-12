@@ -19,12 +19,13 @@ export class LlmService {
         return this.run('parseCV', refId, content);
     }
 
-    parseJD(refId: string | null, rawDescription: string) {
-        return this.run('parseJD', refId, `<jd_text>\n${rawDescription}\n</jd_text>`);
+    // The organization, where a call has one, goes into the usage log for the cost view (GĐ4 R20).
+    parseJD(refId: string | null, rawDescription: string, organizationId: string | null = null) {
+        return this.run('parseJD', refId, `<jd_text>\n${rawDescription}\n</jd_text>`, organizationId);
     }
 
-    screeningCV(refId: string | null, content: string) {
-        return this.run('screeningCV', refId, content);
+    screeningCV(refId: string | null, content: string, organizationId: string | null = null) {
+        return this.run('screeningCV', refId, content, organizationId);
     }
 
     generateInterviewQuestions(refId: string | null, content: string) {
@@ -44,13 +45,18 @@ export class LlmService {
     }
 
     /** GĐ4 co-pilot: put a suggestion the rules already decided into words. `facts` is JSON. */
-    explainSuggestion(refId: string | null, facts: string) {
-        return this.run('explainSuggestion', refId, `<application_facts>\n${facts}\n</application_facts>`);
+    explainSuggestion(refId: string | null, facts: string, organizationId: string | null = null) {
+        return this.run('explainSuggestion', refId, `<application_facts>\n${facts}\n</application_facts>`, organizationId);
     }
 
     // Callers validate the shape of the parsed JSON themselves; this layer only guarantees it parses.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private async run(operation: LlmOperation, refId: string | null, content: string): Promise<any> {
+    private async run(
+        operation: LlmOperation,
+        refId: string | null,
+        content: string,
+        organizationId: string | null = null,
+    ): Promise<any> {
         const { tier, reasoning, actionType, systemPrompt } = LLM_OPERATIONS[operation];
         const startTime = performance.now();
         const controller = new AbortController();
@@ -84,6 +90,7 @@ export class LlmService {
                 candidatesTokenCount: result.outputTokens,
                 duration,
                 status: AiLogStatus.success,
+                organizationId,
             });
 
             return data;
@@ -106,6 +113,7 @@ export class LlmService {
                 candidatesTokenCount: 0,
                 duration,
                 status: AiLogStatus.failed,
+                organizationId,
             });
 
             throw error;

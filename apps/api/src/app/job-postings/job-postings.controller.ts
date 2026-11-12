@@ -64,9 +64,13 @@ export class JobPostingsController {
       'Gửi mô tả công việc (JD) để AI trích xuất yêu cầu, kỹ năng, kinh nghiệm.',
   })
   @ApiResponse({ status: 200, description: 'Phân tích thành công' })
-  parseJdPreview(@Body() parseJdPreviewDto: ParseJdPreviewDto) {
+  parseJdPreview(
+    @Body() parseJdPreviewDto: ParseJdPreviewDto,
+    @CurrentCaller() caller: TenantCaller,
+  ) {
     return this.jobPostingsService.parseJdPreview(
       parseJdPreviewDto.description,
+      caller.organizationId,
     );
   }
 

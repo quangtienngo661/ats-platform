@@ -184,8 +184,9 @@ describe('CopilotService', () => {
       llm.explainSuggestion.mockResolvedValue({ explanation: '  Điểm 78 cao hơn ngưỡng 60.  ' });
 
       await expect(service.explain(recruiter, 'app-1', NOW)).resolves.toEqual({ explanation: 'Điểm 78 cao hơn ngưỡng 60.' });
-      const [refId, content] = llm.explainSuggestion.mock.calls[0];
+      const [refId, content, organizationId] = llm.explainSuggestion.mock.calls[0];
       expect(refId).toBe('app-1');
+      expect(organizationId).toBe('org-1'); // the cost view counts it for this organization (R20)
       expect(JSON.parse(content)).toEqual({
         status: 'screening',
         suggestion: { title: 'Mời phỏng vấn', reasons: ['Điểm sàng lọc 78 (AI), ngưỡng 60.'] },

@@ -105,7 +105,14 @@ describe('EmbeddingService', () => {
       candidatesTokenCount: 0,
       duration: expect.any(Number),
       status: AiLogStatus.success,
+      organizationId: null,
     });
+  });
+
+  it('records the organization when the caller knows it (GĐ4 R20)', async () => {
+    await buildService().embed('scr-1', ['a'], 'org-7');
+
+    expect(usageLogs.create).toHaveBeenCalledWith(expect.objectContaining({ refId: 'scr-1', organizationId: 'org-7' }));
   });
 
   it('splits more than 2048 texts into batches, one call and one log row each, keeping order', async () => {

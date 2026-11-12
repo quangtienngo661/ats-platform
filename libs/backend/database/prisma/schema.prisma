@@ -219,6 +219,7 @@ model User {
   applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
   copilotDecisions   CopilotDecision[]
+  updatedModelPrices AiModelPrice[]
   reviewedScreenings CVScreening[]       @relation("ScreeningReviewer")
   createdInterviewQuestions InterviewQuestion[] @relation("QuestionAuthor")
 
@@ -267,6 +268,7 @@ model Organization {
   applicationNotes   ApplicationNote[]
   emailNotifications EmailNotification[]
   copilotDecisions   CopilotDecision[]
+  aiUsageLogs        AiUsageLog[]
 
   @@map("organizations")
 }
@@ -590,9 +592,29 @@ model AiUsageLog {
   durationMs       Int          @map("duration_ms")
   status           AiLogStatus
   createdAt        DateTime     @default(now()) @map("created_at")
+  // The organization the call was made for, when there is one (GĐ4 R20). Null for calls that
+  // belong to no organization (a candidate's CV parsing or mock interview, global embeddings).
+  organizationId   String?      @map("organization_id")
+
+  organization Organization? @relation(fields: [organizationId], references: [organizationId], onDelete: SetNull)
 
   @@index([actionType, createdAt])
+  @@index([organizationId, createdAt])
   @@map("ai_usage_logs")
+}
+
+// What an admin says one million tokens of a model cost, in USD (GĐ4 R21). Nothing is built in:
+// a model without a row has no estimated cost.
+model AiModelPrice {
+  modelName           String   @id @map("model_name") @db.VarChar(100)
+  inputUsdPerMillion  Decimal  @map("input_usd_per_million") @db.Decimal(12, 4)
+  outputUsdPerMillion Decimal  @map("output_usd_per_million") @db.Decimal(12, 4)
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  updatedById         String?  @map("updated_by_id")
+
+  updatedBy User? @relation(fields: [updatedById], references: [userId], onDelete: SetNull)
+
+  @@map("ai_model_prices")
 }
 
 // ============================================================

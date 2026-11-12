@@ -128,6 +128,7 @@ export class CvScreeningProcessor extends WorkerHost {
         const llmResult = await this.llmService.screeningCV(
           screeningId,
           rawJson,
+          application.organizationId,
         );
 
         const updatedApplication = await this.handleScreeningResult(
@@ -247,7 +248,11 @@ export class CvScreeningProcessor extends WorkerHost {
       let jobVectors = new Map<string, number[]>();
       // With nothing to compare there is nothing to embed or read.
       if (postingHasSkills && cvTexts.length > 0) {
-        cvVectors = await this.embeddingService.embed(data.screeningId, cvTexts);
+        cvVectors = await this.embeddingService.embed(
+          data.screeningId,
+          cvTexts,
+          application.organizationId,
+        );
         jobVectors = await this.vectorSearch.readEmbeddings(
           'skill',
           jobPostingSkills.map(({ skill }) => skill.skillId),

@@ -22,7 +22,7 @@ export class EmbeddingService {
     ) {}
 
     /** Embeds `texts` and returns one vector per text, in input order. */
-    async embed(refId: string | null, texts: string[]): Promise<number[][]> {
+    async embed(refId: string | null, texts: string[], organizationId: string | null = null): Promise<number[][]> {
         if (texts.length === 0) return [];
 
         const client = this.getClient();
@@ -30,7 +30,7 @@ export class EmbeddingService {
 
         for (let start = 0; start < texts.length; start += EMBEDDING_MAX_BATCH) {
             const batch = texts.slice(start, start + EMBEDDING_MAX_BATCH);
-            vectors.push(...(await this.embedBatch(client, refId, batch)));
+            vectors.push(...(await this.embedBatch(client, refId, batch, organizationId)));
         }
 
         return vectors;
@@ -52,7 +52,12 @@ export class EmbeddingService {
         return this.client;
     }
 
-    private async embedBatch(client: OpenAI, refId: string | null, batch: string[]): Promise<number[][]> {
+    private async embedBatch(
+        client: OpenAI,
+        refId: string | null,
+        batch: string[],
+        organizationId: string | null,
+    ): Promise<number[][]> {
         const startTime = performance.now();
 
         try {
@@ -67,20 +72,26 @@ export class EmbeddingService {
                 .sort((a, b) => a.index - b.index)
                 .map((item) => item.embedding);
 
-            this.recordUsage(refId, response.usage?.prompt_tokens ?? 0, startTime, AiLogStatus.success);
+            this.recordUsage(refId, response.usage?.prompt_tokens ?? 0, startTime, AiLogStatus.success, organizationId);
             return vectors;
         } catch (error) {
             this.logger.error(
                 `Embedding call failed — refId: ${refId}, inputs: ${batch.length}`,
                 error instanceof Error ? error.stack : String(error),
             );
-            this.recordUsage(refId, 0, startTime, AiLogStatus.failed);
+            this.recordUsage(refId, 0, startTime, AiLogStatus.failed, organizationId);
             throw error;
         }
     }
 
     // Fire and forget: a broken usage log must never fail the embedding call.
-    private recordUsage(refId: string | null, promptTokens: number, startTime: number, status: AiLogStatus) {
+    private recordUsage(
+        refId: string | null,
+        promptTokens: number,
+        startTime: number,
+        status: AiLogStatus,
+        organizationId: string | null,
+    ) {
         void Promise.resolve(
             this.aiUsageLogsService.create({
                 refId,
@@ -90,6 +101,7 @@ export class EmbeddingService {
                 candidatesTokenCount: 0,
                 duration: Math.round(performance.now() - startTime),
                 status,
+                organizationId,
             }),
         ).catch((error) => this.logger.warn(`Failed to record AI usage: ${error?.message}`));
     }
