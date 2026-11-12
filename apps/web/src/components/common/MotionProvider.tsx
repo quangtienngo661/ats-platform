@@ -1,9 +1,16 @@
 'use client';
 
-import { MotionConfig } from 'motion/react';
+import { LazyMotion, MotionConfig, domAnimation } from 'motion/react';
 import type { ReactNode } from 'react';
 
-/** Honors the OS "reduce motion" setting for every motion/react animation in the app. */
+/**
+ * Loads the animation features lazily and honors the OS "reduce motion" setting.
+ * Not `strict`: existing code still uses `motion.*`, which must keep working next to `m.*`.
+ */
 export function MotionProvider({ children }: { children: ReactNode }) {
-    return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+    return (
+        <LazyMotion features={domAnimation}>
+            <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        </LazyMotion>
+    );
 }
