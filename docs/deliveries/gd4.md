@@ -23,3 +23,35 @@ Plan chi tiết: [`docs/tasks/gd4/plan.md`](../tasks/gd4/plan.md). Spec: [`docs/
 3. API thống kê tuyển dụng, tổng hợp chi phí AI, bảng giá.
 4. Nâng cấp dashboard và bảng giá model cho admin.
 5. E2E dashboard hiện đúng số funnel.
+
+---
+
+# GĐ4 — as-built (12/11/2026, chưa merge)
+
+Ba nhánh nối tiếp trên đỉnh GĐ3, mỗi PR base `dev`: M1 `feat/gd4-p1-video-interview` → M2 `feat/gd4-p2-copilot` →
+M3 `feat/gd4-p3-analytics`. Merge sau chuỗi GĐ3 (#75–#79), theo thứ tự M1 → M2 → M3.
+
+## Đã làm và đã kiểm
+
+- **M1 — phòng phỏng vấn trực tuyến:** lịch online không cần link ngoài (hệ thống ghi link phòng nội bộ); `POST
+  /interviews/schedules/:id/join` cấp token LiveKit cho ứng viên, người phỏng vấn, người tạo lịch, từ 15' trước giờ hẹn
+  tới 30' sau giờ kết thúc; LiveKit `v1.13.10` trong compose dev và test; trang `/interview-room/[id]` (kiểm thiết bị →
+  phòng họp có camera, mic, chia sẻ màn hình, chat); nút "Vào phòng phỏng vấn" cho ứng viên và recruiter.
+- **M2 — AI co-pilot:** 9 luật gợi ý bước tiếp theo bằng code; gợi ý trên thẻ Kanban; áp dụng (đổi trạng thái qua FSM sẵn
+  có hoặc chạy sàng lọc) và bỏ qua đều ghi `copilot_decisions`; "AI giải thích" gọi LLM theo yêu cầu. Không có nút từ
+  chối nào của co-pilot (ADR 0002).
+- **M3 — thống kê:** `GET /analytics/recruitment` (funnel, thời gian ở giai đoạn, xu hướng, 6 đơn mới nhất bằng query,
+  sửa A-04); `ai_usage_logs.organization_id` + điền ngược; bảng giá model do admin nhập; `GET /analytics/ai-cost`;
+  dashboard mới cho recruiter/org_admin/admin; bảng giá ở trang Nhật ký AI.
+- **Kiểm chứng:** unit test API và web, typecheck, lint (số liệu trong mô tả từng PR); probe migration trên Postgres dùng
+  một lần (`results/task-2.2-*.txt`, `results/task-3.2-*.txt`); E2E thật trên stack test: phòng LiveKit hai người, co-pilot
+  áp dụng/bỏ qua, dashboard ba vai trò (`operation.md`).
+
+## Chưa làm / chưa kiểm
+
+| Mục | Lý do |
+|---|---|
+| Deploy LiveKit lên prod | Cần sửa `docker-compose.yml` prod và `nginx/`, mở cổng VPS — chờ chủ dự án đồng ý (D2); các bước ở `operation.md` |
+| "AI giải thích" với LLM thật | Không có key AI thật trong phiên; chỉ kiểm bằng unit test (thành công và 503) |
+| Hai người ở hai mạng khác nhau (qua NAT/TURN) | Chỉ chạy được trên một máy; cần môi trường prod |
+| Build image API của stack test trên máy này | Đứng ở `npm ci` hai lần; E2E chạy với API trên máy, cùng biến môi trường |

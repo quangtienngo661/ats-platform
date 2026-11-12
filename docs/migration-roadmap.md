@@ -7,15 +7,19 @@ Quyết định kiến trúc quan trọng (lý do, trade-off, lựa chọn đã 
 
 ---
 
-## Đối chiếu đề cương và hiện trạng (2026-10-18)
+## Đối chiếu đề cương và hiện trạng (2026-11-12)
 
-Lịch đề cương ĐA2 là: GĐ1 07–27/09 (multi-tenant + ổn định + SRS/UC/ERD/architecture), GĐ2 28/09–25/10 (nghiệp vụ tuyển dụng/candidate/email), GĐ3 26/10–22/11 (RAG), GĐ4 23/11–13/12 (LiveKit). Roadmap July–January bên dưới giữ vai trò định hướng kỹ thuật, không dùng các số Phase đó thay cho GĐ trong đề cương.
+Lịch đề cương ĐA2 là: GĐ1 07–27/09 (multi-tenant + ổn định + SRS/UC/ERD/architecture), GĐ2 28/09–25/10 (nghiệp vụ tuyển dụng/candidate/email), GĐ3 26/10–22/11 (RAG), GĐ4 23/11–13/12 (LiveKit + AI co-pilot + thống kê), GĐ5 14–26/12 (kiểm thử, tối ưu, deploy, báo cáo). Roadmap July–January bên dưới giữ vai trò định hướng kỹ thuật, không dùng các số Phase đó thay cho GĐ trong đề cương.
 
 **GĐ1 xong:** PR #60 (Tuần 1, 20/09), #62 (Tuần 2, 22/09), #63 (tuần cuối, org_admin portal, 13/10).
 
 **GĐ2: phần việc của đề cương đã vào `dev` (13–15/10), CI xanh:** tuần 1 cho ứng viên — lịch phỏng vấn, timeline đơn, lọc tìm việc (PR #64); [SP1](tasks/gd2-week2-evaluation/README.md) scorecard, ghi chú, so sánh ứng viên (PR #68); [SP2](tasks/gd2-sp2-bulk-screening/results/README.md) chấm CV hàng loạt, xuất CSV (PR #69); [SP3](tasks/gd2-sp3-email-notifications/README.md) email tự động cho ứng viên (PR #70); thêm một lượt sửa UI theo Web Interface Guidelines (PR #71). Kết quả từng phần: `deliveries/gd2-sp{1,2,3}-*.md`. **Còn thiếu để gọi là xong trọn:** luồng end-to-end có AI chưa chạy thật được vì key Gemini hết tiền (E2E trên CI dùng key giả và dữ liệu chấm seed sẵn); chưa nghiệm thu bằng mắt, chưa mở CSV bằng Excel. C-05 (địa điểm dạng chữ cho tin) không nằm trong chữ của đề cương GĐ2, chưa có spec. Hướng dẫn kiểm tay: [tasks/gd2-parallel-execution/manual-testing/README.md](tasks/gd2-parallel-execution/manual-testing/README.md).
 
-**Tiếp theo — GĐ3 (RAG, 26/10–22/11):** chia 5 phần, bắt đầu bằng lớp nhà cung cấp AI (Gemini hoặc OpenAI theo cấu hình) và client embedding OpenAI; spec phần 0 đang chờ duyệt. [Kiến trúc đang chạy theo code](architecture/system.md) vẫn là monolith + queues; chưa có RAG/LiveKit/microservices.
+**GĐ3 (RAG, 26/10–22/11):** code xong theo spec, 7 PR (#73–#79). #73 và #74 đã vào `dev` (12/11); #75–#79 chờ merge. Còn nghiệm thu cần AI thật: probe OpenAI, chọn ngưỡng τ, seed ngân hàng câu hỏi, đo độ nhất quán ([delivery](deliveries/gd3-rag.md)).
+
+**GĐ4 (23/11–13/12) — phỏng vấn trực tuyến, AI co-pilot, thống kê:** code và E2E xong trước lịch, 3 PR nối tiếp trên đỉnh GĐ3, chờ merge sau GĐ3 ([spec](tasks/gd4/spec.md), [delivery](deliveries/gd4.md)). Còn: deploy LiveKit lên prod (cần đồng ý sửa compose prod + nginx), kiểm tay giải thích AI của co-pilot với key thật.
+
+**GĐ5 (14–26/12):** kiểm thử, tối ưu, deploy, báo cáo; Judge0 tuỳ chọn. Chưa bắt đầu.
 
 ## Progress Log
 
