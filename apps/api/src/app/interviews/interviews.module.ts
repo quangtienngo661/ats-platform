@@ -23,6 +23,9 @@ import { LiveKitModule } from '../../common/external-apis/livekit/livekit.module
 import { InterviewRoomController } from './room/interview-room.controller';
 import { InterviewRoomService } from './room/interview-room.service';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { InterviewRemindersService } from './reminders/interview-reminders.service';
+import { InterviewRemindersProcessor } from './reminders/interview-reminders.processor';
+import { INTERVIEW_REMINDERS_QUEUE } from './reminders/interview-reminders.rules';
 
 /** How often to look for interview sessions nobody is working on any more. */
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -43,6 +46,7 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
       { name: 'interview-evaluation' },
       { name: 'interview-generation' },
       { name: 'interview-maintenance' },
+      { name: INTERVIEW_REMINDERS_QUEUE },
     ),
   ],
   controllers: [
@@ -53,6 +57,8 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
   providers: [
     InterviewsService,
     InterviewRoomService,
+    InterviewRemindersService,
+    InterviewRemindersProcessor,
     InterviewQuestionsService,
     InterviewSessionService,
     InterviewGateway,

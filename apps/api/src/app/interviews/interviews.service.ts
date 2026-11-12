@@ -35,6 +35,7 @@ import {
 } from '../../common/utils/include-options.util';
 import { randomUUID } from 'crypto';
 import { resolveInterviewPlace, trimToNull } from './interview-schedule.rules';
+import { InterviewRemindersService } from './reminders/interview-reminders.service';
 import { interviewRoomUrl } from './room/interview-room.rules';
 
 /**
@@ -58,6 +59,7 @@ export class InterviewsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly candidateNotifications: CandidateNotificationsService,
+    private readonly reminders: InterviewRemindersService,
   ) {}
 
   private async getRecruiterDepartmentId(userId: string) {
@@ -351,6 +353,7 @@ export class InterviewsService {
     await this.candidateNotifications.scheduleCreated(
       toScheduleSnapshot(created),
     );
+    await this.reminders.schedule(created);
     return created;
   }
 
@@ -531,6 +534,7 @@ export class InterviewsService {
       toScheduleSnapshot(schedule),
       toScheduleSnapshot(updated),
     );
+    await this.reminders.schedule(updated);
     return updated;
   }
 

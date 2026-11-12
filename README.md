@@ -182,7 +182,7 @@ While the candidate is answering question `N`:
 
 To protect the system from thread-blocking failures caused by AI service rate limits (HTTP 429) and to optimize server resources, all time-consuming tasks are managed through **BullMQ** backed by **Redis**.
 
-The system establishes 6 specialized business queues, all inheriting a global default of **3 attempts with exponential backoff** from `app.module.ts` (per-queue overrides only where noted):
+The system establishes 7 specialized business queues, all inheriting a global default of **3 attempts with exponential backoff** from `app.module.ts` (per-queue overrides only where noted):
 
 | Queue Name | Business Function | Load & Rate Limit Config | Retry Policy |
 | :--- | :--- | :--- | :--- |
@@ -192,6 +192,7 @@ The system establishes 6 specialized business queues, all inheriting a global de
 | **`interview-generation`** | Batch-generates all 10 mock-interview questions in a single Gemini call, off the HTTP thread. | Runs once per session start. | 3 attempts (global default); on final failure the session is marked `abandon`. |
 | **`interview-evaluation`** | Independently scores each main and follow-up interview question in the background. | Processes up to **3 concurrent jobs** (`concurrency: 3`) for fast response times. | Results are synced directly with the Socket session to update chatbot state in real time. |
 | **`interview-maintenance`** | Periodic sweep that marks stale `in_progress` mock-interview sessions as `abandon` (added Phase 0.5, 2026-07-14). | Repeats every 5 minutes (`upsertJobScheduler`). | N/A — maintenance sweep, not a retryable business job. |
+| **`interview-reminders`** | In-app notifications (saved, pushed over Socket.IO) the day before an interview and when its online room opens (GĐ4). | Delayed jobs queued when a schedule is created or changed; a job for a moved or cancelled interview is skipped. | 3 attempts (global default). |
 
 ---
 

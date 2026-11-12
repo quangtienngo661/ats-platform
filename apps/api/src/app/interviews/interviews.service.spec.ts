@@ -34,6 +34,7 @@ describe('InterviewsService', () => {
     scheduleChanged: jest.Mock;
     scheduleRemoved: jest.Mock;
   };
+  let reminders: { schedule: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -46,8 +47,9 @@ describe('InterviewsService', () => {
       scheduleChanged: jest.fn().mockResolvedValue(undefined),
       scheduleRemoved: jest.fn().mockResolvedValue(undefined),
     };
+    reminders = { schedule: jest.fn().mockResolvedValue(undefined) };
     service = new InterviewsService(
-      ...([prisma, candidateNotifications] as unknown as ConstructorParameters<
+      ...([prisma, candidateNotifications, reminders] as unknown as ConstructorParameters<
         typeof InterviewsService
       >),
     );
@@ -915,6 +917,18 @@ describe('InterviewsService', () => {
       expect(updateData()).not.toHaveProperty('onlineMeetingLink');
     });
 
+    describe('reminders (R29)', () => {
+      it('plans the reminders of a schedule as updated', async () => {
+        const updated = { interviewId: 'int-1', startAt: new Date('2026-10-05T03:00:00Z') };
+        prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
+        prisma.interviewSchedule.update.mockResolvedValue(updated);
+
+        await service.updateSchedule('int-1', platformAdmin, { startAt: '2026-10-05T03:00:00.000Z' } as any);
+
+        expect(reminders.schedule).toHaveBeenCalledWith(updated);
+      });
+    });
+
     describe('waiting room reset (R28)', () => {
       const cleared = { candidateWaitingAt: null, candidateAdmittedAt: null };
 
@@ -967,6 +981,15 @@ describe('InterviewsService', () => {
         startAt: '2026-10-05T02:00:00.000Z',
         durationMinutes: 60,
       };
+
+      it('plans the reminders of the new schedule', async () => {
+        const created = { interviewId: 'int-1', startAt: new Date(base.startAt) };
+        prisma.interviewSchedule.create.mockResolvedValue(created);
+
+        await service.createSchedule(platformAdmin, { ...base, interviewType: InterviewType.online } as any);
+
+        expect(reminders.schedule).toHaveBeenCalledWith(created);
+      });
 
       it('stores the trimmed location of a new onsite schedule', async () => {
         await service.createSchedule(platformAdmin, {
