@@ -25,6 +25,7 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   arrayUnique: 'không được chứa phần tử trùng nhau',
   isNotEmpty: 'không được để trống',
   minLength: 'không đủ độ dài tối thiểu',
+  maxLength: 'vượt quá độ dài tối đa cho phép',
   isEnum: 'không thuộc giá trị hợp lệ',
   isUUID: 'phải là UUID hợp lệ',
   isBoolean: 'phải là true hoặc false',

@@ -185,6 +185,91 @@ describe('ApplicationsService', () => {
     });
   });
 
+  describe('what a candidate sees of a reviewed screening (R11)', () => {
+    const reviewedScreening = {
+      screeningId: 'screen-1',
+      status: 'completed',
+      overallScore: '70.0',
+      skillsScore: '80.0',
+      experienceScore: '60.0',
+      educationScore: '50.0',
+      aiRecommendation: 'interview',
+      reviewedAt: new Date('2026-10-30T08:00:00.000Z'),
+      reviewedOverallScore: '77.0',
+      reviewedSkillsScore: '90.0',
+      reviewedExperienceScore: '65.0',
+      reviewedEducationScore: '55.0',
+    };
+    const expectEffectiveOnly = (screening: Record<string, unknown>) => {
+      expect(screening).toEqual(
+        expect.objectContaining({
+          overallScore: '77.0',
+          skillsScore: '90.0',
+          experienceScore: '65.0',
+          educationScore: '55.0',
+          aiRecommendation: 'interview',
+        }),
+      );
+      expect(Object.keys(screening).filter((k) => k.startsWith('review'))).toEqual(
+        [],
+      );
+    };
+
+    it('my applications list shows the reviewed scores and no review field', async () => {
+      prisma.candidate.findUnique.mockResolvedValue({ candidateId: 'cand-1' });
+      prisma.application.findMany.mockResolvedValue([
+        { applicationId: 'app-1', screening: reviewedScreening },
+        { applicationId: 'app-2', screening: null },
+      ]);
+
+      const result = await service.getMyApplications('user-1');
+
+      expectEffectiveOnly(result[0].screening as Record<string, unknown>);
+      expect(result[1].screening).toBeNull();
+    });
+
+    it('a candidate opening their own application sees the reviewed scores and no review field', async () => {
+      prisma.application.findUnique
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          organizationId: 'org-1',
+          candidate: { userId: 'user-1' },
+          jobPosting: { departmentId: 'dep-1' },
+        })
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          status: ApplicationStatus.screening,
+          screening: reviewedScreening,
+          history: [],
+        });
+
+      const result = await service.getApplicationById(
+        'app-1',
+        callerOf(UserRole.candidate, { userId: 'user-1' }),
+      );
+
+      expectEffectiveOnly(result.screening as Record<string, unknown>);
+    });
+
+    it('staff opening the same application get the raw row, review fields included', async () => {
+      prisma.application.findUnique
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          organizationId: 'org-1',
+          candidate: { userId: 'user-1' },
+          jobPosting: { departmentId: 'dep-1' },
+        })
+        .mockResolvedValueOnce({
+          applicationId: 'app-1',
+          screening: reviewedScreening,
+        });
+
+      const result = await service.getApplicationById('app-1', platformAdmin);
+
+      expect(result.screening).toEqual(reviewedScreening);
+    });
+  });
+
   // Criterion 3. Candidates are one pool shared by every organization; an
   // application belongs to the organization of the JOB it is for. The test above
   // stayed green with no organization at all — undefined is not asserted.

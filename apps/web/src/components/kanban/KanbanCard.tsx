@@ -69,6 +69,9 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
           {candidate.screeningStatus === 'completed' && (
             <span className="inline-block mt-1 text-[9px] bg-[#F0FDF4] text-[#34C759] px-1.5 py-0.5 rounded-md border border-[#34C759]/20 font-medium">Đã AI Sàng lọc</span>
           )}
+          {candidate.reviewed && (
+            <span className="inline-block mt-1 ml-1 text-[9px] bg-[#EBF3FD] text-[#0071E3] px-1.5 py-0.5 rounded-md border border-[#0071E3]/20 font-medium">Đã duyệt</span>
+          )}
           {candidate.screeningStatus === 'failed' && (
             <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Sàng lọc thất bại</span>
           )}

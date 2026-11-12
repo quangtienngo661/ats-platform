@@ -45,10 +45,15 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
     const rows: { label: string; value: (item: IComparisonItem) => ReactNode }[] = [
         { label: 'Trạng thái', value: item => statusLabels[item.status] },
         { label: 'Ngày ứng tuyển', value: item => new Date(item.appliedAt).toLocaleDateString('vi-VN') },
-        { label: 'Điểm AI tổng thể (gợi ý)', value: item => score(item.screening?.overallScore, 100) },
-        { label: 'Điểm kỹ năng AI (gợi ý)', value: item => score(item.screening?.skillsScore, 100) },
-        { label: 'Điểm kinh nghiệm AI (gợi ý)', value: item => score(item.screening?.experienceScore, 100) },
-        { label: 'Điểm học vấn AI (gợi ý)', value: item => score(item.screening?.educationScore, 100) },
+        // The API sends the reviewer's scores once a screening is reviewed, the AI's otherwise.
+        { label: 'Điểm tổng thể', value: item => score(item.screening?.overallScore, 100) },
+        { label: 'Điểm kỹ năng', value: item => score(item.screening?.skillsScore, 100) },
+        { label: 'Điểm kinh nghiệm', value: item => score(item.screening?.experienceScore, 100) },
+        { label: 'Điểm học vấn', value: item => score(item.screening?.educationScore, 100) },
+        {
+            label: 'Duyệt điểm',
+            value: item => item.screening ? (item.screening.isReviewed ? 'Đã duyệt' : 'Chưa duyệt') : 'Chưa có',
+        },
         {
             label: 'Khuyến nghị AI (gợi ý)',
             value: item => item.screening?.aiRecommendation

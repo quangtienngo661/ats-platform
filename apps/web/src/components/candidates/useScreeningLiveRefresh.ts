@@ -21,9 +21,12 @@ export function useScreeningLiveRefresh(): void {
         };
 
         onEvent('cv-screening:completed', handler);
+        // Another recruiter reviewed a score: the lists show the new effective score.
+        onEvent('cv-screening:reviewed', handler);
 
         return () => {
             offEvent('cv-screening:completed', handler);
+            offEvent('cv-screening:reviewed', handler);
             clearTimeout(timer);
         };
     }, [status, onEvent, offEvent, router]);

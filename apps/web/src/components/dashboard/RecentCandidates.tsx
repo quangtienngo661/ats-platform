@@ -1,3 +1,4 @@
+import { effectiveScreeningScores } from '@ats-platform/types';
 import Link from 'next/link';
 import { Clock, Star, ChevronRight } from 'lucide-react';
 import { SF } from '@/types/fonts/fonts';
@@ -77,7 +78,7 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
                         const stageColor = STATUS_COLORS[status] ?? '#94A3B8';
                         const stageBg = STATUS_BG[status] ?? '#F5F5F7';
                         const days = getDaysAgo(app.appliedAt);
-                        const aiScore = app.screening?.overallScore;
+                        const aiScore = effectiveScreeningScores(app.screening ?? {}).overall;
 
                         return (
                             <Link

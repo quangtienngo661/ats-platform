@@ -83,6 +83,13 @@ export const AiRecommendation = {
 export type AiRecommendation =
   (typeof AiRecommendation)[keyof typeof AiRecommendation];
 
+export const RagMode = {
+  none: 'none',
+  skills: 'skills',
+  skills_anchors: 'skills_anchors',
+} as const;
+export type RagMode = (typeof RagMode)[keyof typeof RagMode];
+
 export const AiActionType = {
   cv_parsing: 'cv_parsing',
   cv_scoring: 'cv_scoring',

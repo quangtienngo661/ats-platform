@@ -24,6 +24,7 @@ import {
   candidateHistorySelect,
 } from '../../common/utils/include-options.util';
 import { toCandidateHistory } from './candidate-history';
+import { toCandidateScreening } from './candidate-screening';
 import { checkScreeningEligibility } from './screening-eligibility';
 import { CvScreeningsService } from '../cv-screenings/cv-screenings.service';
 import {
@@ -274,12 +275,17 @@ export class ApplicationsService {
     if (!candidate)
       throw new NotFoundException('Không tìm thấy hồ sơ ứng viên');
 
-    return await this.prisma.application.findMany({
+    const applications = await this.prisma.application.findMany({
       where: { candidateId: candidate.candidateId },
       // The list needs no history; the latest full row carried staff notes (D1).
       include: { ...applicationIncludeOptions, history: false },
       orderBy: { appliedAt: 'desc' },
     });
+
+    return applications.map((application) => ({
+      ...application,
+      screening: toCandidateScreening(application.screening),
+    }));
   }
 
   async withdraw(applicationId: string, userId: string) {
@@ -494,7 +500,11 @@ export class ApplicationsService {
         },
       });
       if (!own) throw new NotFoundException('Không tìm thấy đơn ứng tuyển');
-      return { ...own, history: toCandidateHistory(own.history, own.status) };
+      return {
+        ...own,
+        screening: toCandidateScreening(own.screening),
+        history: toCandidateHistory(own.history, own.status),
+      };
     }
 
     const application = await this.prisma.application.findUnique({
