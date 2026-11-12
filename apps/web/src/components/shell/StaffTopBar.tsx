@@ -12,7 +12,7 @@ export type StaffTopBarProps = {
     onMenuOpen: () => void;
     initialNotifications: INotification[];
     initialUnreadCount: number;
-    /** Task 9: the "Tìm hoặc đi tới… Ctrl K" button that opens the command palette goes here. */
+    /** The command palette trigger (`CommandPalette`) goes here. */
     commandSlot?: ReactNode;
 };
 

@@ -8,6 +8,7 @@ import type { INotification } from '@/types/interfaces/notification.interface';
 import { NavDrawer, NavDrawerClose } from './NavDrawer';
 import { sidebarCookie, staffBreadcrumbs } from './staff-nav';
 import { StaffSidebar } from './StaffSidebar';
+import { CommandPalette } from './CommandPalette';
 import { StaffTopBar } from './StaffTopBar';
 
 export type StaffShellProps = {
@@ -88,6 +89,7 @@ export function StaffShell({
                         onMenuOpen={() => setDrawerOpen(true)}
                         initialNotifications={initialNotifications}
                         initialUnreadCount={initialUnreadCount}
+                        commandSlot={<CommandPalette userRole={userRole} />}
                     />
                     <main id="main-content" className="min-w-0 flex-1">
                         {children}
