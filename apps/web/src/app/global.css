@@ -139,6 +139,10 @@ html[data-ui="modern"] :focus-visible {
   outline: 2px solid rgb(var(--accent));
   outline-offset: 2px;
 }
+/* The staff top bar is sticky and 56 px tall: keep focused and anchored elements clear of it (spec section 10). */
+html[data-ui="modern"]:has([data-shell="staff"]) {
+  scroll-padding-top: 4rem;
+}
 html[data-ui="modern"] h1,
 html[data-ui="modern"] h2,
 html[data-ui="modern"] h3 {

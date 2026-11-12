@@ -35,14 +35,16 @@ export const DropdownMenuSubContent = forwardRef<
     );
 });
 
-const itemClasses =
-    'flex h-8 cursor-default select-none items-center gap-2 rounded-ctl px-2 text-body-sm text-ink outline-none data-[disabled]:pointer-events-none data-[disabled]:text-ink-4 data-[highlighted]:bg-surface-2';
+/** No text colour here: `cn` does not merge, so an item gets exactly one of `text-ink` / `text-danger`. */
+const itemBase =
+    'flex h-8 cursor-default select-none items-center gap-2 rounded-ctl px-2 text-body-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:text-ink-4 data-[highlighted]:bg-surface-2';
+const itemClasses = `${itemBase} text-ink`;
 
 export const DropdownMenuItem = forwardRef<
     ElementRef<typeof Menu.Item>,
     ComponentPropsWithoutRef<typeof Menu.Item> & { destructive?: boolean }
 >(function DropdownMenuItem({ className, destructive, ...props }, ref) {
-    return <Menu.Item ref={ref} className={cn(itemClasses, destructive && 'text-danger', className)} {...props} />;
+    return <Menu.Item ref={ref} className={cn(itemBase, destructive ? 'text-danger' : 'text-ink', className)} {...props} />;
 });
 
 export const DropdownMenuSubTrigger = forwardRef<

@@ -116,6 +116,18 @@ module.exports = {
           from: { transform: 'translateX(0)' },
           to: { transform: 'translateX(100%)' },
         },
+        'sheet-left-in': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        'sheet-left-out': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' },
+        },
+        'label-in': {
+          from: { opacity: '0', transform: 'translateX(-4px)' },
+          to: { opacity: '1', transform: 'none' },
+        },
         'pop-in': {
           from: { opacity: '0', transform: 'scale(.97)' },
           to: { opacity: '1', transform: 'scale(1)' },
@@ -133,6 +145,9 @@ module.exports = {
         'dialog-out': 'dialog-out 196ms cubic-bezier(.5,0,.75,0) both',
         'sheet-in': 'sheet-in 280ms cubic-bezier(.16,1,.3,1) both',
         'sheet-out': 'sheet-out 196ms cubic-bezier(.5,0,.75,0) both',
+        'sheet-left-in': 'sheet-left-in 280ms cubic-bezier(.16,1,.3,1) both',
+        'sheet-left-out': 'sheet-left-out 196ms cubic-bezier(.5,0,.75,0) both',
+        'label-in': 'label-in 200ms cubic-bezier(.16,1,.3,1) both',
         'pop-in': 'pop-in 200ms cubic-bezier(.16,1,.3,1) both',
         'pop-out': 'pop-out 140ms cubic-bezier(.5,0,.75,0) both',
       },

@@ -125,6 +125,29 @@ describe('DropdownMenu', () => {
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
         expect(trigger).toHaveFocus();
     });
+
+    // `cn` does not merge conflicting classes, and in the built CSS `text-ink` wins over `text-danger`, so a
+    // destructive item that also carried `text-ink` rendered in ink (seen in the browser, Task 8).
+    it('gives a destructive item the danger colour instead of ink, not both', async () => {
+        const user = userEvent.setup();
+        render(
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button>Thao tác</button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem>Sửa</DropdownMenuItem>
+                    <DropdownMenuItem destructive>Xóa</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>,
+        );
+        screen.getByRole('button', { name: 'Thao tác' }).focus();
+        await user.keyboard('{Enter}');
+        const del = await screen.findByRole('menuitem', { name: 'Xóa' });
+        expect(del).toHaveClass('text-danger');
+        expect(del).not.toHaveClass('text-ink');
+        expect(screen.getByRole('menuitem', { name: 'Sửa' })).toHaveClass('text-ink');
+    });
 });
 
 describe('Tooltip', () => {

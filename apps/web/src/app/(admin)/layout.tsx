@@ -1,7 +1,8 @@
 import { getUiVariant } from '@/lib/ui-variant';
 import { LegacyFrame } from '@/components/ui-variant/LegacyFrame';
 import LegacyAdminLayout from '@/legacy/app/(admin)/layout';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { StaffShell } from '@/components/shell/StaffShell';
+import { isRailCookie, SIDEBAR_COOKIE } from '@/components/shell/staff-nav';
 import { getMeAction } from '@/servers/users/users.action';
 import { getCurrentOrganizationAction } from '@/servers/organizations/organizations.action';
 import { cookies } from 'next/headers';
@@ -51,15 +52,16 @@ export default async function AdminLayout({
     : [{ items: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } }, 0];
 
   return (
-    <DashboardLayout
+    <StaffShell
       userRole={userRole}
       userName={userName}
       userEmail={userEmail}
       organizationName={organization?.name}
       initialNotifications={notifications.items}
       initialUnreadCount={unreadCount}
+      initialCollapsed={isRailCookie(cookieStore.get(SIDEBAR_COOKIE)?.value)}
     >
       {children}
-    </DashboardLayout>
+    </StaffShell>
   );
 }

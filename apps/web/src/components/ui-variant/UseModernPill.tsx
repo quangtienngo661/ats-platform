@@ -1,8 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { setUiVariantAction } from '@/servers/ui/ui-variant.action';
+import { useSwitchUiVariant } from './useSwitchUiVariant';
 
 // z-index is plain CSS: the z-index tokens do not exist yet.
 const pillStyle = {
@@ -22,18 +20,10 @@ const pillStyle = {
 } as const;
 
 export function UseModernPill() {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  const switchToModern = () => {
-    startTransition(async () => {
-      await setUiVariantAction('modern');
-      router.refresh();
-    });
-  };
+  const { switchTo, pending } = useSwitchUiVariant();
 
   return (
-    <button type="button" style={pillStyle} onClick={switchToModern} disabled={pending}>
+    <button type="button" style={pillStyle} onClick={() => switchTo('modern')} disabled={pending}>
       Dùng giao diện mới
     </button>
   );

@@ -1,29 +1,19 @@
 'use client';
 
-import { useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { setUiVariantAction } from '@/servers/ui/ui-variant.action';
+import { useSwitchUiVariant } from './useSwitchUiVariant';
 
 type UiVariantMenuItemProps = {
   className?: string;
   onDone?: () => void;
 };
 
-// Account-menu entry that goes back to the legacy UI.
+// Plain-button entry that goes back to the legacy UI. Inside a Radix menu, call `useSwitchUiVariant` from a
+// `DropdownMenuItem` instead (see `AccountMenu`), so the entry is a real menuitem.
 export function UiVariantMenuItem({ className, onDone }: UiVariantMenuItemProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  const switchToLegacy = () => {
-    startTransition(async () => {
-      await setUiVariantAction('legacy');
-      router.refresh();
-      onDone?.();
-    });
-  };
+  const { switchTo, pending } = useSwitchUiVariant();
 
   return (
-    <button type="button" className={className} onClick={switchToLegacy} disabled={pending}>
+    <button type="button" className={className} onClick={() => switchTo('legacy', onDone)} disabled={pending}>
       Dùng giao diện cũ
     </button>
   );
