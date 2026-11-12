@@ -19,3 +19,17 @@ export { Switch, type SwitchProps } from './Switch';
 export { Kbd } from './Kbd';
 export { Reveal } from './motion/Reveal';
 export { Stagger } from './motion/Stagger';
+
+// Task 6 — data display primitives.
+export { Badge } from './Badge';
+export { StatusChip } from './StatusChip';
+export { Surface, type SurfaceProps } from './Surface';
+export { Avatar } from './Avatar';
+export { Skeleton } from './Skeleton';
+export { EmptyState, type EmptyStateProps } from './EmptyState';
+export { Stat } from './Stat';
+export { ScoreBar } from './ScoreBar';
+export { Table, THead, TBody, TR, TH, TD } from './Table';
+export { PageToolbar } from './PageToolbar';
+export { Breadcrumbs } from './Breadcrumbs';
+export { statusTone, type StatusKind, type Tone } from '@/lib/status-tones';
