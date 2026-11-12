@@ -59,7 +59,7 @@ test.describe('GĐ4 — phòng phỏng vấn trực tuyến', () => {
     // The recruiter enters first.
     await signInRecruiter(recruiter, fixture.recruiter.email, fixture.password);
     await recruiter.goto(`/interview-room/${fixture.interviewId}`);
-    await expect(recruiter.getByRole('heading', { name: 'Phòng phỏng vấn' })).toBeVisible();
+    await expect(recruiter.getByRole('heading', { name: 'Phòng phỏng vấn', exact: true })).toBeVisible();
     await recruiter.getByRole('button', { name: 'Vào phòng', exact: true }).click();
     // Control: alone in the room, the candidate's name is nowhere on the recruiter's screen.
     await expect(recruiter.getByText(fixture.recruiter.name).first()).toBeVisible({ timeout: 30_000 });
