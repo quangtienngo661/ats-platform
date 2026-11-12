@@ -1,14 +1,21 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { EmbeddingQueueService } from '../../common/vector/embedding-queue.service';
 import { CreateSkillDto, UpdateSkillDto } from './dtos/skills.dto';
 
 @Injectable()
 export class SkillsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(SkillsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly embeddingQueue: EmbeddingQueueService,
+  ) {}
 
   async create(createSkillDto: CreateSkillDto) {
     // `name` is the ONLY unique column (schema.prisma). Passing `category` here too
@@ -22,12 +29,26 @@ export class SkillsService {
       throw new BadRequestException('Kỹ năng đã tồn tại');
     }
 
-    return await this.prisma.skill.create({
+    const created = await this.prisma.skill.create({
       data: {
         name: createSkillDto.name,
         category: createSkillDto.category,
       },
     });
+    await this.queueEmbedding(created.skillId);
+    return created;
+  }
+
+  // The skill is already saved; a missing embedding is repaired by the admin backfill, so a
+  // queue failure is logged and must not fail the request.
+  private async queueEmbedding(skillId: string) {
+    try {
+      await this.embeddingQueue.enqueue('skill', skillId);
+    } catch (error) {
+      this.logger.warn(
+        `Could not queue the embedding of skill ${skillId}: ${error.message}`,
+      );
+    }
   }
 
   async findAll() {
@@ -82,13 +103,16 @@ export class SkillsService {
       throw new NotFoundException(`Không tìm thấy kỹ năng với ID ${id}`);
     }
 
-    return await this.prisma.skill.update({
+    const updated = await this.prisma.skill.update({
       where: { skillId: id },
       data: {
         name: updateSkillDto.name,
         category: updateSkillDto.category,
       },
     });
+    // The embedding is built from the name, which may have just changed.
+    await this.queueEmbedding(updated.skillId);
+    return updated;
   }
 
   async remove(id: string) {
