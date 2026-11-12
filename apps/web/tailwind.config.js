@@ -93,6 +93,15 @@ module.exports = {
         'out-expo': 'cubic-bezier(.16,1,.3,1)',
         'in-quart': 'cubic-bezier(.5,0,.75,0)',
       },
+      keyframes: {
+        rise: {
+          from: { opacity: '0', transform: 'translateY(6px)' },
+          to: { opacity: '1', transform: 'none' },
+        },
+      },
+      animation: {
+        rise: 'rise 280ms cubic-bezier(.16,1,.3,1) both',
+      },
     }
   },
   plugins: [],

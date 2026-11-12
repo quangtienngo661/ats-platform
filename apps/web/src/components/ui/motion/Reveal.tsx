@@ -1,15 +1,13 @@
-'use client';
-
-import * as m from 'motion/react-m';
 import type { ReactNode } from 'react';
-import { duration, ease, fadeRise } from '@/lib/motion';
 
-const tags = { div: m.div, section: m.section, li: m.li } as const;
-
+/**
+ * Fades and lifts its content in with a CSS animation (`animate-rise`). The server HTML is
+ * already visible, so it never waits for hydration; reduced motion is handled in global.css.
+ */
 export function Reveal({
     children,
     delay = 0,
-    as = 'div',
+    as: Tag = 'div',
     className,
 }: {
     children: ReactNode;
@@ -17,14 +15,10 @@ export function Reveal({
     as?: 'div' | 'section' | 'li';
     className?: string;
 }) {
-    const Tag = tags[as];
     return (
         <Tag
-            className={className}
-            variants={fadeRise}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: duration.base, ease: ease.out, delay }}
+            className={className ? `animate-rise ${className}` : 'animate-rise'}
+            style={{ animationDelay: `${delay}s` }}
         >
             {children}
         </Tag>
