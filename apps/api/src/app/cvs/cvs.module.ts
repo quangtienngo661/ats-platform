@@ -10,6 +10,7 @@ import { CvParsingProcessor } from './processors/cv-parsing.processor';
 import { CvParsedDataService } from './cv-parsed-data/cv-parsed-data.service';
 import { AiUsageLogsModule } from '../ai-usage-logs/ai-usage-logs.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { VectorModule } from '../../common/vector/vector.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     AiUsageLogsModule,
     NotificationsModule,
     LlmModule,
+    VectorModule,
   ],
   controllers: [CVsController],
   providers: [

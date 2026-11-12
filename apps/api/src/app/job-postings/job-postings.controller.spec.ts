@@ -28,14 +28,14 @@ describe('JobPostingsController', () => {
       organizationId: 'org-1',
     };
 
-    controller.parseJdPreview({ description: 'JD' });
+    controller.parseJdPreview({ description: 'JD' }, viewer as any);
     controller.create({ title: 'Backend' } as any, viewer as any);
     controller.findAll({ search: 'backend' } as any, req);
     controller.findOne('job-1', req);
     await controller.update('job-1', { title: 'Updated' } as any);
     controller.remove('job-1');
 
-    expect(service.parseJdPreview).toHaveBeenCalledWith('JD');
+    expect(service.parseJdPreview).toHaveBeenCalledWith('JD', 'org-1');
     expect(service.create).toHaveBeenCalledWith(viewer, { title: 'Backend' });
     expect(service.findAll).toHaveBeenCalledWith({ search: 'backend' }, viewer);
     expect(service.findOne).toHaveBeenCalledWith('job-1', viewer);

@@ -21,6 +21,9 @@ import {
 const platformAdmin = callerOf(UserRole.admin, { userId: 'admin-1' });
 const orgAdmin = callerOf(UserRole.org_admin); // organization 'org-1'
 
+// The built-in interview room link is built from the web origin (trailing slash dropped).
+process.env.CLIENT_URL = 'http://localhost:3001/';
+
 describe('InterviewsService', () => {
   let service: InterviewsService;
   let prisma: ReturnType<typeof createPrismaMock>;
@@ -876,13 +879,30 @@ describe('InterviewsService', () => {
       expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
     });
 
-    it('refuses switching to online without a meeting link', async () => {
+    it('switching to online without a meeting link uses the built-in room of that interview', async () => {
       prisma.interviewSchedule.findUnique.mockResolvedValue(existingSchedule({ location: 'Tầng 5' }));
 
-      await expect(
-        service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.online } as any),
-      ).rejects.toThrow('Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ');
-      expect(prisma.interviewSchedule.update).not.toHaveBeenCalled();
+      await service.updateSchedule('int-1', platformAdmin, { interviewType: InterviewType.online } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({
+          interviewType: 'online',
+          onlineMeetingLink: 'http://localhost:3001/interview-room/int-1',
+          location: null,
+        }),
+      );
+    });
+
+    it('clearing the external link of an online interview falls back to the built-in room', async () => {
+      prisma.interviewSchedule.findUnique.mockResolvedValue(
+        existingSchedule({ interviewType: InterviewType.online, onlineMeetingLink: 'https://meet.example.com/old' }),
+      );
+
+      await service.updateSchedule('int-1', platformAdmin, { onlineMeetingLink: '' } as any);
+
+      expect(updateData()).toEqual(
+        expect.objectContaining({ onlineMeetingLink: 'http://localhost:3001/interview-room/int-1' }),
+      );
     });
 
     it('lets a legacy onsite schedule without location change only its duration', async () => {
@@ -930,6 +950,18 @@ describe('InterviewsService', () => {
         expect(createData()).toEqual(
           expect.objectContaining({ location: 'Tầng 5, 123 Lê Lợi, Q.1', onlineMeetingLink: null }),
         );
+      });
+
+      it('gives a new online schedule without a link the built-in room of its own id', async () => {
+        await service.createSchedule(platformAdmin, {
+          ...base,
+          interviewType: InterviewType.online,
+        } as any);
+
+        const data = createData();
+        expect(data.interviewId).toMatch(/^[0-9a-f-]{36}$/);
+        expect(data.onlineMeetingLink).toBe(`http://localhost:3001/interview-room/${data.interviewId}`);
+        expect(data.location).toBeNull();
       });
 
       it('stores the trimmed meeting link of a new online schedule', async () => {

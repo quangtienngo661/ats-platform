@@ -1,0 +1,24 @@
+# Task 3.2 — migration 20261113100000_add_ai_cost_tracking, backfill probe on a throwaway pgvector Postgres (2026-11-12T15:19:16Z)
+## Rows written BEFORE the migration
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 4
+## Apply
+Applying migration `20261113100000_add_ai_cost_tracking`
+The following migration(s) have been applied:
+All migrations have been successfully applied.
+## After: log id → organization_id
+l-embed → o1
+l-other → NULL
+l-parse → NULL
+l-scoring → o1
+ai_model_prices exists: true
+DELETE 0

@@ -1,6 +1,6 @@
 import { InterviewType, ScheduleStatus } from '@ats-platform/database';
 import { Transform } from 'class-transformer';
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUrl, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUrl, IsUUID, Max, MaxLength, Min, ValidateIf } from 'class-validator';
 import {
     LOCATION_MAX_LENGTH,
     LOCATION_TOO_LONG_MESSAGE,
@@ -29,9 +29,10 @@ export class UpdateInterviewScheduleDto {
     @IsOptional()
     durationMinutes?: number;
 
+    // An empty string clears an external link, so the interview falls back to its built-in room.
     @Transform(trimString)
+    @ValidateIf((dto: UpdateInterviewScheduleDto) => !!dto.onlineMeetingLink)
     @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: MEETING_LINK_INVALID_MESSAGE })
-    @IsOptional()
     onlineMeetingLink?: string;
 
     @Transform(trimString)

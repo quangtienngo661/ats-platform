@@ -32,11 +32,13 @@ describe('JobPostingsService', () => {
 
     llmService.parseJD.mockResolvedValue({ title: 'Backend' });
     await expect(
-      service.parseJdPreview('Need NestJS developer'),
+      service.parseJdPreview('Need NestJS developer', 'org-1'),
     ).resolves.toEqual({ title: 'Backend' });
+    // The caller's organization goes to the usage log (GĐ4 R20).
     expect(llmService.parseJD).toHaveBeenCalledWith(
       expect.stringMatching(/^jd-preview-/),
       'Need NestJS developer',
+      'org-1',
     );
   });
 

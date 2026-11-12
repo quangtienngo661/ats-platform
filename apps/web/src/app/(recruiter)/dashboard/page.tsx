@@ -1,33 +1,50 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { SFT } from '@/types/fonts/fonts';
-import { getDashboardStatsAction } from '@/servers/applications/dashboard.action';
-import { buildApplicationsTrend, buildPipelineData } from '@/lib/dashboard.utils';
+import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
+import { getAiCostAction, getRecruitmentAnalyticsAction } from '@/servers/analytics/analytics.action';
+import { getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
 import DashboardKpiCards from '@/components/dashboard/DashboardKpiCards';
 import ApplicationsTrendChart from '@/components/dashboard/ApplicationsTrendChart';
-import RecruitmentPipeline from '@/components/dashboard/RecruitmentPipeline';
 import RecentCandidates from '@/components/dashboard/RecentCandidates';
 import OpenJobsList from '@/components/dashboard/OpenJobsList';
+import { RecruitmentFunnel, TimeInStage } from '@/components/dashboard/RecruitmentFunnel';
+import { AiCostPanel } from '@/components/dashboard/AiCostPanel';
+import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { dashboardPeriod } from '@/lib/dashboard-periods';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HRDashboard() {
-    const stats = await getDashboardStatsAction();
+const DAY = 86_400_000;
 
-    const allApps = stats.recentApplications; // top 6 đã sort
-    const trendData = buildApplicationsTrend(stats.recentApplications);
-    const pipelineData = buildPipelineData(stats.recentApplications);
-    const maxPipelineCount = Math.max(...pipelineData.map(d => d.count), 1);
+interface DashboardPageProps {
+    searchParams: Promise<{ days?: string; jobId?: string }>;
+}
 
-    // Ứng viên đã tuyển trong tháng hiện tại
-    const now = new Date();
-    const hiredThisMonth = stats.recentApplications.filter(app => {
-        const isHired = app.status?.toLowerCase() === 'hired';
-        if (!isHired || !app.appliedAt) return false;
-        const d = new Date(app.appliedAt);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
+function dayLabel(isoDate: string) {
+    const [, month, day] = isoDate.split('-');
+    return `${day}/${month}`;
+}
 
+// GĐ4 part 3: every number comes from GET /analytics/recruitment, counted by the API in the
+// caller's scope (A-04: the old page sliced the first six cards of a whole board).
+export default async function HRDashboard({ searchParams }: DashboardPageProps) {
+    const { days: daysParam, jobId } = await searchParams;
+    const days = dashboardPeriod(daysParam);
+    const to = new Date();
+    const from = new Date(to.getTime() - days * DAY);
+    const range = { from: from.toISOString(), to: to.toISOString() };
+
+    const role = decodeTokenPayload((await cookies()).get('accessToken')?.value ?? '')?.role;
+    const showCost = role === 'admin' || role === 'org_admin';
+
+    const [analytics, jobs, cost] = await Promise.all([
+        getRecruitmentAnalyticsAction({ ...range, jobId }),
+        getJobPostingsAction({ status: 'active', limit: 100 }),
+        showCost ? getAiCostAction(range) : Promise.resolve(null),
+    ]);
+    const openJobs = jobs?.items ?? [];
 
     return (
         <div className="p-4 lg:p-6" style={{ fontFamily: SFT }}>
@@ -39,8 +56,13 @@ export default async function HRDashboard() {
             </div>
 
             {/* Header */}
-            <div className="flex items-start justify-end mb-6">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
                 <h1 className="sr-only">Bảng điều khiển</h1>
+                <DashboardFilters
+                    days={days}
+                    jobId={jobId}
+                    jobs={openJobs.map(job => ({ jobId: job.jobId, title: job.title }))}
+                />
                 <Link
                     href="/jobs"
                     className="hidden sm:flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-4 py-2.5 text-[13px] transition shadow-sm shadow-[#0071E3]/20"
@@ -50,24 +72,25 @@ export default async function HRDashboard() {
                 </Link>
             </div>
 
-            {/* KPI Cards */}
-            <DashboardKpiCards
-                totalApplications={stats.totalApplications}
-                openJobs={stats.openJobs}
-                hiredThisMonth={hiredThisMonth}
+            <DashboardKpiCards totals={analytics.totals} />
+
+            <ApplicationsTrendChart
+                data={analytics.trend.map(point => ({ month: dayLabel(point.date), value: point.count }))}
+                subtitle={`Số đơn mỗi ngày, ${days} ngày gần nhất`}
             />
 
-            {/* Trend Chart */}
-            <ApplicationsTrendChart data={trendData} />
-
-            {/* Pipeline + Recent Candidates */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                <RecruitmentPipeline data={pipelineData} maxCount={maxPipelineCount} />
-                <RecentCandidates applications={allApps} />
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+                <RecruitmentFunnel funnel={analytics.funnel} outcomes={analytics.outcomes} />
+                <TimeInStage timeInStage={analytics.timeInStage} />
             </div>
 
-            {/* Open Jobs */}
-            <OpenJobsList jobs={stats.jobPostings} />
+            {cost && <AiCostPanel cost={cost} />}
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <RecentCandidates applications={analytics.recent} />
+            </div>
+
+            <OpenJobsList jobs={openJobs} />
         </div>
     );
 }

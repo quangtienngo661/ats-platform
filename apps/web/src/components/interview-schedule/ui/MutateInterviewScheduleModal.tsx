@@ -16,6 +16,7 @@ import {
 import { SF } from '@/types/fonts/fonts';
 import { toast } from '@/lib/toast';
 import { localDateTimeToIso } from '@/lib/interview-time';
+import { isBuiltInRoomLink } from '@/lib/meeting-link';
 
 const initialState: InterviewScheduleActionState = { success: false, message: '' };
 
@@ -87,7 +88,12 @@ export function MutateInterviewScheduleModal({
     // Controlled: React resets uncontrolled fields after every form action, a refused one included.
     const [durationMinutes, setDurationMinutes] = useState(String(schedule?.durationMinutes ?? 60));
     const [location, setLocation] = useState(schedule?.location ?? '');
-    const [onlineMeetingLink, setOnlineMeetingLink] = useState(schedule?.onlineMeetingLink ?? '');
+    // The built-in room link is the system's own, not something the recruiter typed: show it as empty.
+    const [onlineMeetingLink, setOnlineMeetingLink] = useState(
+        schedule && isBuiltInRoomLink(schedule.onlineMeetingLink, schedule.interviewId)
+            ? ''
+            : (schedule?.onlineMeetingLink ?? ''),
+    );
 
     const onCloseRef = useRef(onClose);
     useEffect(() => {
@@ -298,9 +304,12 @@ export function MutateInterviewScheduleModal({
                                         value={onlineMeetingLink}
                                         onChange={event => setOnlineMeetingLink(event.target.value)}
                                         placeholder="https://meet.google.com/..."
-                                        required
+                                        aria-describedby="mutateinterviewschedulemodal-link-hint"
                                         className="w-full rounded-xl border border-[#E5E5EA] px-4 py-3 text-[14px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
                                     />
+                                    <p id="mutateinterviewschedulemodal-link-hint" className="mt-1.5 text-[12px] text-[#6E6E73]">
+                                        Không bắt buộc. Để trống: dùng phòng phỏng vấn trực tuyến của hệ thống.
+                                    </p>
                                 </div>
                             )}
                         </div>

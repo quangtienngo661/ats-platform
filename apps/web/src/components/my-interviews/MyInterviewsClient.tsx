@@ -4,7 +4,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { CalendarDays, Clock, ExternalLink, MapPin, User, Video } from 'lucide-react';
 import { SF, SFT } from '@/types/fonts/fonts';
-import { isHttpUrl } from '@/lib/meeting-link';
+import { isBuiltInRoomLink, isHttpUrl } from '@/lib/meeting-link';
+import { JoinRoomButton } from '@/components/interview-room/JoinRoomButton';
 import type { ICandidateInterviewSchedule } from '@/types/interfaces/interview.interface';
 import { groupCandidateSchedules, scheduleEndsAt } from './group-schedules';
 
@@ -149,7 +150,17 @@ function InterviewCard({ schedule, now, active }: { schedule: ICandidateIntervie
                             {online ? 'Trực tuyến' : 'Trực tiếp'}
                         </span>
                         {online
-                            ? active && <MeetingLink link={schedule.onlineMeetingLink} />
+                            ? active && (isBuiltInRoomLink(schedule.onlineMeetingLink, schedule.interviewId)
+                                ? (
+                                    <JoinRoomButton
+                                        interviewId={schedule.interviewId}
+                                        startAt={schedule.startAt}
+                                        durationMinutes={schedule.durationMinutes}
+                                        status={schedule.status}
+                                        now={now}
+                                    />
+                                )
+                                : <MeetingLink link={schedule.onlineMeetingLink} />)
                             : (
                                 <span className="text-[12px] text-[#1D1D1F] break-words">
                                     {schedule.location ?? LOCATION_PENDING}

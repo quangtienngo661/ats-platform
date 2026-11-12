@@ -4,7 +4,7 @@ import { InterviewType } from '@ats-platform/database';
 export const LOCATION_MAX_LENGTH = 255;
 export const LOCATION_REQUIRED_MESSAGE = 'Phỏng vấn trực tiếp cần địa điểm';
 export const LOCATION_TOO_LONG_MESSAGE = 'Địa điểm tối đa 255 ký tự';
-export const MEETING_LINK_INVALID_MESSAGE = 'Phỏng vấn trực tuyến cần đường dẫn http(s) hợp lệ';
+export const MEETING_LINK_INVALID_MESSAGE = 'Đường dẫn phòng họp phải là địa chỉ http(s) hợp lệ';
 
 /** class-transformer helper: trims strings so validation sees what will be stored. */
 export const trimString = ({ value }: { value: unknown }) =>
@@ -29,11 +29,13 @@ export interface InterviewPlace {
 /**
  * Merges a requested change into the schedule's current type, location and link.
  * Only the field that belongs to the resulting type survives (online → link, onsite →
- * location), and that field must be present.
+ * location). An onsite interview must have a location; an online one without an
+ * external link gets `builtInRoomLink`, the schedule's own room (GĐ4 R1).
  */
 export function resolveInterviewPlace(
   current: InterviewPlace,
   change: Partial<Record<keyof InterviewPlace, string | null | undefined>>,
+  builtInRoomLink: string,
 ): InterviewPlace {
   const interviewType = (change.interviewType ?? current.interviewType) as InterviewType;
   const location =
@@ -48,6 +50,9 @@ export function resolveInterviewPlace(
     return { interviewType, location, onlineMeetingLink: null };
   }
 
-  if (!onlineMeetingLink) throw new BadRequestException(MEETING_LINK_INVALID_MESSAGE);
-  return { interviewType, location: null, onlineMeetingLink };
+  return {
+    interviewType,
+    location: null,
+    onlineMeetingLink: onlineMeetingLink ?? builtInRoomLink,
+  };
 }

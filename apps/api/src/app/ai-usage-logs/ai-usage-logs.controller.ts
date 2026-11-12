@@ -17,7 +17,7 @@ export class AiUsageLogsController {
 
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách nhật ký AI', description: 'Lọc theo loại hành động (cv_parsing, cv_scoring, mock_interview, job_parsing) và trạng thái. Hỗ trợ phân trang.' })
-  @ApiQuery({ name: 'actionType', required: false, enum: ['cv_parsing', 'cv_scoring', 'mock_interview', 'job_parsing', 'embedding'], description: 'Loại hành động AI' })
+  @ApiQuery({ name: 'actionType', required: false, enum: ['cv_parsing', 'cv_scoring', 'mock_interview', 'job_parsing', 'embedding', 'copilot'], description: 'Loại hành động AI' })
   @ApiQuery({ name: 'status', required: false, enum: ['success', 'failed'], description: 'Trạng thái' })
   @ApiQuery({ name: 'page', required: false, description: 'Trang (mặc định: 1)' })
   @ApiQuery({ name: 'limit', required: false, description: 'Số bản ghi mỗi trang (mặc định: 10)' })

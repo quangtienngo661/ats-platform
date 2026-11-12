@@ -1,0 +1,35 @@
+# Task 4.1 probe — 2026-10-30T15:15Z, pgvector image on 127.0.0.1:55442
+## migrate deploy
+    └─ migration.sql
+
+All migrations have been successfully applied.
+## interview_questions columns
+question_id | text | NO | 
+topic_id | text | NO | 
+difficulty | difficulty_level | NO | 
+question_text | text | NO | 
+expected_points | jsonb | NO | 
+is_active | bool | NO | true
+created_by_id | text | YES | 
+created_at | timestamp | NO | CURRENT_TIMESTAMP
+updated_at | timestamp | NO | 
+embedding | vector | YES | 
+## interview_qnas new columns
+source | question_source | NO | 'generated'::question_source
+bank_question_id | text | YES | 
+## foreign keys (name | delete rule)
+interview_qnas_bank_question_id_fkey | n
+interview_questions_created_by_id_fkey | n
+interview_questions_topic_id_fkey | r
+## existing qna rows default to generated: insert one without source
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+generated|
+## deleting a bank question leaves the session's qna (SET NULL), a hide never deletes
+INSERT 0 1
+UPDATE 1
+DELETE 1
+bank|

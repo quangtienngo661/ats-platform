@@ -34,8 +34,26 @@ describe('AiUsageLogsService', () => {
         completionTokens: 5,
         durationMs: 123,
         status: AiLogStatus.success,
+        organizationId: null,
       },
     });
+  });
+
+  it('stores the organization of the call when there is one (GĐ4 R20)', async () => {
+    prisma.aiUsageLog.create.mockResolvedValue({ logId: 'log-2' });
+
+    await service.create({
+      refId: 'scr-1',
+      actionType: AiActionType.cv_scoring,
+      model: 'gemini',
+      promptTokenCount: 1,
+      candidatesTokenCount: 1,
+      duration: 1,
+      status: AiLogStatus.success,
+      organizationId: 'org-1',
+    });
+
+    expect(prisma.aiUsageLog.create.mock.calls[0][0].data.organizationId).toBe('org-1');
   });
 
   it('logs and swallows create failures', async () => {
