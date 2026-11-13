@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { ArrowRightLeft, ChevronRight, Clock, Cpu, ExternalLink, MapPin, MoreHorizontal, Star } from 'lucide-react';
+import { ArrowRightLeft, ChevronRight, Clock, Cpu, ExternalLink, MapPin, Star } from 'lucide-react';
 import Link from 'next/link';
 import { ScreeningStatus } from '@ats-platform/types';
 import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
@@ -13,15 +13,13 @@ import { statusTone, type Tone } from '@/lib/status-tones';
 import {
   Avatar,
   Badge,
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-  IconButton,
+  RowActionsItem,
+  RowActionsMenu,
   Surface,
 } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
@@ -91,8 +89,6 @@ export default function KanbanCard({
   });
 
   const triggerRef = useRef<HTMLButtonElement>(null);
-  /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
-  const afterClose = useRef<(() => void) | null>(null);
   const hintId = useId();
 
   useEffect(() => {
@@ -146,65 +142,43 @@ export default function KanbanCard({
             <p className="truncate text-caption text-ink-3" title={candidate.role}>{candidate.role}</p>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <IconButton
-                ref={triggerRef}
-                size="sm"
-                aria-label="Tùy chọn"
-                className="-mr-1 -mt-1 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0"
-              >
-                <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
-              </IconButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              onCloseAutoFocus={e => {
-                const run = afterClose.current;
-                afterClose.current = null;
-                if (!run) return;
-                e.preventDefault();
-                triggerRef.current?.focus();
-                run();
-              }}
+          <RowActionsMenu ref={triggerRef} triggerClassName="-mr-1 -mt-1">
+            <DropdownMenuItem asChild>
+              <Link href={profileHref}>
+                <ExternalLink aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                Xem hồ sơ
+              </Link>
+            </DropdownMenuItem>
+            <RowActionsItem
+              disabled={!canScreen}
+              aria-describedby={screeningHint ? hintId : undefined}
+              afterClose={() => onRequestScreening(candidate.id)}
             >
-              <DropdownMenuItem asChild>
-                <Link href={profileHref}>
-                  <ExternalLink aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                  Xem hồ sơ
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                disabled={!canScreen}
-                aria-describedby={screeningHint ? hintId : undefined}
-                onSelect={() => { afterClose.current = () => onRequestScreening(candidate.id); }}
-              >
-                <Cpu aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                AI Sàng lọc CV
-              </DropdownMenuItem>
-              {screeningHint && (
-                // role="none": a menu may only own menu items; the text stays visible and serves as the item's description.
-                <p id={hintId} role="none" className="pb-1.5 pl-8 pr-2 text-caption text-ink-3">{screeningHint}</p>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <span className="flex items-center gap-2">
-                    <ArrowRightLeft aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                    Chuyển sang vòng…
-                  </span>
-                  <ChevronRight aria-hidden="true" strokeWidth={1.75} className="size-4 text-ink-3" />
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  {moveTargets.map(s => (
-                    <DropdownMenuItem key={s.id} onSelect={() => { afterClose.current = () => onMoveToStage(candidate.id, s.id); }}>
-                      {s.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Cpu aria-hidden="true" strokeWidth={1.75} className="size-4" />
+              AI Sàng lọc CV
+            </RowActionsItem>
+            {screeningHint && (
+              // role="none": a menu may only own menu items; the text stays visible and serves as the item's description.
+              <p id={hintId} role="none" className="pb-1.5 pl-8 pr-2 text-caption text-ink-3">{screeningHint}</p>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <span className="flex items-center gap-2">
+                  <ArrowRightLeft aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                  Chuyển sang vòng…
+                </span>
+                <ChevronRight aria-hidden="true" strokeWidth={1.75} className="size-4 text-ink-3" />
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {moveTargets.map(s => (
+                  <RowActionsItem key={s.id} afterClose={() => onMoveToStage(candidate.id, s.id)}>
+                    {s.label}
+                  </RowActionsItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </RowActionsMenu>
         </div>
 
         {labels.length > 0 && (

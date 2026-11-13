@@ -2,7 +2,7 @@
 
 import { Mail, Phone, UserPlus, Users } from 'lucide-react';
 import { UserRole } from '@ats-platform/types';
-import { Avatar, Badge, Button, EmptyState, Sheet } from '@/components/ui';
+import { Avatar, Badge, Button, EmptyState, ROW_ACTION_REVEAL, Sheet } from '@/components/ui';
 import { Department, DepartmentMember } from '@/types/interfaces/departments.interface';
 
 interface DepartmentDetailModalProps {
@@ -17,12 +17,8 @@ const ROLE_LABEL: Record<UserRole, string> = {
     candidate: 'Ứng viên',
 };
 
-/** Always visible on touch and narrow screens; on a wide screen with hover they show on row hover or focus. */
-const CONTACT_VISIBILITY =
-    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
-
-const CONTACT_LINK =
-    'inline-flex size-8 items-center justify-center rounded-ctl text-ink-3 transition duration-hover hover:bg-ink/5 hover:text-ink';
+/** Revealed like a row's "Tùy chọn": always on touch and narrow screens, on row hover or focus on a wide screen. */
+const CONTACT_LINK = `inline-flex size-8 items-center justify-center rounded-ctl text-ink-3 transition duration-hover hover:bg-ink/5 hover:text-ink ${ROW_ACTION_REVEAL}`;
 
 function MemberRow({ member }: { member: DepartmentMember }) {
     return (
@@ -45,7 +41,7 @@ function MemberRow({ member }: { member: DepartmentMember }) {
                         href={`mailto:${member.email}`}
                         aria-label={`Gửi email cho ${member.fullName}`}
                         title={member.email}
-                        className={`${CONTACT_LINK} ${CONTACT_VISIBILITY}`}
+                        className={CONTACT_LINK}
                     >
                         <Mail aria-hidden="true" strokeWidth={1.75} className="size-4" />
                     </a>
@@ -55,7 +51,7 @@ function MemberRow({ member }: { member: DepartmentMember }) {
                         href={`tel:${member.phoneNumber}`}
                         aria-label={`Gọi ${member.fullName}`}
                         title={member.phoneNumber}
-                        className={`${CONTACT_LINK} ${CONTACT_VISIBILITY}`}
+                        className={CONTACT_LINK}
                     >
                         <Phone aria-hidden="true" strokeWidth={1.75} className="size-4" />
                     </a>

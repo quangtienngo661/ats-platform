@@ -47,6 +47,13 @@ export {
     DropdownMenuSubContent,
     DropdownMenuSeparator,
 } from './DropdownMenu';
+export {
+    RowActionsMenu,
+    RowActionsItem,
+    ROW_ACTION_REVEAL,
+    type RowActionsMenuProps,
+    type RowActionsItemProps,
+} from './RowActionsMenu';
 export { Tooltip, TooltipProvider, type TooltipProps } from './Tooltip';
 export { Segmented, type SegmentedProps } from './Segmented';
 export { Tabs, type TabsProps } from './Tabs';

@@ -1,24 +1,17 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { AlertTriangle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import {
     Badge,
     Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    IconButton,
+    RowActionsItem,
+    RowActionsMenu,
     TD,
     TR,
 } from '@/components/ui';
 import { ISkillDto } from '@/types/interfaces/skill.interface';
-
-/** Always visible on touch and narrow screens; on a wide screen with hover it shows on row hover or focus. */
-const MENU_TRIGGER_VISIBILITY =
-    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
 
 interface SkillRowProps {
     index: number;
@@ -32,8 +25,6 @@ export function SkillRow({ index, skill, onEdit, onDelete }: SkillRowProps) {
     const nameId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const cancelRef = useRef<HTMLButtonElement>(null);
-    /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
-    const afterClose = useRef<(() => void) | null>(null);
     /** Where focus goes once the actions cell has swapped between the menu and the delete confirmation. */
     const focusNext = useRef<'cancel' | 'trigger' | null>(null);
 
@@ -102,48 +93,24 @@ export function SkillRow({ index, skill, onEdit, onDelete }: SkillRowProps) {
                         </Button>
                     </div>
                 ) : (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <IconButton
-                                ref={triggerRef}
-                                size="sm"
-                                aria-label="Tùy chọn"
-                                aria-describedby={nameId}
-                                className={MENU_TRIGGER_VISIBILITY}
-                            >
-                                <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
-                            </IconButton>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            onCloseAutoFocus={(e) => {
-                                const run = afterClose.current;
-                                afterClose.current = null;
-                                if (!run) return;
-                                e.preventDefault();
-                                triggerRef.current?.focus();
-                                run();
+                    <RowActionsMenu ref={triggerRef} describedBy={nameId}>
+                        <RowActionsItem afterClose={() => onEdit(skill)}>
+                            <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Chỉnh sửa
+                        </RowActionsItem>
+                        <DropdownMenuSeparator />
+                        <RowActionsItem
+                            destructive
+                            movesFocus
+                            afterClose={() => {
+                                focusNext.current = 'cancel';
+                                setConfirming(true);
                             }}
                         >
-                            <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(skill); }}>
-                                <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                                Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                destructive
-                                onSelect={() => {
-                                    afterClose.current = () => {
-                                        focusNext.current = 'cancel';
-                                        setConfirming(true);
-                                    };
-                                }}
-                            >
-                                <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                                Xóa
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Xóa
+                        </RowActionsItem>
+                    </RowActionsMenu>
                 )}
             </TD>
         </TR>

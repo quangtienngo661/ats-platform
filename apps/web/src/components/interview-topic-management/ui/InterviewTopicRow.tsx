@@ -1,23 +1,10 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    IconButton,
-    TD,
-    TR,
-} from '@/components/ui';
+import { useId, useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
+import { DropdownMenuSeparator, RowActionsItem, RowActionsMenu, TD, TR } from '@/components/ui';
 import { IInterviewTopic } from '@/types/interfaces/interview.interface';
 import { DeleteInterviewTopicDialog } from './DeleteInterviewTopicDialog';
-
-/** Always visible on touch and narrow screens; on a wide screen with hover it shows on row hover or focus. */
-const MENU_TRIGGER_VISIBILITY =
-    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
 
 interface InterviewTopicRowProps {
     topic: IInterviewTopic;
@@ -30,9 +17,6 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const nameId = useId();
     const reasonId = useId();
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
-    const afterClose = useRef<(() => void) | null>(null);
 
     return (
         <TR className="group">
@@ -52,50 +36,27 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
             </TD>
             <TD numeric>{sessions}</TD>
             <TD className="w-px whitespace-nowrap text-right">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <IconButton
-                            ref={triggerRef}
-                            size="sm"
-                            aria-label="Tùy chọn"
-                            aria-describedby={nameId}
-                            className={MENU_TRIGGER_VISIBILITY}
-                        >
-                            <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
-                        </IconButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        onCloseAutoFocus={(e) => {
-                            const run = afterClose.current;
-                            afterClose.current = null;
-                            if (!run) return;
-                            e.preventDefault();
-                            triggerRef.current?.focus();
-                            run();
-                        }}
+                <RowActionsMenu describedBy={nameId}>
+                    <RowActionsItem afterClose={() => onEdit(topic)}>
+                        <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Chỉnh sửa
+                    </RowActionsItem>
+                    <DropdownMenuSeparator />
+                    <RowActionsItem
+                        destructive
+                        disabled={sessions > 0}
+                        aria-describedby={sessions > 0 ? reasonId : undefined}
+                        afterClose={() => setConfirmingDelete(true)}
                     >
-                        <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(topic); }}>
-                            <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                            Chỉnh sửa
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            destructive
-                            disabled={sessions > 0}
-                            aria-describedby={sessions > 0 ? reasonId : undefined}
-                            onSelect={() => { afterClose.current = () => setConfirmingDelete(true); }}
-                        >
-                            <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                            Xóa
-                        </DropdownMenuItem>
-                        {sessions > 0 && (
-                            <p id={reasonId} className="px-2 pb-1 text-caption text-ink-3">
-                                Không thể xóa chủ đề đã có phiên phỏng vấn
-                            </p>
-                        )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Xóa
+                    </RowActionsItem>
+                    {sessions > 0 && (
+                        <p id={reasonId} className="px-2 pb-1 text-caption text-ink-3">
+                            Không thể xóa chủ đề đã có phiên phỏng vấn
+                        </p>
+                    )}
+                </RowActionsMenu>
                 <DeleteInterviewTopicDialog
                     topicId={topic.topicId}
                     open={confirmingDelete}

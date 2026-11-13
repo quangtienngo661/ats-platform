@@ -1,16 +1,14 @@
 'use client';
 
-import { useId, useRef } from 'react';
-import { Mail, MoreHorizontal, Pencil, Phone, Trash2 } from 'lucide-react';
+import { useId } from 'react';
+import { Mail, Pencil, Phone, Trash2 } from 'lucide-react';
 import {
     Avatar,
     Badge,
-    DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    IconButton,
+    RowActionsItem,
+    RowActionsMenu,
     Surface,
 } from '@/components/ui';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
@@ -25,10 +23,6 @@ interface RecruiterCardProps {
     onViewDetail: (id: string) => void;
 }
 
-/** Always visible on touch and narrow screens; on a wide screen with hover it shows on card hover or focus. */
-const MENU_TRIGGER_VISIBILITY =
-    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
-
 export function RecruiterCard({
     recruiter,
     departmentName,
@@ -42,9 +36,6 @@ export function RecruiterCard({
     const name = user?.fullName ?? 'Chưa cập nhật';
     const position = recruiter.position ?? 'Chưa cập nhật vị trí';
     const nameId = useId();
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    /** Runs once the menu has closed and focus is back on its trigger, so the dialog it opens returns focus there. */
-    const afterClose = useRef<(() => void) | null>(null);
 
     return (
         <Surface as="article" className="group flex h-full flex-col gap-3 p-4 transition-shadow duration-hover hover:shadow-e2">
@@ -59,40 +50,17 @@ export function RecruiterCard({
                     </p>
                 </div>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <IconButton
-                            ref={triggerRef}
-                            size="sm"
-                            aria-label="Tùy chọn"
-                            aria-describedby={nameId}
-                            className={`-mr-1 -mt-1 ${MENU_TRIGGER_VISIBILITY}`}
-                        >
-                            <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
-                        </IconButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        onCloseAutoFocus={(e) => {
-                            const run = afterClose.current;
-                            afterClose.current = null;
-                            if (!run) return;
-                            e.preventDefault();
-                            triggerRef.current?.focus();
-                            run();
-                        }}
-                    >
-                        <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(recruiter); }}>
-                            <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                            Chỉnh sửa
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem destructive onSelect={() => onDelete(recruiter)}>
-                            <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                            Xóa
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <RowActionsMenu describedBy={nameId} triggerClassName="-mr-1 -mt-1">
+                    <RowActionsItem afterClose={() => onEdit(recruiter)}>
+                        <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Chỉnh sửa
+                    </RowActionsItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem destructive onSelect={() => onDelete(recruiter)}>
+                        <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Xóa
+                    </DropdownMenuItem>
+                </RowActionsMenu>
             </div>
 
             <div className="flex min-w-0 flex-wrap items-center gap-1.5">

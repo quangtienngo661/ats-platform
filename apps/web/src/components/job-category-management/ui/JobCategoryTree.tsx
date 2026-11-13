@@ -1,15 +1,13 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useId, useState } from 'react';
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
     Badge,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuSeparator,
-    DropdownMenuTrigger,
     IconButton,
+    RowActionsItem,
+    RowActionsMenu,
     Surface,
 } from '@/components/ui';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
@@ -20,10 +18,6 @@ const INDENT = 16;
 /** Left padding of a row at depth 0, and the width of the 32 px toggle column the guides run through. */
 const ROW_PAD = 12;
 const TOGGLE = 32;
-
-/** Always visible on touch and narrow screens; on a wide screen with hover it shows on row hover or focus. */
-const MENU_TRIGGER_VISIBILITY =
-    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
 
 interface RowActions {
     onEdit: (cat: IJobCategoryDto) => void;
@@ -39,51 +33,24 @@ function RowMenu({
     onDelete,
     onAddChild,
 }: RowActions & { category: IJobCategoryDto; nameId: string; canAddChild: boolean }) {
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
-    const afterClose = useRef<(() => void) | null>(null);
-
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <IconButton
-                    ref={triggerRef}
-                    size="sm"
-                    aria-label="Tùy chọn"
-                    aria-describedby={nameId}
-                    className={MENU_TRIGGER_VISIBILITY}
-                >
-                    <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
-                </IconButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                onCloseAutoFocus={(e) => {
-                    const run = afterClose.current;
-                    afterClose.current = null;
-                    if (!run) return;
-                    e.preventDefault();
-                    triggerRef.current?.focus();
-                    run();
-                }}
-            >
-                {canAddChild && (
-                    <DropdownMenuItem onSelect={() => { afterClose.current = () => onAddChild(category.categoryId); }}>
-                        <Plus aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                        Thêm danh mục con
-                    </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(category); }}>
-                    <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                    Chỉnh sửa
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem destructive onSelect={() => { afterClose.current = () => onDelete(category); }}>
-                    <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
-                    Xóa
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <RowActionsMenu describedBy={nameId}>
+            {canAddChild && (
+                <RowActionsItem afterClose={() => onAddChild(category.categoryId)}>
+                    <Plus aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                    Thêm danh mục con
+                </RowActionsItem>
+            )}
+            <RowActionsItem afterClose={() => onEdit(category)}>
+                <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                Chỉnh sửa
+            </RowActionsItem>
+            <DropdownMenuSeparator />
+            <RowActionsItem destructive afterClose={() => onDelete(category)}>
+                <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                Xóa
+            </RowActionsItem>
+        </RowActionsMenu>
     );
 }
 
