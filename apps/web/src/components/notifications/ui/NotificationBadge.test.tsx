@@ -14,6 +14,18 @@ describe('NotificationBadge', () => {
         expect(shown).toEqual(['1', '9', '10', '99', '99+', '99+', '99+']);
     });
 
+    // Spec §6: no endless decorative motion (only the AI typing dots and skeletons loop). A count is not a spinner.
+    it('stays still: nothing in the badge carries a looping animation class', () => {
+        for (const count of [1, 12, 250]) {
+            const { container, unmount } = render(<NotificationBadge count={count} />);
+            const looping = Array.from(container.querySelectorAll('*'))
+                .flatMap((el) => Array.from(el.classList))
+                .filter((name) => /(^|:)animate-(pulse|ping|bounce|spin)$/.test(name));
+            expect(looping, `count ${count}`).toEqual([]);
+            unmount();
+        }
+    });
+
     // jsdom computes no layout, so the fit of "99+" is pinned by the classes that give it room.
     it('token contract: a 16 px pill that widens for "99+", with the white edge drawn outside it', () => {
         const classes = (badge(250)?.className ?? '').split(' ');
