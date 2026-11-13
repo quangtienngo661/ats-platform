@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SFT } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
+import { FileText, Upload } from 'lucide-react';
+import { Button, EmptyState, Stagger } from '@/components/ui';
 import { MyCvsHeader } from './ui/MyCvsHeader';
 import { MyCvsStats } from './ui/MyCvsStats';
 import { CvCard } from './ui/CvCard';
@@ -52,42 +52,40 @@ export default function MyCvsClient() {
         }
     };
 
+    const openUpload = () => setShowUploadModal(true);
+
     return (
-        <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
-            <MyCvsHeader onUpload={() => setShowUploadModal(true)} />
-            <MyCvsStats cvs={storeCvs} />
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6 sm:px-6">
+            <MyCvsHeader onUpload={openUpload} />
 
-            <motion.div layout className="flex flex-col gap-3">
-                <AnimatePresence mode="popLayout">
-                    {storeCvs.map((cv) => (
-                        <motion.div
-                            key={cv.cvId}
-                            layout
-                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <CvCard
-                                cv={cv}
-                                onView={() => setViewingCv(cv)}
-                                onDelete={() => handleDelete(cv.cvId)}
-                            />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-
-                {storeCvs.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
-                        <p className="text-[15px] text-[#6E6E73]" style={{ fontWeight: 500 }}>
-                            Bạn chưa tải lên CV nào
-                        </p>
-                        <p className="text-[12px] text-[#AEAEB2] mt-1">
-                            Tải lên CV để bắt đầu ứng tuyển
-                        </p>
-                    </div>
-                )}
-            </motion.div>
+            {storeCvs.length === 0 ? (
+                <EmptyState
+                    icon={FileText}
+                    title="Chưa có CV nào"
+                    description="Tải CV dạng PDF lên để AI phân tích và dùng khi ứng tuyển."
+                    action={
+                        <Button onClick={openUpload}>
+                            <Upload aria-hidden="true" strokeWidth={1.75} />
+                            Tải CV lên
+                        </Button>
+                    }
+                />
+            ) : (
+                <>
+                    <MyCvsStats cvs={storeCvs} />
+                    <Stagger className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+                        {storeCvs.map((cv) => (
+                            <div key={cv.cvId} className="min-w-0">
+                                <CvCard
+                                    cv={cv}
+                                    onView={() => setViewingCv(cv)}
+                                    onDelete={() => handleDelete(cv.cvId)}
+                                />
+                            </div>
+                        ))}
+                    </Stagger>
+                </>
+            )}
 
             {showUploadModal && <UploadCvModal onClose={() => setShowUploadModal(false)} />}
             {viewingCv && <CvDetailModal cv={viewingCv} onClose={() => setViewingCv(null)} />}
