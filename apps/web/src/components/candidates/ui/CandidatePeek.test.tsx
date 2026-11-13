@@ -57,7 +57,9 @@ describe('CandidatePeek', () => {
     expect(within(peek).getByRole('link', { name: 'Mở hồ sơ đầy đủ' }))
       .toHaveAttribute('href', `/jobs/${jobId}/candidates/${applicationId}`);
     expect(within(peek).getByText('Điểm AI chỉ là gợi ý. Bạn quyết định vòng tiếp theo.')).toBeVisible();
-    expect(within(peek).getByText('Nên phỏng vấn')).toBeVisible();
+    // The recommendation is the AI's original even after a reviewer changed the score, so it says whose it is.
+    expect(within(peek).getByText('Nên phỏng vấn').parentElement)
+      .toHaveTextContent(/^Khuyến nghị của AI: Nên phỏng vấn$/);
     expect(within(peek).getByText('SQL')).toBeVisible();
     expect(within(peek).getByText('Spark')).toBeVisible();
     // No stage change from the peek: the only button closes it.
@@ -72,6 +74,23 @@ describe('CandidatePeek', () => {
     expect(within(peek).getByText('Chưa có điểm')).toBeVisible();
     expect(within(peek).queryByRole('meter')).not.toBeInTheDocument();
     expect(within(peek).getByText('Điểm AI chỉ là gợi ý. Bạn quyết định vòng tiếp theo.')).toBeVisible();
+  });
+
+  it('lists a skill once when the screening repeats it, keeping the first order', () => {
+    const repeated = {
+      ...reviewedScreening,
+      matchedSkills: { hardSkills: ['SQL', 'Python', 'SQL', 'Python', 'dbt'], niceToHaveSkills: [] },
+      missingSkills: ['Spark', 'Spark'],
+    } as unknown as ICVScreening;
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    render(<CandidatePeek application={application(repeated)} jobId={jobId} onClose={vi.fn()} />);
+
+    const peek = screen.getByRole('dialog', { name: 'Trần Thu Hà' });
+    const [matched, missing] = within(peek).getAllByRole('list');
+    expect(within(matched).getAllByRole('listitem').map(item => item.textContent)).toEqual(['SQL', 'Python', 'dbt']);
+    expect(within(missing).getAllByRole('listitem').map(item => item.textContent)).toEqual(['Spark']);
+    // React warns about duplicate keys through console.error.
+    expect(errors).not.toHaveBeenCalled();
   });
 
   it('renders nothing without an application', () => {

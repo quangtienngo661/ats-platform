@@ -261,4 +261,25 @@ describe('candidate list redesign', () => {
     expect(screen.getByRole('heading', { name: 'Chưa có ứng viên' })).toBeVisible();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
+
+  it('shows a real 0 score as a meter at 0, not as "Chưa có điểm"', () => {
+    // overallScore stays null until a screening completes, so a completed "0" is a real score.
+    const zero = filterApplications.map((app, index) => index === 0
+      ? { ...app, screening: { status: 'completed', overallScore: '0' } as unknown as IApplicationDto['screening'] }
+      : app);
+    render(<CandidatesFilters applications={zero} jobId="job-1" aiProfiles={aiProfiles} />);
+    expect(screen.getByRole('meter', { name: 'Gợi ý AI cho Nguyễn Văn 1' })).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.getAllByText('Chưa có điểm')).toHaveLength(7);
+  });
+
+  it('offers each screening action once: the job-wide one in the toolbar, the selected one in the selection bar', () => {
+    render(<CandidatesFilters applications={filterApplications} jobId="job-1" aiProfiles={aiProfiles} />);
+    expect(screen.getAllByRole('button', { name: 'Chấm mọi đơn đủ điều kiện' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /^Chấm AI \(/ })).toHaveLength(1);
+  });
+
+  it('says the search matches names: every row on this page applies for the same position', () => {
+    render(<CandidatesFilters applications={filterApplications} jobId="job-1" aiProfiles={aiProfiles} />);
+    expect(screen.getByRole('textbox', { name: 'Tìm ứng viên' })).toHaveAttribute('placeholder', 'Tìm theo tên');
+  });
 });
