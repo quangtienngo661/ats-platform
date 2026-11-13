@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setUiVariantAction } from './ui-variant.action';
 
 const set = vi.fn();
@@ -12,7 +12,22 @@ beforeEach(() => {
   revalidatePath.mockReset();
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 describe('setUiVariantAction', () => {
+  it.each([
+    ['production', true],
+    ['development', false],
+  ])('sets secure on the cookie only in production (%s)', async (env, secure) => {
+    vi.stubEnv('NODE_ENV', env);
+
+    await setUiVariantAction('legacy');
+
+    expect(set).toHaveBeenCalledWith('talentai-ui', 'legacy', expect.objectContaining({ secure }));
+  });
+
   it('writes the cookie and revalidates the whole layout', async () => {
     await setUiVariantAction('legacy');
 
