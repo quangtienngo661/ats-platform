@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import {
-    Briefcase, GraduationCap, Code, Award, FolderGit2,
-    ChevronDown, ChevronUp, Sparkles, ArrowRight,
-} from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useState, type ReactNode } from 'react';
+import { ChevronDown, Sparkles } from 'lucide-react';
+import { Badge, EmptyState, Surface } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import Link from 'next/link';
 
 // ── Types (mirrors the AI CV_PARSING_PROMPT output shape) ─────────────────────
@@ -50,111 +48,67 @@ export interface ProfileParsedData {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function SectionTitle({ icon, title, count }: { icon: React.ReactNode; title: string; count?: number }) {
+function Section({ id, title, count, children }: { id: string; title: string; count?: number; children: ReactNode }) {
     return (
-        <h3 className="text-[13px] text-[#1D1D1F] mb-3 flex items-center gap-2" style={{ fontFamily: SF, fontWeight: 600 }}>
-            {icon}
-            {title}
-            {count !== undefined && (
-                <span className="text-[11px] text-[#AEAEB2] bg-[#F5F5F7] rounded-full px-2 py-0.5">
-                    {count}
-                </span>
-            )}
-        </h3>
+        <section aria-labelledby={id} className="flex flex-col gap-3">
+            <h2 id={id} className="flex items-center gap-2 text-title-sm text-ink">
+                {title}
+                {count !== undefined && <Badge>{count}</Badge>}
+            </h2>
+            {children}
+        </section>
     );
 }
 
-function SkillBadge({ label, color, bg }: { label: string; color: string; bg: string }) {
+function SkillGroup({ label, items }: { label: string; items?: string[] }) {
+    if (!items || items.length === 0) return null;
     return (
-        <span
-            className="text-[12px] rounded-lg px-2.5 py-1 inline-block"
-            style={{ color, background: bg, fontWeight: 500 }}
-        >
-            {label}
-        </span>
-    );
-}
-
-function ExperienceItem({ exp }: { exp: ParsedExperience }) {
-    const [open, setOpen] = useState(false);
-    return (
-        <div className="bg-[#F5F5F7] rounded-xl p-3.5">
-            <button
-                type="button"
-                onClick={() => setOpen((p) => !p)}
-                className="w-full flex items-start justify-between text-left gap-2"
-            >
-                <div>
-                    <p className="text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
-                        {exp.position ?? '—'}
-                    </p>
-                    <p className="text-[12px] text-[#6E6E73] mt-0.5">
-                        {exp.company ?? '—'}
-                        {(exp.start_date || exp.end_date) && (
-                            <span className="text-[#AEAEB2]">
-                                {' '}· {exp.start_date} – {exp.end_date ?? 'Present'}
-                            </span>
-                        )}
-                    </p>
-                </div>
-                {exp.description && (
-                    open
-                        ? <ChevronUp className="w-3.5 h-3.5 text-[#AEAEB2] flex-shrink-0 mt-0.5" />
-                        : <ChevronDown className="w-3.5 h-3.5 text-[#AEAEB2] flex-shrink-0 mt-0.5" />
-                )}
-            </button>
-            {open && exp.description && (
-                <p className="text-[12px] text-[#6E6E73] mt-2 leading-relaxed border-t border-[#E5E5EA] pt-2">
-                    {exp.description}
-                </p>
-            )}
+        <div>
+            <dt className="mb-1.5 text-caption text-ink-3">{label}</dt>
+            <dd className="flex flex-wrap gap-1.5">
+                {items.map((item) => (
+                    <Badge key={item} className="h-6 px-2 text-caption">
+                        {item}
+                    </Badge>
+                ))}
+            </dd>
         </div>
     );
 }
 
-function ProjectItem({ proj }: { proj: ParsedProject }) {
+/** A row whose description folds open; without a description it is plain text. */
+function FoldItem({ title, meta, description, extra }: { title: string; meta?: ReactNode; description: string | null; extra?: ReactNode }) {
     const [open, setOpen] = useState(false);
-    return (
-        <div className="bg-[#F5F5F7] rounded-xl p-3.5">
-            <button
-                type="button"
-                onClick={() => setOpen((p) => !p)}
-                className="w-full flex items-start justify-between text-left gap-2"
-            >
-                <div>
-                    <p className="text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
-                        {proj.name ?? '—'}
-                    </p>
-                    <p className="text-[12px] text-[#6E6E73] mt-0.5">
-                        {proj.role ?? ''}
-                        {(proj.start_date || proj.end_date) && (
-                            <span className="text-[#AEAEB2]">
-                                {proj.role ? ' · ' : ''}{proj.start_date} – {proj.end_date ?? 'Present'}
-                            </span>
-                        )}
-                    </p>
-                    {proj.technologies.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                            {proj.technologies.map((t) => (
-                                <span key={t} className="text-[10px] text-[#6366F1] bg-[#F5F3FF] rounded-md px-1.5 py-0.5">
-                                    {t}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                {proj.description && (
-                    open
-                        ? <ChevronUp className="w-3.5 h-3.5 text-[#AEAEB2] flex-shrink-0 mt-0.5" />
-                        : <ChevronDown className="w-3.5 h-3.5 text-[#AEAEB2] flex-shrink-0 mt-0.5" />
-                )}
-            </button>
-            {open && proj.description && (
-                <p className="text-[12px] text-[#6E6E73] mt-2 leading-relaxed border-t border-[#E5E5EA] pt-2">
-                    {proj.description}
-                </p>
-            )}
+    const head = (
+        <div className="min-w-0 flex-1 text-left">
+            <p className="break-words text-body font-medium text-ink">{title}</p>
+            {meta && <p className="break-words text-body-sm text-ink-3">{meta}</p>}
+            {extra}
         </div>
+    );
+    return (
+        <Surface className="p-4">
+            {description ? (
+                <>
+                    <button
+                        type="button"
+                        aria-expanded={open}
+                        onClick={() => setOpen((prev) => !prev)}
+                        className="flex w-full items-start justify-between gap-2"
+                    >
+                        {head}
+                        <ChevronDown
+                            aria-hidden="true"
+                            strokeWidth={1.75}
+                            className={cn('mt-1 size-4 shrink-0 text-ink-3 transition-transform duration-press', open && 'rotate-180')}
+                        />
+                    </button>
+                    {open && <p className="mt-3 whitespace-pre-line break-words border-t border-line pt-3 text-body-sm text-ink-2">{description}</p>}
+                </>
+            ) : (
+                head
+            )}
+        </Surface>
     );
 }
 
@@ -167,176 +121,128 @@ interface ProfileDetailsProps {
 export function ProfileDetails({ profileData }: ProfileDetailsProps) {
     const pd = profileData as ProfileParsedData | undefined;
 
-    // Determine if there is anything to show
     const skills = pd?.skills;
     const experience = pd?.experience ?? [];
     const projects = pd?.projects ?? [];
     const education = pd?.education ?? [];
     const certificates = pd?.certificates ?? [];
 
-    const hasSkills =
-        (skills?.technical?.length ?? 0) > 0 ||
-        (skills?.soft?.length ?? 0) > 0 ||
-        (skills?.languages?.length ?? 0) > 0;
-
+    const skillCount = (skills?.technical?.length ?? 0) + (skills?.soft?.length ?? 0) + (skills?.languages?.length ?? 0);
     const hasAnyData =
-        hasSkills ||
-        experience.length > 0 ||
-        projects.length > 0 ||
-        education.length > 0 ||
-        certificates.length > 0;
+        skillCount > 0 || experience.length > 0 || projects.length > 0 || education.length > 0 || certificates.length > 0;
 
     return (
-        <div className="space-y-4 mt-4" style={{ fontFamily: SFT }}>
-
-            {/* ── AI Sync Banner ──────────────────────────────── */}
-            <div className="bg-gradient-to-r from-[#EBF3FD] to-[#F5F3FF] rounded-2xl p-4 flex items-start gap-3 border border-[#D1D5DB]/30">
-                <Sparkles className="w-5 h-5 text-[#6366F1] flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                    <p className="text-[13px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                        Hồ sơ được trích xuất tự động bởi AI
-                    </p>
-                    <p className="text-[12px] text-[#6E6E73] mt-0.5 leading-relaxed">
+        <>
+            <Surface variant="inset" className="flex items-start gap-3 p-4">
+                <Sparkles aria-hidden="true" strokeWidth={1.75} className="mt-0.5 size-4 shrink-0 text-ink-3" />
+                <div className="min-w-0 flex-1">
+                    <p className="text-body-sm font-medium text-ink">Hồ sơ được trích xuất tự động bởi AI</p>
+                    <p className="mt-0.5 text-body-sm text-ink-3">
                         Kinh nghiệm làm việc, Học vấn và Kỹ năng được tự động đồng bộ từ CV đã xác nhận của bạn.
-                        Để cập nhật, hãy tải lên và xác nhận CV mới tại mục <strong>My CVs</strong>.
+                        Để cập nhật, hãy tải lên và xác nhận CV mới tại mục <strong className="font-medium">My CVs</strong>.
                     </p>
-                    <Link
-                        href="/my-cvs"
-                        className="inline-flex items-center gap-1 text-[12px] text-[#0071E3] hover:text-[#0060C0] mt-2 transition-colors"
-                        style={{ fontWeight: 500 }}
-                    >
+                    <Link href="/my-cvs" className="mt-2 inline-block text-body-sm font-medium text-accent-text hover:underline">
                         Đi tới My CVs
-                        <ArrowRight className="w-3 h-3" />
                     </Link>
                 </div>
-            </div>
+            </Surface>
 
             {!hasAnyData && (
-                <div className="flex flex-col items-center justify-center py-12 bg-white rounded-2xl border border-[#E5E5EA]">
-                    <Sparkles className="w-8 h-8 text-[#AEAEB2] mb-3" />
-                    <p className="text-[14px] text-[#6E6E73]" style={{ fontWeight: 500 }}>
-                        Chưa có dữ liệu hồ sơ
-                    </p>
-                    <p className="text-[12px] text-[#AEAEB2] mt-1 text-center max-w-[300px]">
-                        Tải lên CV tại mục My CVs, sau đó bấm &quot;Xác nhận &amp; Cập nhật hồ sơ&quot; để tự động điền thông tin.
-                    </p>
-                </div>
-            )}
-
-            {/* ── Skills ──────────────────────────────────────── */}
-            {hasSkills && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                    <SectionTitle
-                        icon={<Code className="w-4 h-4 text-[#6366F1]" />}
-                        title="Kỹ năng"
-                        count={(skills?.technical?.length ?? 0) + (skills?.soft?.length ?? 0) + (skills?.languages?.length ?? 0)}
+                <Surface>
+                    <EmptyState
+                        icon={Sparkles}
+                        title="Chưa có dữ liệu hồ sơ"
+                        description={'Tải lên CV tại mục My CVs, sau đó bấm "Xác nhận & Cập nhật hồ sơ" để tự động điền thông tin.'}
                     />
-                    <div className="space-y-3">
-                        {(skills?.technical?.length ?? 0) > 0 && (
-                            <div>
-                                <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Kỹ thuật</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {skills?.technical.map((s) => (
-                                        <SkillBadge key={s} label={s} color="#6366F1" bg="#F5F3FF" />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {(skills?.soft?.length ?? 0) > 0 && (
-                            <div>
-                                <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Kỹ năng mềm</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {skills?.soft.map((s) => (
-                                        <SkillBadge key={s} label={s} color="#0071E3" bg="#EBF3FD" />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {(skills?.languages?.length ?? 0) > 0 && (
-                            <div>
-                                <p className="text-[11px] text-[#AEAEB2] mb-1.5 uppercase tracking-wide" style={{ fontWeight: 600 }}>Ngoại ngữ</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {skills?.languages.map((s) => (
-                                        <SkillBadge key={s} label={s} color="#059669" bg="#ECFDF5" />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                </Surface>
             )}
 
-            {/* ── Experience ──────────────────────────────────── */}
+            {skillCount > 0 && (
+                <Section id="profile-skills" title="Kỹ năng" count={skillCount}>
+                    <dl className="flex flex-col gap-4">
+                        <SkillGroup label="Kỹ thuật" items={skills?.technical} />
+                        <SkillGroup label="Kỹ năng mềm" items={skills?.soft} />
+                        <SkillGroup label="Ngoại ngữ" items={skills?.languages} />
+                    </dl>
+                </Section>
+            )}
+
             {experience.length > 0 && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                    <SectionTitle
-                        icon={<Briefcase className="w-4 h-4 text-[#0071E3]" />}
-                        title="Kinh nghiệm làm việc"
-                        count={experience.length}
-                    />
-                    <div className="space-y-2">
+                <Section id="profile-experience" title="Kinh nghiệm làm việc" count={experience.length}>
+                    <div className="flex flex-col gap-2">
                         {experience.map((exp, i) => (
-                            <ExperienceItem key={i} exp={exp} />
+                            <FoldItem
+                                key={i}
+                                title={exp.position ?? '—'}
+                                meta={
+                                    <>
+                                        {exp.company ?? '—'}
+                                        {(exp.start_date || exp.end_date) && ` · ${exp.start_date} – ${exp.end_date ?? 'Present'}`}
+                                    </>
+                                }
+                                description={exp.description}
+                            />
                         ))}
                     </div>
-                </div>
+                </Section>
             )}
 
-            {/* ── Projects ────────────────────────────────────── */}
             {projects.length > 0 && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                    <SectionTitle
-                        icon={<FolderGit2 className="w-4 h-4 text-[#EC4899]" />}
-                        title="Dự án"
-                        count={projects.length}
-                    />
-                    <div className="space-y-2">
+                <Section id="profile-projects" title="Dự án" count={projects.length}>
+                    <div className="flex flex-col gap-2">
                         {projects.map((proj, i) => (
-                            <ProjectItem key={i} proj={proj} />
+                            <FoldItem
+                                key={i}
+                                title={proj.name ?? '—'}
+                                meta={
+                                    <>
+                                        {proj.role ?? ''}
+                                        {(proj.start_date || proj.end_date) &&
+                                            `${proj.role ? ' · ' : ''}${proj.start_date} – ${proj.end_date ?? 'Present'}`}
+                                    </>
+                                }
+                                description={proj.description}
+                                extra={
+                                    proj.technologies.length > 0 ? (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                            {proj.technologies.map((t) => (
+                                                <Badge key={t}>{t}</Badge>
+                                            ))}
+                                        </div>
+                                    ) : null
+                                }
+                            />
                         ))}
                     </div>
-                </div>
+                </Section>
             )}
 
-            {/* ── Education ───────────────────────────────────── */}
             {education.length > 0 && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                    <SectionTitle
-                        icon={<GraduationCap className="w-4 h-4 text-[#34C759]" />}
-                        title="Học vấn"
-                        count={education.length}
-                    />
-                    <div className="space-y-2">
+                <Section id="profile-education" title="Học vấn" count={education.length}>
+                    <div className="flex flex-col gap-2">
                         {education.map((edu, i) => (
-                            <div key={i} className="bg-[#F5F5F7] rounded-xl p-3.5">
-                                <p className="text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
+                            <Surface key={i} className="p-4">
+                                <p className="break-words text-body font-medium text-ink">
                                     {edu.degree} {edu.major ? `— ${edu.major}` : ''}
                                 </p>
-                                <p className="text-[12px] text-[#6E6E73] mt-0.5">{edu.institution ?? '—'}</p>
-                            </div>
+                                <p className="break-words text-body-sm text-ink-3">{edu.institution ?? '—'}</p>
+                            </Surface>
                         ))}
                     </div>
-                </div>
+                </Section>
             )}
 
-            {/* ── Certificates ────────────────────────────────── */}
             {certificates.length > 0 && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                    <SectionTitle
-                        icon={<Award className="w-4 h-4 text-[#F59E0B]" />}
-                        title="Chứng chỉ"
-                        count={certificates.length}
-                    />
-                    <div className="flex flex-col gap-2">
+                <Section id="profile-certificates" title="Chứng chỉ" count={certificates.length}>
+                    <ul className="flex flex-col gap-1.5">
                         {certificates.map((cert, i) => (
-                            <div key={i} className="flex items-center gap-2.5 bg-[#FFFBEB] rounded-xl px-3.5 py-2.5">
-                                <Award className="w-3.5 h-3.5 text-[#F59E0B] flex-shrink-0" />
-                                <span className="text-[13px] text-[#92400E]">{cert}</span>
-                            </div>
+                            <li key={i} className="break-words text-body text-ink-2">
+                                {cert}
+                            </li>
                         ))}
-                    </div>
-                </div>
+                    </ul>
+                </Section>
             )}
-        </div>
+        </>
     );
 }

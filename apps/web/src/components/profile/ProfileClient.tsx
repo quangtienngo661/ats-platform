@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { SFT } from '@/types/fonts/fonts';
 import { ProfileHeader } from './ui/ProfileHeader';
 import { ProfileInfoCard } from './ui/ProfileInfoCard';
 import { ProfileDetails } from './ui/ProfileDetails';
@@ -16,17 +15,12 @@ export default function ProfileClient({ profile }: ProfileClientProps) {
     const [showEditModal, setShowEditModal] = useState(false);
 
     return (
-        <div className="max-w-[700px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
+        <div className="mx-auto flex w-full max-w-[720px] flex-col gap-8 px-4 py-6 sm:px-6">
             <ProfileHeader profile={profile} onEdit={() => setShowEditModal(true)} />
             <ProfileInfoCard profile={profile} />
             <ProfileDetails profileData={profile.profileData} />
 
-            {showEditModal && (
-                <ProfileEditModal
-                    profile={profile}
-                    onClose={() => setShowEditModal(false)}
-                />
-            )}
+            <ProfileEditModal profile={profile} open={showEditModal} onClose={() => setShowEditModal(false)} />
         </div>
     );
 }
