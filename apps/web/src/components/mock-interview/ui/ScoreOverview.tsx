@@ -40,7 +40,15 @@ function FeedbackList({ title, icon: Icon, iconClass, items }: { title: string; 
     );
 }
 
-export function ScoreOverview({ overallScore, strengths, weaknesses, questions = [] }: ScoreOverviewProps) {
+/** The API sends Prisma Decimal columns as strings ("72"); the bars and the verdict need numbers. */
+function toScore(value: number | string | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const score = Number(value);
+    return Number.isFinite(score) ? score : null;
+}
+
+export function ScoreOverview({ overallScore: rawOverall, strengths, weaknesses, questions = [] }: ScoreOverviewProps) {
+    const overallScore = toScore(rawOverall) ?? 0;
     const verdict = scoreVerdict(overallScore);
     const perQuestionId = useId();
     const ordered = [...questions].sort((a, b) => a.orderIndex - b.orderIndex);
@@ -65,7 +73,7 @@ export function ScoreOverview({ overallScore, strengths, weaknesses, questions =
                             {ordered.map((q) => (
                                 <li key={q.orderIndex} className="grid grid-cols-[52px_minmax(0,1fr)] items-center gap-3">
                                     <span className="text-caption tabular-nums text-ink-3">Câu {q.orderIndex}</span>
-                                    <ScoreBar score={q.correctnessScore} label={`Câu ${q.orderIndex}`} />
+                                    <ScoreBar score={toScore(q.correctnessScore)} label={`Câu ${q.orderIndex}`} />
                                 </li>
                             ))}
                         </ul>
