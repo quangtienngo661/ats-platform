@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ArrowRightLeft, ChevronRight, Clock, Cpu, ExternalLink, MapPin, MoreHorizontal, Star } from 'lucide-react';
 import Link from 'next/link';
 import { ScreeningStatus } from '@ats-platform/types';
@@ -70,11 +71,16 @@ export default function KanbanCard({
   focusMenuTrigger,
   onMenuTriggerFocused,
 }: KanbanCardProps) {
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     type: DRAG_TYPE,
     item: { id: candidate.id },
     collect: m => ({ isDragging: m.isDragging() })
   });
+
+  // No native ghost: KanbanDragLayer draws the lifted card under the pointer.
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
 
   const [{ isOver }, drop] = useDrop({
     accept: DRAG_TYPE,
@@ -118,10 +124,9 @@ export default function KanbanCard({
     <div
       ref={(el: HTMLDivElement | null) => { drag(el); drop(el); }}
       className={cn(
-        'group relative cursor-grab select-none rounded-card transition-transform duration-hover ease-out-expo active:cursor-grabbing',
-        isDragging
-          ? 'shadow-e4 motion-safe:rotate-1 motion-safe:scale-[1.02]'
-          : 'motion-safe:hover:-translate-y-0.5',
+        'group relative cursor-grab select-none rounded-card transition-[opacity,transform] duration-hover ease-out-expo active:cursor-grabbing',
+        // While dragging, the copy under the pointer is the lifted one; the card left in place only fades.
+        isDragging ? 'opacity-40' : 'motion-safe:hover:-translate-y-0.5',
         isOver && !isDragging && 'ring-2 ring-accent',
       )}
     >

@@ -5,6 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ArchiveX, Clock } from 'lucide-react';
 import KanbanColumn from './KanbanColumn';
+import KanbanDragLayer from './KanbanDragLayer';
 import type { MenuFocusRequest } from './KanbanCard';
 import ScreeningConfigModal from './ScreeningConfigModal';
 import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
@@ -252,6 +253,8 @@ export default function KanbanClient({
             ))}
           </div>
         </div>
+
+        <KanbanDragLayer candidates={candidates} />
 
         {/* ── Cancelled / withdrawn applications ─────────────────────────── */}
         <Sheet open={showCancelled} onOpenChange={setShowCancelled} title="Đã hủy / Rút đơn">
