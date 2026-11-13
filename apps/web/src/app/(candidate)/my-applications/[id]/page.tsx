@@ -13,6 +13,8 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
     return (
         <ApplicationDetail
             application={{
+                applicationId: id,
+                jobId: application.jobId,
                 title: application.jobPosting?.title,
                 departmentName: application.jobPosting?.department?.name,
                 status: application.status,

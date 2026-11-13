@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { StatusChip, Surface } from '@/components/ui';
 import type { IApplicationHistoryItem } from '@/types/interfaces/application.interface';
-import { STATUS_CONFIG } from './status-config';
 import { ApplicationTimeline } from './timeline/ApplicationTimeline';
+import { nextStepLabel } from './timeline/next-step';
+import { WithdrawApplicationForm } from './ui/WithdrawApplicationForm';
 
 /**
  * Only what the page shows. Props of a client component are serialized into the page,
  * so the full application (AI screening, CV, candidate row) must not be passed here.
  */
 export interface ApplicationView {
+    applicationId?: string;
+    jobId?: string;
     title?: string;
     departmentName?: string;
     status: string;
@@ -22,53 +26,67 @@ export interface ApplicationView {
 
 /** One application of the candidate: the job it is for, its status and its timeline (D9). */
 export function ApplicationDetail({ application }: { application: ApplicationView }) {
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
-    const status = STATUS_CONFIG[application.status] ?? { label: application.status, color: '#6E6E73', bg: '#F5F5F7' };
     const appliedOn = mounted && application.appliedAt
         ? new Date(application.appliedAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
         : null;
+    const next = nextStepLabel(application.status);
+    const withdrawId = application.status === 'applied' ? application.applicationId : undefined;
 
     return (
-        <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
+        <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
             <Link
                 href="/my-applications"
-                className="inline-flex items-center gap-1 mb-4 text-[12px] text-[#6E6E73] hover:text-[#1D1D1F]"
-                style={{ fontWeight: 500 }}
+                className="mb-4 inline-flex items-center gap-1 text-body-sm text-ink-3 transition-colors duration-hover hover:text-ink"
             >
-                <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                <ArrowLeft size={14} strokeWidth={1.75} aria-hidden="true" />
                 Đơn ứng tuyển
             </Link>
 
-            <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 mb-4">
-                <div className="flex items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                        <h1
-                            className="text-[20px] text-[#1D1D1F] tracking-[-0.01em] break-words"
-                            style={{ fontFamily: SF, fontWeight: 700 }}
-                        >
-                            {application.title ?? 'Đơn ứng tuyển'}
-                        </h1>
-                        {application.departmentName && (
-                            <p className="text-[13px] text-[#6E6E73] mt-0.5">{application.departmentName}</p>
-                        )}
-                        {appliedOn && <p className="text-[12px] text-[#AEAEB2] mt-1.5">Nộp ngày {appliedOn}</p>}
-                    </div>
-                    <span
-                        className="text-[11px] rounded-full px-2.5 py-1 flex-shrink-0 inline-flex items-center gap-1"
-                        style={{ background: status.bg, color: status.color, fontWeight: 600 }}
-                    >
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: status.color }} />
-                        {status.label}
-                    </span>
+            <div className="mb-5 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h1 className="break-words text-heading font-semibold text-ink">
+                        {application.title ?? 'Đơn ứng tuyển'}
+                    </h1>
+                    {application.departmentName && (
+                        <p className="mt-1 break-words text-body text-ink-3">{application.departmentName}</p>
+                    )}
                 </div>
+                <StatusChip kind="candidate-application" value={application.status} className="mt-1" />
             </div>
 
-            <ApplicationTimeline
-                history={application.history}
-                status={application.status}
-                appliedAt={application.appliedAt}
-            />
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
+                <ApplicationTimeline
+                    history={application.history}
+                    status={application.status}
+                    appliedAt={application.appliedAt}
+                />
+
+                <aside className="flex flex-col gap-4">
+                    <Surface className="p-5">
+                        <h2 className="text-title-sm font-semibold text-ink">Về đơn này</h2>
+                        {appliedOn && <p className="mt-2 text-body-sm tabular-nums text-ink-2">Nộp ngày {appliedOn}</p>}
+                        {next && <p className="mt-1 text-body-sm text-ink-2">Bước tiếp theo: {next}</p>}
+                        {application.jobId && (
+                            <Link
+                                href={`/job-postings/${application.jobId}`}
+                                className="mt-3 inline-flex items-center gap-1 text-body-sm font-medium text-accent-text hover:underline"
+                            >
+                                Xem tin tuyển dụng
+                                <ArrowUpRight size={14} strokeWidth={1.75} aria-hidden="true" />
+                            </Link>
+                        )}
+                    </Surface>
+                    {withdrawId && (
+                        <Surface variant="inset" className="flex items-center justify-between gap-3 p-4">
+                            <p className="text-body-sm text-ink-2">Không muốn ứng tuyển nữa?</p>
+                            <WithdrawApplicationForm applicationId={withdrawId} onSuccess={() => router.refresh()} />
+                        </Surface>
+                    )}
+                </aside>
+            </div>
         </div>
     );
 }

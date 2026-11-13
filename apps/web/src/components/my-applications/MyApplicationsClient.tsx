@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SFT } from '@/types/fonts/fonts';
+import { Search } from 'lucide-react';
+import { ButtonLink, EmptyState, Segmented, Stagger } from '@/components/ui';
 
 import { MyApplicationsHeader } from './ui/MyApplicationsHeader';
 import { MyApplicationsStats } from './ui/MyApplicationsStats';
@@ -11,6 +12,7 @@ import { IApplicationCard } from '@/types/interfaces/application.interface';
 import { INotification } from '@/types/interfaces/notification.interface';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { toast } from '@/lib/toast';
+import { isInProgress } from './timeline/next-step';
 
 export type { IApplicationCard as ApplicationItem };
 
@@ -18,27 +20,13 @@ interface MyApplicationsClientProps {
     applications: IApplicationCard[];
 }
 
-type StatusFilter = 'all' | string;
+type StatusFilter = 'all' | 'active' | 'finished';
 
-const STATUS_FILTERS: StatusFilter[] = [
-    'all',
-    'applied',
-    'screening',
-    'interview',
-    'offer',
-    'rejected',
-    'cancelled',
+const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'active', label: 'Đang xử lý' },
+    { value: 'finished', label: 'Đã kết thúc' },
 ];
-
-const FILTER_LABELS: Record<string, string> = {
-    all: 'Tất cả',
-    applied: 'Đã nộp',
-    screening: 'Sàng lọc',
-    interview: 'Phỏng vấn',
-    offer: 'Offer',
-    rejected: 'Từ chối',
-    cancelled: 'Rút đơn',
-};
 
 export default function MyApplicationsClient({ applications }: MyApplicationsClientProps) {
     const [items, setItems] = useState<IApplicationCard[]>(applications);
@@ -84,57 +72,45 @@ export default function MyApplicationsClient({ applications }: MyApplicationsCli
 
     const filtered = statusFilter === 'all'
         ? items
-        : items.filter((application) => application.status === statusFilter);
+        : items.filter((application) => isInProgress(application.status) === (statusFilter === 'active'));
+
+    if (items.length === 0) {
+        return (
+            <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
+                <MyApplicationsHeader />
+                <EmptyState
+                    icon={Search}
+                    title="Chưa có đơn ứng tuyển"
+                    description="Các đơn bạn nộp sẽ hiện ở đây cùng trạng thái và bước tiếp theo."
+                    action={<ButtonLink href="/job-postings">Tìm việc</ButtonLink>}
+                />
+            </div>
+        );
+    }
 
     return (
-        <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
-            <MyApplicationsHeader />
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 sm:px-6">
+            <MyApplicationsHeader>
+                <Segmented
+                    label="Lọc đơn theo trạng thái"
+                    options={FILTER_OPTIONS}
+                    value={statusFilter}
+                    onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+                />
+            </MyApplicationsHeader>
             <MyApplicationsStats applications={items} />
 
-            <div className="flex items-center gap-1.5 mb-5 overflow-x-auto pb-1">
-                {STATUS_FILTERS.map((status) => {
-                    const count = status === 'all'
-                        ? items.length
-                        : items.filter((application) => application.status === status).length;
-                    const isActive = statusFilter === status;
-
-                    return (
-                        <button
-                            key={status}
-                            type="button"
-                            onClick={() => setStatusFilter(status)}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] transition whitespace-nowrap ${isActive
-                                ? 'bg-[#0071E3] text-white'
-                                : 'bg-[#F5F5F7] text-[#6E6E73] hover:bg-[#EBEBF0]'
-                                }`}
-                            style={{ fontWeight: isActive ? 600 : 400 }}
-                        >
-                            {FILTER_LABELS[status]} ({count})
-                        </button>
-                    );
-                })}
-            </div>
-
-            <div className="flex flex-col gap-3">
-                {filtered.map((application) => (
-                    <ApplicationCard
-                        key={application.applicationId}
-                        application={application}
-                        onWithdrawSuccess={handleWithdrawSuccess}
-                    />
-                ))}
-
-                {filtered.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
-                        <p className="text-[15px] text-[#6E6E73]" style={{ fontWeight: 500 }}>
-                            Không có đơn ứng tuyển nào
-                        </p>
-                        <p className="text-[12px] text-[#AEAEB2] mt-1">
-                            Hãy tìm và ứng tuyển công việc phù hợp
-                        </p>
-                    </div>
-                )}
-            </div>
+            {filtered.length === 0 ? (
+                <EmptyState title="Không có đơn nào trong nhóm này" />
+            ) : (
+                <Stagger as="ul" className="flex flex-col gap-3">
+                    {filtered.map((application) => (
+                        <li key={application.applicationId}>
+                            <ApplicationCard application={application} onWithdrawSuccess={handleWithdrawSuccess} />
+                        </li>
+                    ))}
+                </Stagger>
+            )}
         </div>
     );
 }

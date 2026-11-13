@@ -6,6 +6,8 @@ import { getApplicationByIdAction } from '@/servers/applications/applications.ac
 import ApplicationPage from './page';
 
 vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
+// The detail page can withdraw an application, so it reads the router.
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock('@/servers/applications/applications.action', () => ({ getApplicationByIdAction: vi.fn() }));
 
 const originalTz = process.env.TZ;

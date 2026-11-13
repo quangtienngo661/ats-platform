@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SF } from '@/types/fonts/fonts';
+import { Check } from 'lucide-react';
+import { Badge, Surface } from '@/components/ui';
 import type { IApplicationHistoryItem } from '@/types/interfaces/application.interface';
 import { buildTimeline } from './build-timeline';
 
@@ -26,11 +27,11 @@ function formatMoment(value: string) {
     return `${day} ${time}`;
 }
 
-function dotColor(status: string, isCurrent: boolean) {
-    if (!isCurrent) return '#AEAEB2';
-    if (status === 'rejected') return '#DC2626';
-    if (status === 'cancelled') return '#6E6E73';
-    return '#0071E3';
+function dotClasses(status: string, isCurrent: boolean) {
+    if (!isCurrent) return 'bg-success-soft text-success';
+    if (status === 'rejected') return 'bg-danger-solid text-surface';
+    if (status === 'cancelled') return 'bg-ink-3 text-surface';
+    return 'bg-accent text-surface';
 }
 
 export function ApplicationTimeline({ history, status, appliedAt }: ApplicationTimelineProps) {
@@ -38,63 +39,47 @@ export function ApplicationTimeline({ history, status, appliedAt }: ApplicationT
     const steps = buildTimeline(history, { status, appliedAt });
 
     return (
-        <section aria-labelledby="application-timeline-title" className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-            <h2
-                id="application-timeline-title"
-                className="text-[13px] text-[#6E6E73] uppercase tracking-[0.04em] mb-4"
-                style={{ fontFamily: SF, fontWeight: 600 }}
-            >
+        <Surface as="section" aria-labelledby="application-timeline-title" className="p-5">
+            <h2 id="application-timeline-title" className="mb-4 text-title-sm font-semibold text-ink">
                 Tiến trình
             </h2>
             <ol aria-label="Tiến trình đơn ứng tuyển" className="flex flex-col">
                 {steps.map((step, index) => {
-                    const color = dotColor(step.status, step.isCurrent);
                     const isLast = index === steps.length - 1;
                     return (
                         <li
                             key={step.key}
                             aria-current={step.isCurrent ? 'step' : undefined}
-                            className="relative flex gap-3 pb-5 last:pb-0"
+                            className="relative flex gap-3 pb-6 last:pb-0"
                         >
                             {!isLast && (
-                                <span aria-hidden="true" className="absolute left-[7px] top-4 bottom-0 w-px bg-[#E5E5EA]" />
+                                <span aria-hidden="true" className="absolute bottom-0 left-[9px] top-6 w-px bg-line" />
                             )}
                             <span
                                 aria-hidden="true"
-                                className="relative mt-0.5 h-[15px] w-[15px] flex-shrink-0 rounded-full border-2 bg-white"
-                                style={{ borderColor: color, boxShadow: step.isCurrent ? `0 0 0 3px ${color}22` : undefined }}
-                            />
+                                className={`relative mt-0.5 flex size-5 flex-shrink-0 items-center justify-center rounded-full ${dotClasses(step.status, step.isCurrent)}`}
+                            >
+                                {step.isCurrent ? (
+                                    <span className="size-1.5 rounded-full bg-surface" />
+                                ) : (
+                                    <Check size={12} strokeWidth={2} />
+                                )}
+                            </span>
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                    <span
-                                        className="text-[13px] text-[#1D1D1F]"
-                                        style={{ fontWeight: step.isCurrent ? 700 : 500 }}
-                                    >
+                                    <span className={`text-body ${step.isCurrent ? 'font-semibold text-ink' : 'font-medium text-ink-2'}`}>
                                         {step.label}
                                     </span>
-                                    {step.isRevert && (
-                                        <span className="text-[11px] rounded-md px-1.5 py-0.5 bg-[#FFF7ED] text-[#D97706]" style={{ fontWeight: 500 }}>
-                                            Được xem xét lại
-                                        </span>
-                                    )}
-                                    {step.isCurrent && (
-                                        <span
-                                            className="text-[10px] rounded-full px-2 py-0.5"
-                                            style={{ background: `${color}14`, color, fontWeight: 600 }}
-                                        >
-                                            Hiện tại
-                                        </span>
-                                    )}
+                                    {step.isRevert && <Badge tone="warning">Được xem xét lại</Badge>}
+                                    {step.isCurrent && <Badge tone="accent">Hiện tại</Badge>}
                                 </div>
-                                <time dateTime={step.at} className="mt-0.5 block text-[12px] text-[#6E6E73]">
+                                <time dateTime={step.at} className="mt-0.5 block text-caption tabular-nums text-ink-3">
                                     {mounted ? formatMoment(step.at) : ''}
                                 </time>
                                 {step.rejectionReason && (
-                                    <div className="mt-2 rounded-xl border border-[#FDE2E2] bg-[#FEF2F2] px-3 py-2">
-                                        <p className="text-[11px] text-[#DC2626]" style={{ fontWeight: 600 }}>
-                                            Lý do từ chối
-                                        </p>
-                                        <p className="mt-0.5 text-[13px] text-[#1D1D1F] break-words">{step.rejectionReason}</p>
+                                    <div className="mt-2 rounded-ctl bg-danger-soft px-3 py-2">
+                                        <p className="text-caption font-medium text-danger">Lý do từ chối</p>
+                                        <p className="mt-0.5 break-words text-body-sm text-ink">{step.rejectionReason}</p>
                                     </div>
                                 )}
                             </div>
@@ -102,6 +87,6 @@ export function ApplicationTimeline({ history, status, appliedAt }: ApplicationT
                     );
                 })}
             </ol>
-        </section>
+        </Surface>
     );
 }

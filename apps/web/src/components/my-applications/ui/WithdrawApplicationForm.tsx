@@ -1,11 +1,11 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
-import { XCircle } from 'lucide-react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import {
     ApplicationActionState,
     withdrawApplicationFormAction,
 } from '@/servers/applications/applications.action';
+import { Button, Dialog } from '@/components/ui';
 import { toast } from '@/lib/toast';
 
 interface WithdrawApplicationFormProps {
@@ -18,12 +18,15 @@ const initialState: ApplicationActionState = {
     message: '',
 };
 
+/** "Rút đơn" asks for confirmation in a dialog before it calls the withdraw action. */
 export function WithdrawApplicationForm({
     applicationId,
     onSuccess,
 }: WithdrawApplicationFormProps) {
+    const [open, setOpen] = useState(false);
     const [state, formAction, isPending] = useActionState(withdrawApplicationFormAction, initialState);
     const handledMessage = useRef<string>('');
+    const formId = `withdraw-${applicationId}`;
 
     useEffect(() => {
         if (!state.message || handledMessage.current === state.message) return;
@@ -35,23 +38,37 @@ export function WithdrawApplicationForm({
         } else {
             toast.error('Đơn ứng tuyển', state.message);
         }
+        setOpen(false);
     }, [state, applicationId, onSuccess]);
 
     return (
-        <form action={formAction}>
-            <input type="hidden" name="applicationId" value={applicationId} />
-            <button
-                type="submit"
-                disabled={isPending}
-                className="p-2 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors opacity-0 group-hover:opacity-100 w-full h-full flex items-center justify-center disabled:opacity-50"
-                title="Rút đơn"
+        <>
+            <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
+                Rút đơn
+            </Button>
+            <Dialog
+                open={open}
+                onOpenChange={(next) => {
+                    if (!isPending) setOpen(next);
+                }}
+                title="Rút đơn ứng tuyển?"
+                description="Đơn chuyển sang trạng thái Đã rút và bạn không thể hoàn tác."
+                size="sm"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setOpen(false)} disabled={isPending}>
+                            Giữ đơn
+                        </Button>
+                        <Button type="submit" form={formId} variant="danger" loading={isPending}>
+                            Rút đơn
+                        </Button>
+                    </>
+                }
             >
-                {isPending ? (
-                    <span className="w-4 h-4 border-2 border-[#FF3B30]/30 border-t-[#FF3B30] rounded-full animate-spin" />
-                ) : (
-                    <XCircle className="w-4 h-4" />
-                )}
-            </button>
-        </form>
+                <form id={formId} action={formAction}>
+                    <input type="hidden" name="applicationId" value={applicationId} />
+                </form>
+            </Dialog>
+        </>
     );
 }
