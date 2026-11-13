@@ -75,8 +75,8 @@ export function ConfigCard({
             className={cn('rounded-card bg-surface', profile.isDefault ? 'shadow-e2' : 'shadow-e1')}
         >
             {/* ── Header ── */}
-            <div className="flex items-center gap-3 px-5 py-4">
-                <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
+                <div className="min-w-0 flex-1 basis-[12rem]">
                     {organizationName && (
                         <p className="mb-1 truncate text-caption text-ink-3" title={organizationName}>{`Tổ chức: ${organizationName}`}</p>
                     )}
@@ -106,7 +106,7 @@ export function ConfigCard({
                     />
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center justify-end gap-1.5">
                     {profile.isDefault && <Badge tone="accent">Mặc định</Badge>}
                     {isEditing && <Badge tone="warning">Đang chỉnh sửa</Badge>}
                     <Badge tone={totalTone} className="tabular-nums">{`${isEditing ? total : totalOf(profile)}/100`}</Badge>

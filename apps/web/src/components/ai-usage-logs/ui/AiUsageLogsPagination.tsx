@@ -39,7 +39,7 @@ export function AiUsageLogsPagination({ pagination }: { pagination: IPaginationM
     return (
         <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-caption tabular-nums text-ink-3">
-                {startItem}–{endItem} / {total} bản ghi
+                {page > totalPages ? `${total} bản ghi` : `${startItem}–${endItem} / ${total} bản ghi`}
             </p>
             <nav aria-label="Phân trang nhật ký AI" className="flex items-center gap-1">
                 <IconButton size="sm" aria-label="Trước" disabled={page === 1} onClick={() => goToPage(Math.min(page - 1, totalPages))}>

@@ -44,11 +44,11 @@ describe('AIScreeningConfigClient', () => {
     const open = () => user.click(screen.getAllByRole('button', { name: 'Thêm cấu hình mới' })[0]);
 
     await open();
-    await user.type(await screen.findByRole('textbox', { name: 'Tên cấu hình', exact: true }), 'Bản nháp');
+    await user.type(await screen.findByRole('textbox', { name: 'Tên cấu hình' }), 'Bản nháp');
     await user.click(screen.getByRole('button', { name: 'Hủy' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
     await open();
-    expect(await screen.findByRole('textbox', { name: 'Tên cấu hình', exact: true })).toHaveValue('');
+    expect(await screen.findByRole('textbox', { name: 'Tên cấu hình' })).toHaveValue('');
   });
 });
