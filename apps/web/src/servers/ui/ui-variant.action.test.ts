@@ -37,6 +37,7 @@ describe('setUiVariantAction', () => {
       maxAge: 31536000,
       sameSite: 'lax',
       httpOnly: true,
+      secure: false,
     });
     expect(revalidatePath).toHaveBeenCalledWith('/', 'layout');
   });

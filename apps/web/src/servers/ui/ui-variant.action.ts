@@ -14,6 +14,7 @@ export async function setUiVariantAction(variant: UiVariant): Promise<void> {
     maxAge: 31536000,
     sameSite: 'lax',
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
   });
   revalidatePath('/', 'layout');
 }
