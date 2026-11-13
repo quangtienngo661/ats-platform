@@ -7,7 +7,7 @@ import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { IOrganizationOption } from '@ats-platform/types';
 import { ConfigCard } from '@/components/ai-configuration/ui/ConfigCard';
 import { AddProfileModal } from '@/components/ai-configuration/ui/AddProfileModal';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Button, EmptyState, PageToolbar, Surface } from '@/components/ui';
 import {
     deleteAIConfigAction,
     duplicateAIConfigAction,
@@ -62,32 +62,51 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
         }
     };
 
+    const stats = [
+        { label: 'Tổng cấu hình', value: profiles.length },
+        { label: 'Mặc định', value: profiles.filter((p) => p.isDefault).length },
+    ];
+
     return (
-        <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-            {/* ── Page header ── */}
-            <div className="mb-6">
-                <div className="flex items-center justify-end gap-4 flex-wrap">
-                    <h1 className="sr-only">Cấu hình AI Screening</h1>
+        <div className="space-y-4 p-4 lg:p-6">
+            <PageToolbar title="Cấu hình AI Screening">
+                <Button onClick={() => setShowModal(true)}>
+                    <Plus aria-hidden="true" strokeWidth={1.75} />
+                    Thêm cấu hình mới
+                </Button>
+            </PageToolbar>
 
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
-                        style={{ fontWeight: 500 }}
-                    >
-                        <Plus className="w-4 h-4" />Thêm cấu hình mới
-                    </button>
-                </div>
-            </div>
+            <Surface as="dl" className="grid grid-cols-2 divide-x divide-line">
+                {stats.map(({ label, value }) => (
+                    <div key={label} className="px-4 py-3">
+                        <dt className="text-caption text-ink-3">{label}</dt>
+                        <dd className="mt-0.5 text-title-sm tabular-nums text-ink">{value}</dd>
+                    </div>
+                ))}
+            </Surface>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* ── Config list ── */}
-                <div className="lg:col-span-2 space-y-4">
-                    <AnimatePresence mode="popLayout">
+            {profiles.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={Cpu}
+                        title="Chưa có cấu hình"
+                        description="Cấu hình đầu tiên đặt trọng số cho việc sàng lọc CV."
+                        action={
+                            <Button onClick={() => setShowModal(true)}>
+                                <Plus aria-hidden="true" strokeWidth={1.75} />
+                                Thêm cấu hình mới
+                            </Button>
+                        }
+                    />
+                </Surface>
+            ) : (
+                <div className="space-y-4">
+                    <AnimatePresence>
                         {profiles.map((profile) => (
                             <ConfigCard
                                 key={profile.configId}
                                 profile={profile}
-                                organizationName={organizations.find(org => org.organizationId === profile.organizationId)?.name}
+                                organizationName={organizations.find((org) => org.organizationId === profile.organizationId)?.name}
                                 onUpdate={(updated) => updateProfile(updated)}
                                 onDelete={() => deleteProfile(profile.configId || '', profile.name)}
                                 onSetDefault={() => setDefault(profile.configId || '', profile.name)}
@@ -95,57 +114,15 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
                             />
                         ))}
                     </AnimatePresence>
-
-                    {profiles.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-[#D2D2D7]">
-                            <div className="w-12 h-12 rounded-2xl bg-[#EBF3FD] flex items-center justify-center mb-4">
-                                <Cpu className="w-6 h-6 text-[#0071E3]" />
-                            </div>
-                            <p className="text-[15px] text-[#1D1D1F] mb-1" style={{ fontFamily: SF, fontWeight: 600 }}>Chưa có cấu hình nào</p>
-                            <p className="text-[13px] text-[#AEAEB2] mb-4">Nhấn nút bên dưới để tạo cấu hình đầu tiên</p>
-                            <button
-                                onClick={() => setShowModal(true)}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px] hover:bg-[#0077ED] transition-colors"
-                                style={{ fontWeight: 500 }}
-                            >
-                                <Plus className="w-4 h-4" />Thêm cấu hình mới
-                            </button>
-                        </div>
-                    )}
                 </div>
+            )}
 
-                {/* ── Sidebar ── */}
-                <div className="space-y-4">
-                    <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5">
-                        <h3 className="text-[14px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>Tổng quan</h3>
-                        <div className="space-y-3">
-                            {[
-                                ['Tổng cấu hình', `${profiles.length}`, 'text-[#1D1D1F]'],
-                            ].map(([label, val, cls]) => (
-                                <div key={label} className="flex items-center justify-between">
-                                    <span className="text-[12px] text-[#6E6E73]">{label}</span>
-                                    <span className={`text-[12px] ${cls}`} style={{ fontWeight: 600 }}>{val}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+            <ul className="space-y-1 text-caption text-ink-3">
+                <li>Tổng 3 trọng số phải đúng bằng 100%.</li>
+                <li>Dùng &quot;Nhân bản&quot; để tạo biến thể nhanh.</li>
+            </ul>
 
-                    <div className="bg-[#FFF4E5] rounded-2xl border border-[#FFEED4] p-5">
-                        <h3 className="text-[14px] text-[#1D1D1F] mb-3" style={{ fontFamily: SF, fontWeight: 600 }}>💡 Gợi ý</h3>
-                        <ul className="space-y-2 text-[12px] text-[#6E6E73] leading-relaxed">
-                            <li>• Tổng 3 trọng số phải đúng bằng 100%</li>
-                            <li>• Dùng &quot;Nhân bản&quot; để tạo biến thể nhanh</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Add Profile Modal ── */}
-            <AnimatePresence>
-                {showModal && (
-                    <AddProfileModal organizations={organizations} onClose={() => setShowModal(false)} />
-                )}
-            </AnimatePresence>
+            {showModal && <AddProfileModal organizations={organizations} onClose={() => setShowModal(false)} />}
         </div>
     );
 }

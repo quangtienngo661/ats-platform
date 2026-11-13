@@ -1,5 +1,4 @@
-import { SlidersHorizontal } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
+import { Select } from '@/components/ui';
 import type { ActionTypeFilter, StatusFilter } from '../AiUsageLogsClient';
 
 interface AiUsageLogsFilterProps {
@@ -26,6 +25,7 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
     { value: 'failed', label: 'Thất bại' },
 ];
 
+/** Controls only, as a fragment: the page toolbar lays them out beside the title. */
 export function AiUsageLogsFilter({
     actionFilter,
     statusFilter,
@@ -35,39 +35,32 @@ export function AiUsageLogsFilter({
     filteredCount,
 }: AiUsageLogsFilterProps) {
     return (
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <div className="flex items-center gap-2 text-[#6E6E73]">
-                <SlidersHorizontal className="w-4 h-4" />
-                <span className="text-[12px]" style={{ fontWeight: 500 }}>Bộ lọc</span>
-            </div>
+        <>
+            <span className="text-caption tabular-nums text-ink-3">
+                Hiển thị {filteredCount}/{totalCount} bản ghi
+            </span>
 
-            <select aria-label="Lọc loại thao tác AI"
+            <Select
+                aria-label="Lọc loại thao tác AI"
                 value={actionFilter}
                 onChange={(e) => onActionFilterChange(e.target.value as ActionTypeFilter)}
-                className="px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] bg-white outline-none focus:border-[#0EA5E9] transition-colors appearance-none pr-8"
-                style={{ fontFamily: SFT }}
+                className="w-full sm:w-44"
             >
                 {ACTION_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
-            </select>
+            </Select>
 
-            <select aria-label="Lọc trạng thái AI"
+            <Select
+                aria-label="Lọc trạng thái AI"
                 value={statusFilter}
                 onChange={(e) => onStatusFilterChange(e.target.value as StatusFilter)}
-                className="px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] bg-white outline-none focus:border-[#0EA5E9] transition-colors appearance-none pr-8"
-                style={{ fontFamily: SFT }}
+                className="w-full sm:w-44"
             >
                 {STATUS_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
-            </select>
-
-            <div className="ml-auto">
-                <span className="text-[12px] text-[#AEAEB2]">
-                    Hiển thị {filteredCount}/{totalCount} bản ghi
-                </span>
-            </div>
-        </div>
+            </Select>
+        </>
     );
 }

@@ -1,17 +1,15 @@
 'use client'
 
-import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
-
 import { useState, useActionState, useEffect, useRef } from 'react';
-import { Cpu, X } from 'lucide-react';
-import { motion } from 'motion/react';
-
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Badge, Button, Dialog, Field, Input, Select } from '@/components/ui';
 import { createAIConfigFormAction, AIConfigActionState } from '@/servers/ai-config/ai-config.action';
 import { toast } from '@/lib/toast';
 import { IOrganizationOption } from '@ats-platform/types';
+import { WeightBar, WeightRow } from './WeightRow';
 
 const initialState: AIConfigActionState = { success: false, message: '' };
+
+const FORM_ID = 'add-ai-profile-form';
 
 export function AddProfileModal({
     onClose,
@@ -30,6 +28,7 @@ export function AddProfileModal({
 
     const total = skill.weight + experience.weight + education.weight;
     const isValid = total === 100 && name.trim().length > 0;
+    const totalTone = total === 100 ? 'success' : total > 100 ? 'danger' : 'warning';
 
     const [state, dispatch, isPending] = useActionState(createAIConfigFormAction, initialState);
 
@@ -48,51 +47,38 @@ export function AddProfileModal({
     }, [state]);
 
     return (
-        <AccessibleDialog onClose={onClose} dismissible={!isPending}><DialogOverlay asChild><div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <DialogContent title="Thêm cấu hình mới"><motion.form
-                action={dispatch}
-                initial={{ opacity: 0, scale: 0.96, y: 16 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: 16 }}
-                transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
-                style={{ fontFamily: SFT }}
-            >
-                {/* Hidden fields for ranges since we use custom controlled inputs that don't have name attributes or we need them explicitly */}
+        <Dialog
+            open
+            onOpenChange={(open) => {
+                if (!open && !isPending) onClose();
+            }}
+            title="Thêm cấu hình mới"
+            footer={
+                <>
+                    <Button variant="secondary" onClick={onClose}>
+                        Hủy
+                    </Button>
+                    <Button type="submit" form={FORM_ID} disabled={!isValid} loading={isPending}>
+                        {isPending ? 'Đang thêm…' : 'Thêm cấu hình'}
+                    </Button>
+                </>
+            }
+        >
+            <form id={FORM_ID} action={dispatch} className="space-y-6">
+                {/* The weights are controlled inputs without a name, so the form reads them from here. */}
                 <input aria-label="Trọng số kỹ năng (%)" type="hidden" name="skillsWeight" value={skill.weight} />
                 <input aria-label="Trọng số kinh nghiệm (%)" type="hidden" name="experienceWeight" value={experience.weight} />
                 <input aria-label="Trọng số học vấn (%)" type="hidden" name="educationWeight" value={education.weight} />
                 <input aria-label="Ngưỡng điểm tối thiểu" type="hidden" name="minimumScoreThreshold" value={threshold} />
-                {/* Modal header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-[#F2F2F7]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#0071E3] flex items-center justify-center">
-                            <Cpu className="w-4.5 h-4.5 text-white w-[18px] h-[18px]" />
-                        </div>
-                        <h2 className="text-[18px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                            Thêm cấu hình mới
-                        </h2>
-                    </div>
-                    <button type="button" aria-label="Đóng cấu hình" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors">
-                        <X className="w-4 h-4" />
-                    </button>
-                </div>
 
-                {/* Modal body */}
-                <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
-                    {/* Tên & mô tả */}
-                    <div className="space-y-3">
-                        {organizations.length > 0 && (
-                            <div>
-                                <label htmlFor="ai-config-organization" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                    Tổ chức *
-                                </label>
-                                <select
-                                    id="ai-config-organization"
+                <div className="space-y-4">
+                    {organizations.length > 0 && (
+                        <Field label="Tổ chức" required>
+                            {(f) => (
+                                <Select
+                                    {...f}
                                     name="organizationId"
-                                    required
                                     defaultValue={organizations.length === 1 ? organizations[0].organizationId : ''}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
                                 >
                                     <option value="" disabled>Chọn tổ chức áp dụng cấu hình</option>
                                     {organizations.map((organization) => (
@@ -100,203 +86,72 @@ export function AddProfileModal({
                                             {organization.name}
                                         </option>
                                     ))}
-                                </select>
-                            </div>
-                        )}
-                        <div>
-                            <label htmlFor="ai-config-name" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                Tên cấu hình *
-                            </label>
-                            <input
-                                id="ai-config-name"
+                                </Select>
+                            )}
+                        </Field>
+                    )}
+                    <Field label="Tên cấu hình" required>
+                        {(f) => (
+                            <Input
+                                {...f}
                                 name="name"
-                                type="text" placeholder="Vd: Vị trí quản lý"
-                                value={name} onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
+                                type="text"
+                                placeholder="Vd: Vị trí quản lý"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
-                        </div>
-                        <div>
-                            <label htmlFor="addprofilemodal-field-1" className="block text-[12px] text-[#6E6E73] mb-1.5 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                Mô tả
-                            </label>
-                            <input id="addprofilemodal-field-1"
+                        )}
+                    </Field>
+                    <Field label="Mô tả">
+                        {(f) => (
+                            <Input
+                                {...f}
                                 name="description"
-                                type="text" placeholder="Vd: Dùng cho các vị trí cấp trung và cấp cao"
-                                value={description} onChange={(e) => setDescription(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none text-[14px] transition"
+                                type="text"
+                                placeholder="Vd: Dùng cho các vị trí cấp trung và cấp cao"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                             />
-                        </div>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="border-t border-[#F2F2F7]" />
-
-                    {/* 3 criteria */}
-                    <div>
-                        <div className="flex items-center justify-between mb-3">
-                            <p className="text-[12px] text-[#6E6E73] uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                Trọng số tiêu chí
-                            </p>
-                            <span
-                                className={`text-[12px] px-2.5 py-1 rounded-full ${total === 100 ? 'bg-[#F0FDF4] text-[#16A34A]' :
-                                    total > 100 ? 'bg-[#FFE5E5] text-[#FF3B30]' : 'bg-[#FFF4E5] text-[#FF9500]'
-                                    }`}
-                                style={{ fontWeight: 600 }}
-                            >
-                                {total}/100
-                            </span>
-                        </div>
-
-                        <div className="space-y-4">
-                            {/* Kỹ năng */}
-                            <div className="p-4 rounded-2xl border border-[#E5E5EA] space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#0071E3] flex-shrink-0" />
-                                    <p
-                                        className="flex-1 text-[13px] text-[#1D1D1F] border-b border-transparent outline-none bg-transparent"
-                                        style={{ fontWeight: 500 }}
-                                    >
-                                        Kỹ năng
-                                    </p>
-                                    <div className="flex items-center gap-1">
-                                        <input aria-label="Trọng số kỹ năng (%)"
-                                            type="number" min="0" max="100"
-                                            value={skill.weight}
-                                            onChange={(e) => setSkill({ ...skill, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
-                                            className="w-14 px-2 py-1 text-center text-[13px] border border-[#E5E5EA] rounded-lg focus:border-[#0071E3] outline-none"
-                                            style={{ fontFamily: SF, fontWeight: 700 }}
-                                        />
-                                        <span className="text-[12px] text-[#AEAEB2]">%</span>
-                                    </div>
-                                </div>
-                                <input aria-label="Trọng số kỹ năng (%)" type="range" min="0" max="100" value={skill.weight}
-                                    onChange={(e) => setSkill({ ...skill, weight: parseInt(e.target.value) })}
-                                    className="w-full accent-[#0071E3]" />
-                            </div>
-
-                            {/* Kinh nghiệm */}
-                            <div className="p-4 rounded-2xl border border-[#E5E5EA] space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#6366F1] flex-shrink-0" />
-                                    <p
-                                        className="flex-1 text-[13px] text-[#1D1D1F] border-b border-transparent outline-none bg-transparent"
-                                        style={{ fontWeight: 500 }}
-                                    >
-                                        Kinh nghiệm
-                                    </p>
-                                    <div className="flex items-center gap-1">
-                                        <input aria-label="Trọng số kinh nghiệm (%)"
-                                            type="number" min="0" max="100"
-                                            value={experience.weight}
-                                            onChange={(e) => setExperience({ ...experience, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
-                                            className="w-14 px-2 py-1 text-center text-[13px] border border-[#E5E5EA] rounded-lg focus:border-[#0071E3] outline-none"
-                                            style={{ fontFamily: SF, fontWeight: 700 }}
-                                        />
-                                        <span className="text-[12px] text-[#AEAEB2]">%</span>
-                                    </div>
-                                </div>
-                                <input aria-label="Trọng số kinh nghiệm (%)" type="range" min="0" max="100" value={experience.weight}
-                                    onChange={(e) => setExperience({ ...experience, weight: parseInt(e.target.value) })}
-                                    className="w-full" style={{ accentColor: '#6366F1' }} />
-                            </div>
-
-                            {/* Học vấn */}
-                            <div className="p-4 rounded-2xl border border-[#E5E5EA] space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#009900] flex-shrink-0" />
-                                    <p
-                                        className="flex-1 text-[13px] text-[#1D1D1F] border-b border-transparent outline-none bg-transparent"
-                                        style={{ fontWeight: 500 }}
-                                    >
-                                        Học vấn
-                                    </p>
-                                    <div className="flex items-center gap-1">
-                                        <input aria-label="Trọng số học vấn (%)"
-                                            type="number" min="0" max="100"
-                                            value={education.weight}
-                                            onChange={(e) => setEducation({ ...education, weight: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
-                                            className="w-14 px-2 py-1 text-center text-[13px] border border-[#E5E5EA] rounded-lg focus:border-[#0071E3] outline-none"
-                                            style={{ fontFamily: SF, fontWeight: 700 }}
-                                        />
-                                        <span className="text-[12px] text-[#AEAEB2]">%</span>
-                                    </div>
-                                </div>
-                                <input aria-label="Trọng số học vấn (%)" type="range" min="0" max="100" value={education.weight}
-                                    onChange={(e) => setEducation({ ...education, weight: parseInt(e.target.value) })}
-                                    className="w-full" style={{ accentColor: '#009900' }} />
-                            </div>
-                        </div>
-
-                        {/* Combined bar preview */}
-                        <div className="mt-4 h-2.5 bg-[#F2F2F7] rounded-full overflow-hidden flex">
-                            {[
-                                { w: skill.weight, color: '#0071E3' },
-                                { w: experience.weight, color: '#6366F1' },
-                                { w: education.weight, color: '#009900' },
-                            ].map(({ w, color }, i) => w > 0 && (
-                                <div key={i} className="h-full transition-[width] duration-200" style={{ width: `${w}%`, background: color }} />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="border-t border-[#F2F2F7]" />
-
-                    {/* Threshold */}
-                    <div>
-                        <div className="flex items-center justify-between mb-3">
-                            <p className="text-[12px] text-[#6E6E73] uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                Ngưỡng điểm tối thiểu
-                            </p>
-                            <span className="text-[12px] px-2.5 py-1 rounded-full bg-[#FFF4E5] text-[#FF9500]" style={{ fontWeight: 600 }}>
-                                {threshold} pts
-                            </span>
-                        </div>
-                        <div className="p-4 rounded-2xl border border-[#E5E5EA] space-y-3">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#FF9500] flex-shrink-0" />
-                                <p className="flex-1 text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>Điểm tối thiểu để xét duyệt</p>
-                                <div className="flex items-center gap-1">
-                                    <input aria-label="Ngưỡng điểm tối thiểu"
-                                        type="number" min="0" max="100"
-                                        value={threshold}
-                                        onChange={(e) => setThreshold(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
-                                        className="w-14 px-2 py-1 text-center text-[13px] border border-[#E5E5EA] rounded-lg focus:border-[#FF9500] outline-none"
-                                        style={{ fontFamily: SF, fontWeight: 700 }}
-                                    />
-                                    <span className="text-[12px] text-[#AEAEB2]">pts</span>
-                                </div>
-                            </div>
-                            <input aria-label="Ngưỡng điểm tối thiểu" type="range" min="0" max="100" value={threshold}
-                                onChange={(e) => setThreshold(parseInt(e.target.value))}
-                                className="w-full" style={{ accentColor: '#D2691E' }} />
-                            <p className="text-[11px] text-[#AEAEB2]">
-                                ≥ threshold + 20 → Hire &nbsp;·&nbsp; ≥ threshold → Interview &nbsp;·&nbsp; &lt; threshold → Reject
-                            </p>
-                        </div>
-                    </div>
+                        )}
+                    </Field>
                 </div>
 
-                {/* Modal footer */}
-                <div className="px-6 py-4 border-t border-[#F2F2F7] flex gap-3">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px]"
-                        style={{ fontWeight: 500 }}
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-body-sm font-medium text-ink">Trọng số tiêu chí</h3>
+                        <Badge tone={totalTone} className="tabular-nums">{`${total}/100`}</Badge>
+                    </div>
+                    <WeightRow
+                        tone="skills" label="Kỹ năng" ariaLabel="Trọng số kỹ năng (%)" weight={skill.weight}
+                        onWeightChange={(v) => setSkill({ ...skill, weight: v })}
+                    />
+                    <WeightRow
+                        tone="experience" label="Kinh nghiệm" ariaLabel="Trọng số kinh nghiệm (%)" weight={experience.weight}
+                        onWeightChange={(v) => setExperience({ ...experience, weight: v })}
+                    />
+                    <WeightRow
+                        tone="education" label="Học vấn" ariaLabel="Trọng số học vấn (%)" weight={education.weight}
+                        onWeightChange={(v) => setEducation({ ...education, weight: v })}
+                    />
+                    <WeightBar skills={skill.weight} experience={experience.weight} education={education.weight} />
+                </section>
+
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-body-sm font-medium text-ink">Ngưỡng điểm tối thiểu</h3>
+                        <Badge tone="warning" className="tabular-nums">{`${threshold} pts`}</Badge>
+                    </div>
+                    <WeightRow
+                        tone="threshold" label="Điểm tối thiểu để xét duyệt" ariaLabel="Ngưỡng điểm tối thiểu" unit="pts"
+                        weight={threshold}
+                        onWeightChange={setThreshold}
                     >
-                        Hủy
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={!isValid || isPending}
-                        className="flex-1 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
-                        style={{ fontWeight: 600 }}
-                    >
-                        {isPending ? 'Đang thêm…' : 'Thêm cấu hình'}
-                    </button>
-                </div>
-            </motion.form></DialogContent>
-        </div></DialogOverlay></AccessibleDialog>
+                        <p className="text-micro text-ink-3">
+                            ≥ threshold + 20 → Hire &nbsp;·&nbsp; ≥ threshold → Interview &nbsp;·&nbsp; &lt; threshold → Reject
+                        </p>
+                    </WeightRow>
+                </section>
+            </form>
+        </Dialog>
     );
 }
