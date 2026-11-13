@@ -95,6 +95,21 @@ describe('lists', () => {
     expect(link).toHaveAttribute('href', '/jobs/j1/candidates/a1');
     expect(link).toHaveTextContent('Phỏng vấn');
   });
+
+  // Task 33: a 120-character job title was cut with an ellipsis and no way to read the rest.
+  it('gives a truncated recent candidate job title its full text as a title', () => {
+    const title = 'Chuyên viên phân tích dữ liệu cao cấp phụ trách hệ thống báo cáo tài chính và quản trị rủi ro khu vực Đông Nam Á';
+    const app = {
+      applicationId: 'a1',
+      jobId: 'j1',
+      status: 'applied',
+      appliedAt: '2026-11-01T00:00:00.000Z',
+      candidate: { user: { fullName: 'Nguyễn Văn An' } },
+      jobPosting: { title },
+    } as unknown as IApplicationDto;
+    render(<RecentCandidates applications={[app]} />);
+    expect(screen.getByText(title)).toHaveAttribute('title', title);
+  });
 });
 
 describe('ApplicationsTrendChart', () => {
