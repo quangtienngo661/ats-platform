@@ -106,6 +106,11 @@ describe('InterviewTopicClient — row menu', () => {
 
     await openRowMenu(user, 'Java Core');
 
-    expect(await screen.findByRole('menuitem', { name: 'Xóa' })).toHaveAttribute('aria-disabled', 'true');
+    const item = await screen.findByRole('menuitem', { name: 'Xóa' });
+    expect(item).toHaveAttribute('aria-disabled', 'true');
+    const reason = screen.getByText('Không thể xóa chủ đề đã có phiên phỏng vấn');
+    expect(reason).toBeVisible();
+    expect(item).toHaveAccessibleDescription('Không thể xóa chủ đề đã có phiên phỏng vấn');
+    expect(reason.id).not.toBe('');
   });
 });

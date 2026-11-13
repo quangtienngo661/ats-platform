@@ -43,13 +43,13 @@ describe('SkillClient — empty and no-match states', () => {
   it('offers "Xóa tìm kiếm" when only the search is set, and focuses the search field after clearing', async () => {
     const user = userEvent.setup();
     render(<SkillClient skills={skills} />);
-    await user.type(screen.getByRole('textbox', { name: 'Tìm kỹ năng' }), 'không có');
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm kỹ năng' }), 'không có');
 
     expect(await screen.findByRole('heading', { name: 'Không có kỹ năng khớp' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Xóa tìm kiếm' }));
 
-    expect(screen.getByRole('textbox', { name: 'Tìm kỹ năng' })).toHaveValue('');
-    expect(screen.getByRole('textbox', { name: 'Tìm kỹ năng' })).toHaveFocus();
+    expect(screen.getByRole('searchbox', { name: 'Tìm kỹ năng' })).toHaveValue('');
+    expect(screen.getByRole('searchbox', { name: 'Tìm kỹ năng' })).toHaveFocus();
     expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 
@@ -57,13 +57,13 @@ describe('SkillClient — empty and no-match states', () => {
     const user = userEvent.setup();
     render(<SkillClient skills={skills} />);
     await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc danh mục kỹ năng' }), 'DevOps');
-    await user.type(screen.getByRole('textbox', { name: 'Tìm kỹ năng' }), 'type');
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm kỹ năng' }), 'type');
 
     expect(await screen.findByRole('heading', { name: 'Không có kỹ năng khớp' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
 
     expect(screen.getByRole('combobox', { name: 'Lọc danh mục kỹ năng' })).toHaveValue('');
-    expect(screen.getByRole('textbox', { name: 'Tìm kỹ năng' })).toHaveValue('');
+    expect(screen.getByRole('searchbox', { name: 'Tìm kỹ năng' })).toHaveValue('');
     expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 });

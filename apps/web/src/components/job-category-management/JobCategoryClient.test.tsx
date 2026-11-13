@@ -49,20 +49,20 @@ describe('JobCategoryClient — empty and no-match states', () => {
   it('says no category matches and clears the search, returning focus to the search field', async () => {
     const user = userEvent.setup();
     render(<JobCategoryClient categories={categories} />);
-    await user.type(screen.getByRole('textbox', { name: 'Tìm danh mục' }), 'không có gì');
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm danh mục' }), 'không có gì');
 
     expect(await screen.findByRole('heading', { name: 'Không có danh mục khớp' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Xóa tìm kiếm' }));
 
-    expect(screen.getByRole('textbox', { name: 'Tìm danh mục' })).toHaveValue('');
-    expect(screen.getByRole('textbox', { name: 'Tìm danh mục' })).toHaveFocus();
+    expect(screen.getByRole('searchbox', { name: 'Tìm danh mục' })).toHaveValue('');
+    expect(screen.getByRole('searchbox', { name: 'Tìm danh mục' })).toHaveFocus();
     expect(screen.getByText('Công nghệ')).toBeVisible();
   });
 
   it('keeps a parent visible when only its child matches the search', async () => {
     const user = userEvent.setup();
     render(<JobCategoryClient categories={categories} />);
-    await user.type(screen.getByRole('textbox', { name: 'Tìm danh mục' }), 'front');
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm danh mục' }), 'front');
     expect(screen.getByText('Công nghệ')).toBeVisible();
     expect(screen.getByText('Frontend')).toBeVisible();
     expect(screen.queryByText('Nhân sự')).not.toBeInTheDocument();
@@ -91,6 +91,47 @@ describe('JobCategoryClient — tree', () => {
       return parseFloat(row.style.paddingInlineStart);
     };
     expect(pad('Frontend') - pad('Công nghệ')).toBe(16);
+  });
+});
+
+describe('JobCategoryClient — search keeps the tree honest', () => {
+  const busy = [
+    {
+      categoryId: 'cat-a', name: 'Kinh doanh', parentCategoryId: null, jobPostings: [{ jobId: 'a1' }, { jobId: 'a2' }],
+      childCategories: [
+        { categoryId: 'c1', name: 'Bán lẻ', parentCategoryId: 'cat-a', jobPostings: [{ jobId: 'b1' }], childCategories: [] },
+        { categoryId: 'c2', name: 'Bán sỉ', parentCategoryId: 'cat-a', jobPostings: [{ jobId: 'b2' }, { jobId: 'b3' }], childCategories: [] },
+        { categoryId: 'c3', name: 'Xuất khẩu', parentCategoryId: 'cat-a', jobPostings: [], childCategories: [] },
+      ],
+    },
+  ] as unknown as IJobCategoryDto[];
+
+  it('keeps the full child and job counts while a query matches only one child', async () => {
+    const user = userEvent.setup();
+    render(<JobCategoryClient categories={busy} />);
+    expect(screen.getByText('3 danh mục con')).toBeVisible();
+    expect(screen.getByText('5 việc làm')).toBeVisible();
+
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm danh mục' }), 'xuất');
+
+    expect(screen.getByText('Xuất khẩu')).toBeVisible();
+    expect(screen.queryByText('Bán lẻ')).not.toBeInTheDocument();
+    expect(screen.getByText('3 danh mục con')).toBeVisible();
+    expect(screen.getByText('5 việc làm')).toBeVisible();
+  });
+
+  it('opens a collapsed root when only its child matches, and restores the collapse when the query clears', async () => {
+    const user = userEvent.setup();
+    render(<JobCategoryClient categories={busy} />);
+    await user.click(screen.getByRole('button', { name: 'Thu gọn Kinh doanh' }));
+    expect(screen.queryByText('Xuất khẩu')).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm danh mục' }), 'xuất');
+    expect(screen.getByText('Xuất khẩu')).toBeVisible();
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Tìm danh mục' }));
+    expect(screen.queryByText('Xuất khẩu')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mở rộng Kinh doanh' })).toHaveAttribute('aria-expanded', 'false');
   });
 });
 
