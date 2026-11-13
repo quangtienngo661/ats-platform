@@ -70,6 +70,14 @@ describe('SiteHeader — guest', () => {
         expect(screen.queryByRole('button', { name: 'Notifications' })).toBeNull();
     });
 
+    // jsdom computes no layout: "Đăng ký" is primary (44 px on phones), so "Đăng nhập" beside it must match.
+    it('token contract: "Đăng nhập" and "Đăng ký" are the same 44 px height on phones', () => {
+        render(<SiteHeader userInfo={null} />);
+        for (const name of ['Đăng nhập', 'Đăng ký']) {
+            expect(screen.getByRole('link', { name }).className.split(' ')).toContain('max-md:min-h-11');
+        }
+    });
+
     // C6, carried over from PublicHeader.
     it('does not show a guest the interview schedule', () => {
         render(<SiteHeader userInfo={null} />);

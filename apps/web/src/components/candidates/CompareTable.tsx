@@ -86,11 +86,12 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
     return (
         <Surface className="overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full table-fixed text-left" style={{ minWidth: 224 * (items.length + 1) }}>
+                {/* Separate borders: a collapsed border belongs to the table and would not travel with the sticky column. */}
+                <table className="w-full table-fixed border-separate border-spacing-0 text-left" style={{ minWidth: 224 * (items.length + 1) }}>
                     <caption className="sr-only">So sánh thông tin và đánh giá ứng viên</caption>
                     <thead>
                         <tr>
-                            <th scope="col" className="sticky left-0 z-sticky w-56 border-b border-line bg-surface-2 px-4 py-3 text-caption font-medium text-ink-3">Tiêu chí</th>
+                            <th scope="col" className="sticky left-0 z-sticky w-56 border-b border-r border-line bg-surface-2 px-4 py-3 text-caption font-medium text-ink-3">Tiêu chí</th>
                             {items.map(item => (
                                 <th key={item.applicationId} scope="col" className="break-words border-b border-line bg-surface-2 px-4 py-3 text-body-sm font-semibold text-ink">
                                     <Link
@@ -106,7 +107,7 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
                     <tbody>
                         {rows.map(row => (
                             <tr key={row.label} className="group">
-                                <th scope="row" className="sticky left-0 z-sticky border-b border-line bg-surface px-4 py-3 text-caption font-medium text-ink-3 group-last:border-b-0">{row.label}</th>
+                                <th scope="row" className="sticky left-0 z-sticky border-b border-r border-line bg-surface px-4 py-3 text-caption font-medium text-ink-3 group-last:border-b-0">{row.label}</th>
                                 {items.map(item => (
                                     <td key={item.applicationId} className="break-words border-b border-line px-4 py-3 align-top text-body-sm tabular-nums text-ink group-last:border-b-0">
                                         {row.value(item)}

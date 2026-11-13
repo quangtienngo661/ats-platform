@@ -113,4 +113,15 @@ describe('InterviewTopicClient — row menu', () => {
     expect(item).toHaveAccessibleDescription('Không thể xóa chủ đề đã có phiên phỏng vấn');
     expect(reason.id).not.toBe('');
   });
+
+  it('keeps the menu made of menu items only: the delete reason is presentational, as on the Kanban card', async () => {
+    const user = userEvent.setup();
+    render(<InterviewTopicClient topics={topics} jobCategories={jobCategories} />);
+
+    await openRowMenu(user, 'Java Core');
+
+    const menu = await screen.findByRole('menu');
+    const roles = Array.from(menu.children, (child) => child.getAttribute('role'));
+    expect(roles).toEqual(['menuitem', 'separator', 'menuitem', 'none']);
+  });
 });

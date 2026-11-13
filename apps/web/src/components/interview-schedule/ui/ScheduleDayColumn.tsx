@@ -14,7 +14,9 @@ interface ScheduleDayColumnProps {
 
 export function ScheduleDayColumn({ day, schedules, isPast, isToday, onSelectSchedule }: ScheduleDayColumnProps) {
     return (
-        <section
+        // A named group, not a region: five day landmarks would crowd the page's landmark list.
+        <div
+            role="group"
             aria-label={`${day.label}, ${day.shortLabel}`}
             className={cn(
                 'min-h-[560px] min-w-0 rounded-card p-2',
@@ -39,6 +41,6 @@ export function ScheduleDayColumn({ day, schedules, isPast, isToday, onSelectSch
                     </p>
                 )}
             </div>
-        </section>
+        </div>
     );
 }

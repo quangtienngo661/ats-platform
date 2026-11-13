@@ -4,6 +4,7 @@ import { startTransition, useRef, useState } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { effectiveScreeningScores, type ICVScreening } from '@ats-platform/types';
 import { Button, Dialog, Field, Input, Textarea } from '@/components/ui';
+import { round1 } from '@/lib/score';
 import { toast } from '@/lib/toast';
 import { reviewScreeningAction, type ReviewScreeningInput } from '@/servers/cv-screenings/cv-screenings.action';
 
@@ -20,9 +21,6 @@ const FIELDS: { field: ScoreField; label: string; inputLabel: string }[] = [
     { field: 'experienceScore', label: 'Kinh nghiệm', inputLabel: 'Điểm kinh nghiệm sau duyệt' },
     { field: 'educationScore', label: 'Học vấn', inputLabel: 'Điểm học vấn sau duyệt' },
 ];
-
-// Scores are kept to one decimal, like the Decimal(5,1) columns they end up in.
-export const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** The AI's own score, whatever shape it arrived in (number or Decimal string). */
 function aiScore(screening: ICVScreening, field: ScoreField): number | null {

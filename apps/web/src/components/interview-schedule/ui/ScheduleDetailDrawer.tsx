@@ -139,7 +139,7 @@ export function ScheduleDetailDrawer({ schedule, currentUserId, onClose, onChang
                                 Hoàn tất
                             </Button>
                             <Button
-                                variant="secondary"
+                                variant="danger"
                                 disabled={isPending}
                                 onClick={() => handleStatusChange(cancelInterviewScheduleAction)}
                             >

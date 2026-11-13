@@ -1,9 +1,9 @@
 import { Hourglass } from 'lucide-react';
 import { effectiveScreeningScores } from '@ats-platform/types';
 import { ReviewScreeningButton } from './ReviewScreeningButton';
-import { round1 } from './ReviewScreeningDialog';
 import { Badge, EmptyState, ScoreBar, Surface } from '@/components/ui';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
+import { round1 } from '@/lib/score';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
 function stringArray(value: unknown): string[] {

@@ -184,9 +184,6 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         startTransition(() => router.push('/job-postings'));
     };
 
-    const hasActiveFilters = !!searchQuery || !!selectedCategory || selectedLocationType !== ALL
-        || salaryMinText.trim() !== '' || salaryMaxText.trim() !== '' || selectedSkills.length > 0;
-
     // The chips and the summary describe the URL (the results on screen), not what is half-typed in a field.
     const activeFilters: ActiveFilter[] = [];
     if (initialQuery.q) {
@@ -252,6 +249,8 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         else acc.push({ group: f.group, values: [f.value] });
         return acc;
     }, []);
+    // Like the chips, the empty state follows the URL: a keyword typed but not searched changes nothing on screen yet.
+    const hasActiveFilters = activeFilters.length > 0;
     // What the panel holds: the salary counts once, each skill once.
     const panelCount =
         (initialQuery.salaryMin !== undefined || initialQuery.salaryMax !== undefined ? 1 : 0)
@@ -508,10 +507,12 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
 
                     {totalPages > 1 ? (
                         <nav aria-label="Phân trang" className="mt-8 flex flex-wrap items-center justify-center gap-1">
+                            {/* Every button in the row is 44 px tall on phones, like the primary current page. */}
                             <IconButton
                                 aria-label="Trước"
                                 disabled={currentPage <= 1}
                                 onClick={() => applyFilters({ page: currentPage - 1 })}
+                                className="max-md:min-h-11"
                             >
                                 <ChevronLeft aria-hidden="true" strokeWidth={1.75} />
                             </IconButton>
@@ -522,9 +523,10 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                     <Button
                                         key={p}
                                         variant={currentPage === p ? 'primary' : 'ghost'}
+                                        aria-label={`Trang ${p}`}
                                         aria-current={currentPage === p ? 'page' : undefined}
                                         onClick={() => applyFilters({ page: p })}
-                                        className="min-w-9 tabular-nums"
+                                        className={cn('min-w-9 tabular-nums', currentPage !== p && 'max-md:min-h-11')}
                                     >
                                         {p}
                                     </Button>
@@ -534,6 +536,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
                                 aria-label="Tiếp"
                                 disabled={currentPage >= totalPages}
                                 onClick={() => applyFilters({ page: currentPage + 1 })}
+                                className="max-md:min-h-11"
                             >
                                 <ChevronRight aria-hidden="true" strokeWidth={1.75} />
                             </IconButton>

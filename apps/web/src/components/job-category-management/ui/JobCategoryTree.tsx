@@ -67,7 +67,11 @@ function CategoryRow({
     depth: number;
     subtitle?: string;
     jobCount: number;
-    toggle?: { expanded: boolean; controls: string; onToggle: () => void };
+    /**
+     * A parent's open state. `onToggle` is absent while a search holds the parent open: the search decides what shows,
+     * so the chevron is drawn but offers nothing that could silently change the user's own choice.
+     */
+    toggle?: { expanded: boolean; controls: string; onToggle?: () => void };
 }) {
     const nameId = useId();
 
@@ -86,7 +90,7 @@ function CategoryRow({
                 />
             ))}
 
-            {toggle ? (
+            {toggle?.onToggle ? (
                 <IconButton
                     size="sm"
                     aria-label={toggle.expanded ? `Thu gọn ${category.name}` : `Mở rộng ${category.name}`}
@@ -101,6 +105,10 @@ function CategoryRow({
                         <ChevronRight aria-hidden="true" strokeWidth={1.75} />
                     )}
                 </IconButton>
+            ) : toggle ? (
+                <span aria-hidden="true" className="relative flex size-8 shrink-0 items-center justify-center text-ink-3">
+                    <ChevronDown strokeWidth={1.75} className="size-4" />
+                </span>
             ) : (
                 <span aria-hidden="true" className="relative flex size-8 shrink-0 items-center justify-center">
                     <span className="size-1.5 rounded-full bg-line-strong" />
@@ -147,7 +155,11 @@ function RootCategory({ node, ...actions }: RowActions & { node: CategoryNode })
                     jobCount={totalJobCount}
                     toggle={
                         childCount > 0
-                            ? { expanded, controls: listId, onToggle: () => setUserExpanded((v) => !v) }
+                            ? {
+                                  expanded,
+                                  controls: listId,
+                                  onToggle: node.searching ? undefined : () => setUserExpanded((v) => !v),
+                              }
                             : undefined
                     }
                     {...actions}

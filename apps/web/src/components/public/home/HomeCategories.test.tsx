@@ -98,6 +98,40 @@ describe('HomeCategories', () => {
     expect(row.scrollBy).toHaveBeenLastCalledWith({ left: -800, behavior: 'smooth' });
   });
 
+  // A button that turns disabled drops focus to <body>; a keyboard user must stay on the rail.
+  it('hands focus to the other arrow when the focused one stops at its end', async () => {
+    reducedMotion(true);
+    const user = userEvent.setup();
+    render(<HomeCategories categories={many} />);
+    const row = layOut(screen.getByRole('list'), { clientWidth: 1000, scrollWidth: 2000 });
+    const previous = screen.getByRole('button', { name: 'Xem các ngành trước' });
+    const next = screen.getByRole('button', { name: 'Xem các ngành tiếp theo' });
+
+    next.focus();
+    await user.keyboard('{Enter}');
+    row.scrollTo(1000);
+
+    expect(next).toBeDisabled();
+    expect(previous).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+    row.scrollTo(0);
+
+    expect(previous).toBeDisabled();
+    expect(next).toHaveFocus();
+  });
+
+  it('leaves focus alone when the arrow that stops is not the focused one', () => {
+    render(<HomeCategories categories={many} />);
+    const row = layOut(screen.getByRole('list'), { clientWidth: 1000, scrollWidth: 2000 });
+    const link = screen.getByRole('link', { name: 'Ngành 1' });
+
+    link.focus();
+    row.scrollTo(1000);
+
+    expect(link).toHaveFocus();
+  });
+
   it('jumps instead of gliding when the OS asks for reduced motion', async () => {
     reducedMotion(true);
     const user = userEvent.setup();

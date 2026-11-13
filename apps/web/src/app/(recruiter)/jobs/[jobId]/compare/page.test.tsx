@@ -49,4 +49,13 @@ describe('ComparePage', () => {
     expect(screen.getByRole('link', { name: 'Quay lại danh sách' }))
       .toHaveAttribute('href', '/jobs/job-1/candidates');
   });
+
+  // jsdom computes no layout, so the 44 px touch target is pinned by its class, not by a measured height.
+  it('token contract: the back link is a 44 px touch target', async () => {
+    const modulePath = './page';
+    const { default: ComparePage } = await import(/* @vite-ignore */ modulePath);
+    render(await ComparePage({ params: Promise.resolve({ jobId: 'job-1' }), searchParams: Promise.resolve({}) }));
+
+    expect(screen.getByRole('link', { name: 'Quay lại danh sách' }).className.split(' ')).toContain('min-h-11');
+  });
 });

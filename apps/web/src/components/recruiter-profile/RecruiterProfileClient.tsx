@@ -99,7 +99,8 @@ export default function RecruiterProfileClient({ recruiter }: RecruiterProfileCl
                                 </Button>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={handleCancel}>
+                                    {/* As tall as the primary "Lưu thay đổi" beside it on phones (44 px). */}
+                                    <Button variant="ghost" size="sm" onClick={handleCancel} className="max-md:min-h-11">
                                         Hủy
                                     </Button>
                                     <Button type="submit" size="sm" loading={isPending}>

@@ -114,7 +114,8 @@ export function SiteHeader({
                         </>
                     ) : (
                         <>
-                            <ButtonLink href="/sign-in" variant="ghost" size="sm">
+                            {/* As tall as the primary "Đăng ký" beside it on phones (44 px). */}
+                            <ButtonLink href="/sign-in" variant="ghost" size="sm" className="max-md:min-h-11">
                                 Đăng nhập
                             </ButtonLink>
                             <ButtonLink href="/register" size="sm">

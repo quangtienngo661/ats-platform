@@ -52,7 +52,8 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
                         Xóa
                     </RowActionsItem>
                     {sessions > 0 && (
-                        <p id={reasonId} className="px-2 pb-1 text-caption text-ink-3">
+                        // role="none": a menu may only own menu items; the text stays visible and serves as the item's description.
+                        <p id={reasonId} role="none" className="pb-1.5 pl-8 pr-2 text-caption text-ink-3">
                             Không thể xóa chủ đề đã có phiên phỏng vấn
                         </p>
                     )}

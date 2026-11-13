@@ -14,17 +14,31 @@ export type CategoryRailItem = { id: string; name: string; children: string[] };
 export function CategoryRail({ items, heading }: { items: CategoryRailItem[]; heading: ReactNode }) {
     const listId = useId();
     const listRef = useRef<HTMLUListElement>(null);
+    const previousRef = useRef<HTMLButtonElement>(null);
+    const nextRef = useRef<HTMLButtonElement>(null);
+    /** The arrow to focus once the focused one has turned disabled (a disabled button drops focus to <body>). */
+    const handOff = useRef<HTMLButtonElement | null>(null);
     // Before the first measure (and on the server) nothing is known to scroll, so the arrows stay hidden.
     const [edges, setEdges] = useState({ start: true, end: true });
 
     const measure = useCallback(() => {
         const list = listRef.current;
         if (!list) return;
-        setEdges({
-            start: list.scrollLeft <= 1,
-            end: list.scrollLeft + list.clientWidth >= list.scrollWidth - 1,
-        });
+        const start = list.scrollLeft <= 1;
+        const end = list.scrollLeft + list.clientWidth >= list.scrollWidth - 1;
+        const focused = document.activeElement;
+        // Only while the other arrow stays: when everything fits, both arrows go.
+        if (end && !start && focused === nextRef.current) handOff.current = previousRef.current;
+        else if (start && !end && focused === previousRef.current) handOff.current = nextRef.current;
+        setEdges({ start, end });
     }, []);
+
+    // After the commit, once the other arrow is enabled and can take focus.
+    useEffect(() => {
+        const target = handOff.current;
+        handOff.current = null;
+        target?.focus();
+    }, [edges]);
 
     useEffect(() => {
         const list = listRef.current;
@@ -57,6 +71,7 @@ export function CategoryRail({ items, heading }: { items: CategoryRailItem[]; he
                 {scrollable ? (
                     <div className="hidden shrink-0 gap-1 md:flex">
                         <IconButton
+                            ref={previousRef}
                             aria-label="Xem các ngành trước"
                             aria-controls={listId}
                             disabled={edges.start}
@@ -65,6 +80,7 @@ export function CategoryRail({ items, heading }: { items: CategoryRailItem[]; he
                             <ChevronLeft aria-hidden="true" strokeWidth={1.75} />
                         </IconButton>
                         <IconButton
+                            ref={nextRef}
                             aria-label="Xem các ngành tiếp theo"
                             aria-controls={listId}
                             disabled={edges.end}

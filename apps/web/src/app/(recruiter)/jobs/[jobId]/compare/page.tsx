@@ -39,7 +39,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
         <div className="space-y-4 py-4">
             <Link
                 href={`/jobs/${jobId}/candidates`}
-                className="inline-flex items-center gap-1.5 text-body-sm text-ink-3 transition-colors hover:text-ink"
+                className="inline-flex min-h-11 items-center gap-1.5 text-body-sm text-ink-3 transition-colors hover:text-ink"
             >
                 <ArrowLeft className="size-4" aria-hidden="true" />
                 Quay lại danh sách

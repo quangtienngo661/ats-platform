@@ -1,6 +1,6 @@
 // The job search filters a candidate (or a visitor) reaches from the "Bộ lọc" panel:
 // what they type becomes the URL, and a bad entry never navigates (C13, E6, E15, E17).
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jobPosting } from '@/test/fixtures/job-posting';
@@ -291,5 +291,56 @@ describe('JobSearchClient — active filter chips', () => {
 
     expect(lastUrl().searchParams.has('locationType')).toBe(false);
     expect(lastUrl().searchParams.get('q')).toBe('react');
+  });
+});
+
+describe('JobSearchClient — the empty state follows the URL, like the chips', () => {
+  it('keeps "no openings yet" while a keyword is only typed, not searched', async () => {
+    const user = userEvent.setup();
+    renderSearch();
+    expect(screen.getByRole('heading', { name: 'Chưa có việc đang tuyển' })).toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox', { name: 'Tìm việc làm' }), 'react');
+
+    expect(screen.getByRole('heading', { name: 'Chưa có việc đang tuyển' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Không có việc phù hợp' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it('keeps the way back to every job on a later page while a keyword is only typed', async () => {
+    const user = userEvent.setup();
+    renderSearch({ currentPage: 3 });
+
+    await user.type(screen.getByRole('textbox', { name: 'Tìm việc làm' }), 'react');
+
+    expect(screen.getByRole('link', { name: 'Xem tất cả việc làm' })).toHaveAttribute('href', '/job-postings');
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+  });
+});
+
+describe('JobSearchClient — pagination', () => {
+  it('names each page button "Trang n" and marks the current one', () => {
+    renderSearch({ total: 60, currentPage: 3 });
+    const pages = within(screen.getByRole('navigation', { name: 'Phân trang' }));
+
+    for (const n of [1, 2, 3, 4, 5]) {
+      const button = pages.getByRole('button', { name: `Trang ${n}` });
+      expect(button).toHaveTextContent(String(n));
+      if (n === 3) expect(button).toHaveAttribute('aria-current', 'page');
+      else expect(button).not.toHaveAttribute('aria-current');
+    }
+    expect(pages.getAllByRole('button', { current: 'page' })).toHaveLength(1);
+  });
+
+  // jsdom computes no layout: the current page is a primary button (44 px on phones), so every button in the row is.
+  it('token contract: every button in the page row is 44 px tall on phones', () => {
+    renderSearch({ total: 60, currentPage: 3 });
+    const buttons = within(screen.getByRole('navigation', { name: 'Phân trang' })).getAllByRole('button');
+
+    expect(buttons.map((button) => button.getAttribute('aria-label') ?? button.textContent)).toEqual(
+      ['Trước', 'Trang 1', 'Trang 2', 'Trang 3', 'Trang 4', 'Trang 5', 'Tiếp'],
+    );
+    for (const button of buttons) expect(button.className.split(' ')).toContain('max-md:min-h-11');
   });
 });

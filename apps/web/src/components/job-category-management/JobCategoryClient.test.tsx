@@ -133,6 +133,22 @@ describe('JobCategoryClient — search keeps the tree honest', () => {
     expect(screen.queryByText('Xuất khẩu')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Mở rộng Kinh doanh' })).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('offers no toggle while a search holds a root open, so the user’s own choice survives the search', async () => {
+    const user = userEvent.setup();
+    render(<JobCategoryClient categories={busy} />);
+    expect(screen.getByRole('button', { name: 'Thu gọn Kinh doanh' })).toHaveAttribute('aria-expanded', 'true');
+
+    await user.type(screen.getByRole('searchbox', { name: 'Tìm danh mục' }), 'xuất');
+
+    expect(screen.getByText('Xuất khẩu')).toBeVisible();
+    expect(screen.queryByRole('button', { name: /^(Thu gọn|Mở rộng) Kinh doanh$/ })).toBeNull();
+    expect(screen.queryByRole('button', { expanded: true })).toBeNull();
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Tìm danh mục' }));
+    expect(screen.getByRole('button', { name: 'Thu gọn Kinh doanh' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Bán lẻ')).toBeVisible();
+  });
 });
 
 describe('JobCategoryClient — row menu', () => {
