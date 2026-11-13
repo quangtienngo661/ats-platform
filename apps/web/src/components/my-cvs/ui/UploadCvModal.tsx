@@ -40,6 +40,8 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
     const [file, setFile] = useState<File | null>(null);
     const [fileError, setFileError] = useState('');
     const [dragging, setDragging] = useState(false);
+    // dragenter/dragleave fire for every child crossed; count them instead of trusting a single leave.
+    const dragDepth = useRef(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const addCv = useCvStore((store) => store.addCv);
     const handledCvId = useRef<string | null>(null);
@@ -83,8 +85,31 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
         acceptFile(event.target.files?.[0]);
     };
 
+    // A file dropped anywhere else would make the browser open it and leave the page.
+    useEffect(() => {
+        const stop = (event: DragEvent) => event.preventDefault();
+        window.addEventListener('dragover', stop);
+        window.addEventListener('drop', stop);
+        return () => {
+            window.removeEventListener('dragover', stop);
+            window.removeEventListener('drop', stop);
+        };
+    }, []);
+
+    const handleDragEnter = (event: React.DragEvent<HTMLElement>) => {
+        event.preventDefault();
+        dragDepth.current += 1;
+        setDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        dragDepth.current = Math.max(0, dragDepth.current - 1);
+        if (dragDepth.current === 0) setDragging(false);
+    };
+
     const handleDrop = (event: React.DragEvent<HTMLElement>) => {
         event.preventDefault();
+        dragDepth.current = 0;
         setDragging(false);
         const dropped = event.dataTransfer.files?.[0];
         if (!dropped) return;
@@ -108,7 +133,14 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
 
     return (
         <Dialog open onOpenChange={(open) => { if (!open) onClose(); }} title="Tải CV lên">
-            <form action={formAction} className="flex flex-col gap-4">
+            <form
+                action={formAction}
+                className="flex flex-col gap-4"
+                onDragEnter={handleDragEnter}
+                onDragOver={(event) => event.preventDefault()}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -122,9 +154,6 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
 
                 {file === null ? (
                     <div
-                        onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
-                        onDragLeave={() => setDragging(false)}
-                        onDrop={handleDrop}
                         className={cn(
                             'flex flex-col items-center rounded-card border-2 border-dashed px-4 py-8 text-center',
                             'transition duration-hover ease-out-expo',

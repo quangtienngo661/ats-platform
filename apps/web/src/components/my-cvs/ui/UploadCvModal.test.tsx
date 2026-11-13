@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CvStoreProvider } from '@/stores/useCvStore';
@@ -63,5 +63,70 @@ describe('UploadCvModal', () => {
 
     expect(screen.queryByText('cv-backend.pdf')).toBeNull();
     expect(screen.getByRole('button', { name: 'Tải lên' })).toBeDisabled();
+  });
+
+  describe('dropping a file', () => {
+    const drop = (target: Element, file: File) => fireEvent.drop(target, { dataTransfer: { files: [file] } });
+
+    it('rejects a dropped non-PDF like the picker does and keeps the submit disabled', () => {
+      setup();
+
+      drop(screen.getByText('Kéo thả tệp PDF vào đây'), new File(['x'], 'anh.png', { type: 'image/png' }));
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Không tải được tệp. Chỉ nhận tệp PDF.');
+      expect(screen.getByRole('button', { name: 'Tải lên' })).toBeDisabled();
+    });
+
+    it('shows a dropped PDF by name and enables the submit', () => {
+      setup();
+
+      drop(screen.getByText('Kéo thả tệp PDF vào đây'), new File(['%PDF'], 'cv-backend.pdf', { type: 'application/pdf' }));
+
+      expect(screen.getByText('cv-backend.pdf')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Tải lên' })).toBeEnabled();
+    });
+
+    it('accepts a drop outside the drop zone and never lets the browser open the file', () => {
+      setup();
+      const file = new File(['%PDF'], 'cv-backend.pdf', { type: 'application/pdf' });
+
+      const notPrevented = fireEvent.drop(screen.getByRole('button', { name: 'Hủy' }), { dataTransfer: { files: [file] } });
+
+      expect(notPrevented).toBe(false);
+      expect(screen.getByText('cv-backend.pdf')).toBeInTheDocument();
+    });
+
+    it('prevents the default of a drop on the page behind the dialog', () => {
+      setup();
+
+      expect(fireEvent.drop(document.body, { dataTransfer: { files: [] } })).toBe(false);
+      expect(fireEvent.dragOver(document.body)).toBe(false);
+    });
+
+    it('keeps the drop zone highlighted while the pointer crosses its children', () => {
+      setup();
+      const zoneChild = screen.getByText('Kéo thả tệp PDF vào đây');
+      const zone = zoneChild.parentElement as HTMLElement;
+
+      fireEvent.dragEnter(zone);
+      fireEvent.dragEnter(zoneChild);
+      fireEvent.dragLeave(zone);
+
+      expect(zone.className).toContain('border-accent');
+
+      fireEvent.dragLeave(zoneChild);
+
+      expect(zone.className).not.toContain('border-accent');
+    });
+  });
+
+  it('opens the file picker from the "Chọn tệp" button', async () => {
+    const user = setup();
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click');
+
+    await user.click(screen.getByRole('button', { name: 'Chọn tệp' }));
+
+    expect(click).toHaveBeenCalled();
+    click.mockRestore();
   });
 });

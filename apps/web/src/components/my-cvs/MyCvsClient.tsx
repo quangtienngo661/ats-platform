@@ -8,6 +8,7 @@ import { MyCvsStats } from './ui/MyCvsStats';
 import { CvCard } from './ui/CvCard';
 import { UploadCvModal } from './ui/UploadCvModal';
 import { CvDetailModal } from './ui/CvDetailModal';
+import { DeleteCvDialog } from './ui/DeleteCvDialog';
 
 import { ICvDto } from '@/types/interfaces/cv.interface';
 import { deleteCvAction } from '@/servers/cvs/cvs.action';
@@ -23,6 +24,7 @@ interface DataPayload {
 export default function MyCvsClient() {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [viewingCv, setViewingCv] = useState<ICvDto | null>(null);
+    const [deletingCv, setDeletingCv] = useState<ICvDto | null>(null);
     const socket = useSocketStore();
     const updatedCv = useCvStore(state => state.updateCv);
     const removeCv = useCvStore(state => state.removeCv);
@@ -79,7 +81,7 @@ export default function MyCvsClient() {
                                 <CvCard
                                     cv={cv}
                                     onView={() => setViewingCv(cv)}
-                                    onDelete={() => handleDelete(cv.cvId)}
+                                    onDelete={() => setDeletingCv(cv)}
                                 />
                             </div>
                         ))}
@@ -88,6 +90,13 @@ export default function MyCvsClient() {
             )}
 
             {showUploadModal && <UploadCvModal onClose={() => setShowUploadModal(false)} />}
+            {deletingCv && (
+                <DeleteCvDialog
+                    cv={deletingCv}
+                    onConfirm={() => handleDelete(deletingCv.cvId)}
+                    onClose={() => setDeletingCv(null)}
+                />
+            )}
             {viewingCv && <CvDetailModal cv={viewingCv} onClose={() => setViewingCv(null)} />}
         </div>
     );
