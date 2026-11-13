@@ -1,57 +1,77 @@
 'use client';
 
-import { SF, SFT } from '@/types/fonts/fonts';
-
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useSyncExternalStore } from 'react';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Surface } from '@/components/ui';
 
 interface ApplicationsTrendChartProps {
     data: { month: string; value: number }[];
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number | string }[]; label?: string | number }) {
+const REDUCED = '(prefers-reduced-motion: reduce)';
+
+function subscribeReduced(cb: () => void) {
+    const mq = window.matchMedia(REDUCED);
+    mq.addEventListener('change', cb);
+    return () => mq.removeEventListener('change', cb);
+}
+
+function usePrefersReducedMotion() {
+    return useSyncExternalStore(
+        subscribeReduced,
+        () => window.matchMedia(REDUCED).matches,
+        () => false,
+    );
+}
+
+const TICK = { fill: 'rgb(var(--ink-3))', fontSize: 12 };
+
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number | string }[]; label?: string | number }) {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-white border border-[#E5E5EA] rounded-xl px-3 py-2 shadow-lg shadow-black/10">
-            <p className="text-[11px] text-[#6E6E73] mb-0.5" style={{ fontFamily: SFT }}>{label}</p>
-            <p className="text-[13px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                {payload[0].value} ứng viên
-            </p>
+        <div className="rounded-ctl bg-surface px-3 py-2 shadow-e4">
+            <p className="text-caption text-ink-3">{label}</p>
+            <p className="text-body-sm font-medium tabular-nums text-ink">{payload[0].value} ứng viên</p>
         </div>
     );
 }
 
 export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartProps) {
+    const reduced = usePrefersReducedMotion();
     return (
-        <div className="bg-white rounded-2xl p-5 border border-[#F2F2F7] mb-4">
-            <div className="flex items-center justify-between mb-4">
-                <div>
-                    <h3 className="text-[14px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                        Ứng tuyển theo thời gian
-                    </h3>
-                    <p className="text-[12px] text-[#6E6E73] mt-0.5">6 tháng gần nhất</p>
-                </div>
-            </div>
+        <Surface className="h-full p-5">
+            <h2 className="text-title-sm text-ink">Ứng tuyển theo thời gian</h2>
+            <p className="mt-0.5 text-caption text-ink-3">6 tháng gần nhất</p>
             {data.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
-                    <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                        <defs>
-                            <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0071E3" stopOpacity={0.15} />
-                                <stop offset="95%" stopColor="#0071E3" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid stroke="#F2F2F7" strokeDasharray="4 4" vertical={false} />
-                        <XAxis dataKey="month" tick={{ fill: '#AEAEB2', fontSize: 11, fontFamily: SFT }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: '#AEAEB2', fontSize: 11, fontFamily: SFT }} axisLine={false} tickLine={false} />
-                        <Tooltip content={<CustomTooltip />} cursor={false} />
-                        <Area type="monotone" dataKey="value" stroke="#0071E3" strokeWidth={2} fill="url(#blueGrad)" dot={{ fill: '#0071E3', r: 4, strokeWidth: 2, stroke: '#fff' }} />
-                    </AreaChart>
-                </ResponsiveContainer>
-            ) : (
-                <div className="h-[180px] flex items-center justify-center">
-                    <p className="text-[13px] text-[#AEAEB2]">Chưa có dữ liệu ứng tuyển</p>
+                <div className="mt-4">
+                    <ResponsiveContainer width="100%" height={220}>
+                        <AreaChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="dashboard-trend-fill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="rgb(var(--accent))" stopOpacity={0.16} />
+                                    <stop offset="100%" stopColor="rgb(var(--accent))" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
+                            <XAxis dataKey="month" tick={TICK} axisLine={false} tickLine={false} />
+                            <YAxis tick={TICK} axisLine={false} tickLine={false} allowDecimals={false} />
+                            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgb(var(--line-strong))' }} />
+                            <Area
+                                type="monotone"
+                                dataKey="value"
+                                stroke="rgb(var(--accent))"
+                                strokeWidth={2}
+                                fill="url(#dashboard-trend-fill)"
+                                dot={false}
+                                activeDot={{ r: 4, fill: 'rgb(var(--accent))', stroke: 'rgb(var(--surface))', strokeWidth: 2 }}
+                                isAnimationActive={!reduced}
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
+            ) : (
+                <p className="flex h-[220px] items-center justify-center text-body-sm text-ink-3">Chưa có dữ liệu ứng tuyển</p>
             )}
-        </div>
+        </Surface>
     );
 }

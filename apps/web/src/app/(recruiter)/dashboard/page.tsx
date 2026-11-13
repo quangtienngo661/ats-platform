@@ -1,8 +1,7 @@
 import { getUiVariant } from '@/lib/ui-variant';
 import LegacyHRDashboard from '@/legacy/app/(recruiter)/dashboard/page';
-import Link from 'next/link';
-import { ArrowRight, ChevronRight } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
+import { ArrowRight } from 'lucide-react';
+import { ButtonLink, PageToolbar, Reveal } from '@/components/ui';
 import { getDashboardStatsAction } from '@/servers/applications/dashboard.action';
 import { buildApplicationsTrend, buildPipelineData } from '@/lib/dashboard.utils';
 import DashboardKpiCards from '@/components/dashboard/DashboardKpiCards';
@@ -31,46 +30,33 @@ export default async function HRDashboard() {
         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     }).length;
 
-
     return (
-        <div className="p-4 lg:p-6" style={{ fontFamily: SFT }}>
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 mb-5">
-                <span className="text-[13px] text-[#AEAEB2]">HR Portal</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#AEAEB2]" />
-                <span className="text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>Bảng điều khiển</span>
-            </div>
+        <div className="space-y-4 p-4 lg:p-6">
+            <PageToolbar title="Bảng điều khiển">
+                <ButtonLink href="/jobs" variant="secondary">
+                    Quản lý tuyển dụng <ArrowRight size={14} aria-hidden="true" />
+                </ButtonLink>
+            </PageToolbar>
 
-            {/* Header */}
-            <div className="flex items-start justify-end mb-6">
-                <h1 className="sr-only">Bảng điều khiển</h1>
-                <Link
-                    href="/jobs"
-                    className="hidden sm:flex items-center gap-2 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl px-4 py-2.5 text-[13px] transition shadow-sm shadow-[#0071E3]/20"
-                    style={{ fontFamily: SFT, fontWeight: 500 }}
-                >
-                    Quản lý tuyển dụng <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-            </div>
-
-            {/* KPI Cards */}
             <DashboardKpiCards
                 totalApplications={stats.totalApplications}
                 openJobs={stats.openJobs}
                 hiredThisMonth={hiredThisMonth}
             />
 
-            {/* Trend Chart */}
-            <ApplicationsTrendChart data={trendData} />
-
-            {/* Pipeline + Recent Candidates */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <Reveal delay={0.12} className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <ApplicationsTrendChart data={trendData} />
+                </div>
                 <RecruitmentPipeline data={pipelineData} maxCount={maxPipelineCount} />
-                <RecentCandidates applications={allApps} />
-            </div>
+            </Reveal>
 
-            {/* Open Jobs */}
-            <OpenJobsList jobs={stats.jobPostings} />
+            <Reveal delay={0.18} className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <RecentCandidates applications={allApps} />
+                </div>
+                <OpenJobsList jobs={stats.jobPostings} />
+            </Reveal>
         </div>
     );
 }

@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Avatar, StatusChip, Surface } from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
@@ -12,52 +11,43 @@ export default function OpenJobsList({ jobs }: OpenJobsListProps) {
     const displayed = jobs.slice(0, 5);
 
     return (
-        <div className="mt-4 bg-white rounded-2xl border border-[#F2F2F7] overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
-                <h3 className="text-[14px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                    Vị trí đang tuyển
-                </h3>
-                <Link href="/jobs" className="text-[12px] text-[#0071E3] hover:underline" style={{ fontWeight: 500 }}>
-                    Xem tất cả →
+        <Surface className="flex h-full flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-line px-5 py-4">
+                <h2 className="text-title-sm text-ink">Vị trí đang tuyển</h2>
+                <Link href="/jobs" className="text-caption font-medium text-accent-text hover:underline">
+                    Xem tất cả
                 </Link>
             </div>
 
             {displayed.length === 0 ? (
-                <div className="py-12 text-center">
-                    <p className="text-[13px] text-[#AEAEB2]">Không có vị trí nào đang tuyển</p>
-                </div>
+                <p className="px-5 py-10 text-center text-body-sm text-ink-3">Chưa có tin đang tuyển</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#F2F2F7]">
-                    {displayed.map(job => {
+                <ul className="divide-y divide-line">
+                    {displayed.map((job) => {
                         const appCount = job.applications?.length ?? 0;
                         const location = WORK_TYPE_LABELS[(job.locationType ?? '') as WorkType] ?? job.locationType ?? 'N/A';
                         return (
-                            <Link
-                                key={job.jobId}
-                                href={`/jobs/${job.jobId}/candidates`}
-                                className="flex items-center gap-3 px-5 py-4 hover:bg-[#F5F5F7] transition-colors group"
-                            >
-                                <div className="w-9 h-9 rounded-xl bg-[#EBF3FD] flex items-center justify-center flex-shrink-0">
-                                    <span className="text-[13px] text-[#0071E3]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                                        {job.title?.[0]?.toUpperCase() ?? 'J'}
-                                    </span>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>
-                                        {job.title}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <span className="text-[11px] text-[#AEAEB2]">{location}</span>
-                                        <span className="text-[11px] text-[#AEAEB2]">·</span>
-                                        <span className="text-[11px] text-[#AEAEB2]">{appCount} ứng viên</span>
+                            <li key={job.jobId}>
+                                <Link
+                                    href={`/jobs/${job.jobId}/candidates`}
+                                    className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-surface-2/60"
+                                >
+                                    <Avatar name={job.title ?? 'Job'} size={32} />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-body-sm font-medium text-ink" title={job.title}>
+                                            {job.title}
+                                        </p>
+                                        <p className="truncate text-caption tabular-nums text-ink-3">
+                                            {location} · {appCount} ứng viên
+                                        </p>
                                     </div>
-                                </div>
-                                <ChevronRight className="w-3.5 h-3.5 text-[#AEAEB2] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                            </Link>
+                                    <StatusChip kind="job" value={job.status ?? 'active'} className="shrink-0" />
+                                </Link>
+                            </li>
                         );
                     })}
-                </div>
+                </ul>
             )}
-        </div>
+        </Surface>
     );
 }
