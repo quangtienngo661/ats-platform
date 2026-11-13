@@ -60,5 +60,7 @@ describe('AiUsageLogsClient', () => {
     expect(screen.queryByRole('heading', { name: 'Chưa có nhật ký AI' })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Trang này không có nhật ký' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Trang 2' })).toBeVisible();
+    // The range of a page that does not exist would read 81–40; only the total is true.
+    expect(screen.getByText('40 bản ghi')).toBeVisible();
   });
 });

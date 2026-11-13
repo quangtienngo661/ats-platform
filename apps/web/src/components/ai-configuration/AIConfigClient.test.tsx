@@ -1,5 +1,6 @@
 // Component behaviour only: server actions are mocked.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import AIScreeningConfigClient from './AIConfigClient';
@@ -35,5 +36,19 @@ describe('AIScreeningConfigClient', () => {
     expect(screen.getByText('Tổng cấu hình').nextElementSibling?.textContent).toBe('2');
     expect(screen.getByText('Mặc định', { selector: 'dt' }).nextElementSibling?.textContent).toBe('1');
     expect(screen.queryByRole('heading', { name: 'Chưa có cấu hình' })).not.toBeInTheDocument();
+  });
+
+  it('opens the add form empty every time, not with the last draft', async () => {
+    const user = userEvent.setup();
+    render(<AIScreeningConfigClient profiles={[]} organizations={[]} />);
+    const open = () => user.click(screen.getAllByRole('button', { name: 'Thêm cấu hình mới' })[0]);
+
+    await open();
+    await user.type(await screen.findByRole('textbox', { name: 'Tên cấu hình', exact: true }), 'Bản nháp');
+    await user.click(screen.getByRole('button', { name: 'Hủy' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    await open();
+    expect(await screen.findByRole('textbox', { name: 'Tên cấu hình', exact: true })).toHaveValue('');
   });
 });
