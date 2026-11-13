@@ -44,7 +44,7 @@ export default function RecentCandidates({ applications }: RecentCandidatesProps
                                         <p className="truncate text-body-sm font-medium text-ink" title={fullName}>
                                             {fullName}
                                         </p>
-                                        <p className="truncate text-caption text-ink-3">{app.jobPosting?.title ?? 'N/A'}</p>
+                                        <p className="truncate text-caption text-ink-3" title={app.jobPosting?.title}>{app.jobPosting?.title ?? 'N/A'}</p>
                                     </div>
                                     {aiScore != null && Number(aiScore) > 0 && (
                                         <span className="hidden items-center gap-1 text-caption tabular-nums text-ink-2 md:flex">
