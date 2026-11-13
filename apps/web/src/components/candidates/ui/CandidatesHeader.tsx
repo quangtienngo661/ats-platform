@@ -1,26 +1,28 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
+import { PageToolbar } from '@/components/ui';
 import { ViewToggle } from './ViewToggle';
 
 interface CandidatesHeaderProps {
     jobId: string;
     activeView: 'list' | 'kanban';
+    /** The job's title when the page knows it; otherwise the page is named "Ứng viên". */
+    title?: string;
 }
 
-export function CandidatesHeader({ jobId, activeView }: CandidatesHeaderProps) {
+export function CandidatesHeader({ jobId, activeView, title }: CandidatesHeaderProps) {
     return (
-        <div className="px-6 pt-2 pb-0 lg:px-8 flex items-center justify-between">
+        <div className="space-y-1 px-4 pt-4 lg:px-6 lg:pt-6">
             <Link
                 href="/jobs"
-                className="inline-flex items-center gap-2 text-[14px] text-[#1D1D1F] hover:text-[#0071E3] transition-colors"
-                style={{ fontFamily: SFT, fontWeight: 500 }}
+                className="inline-flex min-h-6 items-center gap-1.5 rounded-ctl text-caption text-ink-3 transition-colors duration-hover hover:text-ink"
             >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft aria-hidden="true" size={14} strokeWidth={1.75} />
                 Quay lại tin tuyển dụng
             </Link>
-
-            <ViewToggle jobId={jobId} activeView={activeView} />
+            <PageToolbar title={title || 'Ứng viên'}>
+                <ViewToggle jobId={jobId} activeView={activeView} />
+            </PageToolbar>
         </div>
     );
 }

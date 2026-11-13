@@ -213,6 +213,52 @@ describe('CandidatesFilters', () => {
 
     await user.type(search, 'không có ứng viên này');
     const emptyCell = screen.getByRole('cell', { name: 'Không tìm thấy ứng viên nào.' });
-    expect(emptyCell).toHaveAttribute('colspan', '7');
+    // Six columns since the redesign dropped "Vị trí ứng tuyển": every row on this per-job page had the same title.
+    expect(emptyCell).toHaveAttribute('colspan', '6');
+  });
+});
+
+describe('candidate list redesign', () => {
+  it('"Xem nhanh {tên}" opens the peek without selecting the row; Esc closes it and returns focus to that button', async () => {
+    const user = userEvent.setup();
+    render(<CandidatesFilters applications={filterApplications} jobId="job-1" aiProfiles={aiProfiles} />);
+    const peekButton = screen.getByRole('button', { name: 'Xem nhanh Lê Thị Bình' });
+
+    await user.click(peekButton);
+    const peek = screen.getByRole('dialog', { name: 'Lê Thị Bình' });
+    expect(within(peek).getByRole('link', { name: 'Mở hồ sơ đầy đủ' }))
+      .toHaveAttribute('href', '/jobs/job-1/candidates/app-7');
+    expect(screen.getByRole('checkbox', { name: 'Chọn Lê Thị Bình', hidden: true })).not.toBeChecked();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(peekButton).toHaveFocus();
+    expect(screen.getByRole('checkbox', { name: 'Chọn Lê Thị Bình' })).not.toBeChecked();
+  });
+
+  it('labels the score column "Gợi ý AI" and shows the effective score in every row', () => {
+    const scored = filterApplications.map((app, index) => index === 0
+      ? {
+        ...app,
+        screening: {
+          status: 'completed',
+          overallScore: '58',
+          reviewedAt: '2026-10-15T03:00:00.000Z',
+          reviewedOverallScore: '77',
+        } as unknown as IApplicationDto['screening'],
+      }
+      : app);
+    render(<CandidatesFilters applications={scored} jobId="job-1" aiProfiles={aiProfiles} />);
+
+    expect(screen.getByRole('columnheader', { name: 'Gợi ý AI' })).toBeInTheDocument();
+    expect(screen.getByRole('meter', { name: 'Gợi ý AI cho Nguyễn Văn 1' })).toHaveAttribute('aria-valuenow', '77');
+    expect(screen.getAllByRole('meter')).toHaveLength(1);
+    expect(screen.getAllByText('Chưa có điểm')).toHaveLength(7);
+  });
+
+  it('shows "Chưa có ứng viên" when the job has no applications', () => {
+    render(<CandidatesFilters applications={[]} jobId="job-1" aiProfiles={aiProfiles} />);
+    expect(screen.getByRole('heading', { name: 'Chưa có ứng viên' })).toBeVisible();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });

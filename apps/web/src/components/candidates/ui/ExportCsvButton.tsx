@@ -2,6 +2,8 @@
 
 import { startTransition, useRef, useState } from 'react';
 import { unstable_rethrow } from 'next/navigation';
+import { Download } from 'lucide-react';
+import { Button } from '@/components/ui';
 import { downloadCsv } from '@/lib/download-csv';
 import { toast } from '@/lib/toast';
 import { exportCandidatesCsvAction } from '@/servers/applications/applications.action';
@@ -25,7 +27,7 @@ export function ExportCsvButton({ jobId }: { jobId: string }) {
                 }
             } catch (error) {
                 unstable_rethrow(error);
-                toast.error('Lỗi', 'Xuất CSV thất bại. Vui lòng thử lại.');
+                toast.error('Lỗi', 'Không xuất được CSV. Thử lại.');
             } finally {
                 exportInFlight.current = false;
                 setIsExporting(false);
@@ -34,9 +36,9 @@ export function ExportCsvButton({ jobId }: { jobId: string }) {
     }
 
     return (
-        <button type="button" onClick={exportCsv} disabled={isExporting} aria-busy={isExporting}
-            className="px-3.5 py-2.5 rounded-xl bg-[#EBF3FD] text-[#0071E3] text-[13px] font-medium hover:bg-[#DCEBFC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <Button variant="secondary" onClick={exportCsv} loading={isExporting}>
+            {!isExporting && <Download aria-hidden="true" strokeWidth={1.75} />}
             Xuất CSV
-        </button>
+        </Button>
     );
 }

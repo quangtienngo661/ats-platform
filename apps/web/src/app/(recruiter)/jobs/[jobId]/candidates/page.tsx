@@ -7,7 +7,6 @@ import { InitSocketRoom } from '@/components/common/InitSocketRoom';
 import { getApplicationsByJobAction } from '@/servers/applications/applications.action';
 import { getAIConfigAction } from '@/servers/ai-config/ai-config.action';
 
-
 interface JobCandidateListPageProps {
     params: Promise<{ jobId: string }>;
 }
@@ -22,10 +21,10 @@ export default async function JobCandidateListPage({ params }: JobCandidateListP
     const applications = applicationsResult.items;
 
     return (
-        <div className="flex flex-col h-full bg-[#F5F5F7]">
+        <div className="pb-6">
             <InitSocketRoom jobId={jobId} />
-            <CandidatesHeader jobId={jobId} activeView="list" />
-            <div className="p-6 lg:px-8 lg:py-6 flex-1 overflow-y-auto">
+            <CandidatesHeader jobId={jobId} activeView="list" title={applications[0]?.jobPosting?.title} />
+            <div className="space-y-4 px-4 pt-4 lg:px-6">
                 <CandidatesStats applications={applications} />
                 <CandidatesFilters applications={applications} jobId={jobId} aiProfiles={aiProfiles} />
             </div>
