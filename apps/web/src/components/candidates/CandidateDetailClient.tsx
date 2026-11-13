@@ -61,7 +61,7 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
     };
 
     return (
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 p-4 lg:p-6">
             <Link
                 href={`/jobs/${jobId}/candidates`}
                 className="inline-flex items-center gap-1.5 text-body-sm text-ink-3 transition-colors hover:text-ink"
