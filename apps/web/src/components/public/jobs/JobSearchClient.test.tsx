@@ -3,6 +3,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jobPosting } from '@/test/fixtures/job-posting';
 import { JobSearchClient } from './JobSearchClient';
 
 const mocks = vi.hoisted(() => ({ push: vi.fn() }));
@@ -253,5 +254,42 @@ describe('JobSearchClient — a refused entry while the panel is closed', () => 
     expect(await screen.findByRole('alert')).toHaveTextContent('Mức lương tối thiểu không thể lớn hơn mức lương tối đa');
     expect(screen.getByRole('textbox', { name: 'Từ' })).toBeInTheDocument();
     expect(mocks.push).not.toHaveBeenCalled();
+  });
+});
+
+describe('JobSearchClient — no results (Review Focus 2)', () => {
+  it('says nothing matches and offers to clear the filters', async () => {
+    const user = userEvent.setup();
+    renderSearch({ initialQuery: { locationType: 'remote' } });
+
+    expect(screen.getByRole('heading', { name: 'Không có việc phù hợp' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+
+    expect(mocks.push).toHaveBeenCalledWith('/job-postings');
+  });
+
+  it('links back to every job instead when nothing is filtered', () => {
+    renderSearch({ currentPage: 3 });
+
+    expect(screen.getByRole('heading', { name: 'Không có việc phù hợp' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Xem tất cả việc làm' })).toHaveAttribute('href', '/job-postings');
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+  });
+});
+
+describe('JobSearchClient — active filter chips', () => {
+  it('shows the work type as a chip that takes only that filter off', async () => {
+    const user = userEvent.setup();
+    renderSearch({ initialQuery: { q: 'react', locationType: 'remote' }, initialJobs: [jobPosting()], total: 1 });
+
+    const chip = screen.getByRole('button', { name: 'Bỏ lọc Remote' });
+    expect(chip).toHaveTextContent('Remote');
+    // One way to clear everything, next to the chips while there are results.
+    expect(screen.getByRole('button', { name: 'Xóa bộ lọc' })).toBeInTheDocument();
+
+    await user.click(chip);
+
+    expect(lastUrl().searchParams.has('locationType')).toBe(false);
+    expect(lastUrl().searchParams.get('q')).toBe('react');
   });
 });

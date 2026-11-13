@@ -1,25 +1,62 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useId, useRef, useState, useTransition, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, SlidersHorizontal, Briefcase, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ChevronLeft, ChevronRight, FileText, Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
+import { Button, ButtonLink, EmptyState, IconButton, Input, Select, Stagger, Surface } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { formatSalaryInput, parseSalaryInput } from '@/lib/salary-input';
 import { WORK_TYPES, WORK_TYPE_LABELS } from '@/lib/work-types';
 import { IJobFilterOptions, IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { JobCard } from './JobCard';
 
-const LOCATION_TYPES = ['Tất cả', ...WORK_TYPES];
-const LOCATION_LABELS: Record<string, string> = { 'Tất cả': 'Tất cả', ...WORK_TYPE_LABELS };
+const ALL = 'Tất cả';
+const LOCATION_TYPES = [ALL, ...WORK_TYPES];
+const LOCATION_LABELS: Record<string, string> = { [ALL]: 'Tất cả', ...WORK_TYPE_LABELS };
+const PAGE_SIZE = 12;
 const MAX_SKILLS = 20;
 const SALARY_RANGE_ERROR = 'Mức lương tối thiểu không thể lớn hơn mức lương tối đa';
 const SALARY_INVALID_ERROR = 'Mức lương không hợp lệ';
-const SALARY_INPUT_CLASS = 'w-full sm:w-[150px] px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] outline-none focus:border-[#0071E3] bg-white';
-const GROUP_LABEL_CLASS = 'text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block';
+
+/** A filter pill (work type, skill, the panel toggle): 32 px, ink when on, a hairline card when off. */
+const PILL =
+    'inline-flex h-8 shrink-0 select-none items-center gap-1.5 whitespace-nowrap rounded-ctl px-3 text-body-sm ' +
+    'transition duration-hover ease-out-expo active:scale-[.97] active:duration-press [&_svg]:size-4 [&_svg]:shrink-0';
+const PILL_ON = 'bg-ink text-surface';
+const PILL_OFF = 'bg-surface text-ink-2 shadow-e1 hover:text-ink hover:shadow-e3';
 
 const salaryText = (value?: number) => (value !== undefined ? formatSalaryInput(value) : '');
+
+function salaryLabel(min?: number, max?: number): string {
+    if (min !== undefined && max !== undefined) return `${formatSalaryInput(min)} – ${formatSalaryInput(max)} ₫`;
+    if (min !== undefined) return `Từ ${formatSalaryInput(min)} ₫`;
+    return `Đến ${formatSalaryInput(max ?? 0)} ₫`;
+}
+
+/** A category's name, looked up in the tree the API sends (children included). */
+function categoryName(categories: IJobCategoryDto[], id: string): string | undefined {
+    for (const category of categories) {
+        if (category.categoryId === id) return category.name;
+        const child = category.childCategories ? categoryName(category.childCategories, id) : undefined;
+        if (child) return child;
+    }
+    return undefined;
+}
+
+/** Page numbers around the current one, with `'…'` where a run is skipped: 1 … 4 5 6 … 10. */
+function pageItems(totalPages: number, currentPage: number): (number | '…')[] {
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+        .reduce<(number | '…')[]>((acc, p, i, arr) => {
+            if (i > 0 && p - arr[i - 1] > 1) acc.push('…');
+            acc.push(p);
+            return acc;
+        }, []);
+}
+
+/** A filter the results on screen were made from: its group (for the summary), its chip text and how to drop it. */
+type ActiveFilter = { key: string; group: string; value: string; chip: string; remove: () => void };
 
 interface JobSearchClientProps {
     initialJobs: IJobPostingDto[];
@@ -37,11 +74,30 @@ interface JobSearchClientProps {
     };
 }
 
+type Overrides = {
+    q?: string;
+    categoryId?: string;
+    locationType?: string;
+    skillIds?: string[];
+    page?: number;
+    salaryMinText?: string;
+    salaryMaxText?: string;
+};
+
+/**
+ * The public job search: a sticky search bar under the header, work-type pills and the category in one row (it
+ * scrolls sideways on phones), a "Bộ lọc" panel for salary and skills, the active filters as removable chips, then
+ * the list. From 1024 px a right rail (30%) sums up the filters and points to the CV page.
+ */
 export function JobSearchClient({ initialJobs, total, categories, skills, currentPage, initialQuery }: JobSearchClientProps) {
     const router = useRouter();
+    const panelId = useId();
+    const chipsLabelId = useId();
+    const salaryErrorId = useId();
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState(initialQuery.q ?? '');
     const [selectedCategory, setSelectedCategory] = useState(initialQuery.categoryId ?? '');
-    const [selectedLocationType, setSelectedLocationType] = useState(initialQuery.locationType ?? 'Tất cả');
+    const [selectedLocationType, setSelectedLocationType] = useState(initialQuery.locationType ?? ALL);
     const [salaryMinText, setSalaryMinText] = useState(salaryText(initialQuery.salaryMin));
     const [salaryMaxText, setSalaryMaxText] = useState(salaryText(initialQuery.salaryMax));
     const [selectedSkills, setSelectedSkills] = useState<string[]>(initialQuery.skillIds ?? []);
@@ -56,7 +112,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         setSyncedQueryKey(queryKey);
         setSearchQuery(initialQuery.q ?? '');
         setSelectedCategory(initialQuery.categoryId ?? '');
-        setSelectedLocationType(initialQuery.locationType ?? 'Tất cả');
+        setSelectedLocationType(initialQuery.locationType ?? ALL);
         setSalaryMinText(salaryText(initialQuery.salaryMin));
         setSalaryMaxText(salaryText(initialQuery.salaryMax));
         setSelectedSkills(initialQuery.skillIds ?? []);
@@ -65,11 +121,12 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
     const [showFilters, setShowFilters] = useState(false);
     const [isPending, startTransition] = useTransition();
 
-    const totalPages = Math.ceil(total / 12);
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const hasJobs = initialJobs.length > 0;
 
-    const applyFilters = (overrides?: Partial<typeof initialQuery & { page?: number }>) => {
-        const salaryMin = parseSalaryInput(salaryMinText);
-        const salaryMax = parseSalaryInput(salaryMaxText);
+    const applyFilters = (overrides?: Overrides) => {
+        const salaryMin = parseSalaryInput(overrides?.salaryMinText ?? salaryMinText);
+        const salaryMax = parseSalaryInput(overrides?.salaryMaxText ?? salaryMaxText);
         // The message lives in the panel: open it, or a refused entry would do nothing visible.
         if (salaryMin === 'invalid' || salaryMax === 'invalid') {
             setSalaryError(SALARY_INVALID_ERROR);
@@ -90,7 +147,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         const pg = overrides?.page ?? 1;
         if (q) params.set('q', q);
         if (catId) params.set('categoryId', catId);
-        if (loc && loc !== 'Tất cả') params.set('locationType', loc);
+        if (loc && loc !== ALL) params.set('locationType', loc);
         if (salaryMin !== null) params.set('salaryMin', String(salaryMin));
         if (salaryMax !== null) params.set('salaryMax', String(salaryMax));
         for (const skillId of overrides?.skillIds ?? selectedSkills) params.append('skillIds', skillId);
@@ -98,9 +155,14 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         startTransition(() => router.push(`/job-postings?${params.toString()}`));
     };
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = (e: FormEvent) => {
         e.preventDefault();
         applyFilters();
+    };
+
+    const chooseLocationType = (type: string) => {
+        setSelectedLocationType(type);
+        applyFilters({ locationType: type });
     };
 
     const toggleSkill = (skillId: string) => {
@@ -114,7 +176,7 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
     const clearFilters = () => {
         setSearchQuery('');
         setSelectedCategory('');
-        setSelectedLocationType('Tất cả');
+        setSelectedLocationType(ALL);
         setSalaryMinText('');
         setSalaryMaxText('');
         setSelectedSkills([]);
@@ -122,250 +184,393 @@ export function JobSearchClient({ initialJobs, total, categories, skills, curren
         startTransition(() => router.push('/job-postings'));
     };
 
+    const hasActiveFilters = !!searchQuery || !!selectedCategory || selectedLocationType !== ALL
+        || salaryMinText.trim() !== '' || salaryMaxText.trim() !== '' || selectedSkills.length > 0;
+
+    // The chips and the summary describe the URL (the results on screen), not what is half-typed in a field.
+    const activeFilters: ActiveFilter[] = [];
+    if (initialQuery.q) {
+        activeFilters.push({
+            key: 'q',
+            group: 'Từ khóa',
+            value: initialQuery.q,
+            chip: `“${initialQuery.q}”`,
+            remove: () => { setSearchQuery(''); applyFilters({ q: '' }); },
+        });
+    }
+    if (initialQuery.categoryId) {
+        const name = categoryName(categories, initialQuery.categoryId) ?? 'Ngành nghề đã chọn';
+        activeFilters.push({
+            key: 'category',
+            group: 'Ngành nghề',
+            value: name,
+            chip: name,
+            remove: () => { setSelectedCategory(''); applyFilters({ categoryId: '' }); },
+        });
+    }
+    if (initialQuery.locationType && initialQuery.locationType !== ALL) {
+        const label = LOCATION_LABELS[initialQuery.locationType] ?? initialQuery.locationType;
+        activeFilters.push({
+            key: 'locationType',
+            group: 'Hình thức',
+            value: label,
+            chip: label,
+            remove: () => chooseLocationType(ALL),
+        });
+    }
+    if (initialQuery.salaryMin !== undefined || initialQuery.salaryMax !== undefined) {
+        const label = salaryLabel(initialQuery.salaryMin, initialQuery.salaryMax);
+        activeFilters.push({
+            key: 'salary',
+            group: 'Mức lương',
+            value: label,
+            chip: label,
+            remove: () => {
+                setSalaryMinText('');
+                setSalaryMaxText('');
+                applyFilters({ salaryMinText: '', salaryMaxText: '' });
+            },
+        });
+    }
+    for (const skillId of initialQuery.skillIds ?? []) {
+        const name = skills.find(s => s.skillId === skillId)?.name ?? 'Kỹ năng đã chọn';
+        activeFilters.push({
+            key: `skill-${skillId}`,
+            group: 'Kỹ năng',
+            value: name,
+            chip: name,
+            remove: () => {
+                const next = selectedSkills.filter(id => id !== skillId);
+                setSelectedSkills(next);
+                applyFilters({ skillIds: next });
+            },
+        });
+    }
+    const summary = activeFilters.reduce<{ group: string; values: string[] }[]>((acc, f) => {
+        const row = acc.find(r => r.group === f.group);
+        if (row) row.values.push(f.value);
+        else acc.push({ group: f.group, values: [f.value] });
+        return acc;
+    }, []);
+    // What the panel holds: the salary counts once, each skill once.
+    const panelCount =
+        (initialQuery.salaryMin !== undefined || initialQuery.salaryMax !== undefined ? 1 : 0)
+        + (initialQuery.skillIds?.length ?? 0);
+    // One "Xóa bộ lọc" on screen: beside the chips while there are results, in the empty state otherwise.
+    const clearBesideChips = hasActiveFilters && hasJobs;
+
     // Only digits and the separators a salary is written with; the rest is refused as typed.
     const salaryField = (value: string, setValue: (text: string) => void, label: string, id: string) => (
         <>
             <label htmlFor={id} className="sr-only">{label}</label>
-            <input
+            <Input
                 id={id}
                 type="text"
                 inputMode="numeric"
                 placeholder={label}
                 value={value}
+                invalid={!!salaryError}
+                describedBy={salaryError ? salaryErrorId : undefined}
                 onChange={e => { setValue(e.target.value.replace(/[^\d.,\s]/g, '')); setSalaryError(''); }}
                 onBlur={() => { const parsed = parseSalaryInput(value); if (typeof parsed === 'number') setValue(formatSalaryInput(parsed)); }}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyFilters(); } }}
-                className={SALARY_INPUT_CLASS}
+                className="tabular-nums sm:w-40"
             />
         </>
     );
 
-    const hasActiveFilters = !!searchQuery || !!selectedCategory || selectedLocationType !== 'Tất cả'
-        || salaryMinText.trim() !== '' || salaryMaxText.trim() !== '' || selectedSkills.length > 0;
+    const emptyState = hasActiveFilters ? (
+        <EmptyState
+            icon={SearchX}
+            title="Không có việc phù hợp"
+            description="Bỏ bớt bộ lọc hoặc đổi từ khóa để xem thêm việc."
+            action={<Button onClick={clearFilters}>Xóa bộ lọc</Button>}
+        />
+    ) : currentPage > 1 ? (
+        <EmptyState
+            icon={SearchX}
+            title="Không có việc phù hợp"
+            description="Trang này không còn việc nào."
+            action={<ButtonLink href="/job-postings">Xem tất cả việc làm</ButtonLink>}
+        />
+    ) : (
+        <EmptyState
+            icon={SearchX}
+            title="Chưa có việc đang tuyển"
+            description="Tin mới sẽ hiện ở đây. Trong lúc chờ, tải CV lên để ứng tuyển nhanh hơn."
+            action={<ButtonLink href="/my-cvs">Tải CV lên</ButtonLink>}
+        />
+    );
 
     return (
-        <div className="min-h-screen" style={{ fontFamily: SFT }}>
-            {/* Search Header */}
-            <div className="bg-white border-b border-[#E5E5EA] sticky top-[60px] z-sticky">
-                <div className="max-w-[1200px] mx-auto px-6 py-4">
-                    <form onSubmit={handleSearch} className="flex gap-2">
-                        <div className="flex items-center gap-2.5 bg-[#F5F5F7] rounded-2xl px-4 py-2.5 flex-1 min-w-0 border-2 border-transparent focus-within:border-[#0071E3] focus-within:bg-white transition">
-                            <Search className="w-4 h-4 text-[#AEAEB2] flex-shrink-0" />
-                            <input
-                                aria-label="Tìm việc làm"
-                                type="text"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Tên vị trí, kỹ năng, công ty…"
-                                className="min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none flex-1"
-                            />
-                            {searchQuery && (
-                                <button aria-label="Đóng" type="button" onClick={() => setSearchQuery('')} className="text-[#AEAEB2] hover:text-[#6E6E73]">
-                                    <X className="w-3.5 h-3.5" />
-                                </button>
-                            )}
-                        </div>
-                        <button type="submit" className="px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-2xl text-[14px] transition flex-shrink-0" style={{ fontWeight: 500 }}>
-                            Tìm
-                        </button>
+        <div className="w-full">
+            {/* Search bar: sticky under the 60 px header, below its layer so the notification panel stays on top. */}
+            <div className="sticky top-[60px] z-sticky border-b border-line bg-canvas/95 supports-[backdrop-filter]:bg-canvas/75 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150">
+                <div className="mx-auto max-w-[1200px] px-4 py-2 sm:py-3 lg:px-6">
+                    <form role="search" aria-label="Tìm việc" onSubmit={handleSearch}>
+                        <Surface variant="raised" className="flex items-center gap-1 p-1">
+                            <div className="relative min-w-0 flex-1">
+                                <Search
+                                    aria-hidden="true"
+                                    size={18}
+                                    strokeWidth={1.75}
+                                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"
+                                />
+                                <input
+                                    ref={searchInputRef}
+                                    aria-label="Tìm việc làm"
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Tên vị trí, kỹ năng, công ty…"
+                                    className="h-11 w-full min-w-0 rounded-ctl bg-transparent pl-10 pr-10 text-base text-ink placeholder:text-ink-3 focus-visible:outline-offset-0 sm:text-body"
+                                />
+                                {searchQuery ? (
+                                    <IconButton
+                                        size="sm"
+                                        aria-label="Xóa từ khóa"
+                                        onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
+                                        className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                                    >
+                                        <X aria-hidden="true" strokeWidth={1.75} />
+                                    </IconButton>
+                                ) : null}
+                            </div>
+                            <Button type="submit" size="lg">
+                                Tìm
+                            </Button>
+                        </Surface>
+                    </form>
+                </div>
+            </div>
+
+            <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-4 pb-16 pt-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:px-6 lg:pt-8">
+                {/*
+                  The html scroll padding clears the 60 px header only; whatever takes focus here must also clear the
+                  sticky search bar (69–77 px), or Shift+Tab leaves the focused card underneath it.
+                */}
+                <div className="min-w-0 [&_a]:scroll-mt-20 [&_button]:scroll-mt-20 [&_input]:scroll-mt-20 [&_select]:scroll-mt-20">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <h1 className="text-heading text-ink">Việc làm</h1>
+                        <p aria-live="polite" className="text-body-sm text-ink-3">
+                            <span className="font-medium tabular-nums text-ink">{total.toLocaleString('vi-VN')}</span> việc phù hợp
+                            {isPending ? <span> · Đang tải…</span> : null}
+                        </p>
+                    </div>
+
+                    {/* Filter pills: one row that scrolls sideways on phones, wraps from 640 px. */}
+                    <div className="-mx-4 mt-4 flex items-center gap-2 overflow-x-auto px-4 py-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
                         <button
                             type="button"
                             aria-label="Bộ lọc"
                             aria-expanded={showFilters}
+                            aria-controls={showFilters ? panelId : undefined}
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-[13px] transition flex-shrink-0 ${showFilters || hasActiveFilters ? 'border-[#0071E3] text-[#0071E3] bg-[#EBF3FD]' : 'border-[#E5E5EA] text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
+                            className={cn(PILL, showFilters ? PILL_ON : PILL_OFF)}
                         >
-                            <SlidersHorizontal className="w-4 h-4" />
-                            <span className="hidden sm:inline">Lọc</span>
-                            {hasActiveFilters && <span className="w-2 h-2 bg-[#0071E3] rounded-full" />}
+                            <SlidersHorizontal aria-hidden="true" strokeWidth={1.75} />
+                            Bộ lọc
+                            {panelCount > 0 ? (
+                                <span
+                                    className={cn(
+                                        'inline-flex h-4 min-w-4 items-center justify-center rounded-ctl px-1 text-micro tabular-nums',
+                                        showFilters ? 'bg-surface text-ink' : 'bg-ink text-surface',
+                                    )}
+                                >
+                                    {panelCount}
+                                </span>
+                            ) : null}
                         </button>
-                    </form>
-
-                    {/* Filter Panel */}
-                    <AnimatePresence>
-                        {showFilters && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-x-hidden overflow-y-auto max-h-[60vh]"
+                        <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-line" />
+                        <div role="group" aria-label="Hình thức làm việc" className="flex shrink-0 items-center gap-2">
+                            {LOCATION_TYPES.map(t => (
+                                <button
+                                    key={t}
+                                    type="button"
+                                    aria-pressed={selectedLocationType === t}
+                                    onClick={() => chooseLocationType(t)}
+                                    className={cn(PILL, selectedLocationType === t ? PILL_ON : PILL_OFF)}
+                                >
+                                    {LOCATION_LABELS[t]}
+                                </button>
+                            ))}
+                        </div>
+                        {categories.length > 0 ? (
+                            <Select
+                                size="sm"
+                                aria-label="Ngành nghề"
+                                value={selectedCategory}
+                                onChange={e => { setSelectedCategory(e.target.value); applyFilters({ categoryId: e.target.value }); }}
+                                className="w-48 shrink-0"
                             >
-                                <div className="pt-4 flex flex-col sm:flex-row gap-4">
-                                    {/* Category */}
-                                    <div className="flex-1">
-                                        <label htmlFor="jobsearchclient-field-1" className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
-                                            Ngành nghề
-                                        </label>
-                                        <select id="jobsearchclient-field-1"
-                                            value={selectedCategory}
-                                            onChange={e => { setSelectedCategory(e.target.value); applyFilters({ categoryId: e.target.value }); }}
-                                            className="w-full px-3 py-2 rounded-xl border border-[#E5E5EA] text-[13px] text-[#1D1D1F] outline-none focus:border-[#0071E3] bg-white"
-                                        >
-                                            <option value="">Tất cả ngành nghề</option>
-                                            {categories.map(c => (
-                                                <option key={c.categoryId} value={c.categoryId}>{c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                <option value="">Tất cả ngành nghề</option>
+                                {categories.map(c => (
+                                    <option key={c.categoryId} value={c.categoryId}>{c.name}</option>
+                                ))}
+                            </Select>
+                        ) : null}
+                    </div>
 
-                                    {/* Location Type */}
-                                    <div>
-                                        <span className="text-[11px] uppercase tracking-[0.07em] text-[#AEAEB2] mb-2 block" style={{ fontWeight: 600 }}>
-                                            Hình thức
-                                        </span>
-                                        <div className="flex gap-2">
-                                            {LOCATION_TYPES.map(t => (
+                    {/* More filters: salary and skills. Enters with a rise; closes at once. */}
+                    {showFilters ? (
+                        <div id={panelId} className="mt-3 flex animate-rise flex-col gap-5 rounded-card bg-surface p-4 shadow-e1 sm:p-5">
+                            <fieldset className="min-w-0">
+                                <legend className="mb-2 text-caption text-ink-3">Mức lương (VNĐ)</legend>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
+                                        {salaryField(salaryMinText, setSalaryMinText, 'Từ', 'jobsearchclient-salary-min')}
+                                        <span aria-hidden="true" className="text-ink-3">–</span>
+                                        {salaryField(salaryMaxText, setSalaryMaxText, 'Đến', 'jobsearchclient-salary-max')}
+                                    </div>
+                                    <Button variant="secondary" onClick={() => applyFilters()}>
+                                        Áp dụng
+                                    </Button>
+                                </div>
+                                {salaryError ? (
+                                    <p id={salaryErrorId} role="alert" className="mt-2 text-caption text-danger">{salaryError}</p>
+                                ) : null}
+                            </fieldset>
+
+                            {skills.length > 0 ? (
+                                <fieldset className="min-w-0">
+                                    <legend className="mb-2 text-caption text-ink-3">Kỹ năng</legend>
+                                    <div className="-m-1 flex max-h-[140px] flex-wrap gap-2 overflow-y-auto p-1">
+                                        {skills.map(skill => {
+                                            const selected = selectedSkills.includes(skill.skillId);
+                                            return (
                                                 <button
-                                                    key={t}
+                                                    key={skill.skillId}
                                                     type="button"
-                                                    onClick={() => { setSelectedLocationType(t); applyFilters({ locationType: t }); }}
-                                                    className={`px-3 py-1.5 rounded-lg text-[12px] transition ${selectedLocationType === t ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
+                                                    aria-pressed={selected}
+                                                    disabled={!selected && selectedSkills.length >= MAX_SKILLS}
+                                                    onClick={() => toggleSkill(skill.skillId)}
+                                                    className={cn(
+                                                        PILL,
+                                                        'max-w-full disabled:pointer-events-none disabled:bg-surface-2 disabled:text-ink-4 disabled:shadow-none',
+                                                        selected ? PILL_ON : PILL_OFF,
+                                                    )}
                                                 >
-                                                    {LOCATION_LABELS[t]}
+                                                    <span className="min-w-0 truncate">{skill.name}</span>
                                                 </button>
-                                            ))}
-                                        </div>
+                                            );
+                                        })}
                                     </div>
-
-                                    {hasActiveFilters && (
-                                        <div className="flex items-end">
-                                            <button onClick={clearFilters} className="text-[13px] text-[#FF3B30] hover:underline flex items-center gap-1">
-                                                <X className="w-3.5 h-3.5" /> Xóa bộ lọc
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="pt-4 flex flex-col gap-4">
-                                    {/* Salary */}
-                                    <fieldset>
-                                        <legend className={GROUP_LABEL_CLASS} style={{ fontWeight: 600 }}>Mức lương (VNĐ)</legend>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {salaryField(salaryMinText, setSalaryMinText, 'Từ', 'jobsearchclient-salary-min')}
-                                            <span aria-hidden="true" className="text-[#AEAEB2]">–</span>
-                                            {salaryField(salaryMaxText, setSalaryMaxText, 'Đến', 'jobsearchclient-salary-max')}
-                                            <button type="button" onClick={() => applyFilters()} className="px-3 py-2 rounded-xl bg-[#F2F2F7] text-[13px] text-[#1D1D1F] hover:bg-[#EBEBF0] transition">
-                                                Áp dụng
-                                            </button>
-                                        </div>
-                                        {salaryError && <p role="alert" className="mt-2 text-[12px] text-[#FF3B30]">{salaryError}</p>}
-                                    </fieldset>
-
-                                    {/* Skills */}
-                                    {skills.length > 0 && (
-                                        <fieldset>
-                                            <legend className={GROUP_LABEL_CLASS} style={{ fontWeight: 600 }}>Kỹ năng</legend>
-                                            <div className="flex flex-wrap gap-2 max-h-[132px] overflow-y-auto">
-                                                {skills.map(skill => {
-                                                    const selected = selectedSkills.includes(skill.skillId);
-                                                    return (
-                                                        <button
-                                                            key={skill.skillId}
-                                                            type="button"
-                                                            aria-pressed={selected}
-                                                            disabled={!selected && selectedSkills.length >= MAX_SKILLS}
-                                                            onClick={() => toggleSkill(skill.skillId)}
-                                                            className={`px-3 py-1.5 rounded-lg text-[12px] transition disabled:opacity-40 disabled:cursor-not-allowed ${selected ? 'bg-[#0071E3] text-white' : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#EBEBF0]'}`}
-                                                        >
-                                                            {skill.name}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </fieldset>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
-
-            {/* Results */}
-            <div className="max-w-[1200px] mx-auto px-6 py-6">
-                {/* Count */}
-                <div className="flex items-center justify-between mb-5">
-                    <p className="text-[13px] text-[#6E6E73]">
-                        <span className="text-[#1D1D1F]" style={{ fontWeight: 500 }}>{total}</span> vị trí phù hợp
-                        {isPending && <span className="ml-2 text-[#AEAEB2] animate-pulse">Đang tải…</span>}
-                    </p>
-                </div>
-
-                {/* Job Grid or Empty */}
-                {initialJobs.length === 0 ? (
-                    <div className="bg-white rounded-2xl border border-[#E5E5EA] py-20 flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-[#F5F5F7] flex items-center justify-center">
-                            <Briefcase className="w-8 h-8 text-[#AEAEB2]" />
+                                </fieldset>
+                            ) : null}
                         </div>
-                        <div className="text-center">
-                            <p className="text-[17px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>Không tìm thấy vị trí phù hợp</p>
-                            <p className="text-[14px] text-[#6E6E73] mt-1">Thử thay đổi từ khóa hoặc bộ lọc</p>
+                    ) : null}
+
+                    {activeFilters.length > 0 || clearBesideChips ? (
+                        <div role="group" aria-labelledby={chipsLabelId} className="mt-4 flex flex-wrap items-center gap-2">
+                            <span id={chipsLabelId} className="mr-1 text-caption text-ink-3">Đang lọc</span>
+                            {activeFilters.map(f => (
+                                <button
+                                    key={f.key}
+                                    type="button"
+                                    aria-label={`Bỏ lọc ${f.chip}`}
+                                    title={f.chip}
+                                    onClick={f.remove}
+                                    className="group inline-flex h-8 min-w-0 max-w-[16rem] select-none items-center gap-1 rounded-ctl bg-surface pl-2.5 pr-1.5 text-body-sm text-ink shadow-e1 transition duration-hover ease-out-expo hover:shadow-e3 active:scale-[.97] active:duration-press"
+                                >
+                                    <span className="min-w-0 truncate">{f.chip}</span>
+                                    <X
+                                        aria-hidden="true"
+                                        size={14}
+                                        strokeWidth={1.75}
+                                        className="shrink-0 text-ink-3 transition-colors duration-hover group-hover:text-ink"
+                                    />
+                                </button>
+                            ))}
+                            {clearBesideChips ? (
+                                <Button variant="ghost" size="sm" onClick={clearFilters}>
+                                    Xóa bộ lọc
+                                </Button>
+                            ) : null}
                         </div>
-                        {hasActiveFilters && (
-                            <button onClick={clearFilters} className="mt-2 px-5 py-2.5 bg-[#0071E3] text-white rounded-xl text-[13px]" style={{ fontWeight: 500 }}>
-                                Xóa tất cả bộ lọc
-                            </button>
+                    ) : null}
+
+                    <div
+                        aria-busy={isPending || undefined}
+                        className={cn('mt-5 transition-opacity duration-hover', isPending && 'opacity-60')}
+                    >
+                        {hasJobs ? (
+                            <Stagger as="ul" className="flex flex-col gap-3">
+                                {initialJobs.map(job => (
+                                    <li key={job.jobId}>
+                                        <JobCard job={job} />
+                                    </li>
+                                ))}
+                            </Stagger>
+                        ) : (
+                            <Surface>{emptyState}</Surface>
                         )}
                     </div>
-                ) : (
-                    <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <AnimatePresence mode="popLayout">
-                            {initialJobs.map(job => (
-                                <motion.div
-                                    key={job.jobId}
-                                    layout
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <JobCard job={job} />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </motion.div>
-                )}
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-10">
-                        <button type="button" aria-label="Trước"
-                            disabled={currentPage <= 1}
-                            onClick={() => applyFilters({ page: currentPage - 1 })}
-                            className="p-2 rounded-xl hover:bg-[#F5F5F7] text-[#6E6E73] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                            .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                            .reduce<(number | '...')[]>((acc, p, i, arr) => {
-                                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('...');
-                                acc.push(p);
-                                return acc;
-                            }, [])
-                            .map((p, i) =>
-                                p === '...' ? (
-                                    <span key={`e${i}`} className="text-[13px] text-[#AEAEB2] px-1">…</span>
+                    {totalPages > 1 ? (
+                        <nav aria-label="Phân trang" className="mt-8 flex flex-wrap items-center justify-center gap-1">
+                            <IconButton
+                                aria-label="Trước"
+                                disabled={currentPage <= 1}
+                                onClick={() => applyFilters({ page: currentPage - 1 })}
+                            >
+                                <ChevronLeft aria-hidden="true" strokeWidth={1.75} />
+                            </IconButton>
+                            {pageItems(totalPages, currentPage).map((p, i) =>
+                                p === '…' ? (
+                                    <span key={`gap-${i}`} aria-hidden="true" className="w-6 text-center text-body-sm text-ink-3">…</span>
                                 ) : (
-                                    <button
+                                    <Button
                                         key={p}
-                                        onClick={() => applyFilters({ page: p as number })}
-                                        className={`w-9 h-9 rounded-xl text-[13px] transition ${currentPage === p ? 'bg-[#0071E3] text-white' : 'text-[#6E6E73] hover:bg-[#F5F5F7]'}`}
-                                        style={{ fontWeight: currentPage === p ? 600 : 400 }}
+                                        variant={currentPage === p ? 'primary' : 'ghost'}
+                                        aria-current={currentPage === p ? 'page' : undefined}
+                                        onClick={() => applyFilters({ page: p })}
+                                        className="min-w-9 tabular-nums"
                                     >
                                         {p}
-                                    </button>
-                                )
+                                    </Button>
+                                ),
                             )}
-                        <button type="button" aria-label="Tiếp"
-                            disabled={currentPage >= totalPages}
-                            onClick={() => applyFilters({ page: currentPage + 1 })}
-                            className="p-2 rounded-xl hover:bg-[#F5F5F7] text-[#6E6E73] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronRight className="w-5 h-5" />
-                        </button>
+                            <IconButton
+                                aria-label="Tiếp"
+                                disabled={currentPage >= totalPages}
+                                onClick={() => applyFilters({ page: currentPage + 1 })}
+                            >
+                                <ChevronRight aria-hidden="true" strokeWidth={1.75} />
+                            </IconButton>
+                        </nav>
+                    ) : null}
+                </div>
+
+                {/* Right rail from 1024 px: a summary of the filters and the way to a CV. */}
+                <aside aria-label="Tóm tắt tìm kiếm" className="hidden lg:block">
+                    <div className="sticky top-[9.5rem] flex flex-col gap-4">
+                        <Surface className="p-5">
+                            <h2 className="text-title-sm text-ink">Bộ lọc đang dùng</h2>
+                            {summary.length === 0 ? (
+                                <p className="mt-1 text-body-sm text-ink-3">Chưa dùng bộ lọc nào.</p>
+                            ) : (
+                                <dl className="mt-3 flex flex-col gap-3">
+                                    {summary.map(row => (
+                                        <div key={row.group} className="min-w-0">
+                                            <dt className="text-caption text-ink-3">{row.group}</dt>
+                                            <dd className="mt-0.5 break-words text-body-sm text-ink">{row.values.join(', ')}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            )}
+                        </Surface>
+                        <Surface variant="inset" className="p-5">
+                            <span className="flex size-9 items-center justify-center rounded-ctl bg-surface text-ink-2 shadow-e1">
+                                <FileText aria-hidden="true" size={18} strokeWidth={1.75} />
+                            </span>
+                            <h2 className="mt-4 text-title-sm text-ink">Chưa có CV?</h2>
+                            <p className="mt-1 text-body-sm text-ink-3">Tải CV để ứng tuyển nhanh hơn.</p>
+                            <ButtonLink href="/my-cvs" variant="secondary" size="sm" className="mt-4">
+                                Tải CV lên
+                            </ButtonLink>
+                        </Surface>
                     </div>
-                )}
+                </aside>
             </div>
         </div>
     );
