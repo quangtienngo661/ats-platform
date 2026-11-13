@@ -16,7 +16,7 @@ const base = {
   cvId: 'cv-1',
   status: 'interview',
   appliedAt: '2026-10-01T02:00:00.000Z',
-  candidate: { user: { fullName: 'Trần Thị Lan', email: 'lan@example.com' } },
+  candidate: { user: { fullName: 'Trần Thị Lan', email: 'lan@example.com', phoneNumber: '0901234567' } },
   jobPosting: { title: 'Kỹ sư backend' },
 } as unknown as IApplicationDto;
 
@@ -30,6 +30,28 @@ describe('CandidateDetailClient', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Trần Thị Lan' })).toBeVisible();
     expect(screen.getByText('Phỏng vấn')).toBeVisible();
+  });
+
+  it('shows the candidate email and phone number so the recruiter can make contact', () => {
+    render(<CandidateDetailClient {...props} application={base} />);
+
+    expect(screen.getByText('lan@example.com')).toBeVisible();
+    expect(screen.getByText('0901234567')).toBeVisible();
+  });
+
+  it('shows the original AI score with one decimal, like the review dialog', () => {
+    const application = {
+      ...base,
+      screening: {
+        status: 'completed',
+        overallScore: 72.46,
+        reviewedAt: '2026-10-30T08:00:00.000Z',
+        reviewedOverallScore: 80,
+      },
+    } as unknown as IApplicationDto;
+    render(<CandidateDetailClient {...props} application={application} />);
+
+    expect(screen.getByText('Điểm AI ban đầu: 72.5')).toBeVisible();
   });
 
   it('shows the reviewed score in the "Gợi ý AI" meter and says the AI only advises', () => {
