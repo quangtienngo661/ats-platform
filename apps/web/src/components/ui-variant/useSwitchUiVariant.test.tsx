@@ -1,6 +1,7 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { toast } from '@/lib/toast';
 import { setUiVariantAction } from '@/servers/ui/ui-variant.action';
 import { UiVariantMenuItem } from './UiVariantMenuItem';
 import { UseModernPill } from './UseModernPill';
@@ -9,12 +10,15 @@ import { useSwitchUiVariant } from './useSwitchUiVariant';
 const router = vi.hoisted(() => ({ refresh: vi.fn() }));
 
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
+vi.mock('@/lib/toast', () => ({ toast: { error: vi.fn() } }));
 vi.mock('@/servers/ui/ui-variant.action', () => ({ setUiVariantAction: vi.fn(async () => undefined) }));
 
 const action = vi.mocked(setUiVariantAction);
 
 // A queued once-implementation must not leak into the next test.
 beforeEach(() => {
+    router.refresh.mockClear();
+    vi.mocked(toast.error).mockClear();
     action.mockReset();
     action.mockResolvedValue(undefined);
 });
@@ -34,6 +38,21 @@ describe('useSwitchUiVariant', () => {
         await act(async () => finish());
         await waitFor(() => expect(result.current.pending).toBe(false));
         expect(router.refresh).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('useSwitchUiVariant when the action fails', () => {
+    it('shows an error toast instead of throwing, and neither refreshes nor calls onDone', async () => {
+        action.mockRejectedValueOnce(new Error('network'));
+        const onDone = vi.fn();
+        const { result } = renderHook(() => useSwitchUiVariant());
+
+        act(() => result.current.switchTo('legacy', onDone));
+
+        await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Không đổi được giao diện. Thử lại.'));
+        await waitFor(() => expect(result.current.pending).toBe(false));
+        expect(router.refresh).not.toHaveBeenCalled();
+        expect(onDone).not.toHaveBeenCalled();
     });
 });
 
