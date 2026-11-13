@@ -102,6 +102,58 @@ describe('Reveal inView', () => {
         expect(observe).not.toHaveBeenCalled();
     });
 
+    it('reveals an element that ended up above the viewport while pending', () => {
+        const { container } = render(<Reveal inView>hello</Reveal>);
+        const el = container.firstElementChild as HTMLElement;
+        expect(el).toHaveAttribute('data-reveal', 'pending');
+        act(() => {
+            callback(
+                [
+                    {
+                        isIntersecting: false,
+                        boundingClientRect: { top: -500 },
+                        target: el,
+                    } as unknown as IntersectionObserverEntry,
+                ],
+                {} as IntersectionObserver,
+            );
+        });
+        expect(el).toHaveAttribute('data-reveal', 'shown');
+        expect(disconnect).toHaveBeenCalled();
+    });
+
+    it('keeps waiting while below the viewport and not intersecting', () => {
+        const { container } = render(<Reveal inView>hello</Reveal>);
+        const el = container.firstElementChild as HTMLElement;
+        act(() => {
+            callback(
+                [
+                    {
+                        isIntersecting: false,
+                        boundingClientRect: { top: 900 },
+                        target: el,
+                    } as unknown as IntersectionObserverEntry,
+                ],
+                {} as IntersectionObserver,
+            );
+        });
+        expect(el).toHaveAttribute('data-reveal', 'pending');
+    });
+
+    it('disconnects the observer when unmounted while pending', () => {
+        const { unmount } = render(<Reveal inView>hello</Reveal>);
+        expect(disconnect).not.toHaveBeenCalled();
+        unmount();
+        expect(disconnect).toHaveBeenCalled();
+    });
+
+    it('never goes pending without IntersectionObserver', () => {
+        vi.stubGlobal('IntersectionObserver', undefined);
+        const { container } = render(<Reveal inView>hello</Reveal>);
+        const el = container.firstElementChild as HTMLElement;
+        expect(el).not.toHaveAttribute('data-reveal');
+    });
+
     it('is visible in the server render', () => {
         const html = renderToString(<Reveal inView>hello</Reveal>);
         expect(html).toContain('hello');

@@ -33,12 +33,12 @@ export function RevealInView({
         setPhase('pending');
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries.some((entry) => entry.isIntersecting)) {
+                if (entries.some((entry) => entry.isIntersecting || entry.boundingClientRect.top < 0)) {
                     setPhase('shown');
                     observer.disconnect();
                 }
             },
-            { threshold: 0.15, rootMargin: '0px 0px -10% 0px' },
+            { threshold: [0, 0.15], rootMargin: '0px 0px -10% 0px' },
         );
         observer.observe(el);
         return () => observer.disconnect();
