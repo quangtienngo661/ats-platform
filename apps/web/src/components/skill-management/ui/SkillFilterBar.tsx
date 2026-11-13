@@ -34,7 +34,7 @@ export function SkillFilterBar({
                 <Input
                     ref={searchRef}
                     aria-label="Tìm kỹ năng"
-                    type="text"
+                    type="search"
                     value={search}
                     onChange={(e) => onSearch(e.target.value)}
                     placeholder="Tìm kiếm kỹ năng…"

@@ -56,7 +56,11 @@ export function SkillRow({ index, skill, onEdit, onDelete }: SkillRowProps) {
 
             <TD>
                 {skill.category ? (
-                    <Badge className="max-w-40 truncate">{skill.category}</Badge>
+                    <Badge className="max-w-40">
+                        <span className="truncate" title={skill.category}>
+                            {skill.category}
+                        </span>
+                    </Badge>
                 ) : (
                     <>
                         <span aria-hidden="true" className="text-ink-4">
@@ -79,6 +83,7 @@ export function SkillRow({ index, skill, onEdit, onDelete }: SkillRowProps) {
                             variant="danger"
                             onClick={() => {
                                 onDelete(skill.skillId);
+                                focusNext.current = 'trigger';
                                 setConfirming(false);
                             }}
                         >

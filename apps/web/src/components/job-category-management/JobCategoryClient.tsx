@@ -66,7 +66,7 @@ export default function JobCategoryClient({ categories }: JobCategoryClientProps
                     <Input
                         ref={searchRef}
                         aria-label="Tìm danh mục"
-                        type="text"
+                        type="search"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Tìm theo tên danh mục…"

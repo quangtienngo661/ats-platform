@@ -124,7 +124,7 @@ function CategoryRow({
                     size="sm"
                     aria-label={toggle.expanded ? `Thu gọn ${category.name}` : `Mở rộng ${category.name}`}
                     aria-expanded={toggle.expanded}
-                    aria-controls={toggle.controls}
+                    aria-controls={toggle.expanded ? toggle.controls : undefined}
                     onClick={toggle.onToggle}
                     className="relative"
                 >
@@ -157,11 +157,15 @@ function CategoryRow({
 }
 
 function RootCategory({ node, ...actions }: RowActions & { node: CategoryNode }) {
-    const [expanded, setExpanded] = useState(true);
+    const [userExpanded, setUserExpanded] = useState(true);
     const listId = useId();
     const { category, children } = node;
-    const childCount = children.length;
-    const totalJobCount = children.reduce(
+    // While searching, a root with a match stays open; the user's own choice comes back when the query clears.
+    const expanded = userExpanded || node.searching;
+    // Counts describe the whole category, not the part a search leaves visible.
+    const allChildren = category.childCategories ?? [];
+    const childCount = allChildren.length;
+    const totalJobCount = allChildren.reduce(
         (sum, child) => sum + (child.jobPostings?.length || 0),
         category.jobPostings?.length || 0,
     );
@@ -176,12 +180,12 @@ function RootCategory({ node, ...actions }: RowActions & { node: CategoryNode })
                     jobCount={totalJobCount}
                     toggle={
                         childCount > 0
-                            ? { expanded, controls: listId, onToggle: () => setExpanded((v) => !v) }
+                            ? { expanded, controls: listId, onToggle: () => setUserExpanded((v) => !v) }
                             : undefined
                     }
                     {...actions}
                 />
-                {expanded && childCount > 0 && (
+                {expanded && children.length > 0 && (
                     <ul id={listId} className="animate-fade-in border-t border-line">
                         {children.map((child) => (
                             <li key={child.categoryId}>

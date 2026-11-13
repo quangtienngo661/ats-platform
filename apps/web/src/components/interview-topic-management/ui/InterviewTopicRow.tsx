@@ -13,7 +13,7 @@ import {
     TR,
 } from '@/components/ui';
 import { IInterviewTopic } from '@/types/interfaces/interview.interface';
-import { DeleteInterviewTopicDialog } from './DeleteInterviewTopicButton';
+import { DeleteInterviewTopicDialog } from './DeleteInterviewTopicDialog';
 
 /** Always visible on touch and narrow screens; on a wide screen with hover it shows on row hover or focus. */
 const MENU_TRIGGER_VISIBILITY =
@@ -29,6 +29,7 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
     const categoryName = topic.category?.name || 'Chưa phân loại';
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const nameId = useId();
+    const reasonId = useId();
     const triggerRef = useRef<HTMLButtonElement>(null);
     /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
     const afterClose = useRef<(() => void) | null>(null);
@@ -82,12 +83,17 @@ export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
                         <DropdownMenuItem
                             destructive
                             disabled={sessions > 0}
-                            title={sessions > 0 ? 'Không thể xóa chủ đề đã có phiên phỏng vấn' : undefined}
+                            aria-describedby={sessions > 0 ? reasonId : undefined}
                             onSelect={() => { afterClose.current = () => setConfirmingDelete(true); }}
                         >
                             <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
                             Xóa
                         </DropdownMenuItem>
+                        {sessions > 0 && (
+                            <p id={reasonId} className="px-2 pb-1 text-caption text-ink-3">
+                                Không thể xóa chủ đề đã có phiên phỏng vấn
+                            </p>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <DeleteInterviewTopicDialog
