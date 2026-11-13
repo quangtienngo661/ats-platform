@@ -152,12 +152,12 @@ html[data-ui="modern"]:has([data-shell="site"]) {
     scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }
-html[data-ui="modern"] h1,
-html[data-ui="modern"] h2,
-html[data-ui="modern"] h3 {
+:where(html[data-ui="modern"]) h1,
+:where(html[data-ui="modern"]) h2,
+:where(html[data-ui="modern"]) h3 {
   text-wrap: balance;
 }
-html[data-ui="modern"] p {
+:where(html[data-ui="modern"]) p {
   text-wrap: pretty;
 }
 @media (prefers-reduced-motion: reduce) {
