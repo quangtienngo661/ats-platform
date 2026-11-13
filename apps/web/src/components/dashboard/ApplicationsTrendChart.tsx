@@ -24,7 +24,10 @@ function usePrefersReducedMotion() {
     );
 }
 
-const TICK = { fill: 'rgb(var(--ink-3))', fontSize: 12 };
+// Colours go through `style`: var() in SVG presentation attributes is not resolved by every engine.
+const ACCENT = 'rgb(var(--accent))';
+const LINE = 'rgb(var(--line))';
+const TICK = { style: { fill: 'rgb(var(--ink-3))' }, fontSize: 12 };
 
 function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number | string }[]; label?: string | number }) {
     if (!active || !payload?.length) return null;
@@ -48,22 +51,21 @@ export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartP
                         <AreaChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="dashboard-trend-fill" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="rgb(var(--accent))" stopOpacity={0.16} />
-                                    <stop offset="100%" stopColor="rgb(var(--accent))" stopOpacity={0} />
+                                    <stop offset="0%" style={{ stopColor: ACCENT, stopOpacity: 0.16 }} />
+                                    <stop offset="100%" style={{ stopColor: ACCENT, stopOpacity: 0 }} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
+                            <CartesianGrid style={{ stroke: LINE }} vertical={false} />
                             <XAxis dataKey="month" tick={TICK} axisLine={false} tickLine={false} />
                             <YAxis tick={TICK} axisLine={false} tickLine={false} allowDecimals={false} />
-                            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgb(var(--line-strong))' }} />
+                            <Tooltip content={<ChartTooltip />} cursor={{ style: { stroke: 'rgb(var(--line-strong))' } }} />
                             <Area
                                 type="monotone"
                                 dataKey="value"
-                                stroke="rgb(var(--accent))"
+                                style={{ stroke: ACCENT, fill: 'url(#dashboard-trend-fill)' }}
                                 strokeWidth={2}
-                                fill="url(#dashboard-trend-fill)"
                                 dot={false}
-                                activeDot={{ r: 4, fill: 'rgb(var(--accent))', stroke: 'rgb(var(--surface))', strokeWidth: 2 }}
+                                activeDot={{ r: 4, strokeWidth: 2, style: { fill: ACCENT, stroke: 'rgb(var(--surface))' } }}
                                 isAnimationActive={!reduced}
                             />
                         </AreaChart>

@@ -1,10 +1,18 @@
+import { cloneElement, type ReactElement } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IApplicationDto } from '@/types/interfaces/application.interface';
+import ApplicationsTrendChart from './ApplicationsTrendChart';
 import DashboardKpiCards from './DashboardKpiCards';
 import RecruitmentPipeline from './RecruitmentPipeline';
 import OpenJobsList from './OpenJobsList';
 import RecentCandidates from './RecentCandidates';
+
+vi.mock('recharts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('recharts')>()),
+  ResponsiveContainer: ({ children }: { children: ReactElement<{ width?: number; height?: number }> }) =>
+    cloneElement(children, { width: 600, height: 220 }),
+}));
 
 beforeEach(() => {
   vi.stubGlobal('matchMedia', (q: string) => ({
@@ -41,7 +49,7 @@ describe('RecruitmentPipeline', () => {
     render(<RecruitmentPipeline data={data} maxCount={12} />);
     const items = within(screen.getByRole('list', { name: 'Ứng viên theo giai đoạn' })).getAllByRole('listitem');
     expect(items.map((li) => li.textContent)).toEqual([
-      expect.stringMatching(/^Mới.*12$/),
+      expect.stringMatching(/^Ứng tuyển.*12$/),
       expect.stringMatching(/^Sàng lọc.*8$/),
       expect.stringMatching(/^Phỏng vấn.*5$/),
       expect.stringMatching(/^Offer.*2$/),
@@ -86,5 +94,20 @@ describe('lists', () => {
     const link = screen.getByRole('link', { name: /Nguyễn Văn An/ });
     expect(link).toHaveAttribute('href', '/jobs/j1/candidates/a1');
     expect(link).toHaveTextContent('Phỏng vấn');
+  });
+});
+
+describe('ApplicationsTrendChart', () => {
+  it('colours the gradient through style, not an SVG attribute holding var()', () => {
+    const { container } = render(
+      <ApplicationsTrendChart data={[{ month: 'T10', value: 2 }, { month: 'T11', value: 5 }]} />,
+    );
+    const stops = container.querySelectorAll('#dashboard-trend-fill stop');
+    expect(stops).toHaveLength(2);
+    stops.forEach((stop) => {
+      expect(stop.getAttribute('style')).toContain('var(--accent)');
+      expect(stop.hasAttribute('stop-color')).toBe(false);
+    });
+    expect(container.querySelector('[stroke*="var("]')).toBeNull();
   });
 });

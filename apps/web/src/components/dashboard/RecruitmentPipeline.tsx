@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Surface, statusTone } from '@/components/ui';
+import { Surface } from '@/components/ui';
+import { stages } from '@/types/constants/kanban.constants';
 
 interface PipelineItem {
     stage: string;
     count: number;
-    color: string;
+    color: string; // from dashboard.utils; the redesigned pipeline ignores it and uses accent tones
 }
 
 interface RecruitmentPipelineProps {
@@ -13,8 +14,9 @@ interface RecruitmentPipelineProps {
     maxCount: number;
 }
 
-// buildPipelineData labels each stage in Vietnamese; map it back to the status so the wording stays shared.
-const STATUS_BY_STAGE: Record<string, string> = {
+// buildPipelineData labels each stage in Vietnamese; map it back to the Kanban stage so the wording stays shared.
+const STAGE_LABEL_BY_ID = new Map<string, string>(stages.map((st) => [st.id, st.label]));
+const ID_BY_STAGE_LABEL: Record<string, string> = {
     'Ứng tuyển': 'applied',
     'Sàng lọc': 'screening',
     'Phỏng vấn': 'interview',
@@ -36,8 +38,7 @@ export default function RecruitmentPipeline({ data, maxCount }: RecruitmentPipel
             ) : (
                 <ul aria-label="Ứng viên theo giai đoạn" className="mt-5 flex flex-col gap-4">
                     {data.map(({ stage, count }, i) => {
-                        const status = STATUS_BY_STAGE[stage];
-                        const label = status ? statusTone('application', status).label : stage;
+                        const label = STAGE_LABEL_BY_ID.get(ID_BY_STAGE_LABEL[stage]) ?? stage;
                         const ratio = maxCount > 0 ? Math.min(1, count / maxCount) : 0;
                         return (
                             <li key={stage}>
