@@ -52,7 +52,7 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
     const email = application.candidate?.user?.email;
     const phone = application.candidate?.user?.phoneNumber;
     const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${name}`;
-    const appliedAt = application.appliedAt ? new Date(application.appliedAt).toLocaleDateString('vi-VN') : 'N/A';
+    const appliedAt = application.appliedAt ? new Date(application.appliedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A';
 
     const content: Record<CandidateTab, React.ReactNode> = {
         overview: <CandidateOverviewTab application={application} />,
