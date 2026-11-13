@@ -108,6 +108,17 @@ describe('ApplicationsTrendChart', () => {
       expect(stop.getAttribute('style')).toContain('var(--accent)');
       expect(stop.hasAttribute('stop-color')).toBe(false);
     });
-    expect(container.querySelector('[stroke*="var("]')).toBeNull();
+  });
+
+  it('colours the line and the fill area per curve, not through a shared style', () => {
+    const { container } = render(
+      <ApplicationsTrendChart data={[{ month: 'T10', value: 2 }, { month: 'T11', value: 5 }]} />,
+    );
+    const line = container.querySelector('.recharts-area-curve');
+    const area = container.querySelector('.recharts-area-area');
+    expect([line, area]).not.toContain(null);
+    expect(line?.getAttribute('stroke')).toBe('rgb(var(--accent))');
+    expect(line?.getAttribute('style') ?? '').not.toContain('fill:');
+    expect(area?.getAttribute('style') ?? '').not.toContain('stroke:');
   });
 });

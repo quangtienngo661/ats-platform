@@ -62,7 +62,8 @@ export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartP
                             <Area
                                 type="monotone"
                                 dataKey="value"
-                                style={{ stroke: ACCENT, fill: 'url(#dashboard-trend-fill)' }}
+                                stroke={ACCENT}
+                                fill="url(#dashboard-trend-fill)"
                                 strokeWidth={2}
                                 dot={false}
                                 activeDot={{ r: 4, strokeWidth: 2, style: { fill: ACCENT, stroke: 'rgb(var(--surface))' } }}
