@@ -57,6 +57,58 @@ describe('CommandPalette', () => {
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     });
 
+    it('returns focus to the element that had it when Ctrl+K opened the palette', async () => {
+        const user = userEvent.setup();
+        render(
+            <>
+                <button type="button">Trước đó</button>
+                <CommandPalette userRole="recruiter" />
+            </>,
+        );
+        const before = screen.getByRole('button', { name: 'Trước đó' });
+        before.focus();
+        await user.keyboard('{Control>}k{/Control}');
+        await screen.findByRole('dialog', { name: 'Tìm hoặc đi tới' });
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(before).toHaveFocus();
+    });
+
+    it('returns focus to the trigger button when it opened the palette', async () => {
+        const user = userEvent.setup();
+        render(<CommandPalette userRole="recruiter" />);
+        const trigger = screen.getAllByRole('button', { name: /Tìm hoặc đi tới/ })[0];
+        await user.click(trigger);
+        await screen.findByRole('dialog', { name: 'Tìm hoặc đi tới' });
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(trigger).toHaveFocus();
+    });
+
+    it('does not pull focus back to the opener after a command navigates', async () => {
+        const user = userEvent.setup();
+        render(
+            <>
+                <button type="button">Trước đó</button>
+                <CommandPalette userRole="recruiter" />
+            </>,
+        );
+        const before = screen.getByRole('button', { name: 'Trước đó' });
+        before.focus();
+        await user.keyboard('{Control>}k{/Control}');
+        await screen.findByRole('dialog', { name: 'Tìm hoặc đi tới' });
+        await user.keyboard('lich{Enter}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(router.push).toHaveBeenCalledWith('/interviews');
+        expect(before).not.toHaveFocus();
+    });
+
+    it('gives each result group an accessible name', async () => {
+        await openPalette();
+        expect(screen.getByRole('group', { name: 'Đi tới' })).toBeInTheDocument();
+        expect(screen.getByRole('group', { name: 'Giao diện' })).toBeInTheDocument();
+    });
+
     it('moves the active option with the arrows and wraps', async () => {
         const { user } = await openPalette();
         const input = screen.getByRole('combobox');
