@@ -52,7 +52,7 @@ export function WithdrawApplicationForm({
                     if (!isPending) setOpen(next);
                 }}
                 title="Rút đơn ứng tuyển?"
-                description="Đơn chuyển sang trạng thái Đã rút và bạn không thể hoàn tác."
+                description="Đơn sẽ chuyển sang Đã rút. Bạn có thể ứng tuyển lại vào tin này sau."
                 size="sm"
                 footer={
                     <>
