@@ -154,4 +154,38 @@ describe('InterviewResultClient', () => {
         expect(screen.getByRole('meter', { name: 'Câu 2' })).toHaveAttribute('aria-valuenow', '40');
         expect(screen.queryByText('Chưa có điểm')).toBeNull();
     });
+
+    // A zero is a real score (every answer wrong); only a missing or unreadable value means "not scored".
+    function withQuestionScore(score: unknown): IInterviewResult {
+        const only = qna({ qnaId: 'q-1', orderIndex: 1, questionText: 'useEffect chạy khi nào?', answerText: 'Không biết.' });
+        return {
+            ...result,
+            session: { ...result.session!, qnas: [{ ...only, correctnessScore: score }] },
+        } as unknown as IInterviewResult;
+    }
+
+    it('shows a question score of "0" as a bar at 0, not as unscored', () => {
+        render(<InterviewResultClient result={withQuestionScore('0')} />);
+
+        expect(screen.getByRole('meter', { name: 'Câu 1' })).toHaveAttribute('aria-valuenow', '0');
+        expect(screen.queryByText('Chưa có điểm')).toBeNull();
+    });
+
+    it('shows an overall score of "0" as a bar at 0', () => {
+        render(<InterviewResultClient result={{ ...result, overallScore: '0' } as unknown as IInterviewResult} />);
+
+        expect(screen.getByRole('meter', { name: 'Điểm tổng' })).toHaveAttribute('aria-valuenow', '0');
+        expect(screen.queryByText('Chưa có điểm')).toBeNull();
+    });
+
+    it.each([
+        ['an empty string', ''],
+        ['null', null],
+        ['text that is not a number', 'abc'],
+    ])('shows a question score of %s as unscored', (_name, score) => {
+        render(<InterviewResultClient result={withQuestionScore(score)} />);
+
+        expect(screen.queryByRole('meter', { name: 'Câu 1' })).toBeNull();
+        expect(screen.getByText('Chưa có điểm')).toBeInTheDocument();
+    });
 });
