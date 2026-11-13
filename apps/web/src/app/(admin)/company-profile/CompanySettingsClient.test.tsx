@@ -15,6 +15,7 @@ describe('CompanySettingsClient', () => {
     expect(screen.getByRole('combobox', { name: 'Lĩnh vực hoạt động' })).toHaveValue('Công nghệ thông tin');
     expect(screen.getByRole('textbox', { name: 'Về công ty' })).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Địa chỉ' })).toHaveValue('123 Nguyễn Huệ, Quận 1, TP.HCM');
+    expect(screen.getByRole('textbox', { name: 'Số điện thoại' })).toHaveValue('+84 28 1234 5678');
     expect(screen.getByRole('textbox', { name: 'Email' })).toHaveValue('contact@acme.com');
     expect(screen.getByRole('textbox', { name: 'Website' })).toHaveValue('https://acme.com');
     expect(screen.getByRole('textbox', { name: 'LinkedIn' })).toBeVisible();

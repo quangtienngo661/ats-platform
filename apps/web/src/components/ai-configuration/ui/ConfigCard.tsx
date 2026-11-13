@@ -106,8 +106,8 @@ export function ConfigCard({
                     />
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1.5">
-                    {profile.isDefault && <Badge tone="success">Mặc định</Badge>}
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                    {profile.isDefault && <Badge tone="accent">Mặc định</Badge>}
                     {isEditing && <Badge tone="warning">Đang chỉnh sửa</Badge>}
                     <Badge tone={totalTone} className="tabular-nums">{`${isEditing ? total : totalOf(profile)}/100`}</Badge>
 
@@ -204,7 +204,7 @@ export function ConfigCard({
                             {/* Save — enabled only when editing AND the weights add up */}
                             <div className="flex items-center justify-between gap-3 pt-2">
                                 <p
-                                    role={isEditing && !isValid ? 'status' : undefined}
+                                    role="status"
                                     className={cn('min-w-0 text-caption', remaining > 0 ? 'text-warning' : 'text-danger')}
                                 >
                                     {isEditing && !isValid

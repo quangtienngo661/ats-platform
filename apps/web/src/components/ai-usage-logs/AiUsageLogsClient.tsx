@@ -9,6 +9,7 @@ import { AiUsageLogsHeader } from './ui/AiUsageLogsHeader';
 import { AiUsageLogsStats } from './ui/AiUsageLogsStats';
 import { AiUsageLogsFilter } from './ui/AiUsageLogsFilter';
 import { AiUsageLogsTable } from './ui/AiUsageLogsTable';
+import { AiUsageLogsPagination } from './ui/AiUsageLogsPagination';
 
 interface AiUsageLogsClientProps {
     logs: IAiUsageLogDto[];
@@ -47,7 +48,18 @@ export default function AiUsageLogsClient({ logs, pagination }: AiUsageLogsClien
             </AiUsageLogsHeader>
             <AiUsageLogsStats logs={logs} />
 
-            {logs.length === 0 ? (
+            {logs.length === 0 && pagination.total > 0 ? (
+                <>
+                    <Surface>
+                        <EmptyState
+                            icon={Zap}
+                            title="Trang này không có nhật ký"
+                            description="Chọn một trang khác bên dưới."
+                        />
+                    </Surface>
+                    <AiUsageLogsPagination pagination={pagination} />
+                </>
+            ) : logs.length === 0 ? (
                 <Surface>
                     <EmptyState
                         icon={Zap}
@@ -56,14 +68,17 @@ export default function AiUsageLogsClient({ logs, pagination }: AiUsageLogsClien
                     />
                 </Surface>
             ) : filteredLogs.length === 0 ? (
-                <Surface>
-                    <EmptyState
-                        icon={SearchX}
-                        title="Không có nhật ký khớp"
-                        description="Đổi bộ lọc để xem kết quả khác."
-                        action={<Button variant="secondary" onClick={clearFilters}>Xóa bộ lọc</Button>}
-                    />
-                </Surface>
+                <>
+                    <Surface>
+                        <EmptyState
+                            icon={SearchX}
+                            title="Không có nhật ký khớp"
+                            description="Đổi bộ lọc để xem kết quả khác."
+                            action={<Button variant="secondary" onClick={clearFilters}>Xóa bộ lọc</Button>}
+                        />
+                    </Surface>
+                    <AiUsageLogsPagination pagination={pagination} />
+                </>
             ) : (
                 <AiUsageLogsTable logs={filteredLogs} pagination={pagination} />
             )}

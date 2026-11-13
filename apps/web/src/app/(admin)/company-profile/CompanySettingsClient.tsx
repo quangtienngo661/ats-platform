@@ -39,11 +39,11 @@ export function CompanySettingsClient() {
     <div className="mx-auto max-w-[720px] space-y-4 p-4 lg:p-6">
       <PageToolbar title="Thông tin công ty" />
 
-      <Surface as="dl" className="grid grid-cols-2 sm:grid-cols-4">
+      <Surface as="dl" className="grid grid-cols-1 divide-y divide-line sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         {STATS.map(([label, val]) => (
           <div
             key={label}
-            className="min-w-0 border-line px-4 py-3 [&:nth-child(even)]:border-l [&:nth-child(n+3)]:border-t sm:[&:nth-child(n+3)]:border-t-0 sm:[&:not(:first-child)]:border-l"
+            className="min-w-0 flex items-baseline justify-between gap-3 px-4 py-2.5 sm:block sm:py-3"
           >
             <dt className="truncate text-caption text-ink-3" title={label}>{label}</dt>
             <dd className="mt-0.5 text-title-sm tabular-nums text-ink">{val}</dd>

@@ -48,12 +48,24 @@ describe('ConfigCard — weight total and default badge', () => {
     expect(onUpdate).not.toHaveBeenCalled();
   });
 
-  it('offers set-default and delete only on a non-default profile', async () => {
+  it('offers set-default and delete on a non-default profile, but not on the default one', async () => {
     const user = userEvent.setup();
-    renderCard(base);
+    const { unmount } = render(
+      <ConfigCard profile={base} onUpdate={vi.fn()} onDelete={vi.fn()} onSetDefault={vi.fn()} onDuplicate={vi.fn()} />,
+    );
     await user.click(screen.getByRole('button', { name: 'Tùy chọn' }));
-    const menu = await screen.findByRole('menu');
+    let menu = await screen.findByRole('menu');
     expect(within(menu).getByRole('menuitem', { name: 'Đặt làm mặc định' })).toBeInTheDocument();
     expect(within(menu).getByRole('menuitem', { name: 'Xóa cấu hình' })).toBeInTheDocument();
+    unmount();
+
+    render(
+      <ConfigCard profile={{ ...base, isDefault: true }} onUpdate={vi.fn()} onDelete={vi.fn()} onSetDefault={vi.fn()} onDuplicate={vi.fn()} />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Tùy chọn' }));
+    menu = await screen.findByRole('menu');
+    expect(within(menu).getByRole('menuitem', { name: 'Nhân bản' })).toBeInTheDocument();
+    expect(within(menu).queryByRole('menuitem', { name: 'Đặt làm mặc định' })).not.toBeInTheDocument();
+    expect(within(menu).queryByRole('menuitem', { name: 'Xóa cấu hình' })).not.toBeInTheDocument();
   });
 });

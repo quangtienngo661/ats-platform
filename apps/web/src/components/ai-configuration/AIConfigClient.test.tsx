@@ -32,7 +32,8 @@ describe('AIScreeningConfigClient', () => {
 
   it('counts the configurations in the stats strip', () => {
     render(<AIScreeningConfigClient profiles={[profile({}), profile({ configId: 'c2', isDefault: true })]} organizations={[]} />);
-    expect(screen.getByText('Tổng cấu hình').nextElementSibling).toHaveTextContent('2');
+    expect(screen.getByText('Tổng cấu hình').nextElementSibling?.textContent).toBe('2');
+    expect(screen.getByText('Mặc định', { selector: 'dt' }).nextElementSibling?.textContent).toBe('1');
     expect(screen.queryByRole('heading', { name: 'Chưa có cấu hình' })).not.toBeInTheDocument();
   });
 });

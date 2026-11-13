@@ -13,9 +13,12 @@ const FORM_ID = 'add-ai-profile-form';
 
 export function AddProfileModal({
     onClose,
+    open = true,
     organizations = [],
 }: {
     onClose: () => void;
+    /** The caller may keep the modal mounted so the close animation plays; remount it (new key) to reset the form. */
+    open?: boolean;
     /** Offered only to a platform admin, which must say whose config this is. */
     organizations?: IOrganizationOption[];
 }) {
@@ -48,7 +51,7 @@ export function AddProfileModal({
 
     return (
         <Dialog
-            open
+            open={open}
             onOpenChange={(open) => {
                 if (!open && !isPending) onClose();
             }}
@@ -139,7 +142,7 @@ export function AddProfileModal({
                 <section className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
                         <h3 className="text-body-sm font-medium text-ink">Ngưỡng điểm tối thiểu</h3>
-                        <Badge tone="warning" className="tabular-nums">{`${threshold} pts`}</Badge>
+                        <Badge className="tabular-nums">{`${threshold} pts`}</Badge>
                     </div>
                     <WeightRow
                         tone="threshold" label="Điểm tối thiểu để xét duyệt" ariaLabel="Ngưỡng điểm tối thiểu" unit="pts"

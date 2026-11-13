@@ -24,6 +24,12 @@ interface Props {
 
 export default function AIScreeningConfigClient({ profiles, organizations }: Props) {
     const [showModal, setShowModal] = useState(false);
+    // A new key per opening gives the form fresh state while the closing animation still sees the old one.
+    const [modalKey, setModalKey] = useState(0);
+    const openModal = () => {
+        setModalKey((k) => k + 1);
+        setShowModal(true);
+    };
 
     const updateProfile = async (updated: ConfigProfile) => {
         const result = await updateAIConfigAction(updated);
@@ -70,7 +76,7 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
     return (
         <div className="space-y-4 p-4 lg:p-6">
             <PageToolbar title="Cấu hình AI Screening">
-                <Button onClick={() => setShowModal(true)}>
+                <Button onClick={openModal}>
                     <Plus aria-hidden="true" strokeWidth={1.75} />
                     Thêm cấu hình mới
                 </Button>
@@ -92,7 +98,7 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
                         title="Chưa có cấu hình"
                         description="Cấu hình đầu tiên đặt trọng số cho việc sàng lọc CV."
                         action={
-                            <Button onClick={() => setShowModal(true)}>
+                            <Button onClick={openModal}>
                                 <Plus aria-hidden="true" strokeWidth={1.75} />
                                 Thêm cấu hình mới
                             </Button>
@@ -122,7 +128,7 @@ export default function AIScreeningConfigClient({ profiles, organizations }: Pro
                 <li>Dùng &quot;Nhân bản&quot; để tạo biến thể nhanh.</li>
             </ul>
 
-            {showModal && <AddProfileModal organizations={organizations} onClose={() => setShowModal(false)} />}
+            <AddProfileModal key={modalKey} open={showModal} organizations={organizations} onClose={() => setShowModal(false)} />
         </div>
     );
 }

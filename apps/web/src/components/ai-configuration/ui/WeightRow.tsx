@@ -9,7 +9,7 @@ export const WEIGHT_TONES = {
     skills: { dot: 'bg-accent', slider: 'accent-accent' },
     experience: { dot: 'bg-ink', slider: 'accent-ink' },
     education: { dot: 'bg-ink-3', slider: 'accent-ink-3' },
-    threshold: { dot: 'bg-warning', slider: 'accent-warning' },
+    threshold: { dot: 'bg-ink-4', slider: 'accent-ink-2' },
 } as const;
 
 export type WeightTone = keyof typeof WEIGHT_TONES;

@@ -22,9 +22,9 @@ export function AiUsageLogsStats({ logs }: AiUsageLogsStatsProps) {
     ];
 
     return (
-        <Surface as="dl" className="grid grid-cols-2 sm:grid-cols-4">
+        <Surface as="dl" className="grid grid-cols-1 divide-y divide-line sm:grid-cols-4 sm:divide-x sm:divide-y-0">
             {stats.map((stat) => (
-                <div key={stat.label} className="min-w-0 border-line px-4 py-3 [&:nth-child(even)]:border-l [&:nth-child(n+3)]:border-t sm:[&:nth-child(n+3)]:border-t-0 sm:[&:not(:first-child)]:border-l">
+                <div key={stat.label} className="min-w-0 flex items-baseline justify-between gap-3 px-4 py-2.5 sm:block sm:py-3">
                     <dt className="truncate text-caption text-ink-3" title={stat.label}>{stat.label}</dt>
                     <dd className="mt-0.5 text-title-sm font-mono tabular-nums text-ink">{stat.value}</dd>
                 </div>
