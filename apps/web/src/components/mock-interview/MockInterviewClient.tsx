@@ -2,61 +2,79 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, History, ArrowRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
-import { IInterviewTopic, ISessionSummary } from '@/types/interfaces/interview.interface';
+import { AnimatePresence } from 'motion/react';
+import { ArrowRight, History } from 'lucide-react';
+import { Button, EmptyState, PageToolbar, Reveal, Surface } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
+import type { IInterviewTopic, ISessionSummary } from '@/types/interfaces/interview.interface';
 import { TopicSelector } from './ui/TopicSelector';
-import { DifficultySelector } from './ui/DifficultySelector';
+import { DifficultySelector, DIFFICULTY_OPTIONS } from './ui/DifficultySelector';
 import { SessionCard } from './ui/SessionCard';
-import { DifficultyLevel } from '@ats-platform/types';
+import { CategoryDropdown } from './ui/CategoryDropdown';
+import type { DifficultyLevel } from '@ats-platform/types';
 import { startInterviewSessionAction, abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useSocketStore } from '@/stores/useSocketStore';
-import { CategoryDropdown } from './ui/CategoryDropdown';
 
 interface MockInterviewClientProps {
     topics: IInterviewTopic[];
     history: ISessionSummary[];
 }
 
+function StepHeading({ number, title, children }: { number: number; title: string; children?: React.ReactNode }) {
+    return (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <h2 className="flex items-center gap-2 text-title-sm text-ink">
+                <span className="flex size-6 items-center justify-center rounded-full bg-surface-2 font-mono text-caption tabular-nums text-ink-2">
+                    {number}
+                </span>
+                {title}
+            </h2>
+            {children}
+        </div>
+    );
+}
+
 export default function MockInterviewClient({ topics, history }: MockInterviewClientProps) {
     const router = useRouter();
     const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-    const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null);
+    const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('medium');
     const [isStarting, setIsStarting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isAbandoning, setIsAbandoning] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [startFailed, setStartFailed] = useState(false);
 
     // Trích xuất các category độc nhất từ danh sách topics
     const categories = Array.from(
-        new Set(topics.map((t) => t.category?.name).filter((name): name is string => !!name))
+        new Set(topics.map((t) => t.category?.name).filter((name): name is string => !!name)),
     );
 
     const handleCategoryChange = (category: string | null) => {
         setSelectedCategory(category);
         setSelectedTopic(null);
-        setSelectedDifficulty(null);
     };
 
-    const filteredTopics = selectedCategory
-        ? topics.filter((t) => t.category?.name === selectedCategory)
-        : topics;
+    const filteredTopics = selectedCategory ? topics.filter((t) => t.category?.name === selectedCategory) : topics;
+    const topic = topics.find((t) => t.topicId === selectedTopic) ?? null;
+    const difficulty = DIFFICULTY_OPTIONS.find((o) => o.value === selectedDifficulty);
 
     const socket = useSocketStore();
 
-    const activeSession = history.find(s => s.status === 'in_progress' || s.status === 'generating');
-    const canStart = selectedTopic && selectedDifficulty && !isStarting && !isAbandoning;
+    const activeSession = history.find((s) => s.status === 'in_progress' || s.status === 'generating');
+    const canStart = !!selectedTopic && !isStarting && !isAbandoning;
 
     const createNewSession = async () => {
-        if (!selectedTopic || !selectedDifficulty) return;
+        if (!selectedTopic) return;
         setIsStarting(true);
+        setStartFailed(false);
         const result = await startInterviewSessionAction(selectedTopic, selectedDifficulty);
         if (result.success) {
             router.push(`/mock-interview/${result.sessionId}`);
         } else {
             setIsStarting(false);
+            setShowConfirmModal(false);
+            setStartFailed(true);
         }
     };
 
@@ -84,126 +102,110 @@ export default function MockInterviewClient({ topics, history }: MockInterviewCl
     useEffect(() => {
         const handleUpdateHistory = () => {
             router.refresh();
-        }
-        socket.onEvent("interview:session_completed", handleUpdateHistory);
+        };
+        socket.onEvent('interview:session_completed', handleUpdateHistory);
 
         return () => {
-            socket.offEvent("interview:session_completed", handleUpdateHistory);
+            socket.offEvent('interview:session_completed', handleUpdateHistory);
         };
     }, [socket, router]);
 
     return (
-        <div className="w-full max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ fontFamily: SFT }}>
-
-            <h1 className="sr-only">Phỏng vấn AI</h1>
-
-            {/* ─── Setup Section ──────────────────────────────────────────── */}
-            <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 mb-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-5">
-                    <Sparkles className="w-4 h-4 text-[#0071E3]" />
-                    <span className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                        Thiết lập phiên phỏng vấn
-                    </span>
-                </div>
-
-                {/* Step 1: Chọn chủ đề */}
-                <div className="mb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                        <p className="text-[12px] text-[#6E6E73] uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                            1. Chọn chủ đề
-                        </p>
-                        <CategoryDropdown
-                            categories={categories}
-                            selectedCategory={selectedCategory}
-                            onSelectCategory={handleCategoryChange}
-                        />
-                    </div>
-                    <TopicSelector
-                        topics={filteredTopics}
-                        selectedId={selectedTopic}
-                        onSelect={setSelectedTopic}
-                    />
-                </div>
-
-                {/* Step 2: Chọn mức độ */}
-                <AnimatePresence>
-                    {selectedTopic && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="mb-6"
-                        >
-                            <p className="text-[12px] text-[#6E6E73] mb-3 uppercase tracking-[0.05em]" style={{ fontWeight: 600 }}>
-                                2. Chọn mức độ
-                            </p>
-                            <DifficultySelector
-                                selected={selectedDifficulty}
-                                onSelect={setSelectedDifficulty}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Start Button */}
-                <AnimatePresence>
-                    {selectedDifficulty && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <button
-                                onClick={handleStart}
-                                disabled={!canStart}
-                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] transition duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#0071E3] to-[#0077ED] hover:from-[#0077ED] hover:to-[#0060C0] text-white"
-                                style={{ fontWeight: 600 }}
-                            >
-                                {isStarting ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        AI đang chuẩn bị đề…
-                                    </>
-                                ) : (
-                                    <>
-                                        Bắt đầu phỏng vấn
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
+            <div>
+                <PageToolbar title="Phỏng vấn thử" />
+                <p className="mt-1 text-body text-ink-3">
+                    AI ra 10 câu theo chủ đề và độ khó bạn chọn, rồi chấm điểm khi bạn làm xong.
+                </p>
             </div>
 
-            {/* ─── History Section ────────────────────────────────────────── */}
-            {history.length > 0 && (
-                <div className={`transition-opacity duration-200 ${isStarting ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <div className="flex items-center gap-2 mb-4">
-                        <History className="w-4 h-4 text-[#6E6E73]" />
-                        <span className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                            Lịch sử phỏng vấn
-                        </span>
-                        <span className="text-[12px] text-[#AEAEB2] ml-1">({history.length})</span>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        {history.map((session, index) => (
-                            <motion.div
-                                key={session.sessionId}
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05, duration: 0.3 }}
-                            >
-                                <SessionCard session={session} />
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+                <Surface variant="raised" className="flex flex-col gap-8 p-5 sm:p-6">
+                    <Reveal as="section">
+                        <StepHeading number={1} title="Chọn chủ đề">
+                            {categories.length > 0 && (
+                                <CategoryDropdown
+                                    categories={categories}
+                                    selectedCategory={selectedCategory}
+                                    onSelectCategory={handleCategoryChange}
+                                />
+                            )}
+                        </StepHeading>
+                        {filteredTopics.length > 0 ? (
+                            <TopicSelector topics={filteredTopics} selectedId={selectedTopic} onSelect={setSelectedTopic} />
+                        ) : (
+                            <p className="text-body-sm text-ink-3">Chưa có chủ đề nào.</p>
+                        )}
+                    </Reveal>
 
-            {/* Confirm Modal */}
+                    <Reveal as="section" delay={0.05}>
+                        <StepHeading number={2} title="Chọn độ khó" />
+                        <DifficultySelector selected={selectedDifficulty} onSelect={setSelectedDifficulty} />
+                    </Reveal>
+
+                    <Reveal as="section" delay={0.1}>
+                        <StepHeading number={3} title="Bắt đầu" />
+                        <p
+                            className={cn(
+                                'mb-4 min-h-6 text-body transition-colors duration-hover',
+                                topic ? 'text-ink' : 'text-ink-3',
+                            )}
+                        >
+                            {topic ? (
+                                <>
+                                    <span className="font-medium">{topic.name}</span>
+                                    <span className="text-ink-3"> · {difficulty?.label}</span>
+                                </>
+                            ) : (
+                                'Chọn chủ đề để tiếp tục.'
+                            )}
+                        </p>
+                        <Button size="lg" variant="accent" onClick={handleStart} disabled={!canStart} loading={isStarting}>
+                            {isStarting ? (
+                                'AI đang chuẩn bị đề…'
+                            ) : (
+                                <>
+                                    Bắt đầu phỏng vấn
+                                    <ArrowRight aria-hidden="true" strokeWidth={1.75} />
+                                </>
+                            )}
+                        </Button>
+                        {startFailed && (
+                            <p role="alert" className="mt-3 text-body-sm text-danger">
+                                Không bắt đầu được phiên phỏng vấn. Thử lại.
+                            </p>
+                        )}
+                    </Reveal>
+                </Surface>
+
+                <Reveal as="section" delay={0.15} className="min-w-0">
+                    <Surface
+                        variant="plain"
+                        className={cn('p-2 transition-opacity duration-hover', isStarting && 'pointer-events-none opacity-50')}
+                    >
+                        <h2 className="flex items-center gap-2 px-3 pb-1 pt-3 text-title-sm text-ink">
+                            <History aria-hidden="true" strokeWidth={1.75} className="size-4 text-ink-3" />
+                            Phiên gần đây
+                        </h2>
+                        {history.length > 0 ? (
+                            <ul className="flex flex-col">
+                                {history.map((session) => (
+                                    <li key={session.sessionId}>
+                                        <SessionCard session={session} />
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <EmptyState
+                                className="py-10"
+                                title="Chưa có phiên nào"
+                                description="Phiên bạn bắt đầu sẽ hiện ở đây."
+                            />
+                        )}
+                    </Surface>
+                </Reveal>
+            </div>
+
             <AnimatePresence>
                 {showConfirmModal && (
                     <ConfirmModal
