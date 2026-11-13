@@ -22,7 +22,13 @@ const ROLE_LABEL: Record<UserRole, string> = {
   [UserRole.candidate]: 'Ứng viên',
 };
 
-const DATE_FORMAT = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+// Fixed zone: the server (UTC) and the browser must print the same day, or hydration fails.
+const DATE_FORMAT = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  timeZone: 'Asia/Ho_Chi_Minh',
+});
 
 function formatDate(iso: string) {
   return DATE_FORMAT.format(new Date(iso));
