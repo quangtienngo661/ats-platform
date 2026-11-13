@@ -196,10 +196,15 @@ này).
   9.699 B (LazyMotion với `m.*` thay cho `motion.*`). React/React DOM, socket.io, sonner không đổi. Chuỗi
   `DropdownMenu`, `Tooltip`, `Popper`, `RovingFocusGroup` có trong first load của nhánh và không có trong `dev`. Việc
   nhóm Radix lớn lên là số đo; **việc nó đến từ "Radix dropdown/tooltip/popper của shell" thì không được xác nhận**:
-  shell ứng viên không dùng `Tooltip` (chỉ `StaffShell` và `StaffSidebar`). Giả thuyết khả dĩ hơn, chưa đo: barrel
-  `@/components/ui/index.ts` được 157 file import, kéo Dialog, Sheet, DropdownMenu, Tooltip vào mọi route; và
-  `NotificationPanel.tsx` dùng `motion.div` (bản đầy đủ của Motion), nên chỉ đổi `domMax` thành `domAnimation` sẽ không
-  làm gì nhỏ đi. Không có số riêng cho `domMax`. Chưa sửa; ghi lại để quyết định.
+  shell ứng viên không dùng `Tooltip` (chỉ `StaffShell` và `StaffSidebar`). Hai giả thuyết đã nêu (barrel `@/components/ui/index.ts` được 157 file import; `NotificationPanel.tsx` dùng `motion.div`) đã thử
+  ở vòng sửa cuối và không đạt: (14/11/2026, `NODE_ENV=production npx nx build web --skip-nx-cache`, đo ở `dist/apps/web/.next`; `apps/web/.next` là bản cũ, không phải đầu ra của `nx build`): import primitives theo đường dẫn tệp thay cho
+  barrel `@/components/ui` ở `SiteHeader`, `AccountMenu`, `NavDrawer`, `MyApplicationsClient`, và đổi `motion.div` thành
+  `m.div` ở `NotificationPanel` (đã nằm dưới `LazyMotion`). Kết quả, trước → sau (raw / gzip / first load của Next):
+  `/my-applications` 520.628 / 160.005 / 960.068 → 532.405 / 163.824 / 971.845 (+2,3% raw); `/dashboard` 876.554 / 263.004 /
+  1.315.994 → 876.181 / 263.634 / 1.315.621 (không đổi); `/` 514.460 / 158.331 / 953.900 → 526.237 / 162.187 / 965.677. Không đạt
+  ngưỡng giảm 10%, nên đã hoàn lại toàn bộ. Hai thay đổi được thử cùng lúc nên không tách được phần của từng cái;
+  kết quả không ủng hộ giả thuyết nào trong hai (lý do chưa kiểm). Nguồn của ~210 kB Radix vẫn chưa rõ.
+  Không có số riêng cho `domMax`. Chưa sửa; ghi lại để quyết định.
 - **Hạn chế của phép đo.** Phân loại theo chuỗi là phỏng đoán có căn cứ, không phải bản đồ module (`next
   experimental-analyze` ghi dữ liệu nhị phân, chưa đọc được). Chỉ liệt kê được 2 nhóm chính, không đủ 5. `dev` build
   dùng `node_modules` của nhánh (nên `@radix-ui/react-dialog` là 1.3.1 thay vì bản khóa của `dev`), và cần ba

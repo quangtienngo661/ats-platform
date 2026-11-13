@@ -170,9 +170,15 @@ nhánh này. Số liệu đầy đủ: `visual-check.md`, mục "Bundle".
 - Nhóm Radix (dropdown-menu, tooltip, popper, roving focus) chiếm khoảng 85% mức tăng của `/my-applications` theo
   phân loại chuỗi trong chunk (không phải bản đồ module; `next experimental-analyze` ghi dữ liệu nhị phân chưa đọc
   được). **Nguồn gốc của nó chưa xác nhận.** Shell ứng viên không dùng `Tooltip` (chỉ `StaffShell` và `StaffSidebar`
-  dùng). Giả thuyết khả dĩ hơn, chưa đo: barrel `@/components/ui/index.ts` được 157 file import, kéo Dialog, Sheet,
-  DropdownMenu, Tooltip vào mọi route. Và `NotificationPanel.tsx` dùng `motion.div` (bản đầy đủ của Motion), nên chỉ
-  đổi `domMax` thành `domAnimation` sẽ không làm gì nhỏ đi. Chưa có số riêng cho `domMax`.
+  dùng). Hai giả thuyết đã nêu (barrel `@/components/ui/index.ts` được 157 file import; `NotificationPanel.tsx` dùng `motion.div`, nên chỉ
+  đổi `domMax` thành `domAnimation` sẽ không làm gì nhỏ đi) đã thử cùng lúc trong một lượt build. Đã thử, không đáng (14/11/2026, `NODE_ENV=production npx nx build web --skip-nx-cache`, đo ở `dist/apps/web/.next`; `apps/web/.next` là bản cũ, không phải đầu ra của `nx build`): import primitives theo đường dẫn tệp thay cho
+  barrel `@/components/ui` ở `SiteHeader`, `AccountMenu`, `NavDrawer`, `MyApplicationsClient`, và đổi `motion.div` thành
+  `m.div` ở `NotificationPanel` (đã nằm dưới `LazyMotion`). Kết quả, trước → sau (raw / gzip / first load của Next):
+  `/my-applications` 520.628 / 160.005 / 960.068 → 532.405 / 163.824 / 971.845 (+2,3% raw); `/dashboard` 876.554 / 263.004 /
+  1.315.994 → 876.181 / 263.634 / 1.315.621 (không đổi); `/` 514.460 / 158.331 / 953.900 → 526.237 / 162.187 / 965.677. Không đạt
+  ngưỡng giảm 10%, nên đã hoàn lại toàn bộ. Hai thay đổi được thử cùng lúc nên không tách được phần của từng cái;
+  kết quả không ủng hộ giả thuyết nào trong hai (lý do chưa kiểm). Nguồn của ~210 kB Radix vẫn chưa rõ.
+  Chưa có số riêng cho `domMax`.
 - Số "2,5–3,5×" ở bản ghi đầu của Task 33 là lỗi script (đếm mỗi chunk hai lần), đã thay bằng bảng trên.
 - Việc tiếp theo: tải muộn menu và tooltip của shell, hoặc thu nhỏ shell. Chưa làm.
 
