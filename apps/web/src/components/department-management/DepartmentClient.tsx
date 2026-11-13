@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { SFT } from '@/types/fonts/fonts';
+import { useRef, useState } from 'react';
+import { Building2, SearchX } from 'lucide-react';
+import { Button, EmptyState, Stagger, Surface } from '@/components/ui';
 import { DepartmentHeader } from './ui/DepartmentHeader';
 import { DepartmentStats } from './ui/DepartmentStats';
 import { DepartmentCard } from './ui/DepartmentCard';
@@ -23,6 +24,21 @@ export default function DepartmentClient({ departments, organizations }: Departm
     const [editingDept, setEditingDept] = useState<Department | null>(null);
     const [isEdited, setIsEdited] = useState(false);
     const [dept, setDept] = useState<Department | null>(null);
+    const [search, setSearch] = useState('');
+    const searchRef = useRef<HTMLInputElement>(null);
+
+    const query = search.trim().toLowerCase();
+    const filtered = query
+        ? departments.filter((d) => [d.name, d.description].some((value) => value?.toLowerCase().includes(query)))
+        : departments;
+
+    const clearSearch = () => {
+        setSearch('');
+        // The "Xóa bộ lọc" button disappears with the no-match state; keep focus in the toolbar.
+        searchRef.current?.focus();
+    };
+
+    const handleAdd = () => setShowMutateModal(true);
 
     const handleEdit = (department: Department) => {
         setShowMutateModal(true)
@@ -53,22 +69,43 @@ export default function DepartmentClient({ departments, organizations }: Departm
     }
 
     return (
-        <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-            <DepartmentHeader onAdd={() => setShowMutateModal(true)} />
+        <div className="space-y-4 p-4 lg:p-6">
+            <DepartmentHeader onAdd={handleAdd} search={search} onSearchChange={setSearch} searchRef={searchRef} />
             <DepartmentStats departments={departments} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {departments.map((dept) => (
-                    <DepartmentCard
-                        key={dept.departmentId}
-                        department={dept}
-                        organizationName={organizations.find(org => org.organizationId === dept.organizationId)?.name}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onViewDetail={handleViewDetail}
+            {departments.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={Building2}
+                        title="Chưa có phòng ban"
+                        description="Tạo phòng ban trước khi thêm nhà tuyển dụng."
+                        action={<Button onClick={handleAdd}>Thêm phòng ban đầu tiên</Button>}
                     />
-                ))}
-            </div>
+                </Surface>
+            ) : filtered.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={SearchX}
+                        title="Không có phòng ban khớp"
+                        description="Đổi từ khóa tìm kiếm."
+                        action={<Button variant="secondary" onClick={clearSearch}>Xóa bộ lọc</Button>}
+                    />
+                </Surface>
+            ) : (
+                <Stagger as="ul" className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {filtered.map((dept) => (
+                        <li key={dept.departmentId} className="min-w-0">
+                            <DepartmentCard
+                                department={dept}
+                                organizationName={organizations.find(org => org.organizationId === dept.organizationId)?.name}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onViewDetail={handleViewDetail}
+                            />
+                        </li>
+                    ))}
+                </Stagger>
+            )}
 
             {showMutateModal && <MutateDepartmentModal
                 onClose={() => { setShowMutateModal(false); setIsEdited(false) }}

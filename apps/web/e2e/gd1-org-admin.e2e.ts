@@ -331,7 +331,9 @@ test.describe('GĐ1 tuần cuối — portal org_admin với hai tổ chức th�
     const oldRefresh = (await organizationContext.cookies()).find((cookie) => cookie.name === 'refreshToken')!.value;
     await adminPage.goto('/user-management');
     const row = adminPage.getByRole('row').filter({ hasText: fixture.adminA.email });
-    await row.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
+    // Row actions live in the row's "Tùy chọn" menu (UI redesign, Task 28).
+    await row.getByRole('button', { name: 'Tùy chọn', exact: true }).click();
+    await adminPage.getByRole('menuitem', { name: 'Chỉnh sửa', exact: true }).click();
     await adminPage.getByRole('combobox', { name: /Tổ chức/ }).selectOption(fixture.orgB.id);
     await adminPage.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
     await expect(adminPage.getByRole('heading', { name: /Chỉnh sửa người dùng|Cập nhật người dùng/ })).toBeHidden();

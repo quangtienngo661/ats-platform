@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
-import { UserRow } from './UserRow';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { IOrganizationOption } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
+import { IconButton, Table, TBody, TH, THead } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
+import { UserRow } from './UserRow';
 
 interface UserTableProps {
   users: IUserResponseDto[];
@@ -15,114 +16,87 @@ interface UserTableProps {
 }
 
 const PAGE_SIZE = 20;
-const COLS = ['Người dùng', 'Vai trò', 'Trạng thái', 'Ngày tạo', 'Thao tác'];
 
+/** Page numbers around the current one, with "…" where a run is skipped. */
+function pageItems(current: number, total: number): (number | '...')[] {
+  return Array.from({ length: total }, (_, i) => i + 1)
+    .filter((p) => p === 1 || p === total || Math.abs(p - current) <= 1)
+    .reduce<(number | '...')[]>((acc, p, i, arr) => {
+      if (i > 0 && p - arr[i - 1] > 1) acc.push('...');
+      acc.push(p);
+      return acc;
+    }, []);
+}
+
+/** The list of users. The caller shows the empty and no-match states, so `users` is never empty here. */
 export function UserTable({ users, onEdit, onDelete, organizations = [] }: UserTableProps) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
   const safe = Math.min(page, totalPages);
   const paginated = users.slice((safe - 1) * PAGE_SIZE, safe * PAGE_SIZE);
 
-  if (users.length === 0) {
-    return (
-      <div className="bg-white rounded-2xl border border-[#E5E5EA] py-16 flex flex-col items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-[#E3F2FF] flex items-center justify-center">
-          <Users className="w-7 h-7 text-[#0071E3]" />
-        </div>
-        <div className="text-center">
-          <p
-            className="text-[15px] text-[#1D1D1F]"
-            style={{ fontFamily: SF, fontWeight: 600 }}
-          >
-            Không tìm thấy người dùng
-          </p>
-          <p className="text-[13px] text-[#6E6E73] mt-1" style={{ fontFamily: SFT }}>
-            Thử thay đổi bộ lọc hoặc thêm người dùng mới
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-2xl border border-[#E5E5EA] overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#F2F2F7] bg-[#FAFAFA]">
-              {COLS.map((col, i) => (
-                <th
-                  key={col}
-                  className={`px-6 py-3.5 text-[11px] uppercase tracking-widest text-[#AEAEB2] ${i === COLS.length - 1 ? 'text-right' : 'text-left'
-                    }`}
-                  style={{ fontFamily: SF, fontWeight: 600 }}
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((user) => (
-              <UserRow
-                key={user.userId}
-                user={user}
-                organizationName={organizations.find(org => org.organizationId === user.organizationId)?.name}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="space-y-3">
+      <Table>
+        <THead>
+          <tr className="border-b border-line">
+            <TH>Người dùng</TH>
+            <TH>Vai trò</TH>
+            <TH>Trạng thái</TH>
+            <TH className="max-sm:hidden">Ngày tạo</TH>
+            <TH className="w-px">
+              <span className="sr-only">Thao tác</span>
+            </TH>
+          </tr>
+        </THead>
+        <TBody>
+          {paginated.map((user) => (
+            <UserRow
+              key={user.userId}
+              user={user}
+              organizationName={organizations.find((org) => org.organizationId === user.organizationId)?.name}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </TBody>
+      </Table>
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-[#F2F2F7]">
-          <p className="text-[12px] text-[#6E6E73]" style={{ fontFamily: SFT }}>
-            {(safe - 1) * PAGE_SIZE + 1}–{Math.min(safe * PAGE_SIZE, users.length)} /{' '}
-            {users.length} người dùng
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-caption tabular-nums text-ink-3">
+            {(safe - 1) * PAGE_SIZE + 1}–{Math.min(safe * PAGE_SIZE, users.length)} / {users.length} người dùng
           </p>
-          <div className="flex items-center gap-1">
-            <button type="button" aria-label="Trước"
-              disabled={safe === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - safe) <= 1)
-              .reduce<(number | '...')[]>((acc, p, i, arr) => {
-                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('...');
-                acc.push(p);
-                return acc;
-              }, [])
-              .map((p, i) =>
-                p === '...' ? (
-                  <span key={`e-${i}`} className="px-2 text-[12px] text-[#AEAEB2]">
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p as number)}
-                    className={`w-7 h-7 rounded-lg text-[12px] transition-colors ${safe === p ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F] hover:bg-[#F5F5F7]'
-                      }`}
-                    style={{ fontFamily: SF, fontWeight: safe === p ? 700 : 400 }}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-            <button type="button" aria-label="Tiếp"
-              disabled={safe === totalPages}
-              onClick={() => setPage((p) => p + 1)}
-              className="p-1.5 rounded-lg text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          <nav aria-label="Phân trang người dùng" className="flex items-center gap-1">
+            <IconButton size="sm" aria-label="Trước" disabled={safe === 1} onClick={() => setPage(safe - 1)}>
+              <ChevronLeft aria-hidden="true" strokeWidth={1.75} />
+            </IconButton>
+            {pageItems(safe, totalPages).map((p, i) =>
+              p === '...' ? (
+                <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-caption text-ink-3">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  type="button"
+                  aria-label={`Trang ${p}`}
+                  aria-current={safe === p ? 'page' : undefined}
+                  onClick={() => setPage(p)}
+                  className={cn(
+                    'inline-flex size-8 items-center justify-center rounded-ctl text-caption tabular-nums',
+                    'transition duration-press ease-out-expo active:scale-[.97]',
+                    safe === p ? 'bg-ink text-surface' : 'text-ink-2 hover:bg-ink/5 hover:text-ink',
+                  )}
+                >
+                  {p}
+                </button>
+              ),
+            )}
+            <IconButton size="sm" aria-label="Tiếp" disabled={safe === totalPages} onClick={() => setPage(safe + 1)}>
+              <ChevronRight aria-hidden="true" strokeWidth={1.75} />
+            </IconButton>
+          </nav>
         </div>
       )}
     </div>

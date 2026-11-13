@@ -1,16 +1,12 @@
 'use client';
+
+import { useActionState, useEffect, useState } from 'react';
 import { useLatestCallback } from '@/lib/useLatestCallback';
-
-import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
-
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { X, UserPlus } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
 import { createUserAction, type UserActionState } from '@/servers/users/users.action';
 import { toast } from '@/lib/toast';
 import { IOrganizationOption, UserRole, UserStatus } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
+import { Button, Dialog, Field, Input, Select } from '@/components/ui';
 
 interface AddUserModalProps {
   organizations?: IOrganizationOption[];
@@ -30,22 +26,15 @@ const STATUSES: { value: UserStatus; label: string }[] = [
   { value: UserStatus.inactive, label: 'Ngưng' },
 ];
 
-const inputCls =
-  'w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]';
-const selectCls = `${inputCls} cursor-pointer appearance-none`;
-
 const INITIAL_STATE: UserActionState = { success: false, message: '' };
 
+const FORM_ID = 'add-user-form';
+
 export function AddUserModal({ onClose, onCreated, organizations = [] }: AddUserModalProps) {
-    const onCloseLatest = useLatestCallback(onClose);
-    const onCreatedLatest = useLatestCallback(onCreated);
+  const onCloseLatest = useLatestCallback(onClose);
+  const onCreatedLatest = useLatestCallback(onCreated);
   const [state, formAction, isPending] = useActionState(createUserAction, INITIAL_STATE);
   const [role, setRole] = useState<UserRole>(UserRole.recruiter);
-  const nameRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    nameRef.current?.focus();
-  }, []);
 
   useEffect(() => {
     if (!state.message) return;
@@ -59,206 +48,106 @@ export function AddUserModal({ onClose, onCreated, organizations = [] }: AddUser
   }, [state, onCloseLatest, onCreatedLatest]);
 
   return (
-    <AccessibleDialog onClose={onClose} dismissible={!isPending}><AnimatePresence>
-      <DialogOverlay asChild><motion.div
-        key="backdrop"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-        
-      >
-        <DialogContent title="Thêm người dùng"><motion.div
-          key="modal"
-          initial={{ opacity: 0, scale: 0.96, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 12 }}
-          transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
-          
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !isPending) onClose();
+      }}
+      title="Thêm người dùng"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Hủy
+          </Button>
+          <Button type="submit" form={FORM_ID} loading={isPending}>
+            {isPending ? 'Đang tạo…' : 'Tạo tài khoản'}
+          </Button>
+        </>
+      }
+    >
+      {/* Radix puts focus on the first field ("Họ và tên") as the dialog opens. */}
+      <form id={FORM_ID} action={formAction} className="space-y-4">
+        {!state.success && state.message && (
+          <div className="rounded-ctl bg-danger-soft px-3 py-2 text-body-sm text-danger">{state.message}</div>
+        )}
+
+        <Field label="Họ và tên" required>
+          {(f) => <Input {...f} name="fullName" type="text" placeholder="Nguyễn Văn A" />}
+        </Field>
+
+        <Field label="Email" required>
+          {(f) => (
+            <Input
+              {...f}
+              name="email"
+              type="email"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder="email@company.com"
+            />
+          )}
+        </Field>
+
+        <Field
+          label="Mật khẩu"
+          required
+          hint="Tối thiểu 8 ký tự, có chữ hoa, số, ký tự đặc biệt. Ví dụ: StrongP@ss1"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7] flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#E3F2FF] flex items-center justify-center">
-                <UserPlus className="w-4 h-4 text-[#0071E3]" />
-              </div>
-              <h2
-                className="text-[18px] text-[#1D1D1F] tracking-[-0.01em]"
-                style={{ fontFamily: SF, fontWeight: 600 }}
-              >
-                Thêm người dùng
-              </h2>
-            </div>
-            <button aria-label="Đóng"
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          {(f) => <Input {...f} name="password" type="password" />}
+        </Field>
 
-          {/* Body */}
-          <form action={formAction} className="flex flex-col flex-1 overflow-hidden">
-            <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              {!state.success && state.message && (
-                <div
-                  className="px-4 py-3 rounded-xl bg-[#FFE5E5] text-[#FF3B30] text-[13px]"
-                  style={{ fontFamily: SF }}
-                >
-                  {state.message}
-                </div>
-              )}
+        <Field label={<>Số điện thoại <span className="font-normal text-ink-3">(tùy chọn)</span></>}>
+          {(f) => <Input {...f} aria-label="Số điện thoại" name="phone" type="tel" placeholder="+84901234567" />}
+        </Field>
 
-              <div>
-                <label htmlFor="addusermodal-field-1"
-                  className="block text-[13px] text-[#1D1D1F] mb-2"
-                  style={{ fontWeight: 500 }}
-                >
-                  Họ và tên <span className="text-[#FF3B30]">*</span>
-                </label>
-                <input id="addusermodal-field-1"
-                  ref={nameRef}
-                  name="fullName" aria-label="Họ và tên"
-                  type="text"
-                  required
-                  placeholder="Nguyễn Văn A"
-                  className={inputCls}
-                  style={{ fontFamily: SF }}
-                />
-              </div>
+        {role === UserRole.org_admin && (
+          <Field
+            label="Tổ chức"
+            required
+            hint={
+              organizations.length === 0 ? (
+                <span role="status">Chưa có tổ chức để chọn. Vui lòng kiểm tra danh sách tổ chức.</span>
+              ) : undefined
+            }
+          >
+            {(f) => (
+              <Select {...f} name="organizationId" defaultValue="">
+                <option value="">Chọn tổ chức</option>
+                {organizations.map((org) => (
+                  <option key={org.organizationId} value={org.organizationId}>
+                    {org.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        )}
 
-              <div>
-                <label htmlFor="addusermodal-field-2"
-                  className="block text-[13px] text-[#1D1D1F] mb-2"
-                  style={{ fontWeight: 500 }}
-                >
-                  Email <span className="text-[#FF3B30]">*</span>
-                </label>
-                <input id="addusermodal-field-2"
-                  name="email" aria-label="Email"
-                  type="email" autoComplete="off" spellCheck={false}
-                  required
-                  placeholder="email@company.com"
-                  className={inputCls}
-                  style={{ fontFamily: SF }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="addusermodal-field-3"
-                  className="block text-[13px] text-[#1D1D1F] mb-2"
-                  style={{ fontWeight: 500 }}
-                >
-                  Mật khẩu <span className="text-[#FF3B30]">*</span>
-                </label>
-                <input id="addusermodal-field-3"
-                  name="password" aria-label="Mật khẩu"
-                  type="password"
-                  required
-                  placeholder="Tối thiểu 8 ký tự, có chữ hoa, số, ký tự đặc biệt"
-                  className={inputCls}
-                  style={{ fontFamily: SF }}
-                />
-                <p className="text-[11px] text-[#AEAEB2] mt-1.5">Ví dụ: StrongP@ss1</p>
-              </div>
-
-              <div>
-                <label htmlFor="addusermodal-field-4"
-                  className="block text-[13px] text-[#1D1D1F] mb-2"
-                  style={{ fontWeight: 500 }}
-                >
-                  Số điện thoại{' '}
-                  <span className="text-[#AEAEB2] font-normal">(tùy chọn)</span>
-                </label>
-                <input id="addusermodal-field-4"
-                  name="phone" aria-label="Số điện thoại"
-                  type="tel"
-                  placeholder="+84901234567"
-                  className={inputCls}
-                  style={{ fontFamily: SF }}
-                />
-              </div>
-
-              {role === UserRole.org_admin && (
-                <div>
-                  <label htmlFor="Add-organization" className="block text-[13px] mb-2">Tổ chức *</label>
-                  <select id="Add-organization" aria-label="Tổ chức" name="organizationId" required className={selectCls} defaultValue={''}>
-                    <option value="">Chọn tổ chức</option>
-                    {organizations.map(org => <option key={org.organizationId} value={org.organizationId}>{org.name}</option>)}
-                  </select>
-                  {organizations.length === 0 && <p role="status">Chưa có tổ chức để chọn. Vui lòng kiểm tra danh sách tổ chức.</p>}
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="addusermodal-field-5"
-                    className="block text-[13px] text-[#1D1D1F] mb-2"
-                    style={{ fontWeight: 500 }}
-                  >
-                    Vai trò <span className="text-[#FF3B30]">*</span>
-                  </label>
-                  <select id="addusermodal-field-5"
-                    name="role" aria-label="Vai trò"
-                    value={role}
-                    onChange={event => setRole(event.target.value as UserRole)}
-                    className={selectCls}
-                    style={{ fontFamily: SF }}
-                  >
-                    {ROLES.map((r) => (
-                      <option key={r.value} value={r.value}>
-                        {r.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="addusermodal-field-6"
-                    className="block text-[13px] text-[#1D1D1F] mb-2"
-                    style={{ fontWeight: 500 }}
-                  >
-                    Trạng thái
-                  </label>
-                  <select id="addusermodal-field-6"
-                    name="status" aria-label="Trạng thái"
-                    defaultValue={UserStatus.active}
-                    className={selectCls}
-                    style={{ fontFamily: SF }}
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-[#F2F2F7] flex gap-3 flex-shrink-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-3 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px]"
-                style={{ fontWeight: 500 }}
-              >
-                Hủy
-              </button>
-              <motion.button
-                type="submit"
-                disabled={isPending}
-                whileTap={{ scale: 0.97 }}
-                className="flex-1 px-4 py-3 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
-                style={{ fontWeight: 600 }}
-              >
-                {isPending ? 'Đang tạo…' : 'Tạo tài khoản'}
-              </motion.button>
-            </div>
-          </form>
-        </motion.div></DialogContent>
-      </motion.div></DialogOverlay>
-    </AnimatePresence></AccessibleDialog>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Vai trò" required>
+            {(f) => (
+              <Select {...f} name="role" value={role} onChange={(event) => setRole(event.target.value as UserRole)}>
+                {ROLES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field label="Trạng thái">
+            {(f) => (
+              <Select {...f} name="status" defaultValue={UserStatus.active}>
+                {STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+        </div>
+      </form>
+    </Dialog>
   );
 }

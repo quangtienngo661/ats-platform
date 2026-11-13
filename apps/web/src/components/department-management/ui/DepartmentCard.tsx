@@ -1,12 +1,17 @@
-// "use client"
+'use client';
 
-import { Building2, Edit2, Trash2, Users, ChevronRight } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
-
+import { useId, useRef } from 'react';
+import { MoreHorizontal, Pencil, Trash2, Users } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    IconButton,
+    Surface,
+} from '@/components/ui';
 import { Department } from '@/types/interfaces/departments.interface';
-
-
-
 
 interface DepartmentCardProps {
     department: Department;
@@ -16,60 +21,96 @@ interface DepartmentCardProps {
     onViewDetail: (id: string) => void;
 }
 
+/** Always visible on touch and narrow screens; on a wide screen with hover it shows on card hover or focus. */
+const MENU_TRIGGER_VISIBILITY =
+    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
+
 export function DepartmentCard({ department: dept, onEdit, onDelete, onViewDetail, organizationName }: DepartmentCardProps) {
-    // const [showAddModal, setShowAddModal] = useState(false);
+    const nameId = useId();
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    /** Runs once the menu has closed and focus is back on its trigger, so the dialog it opens returns focus there. */
+    const afterClose = useRef<(() => void) | null>(null);
+
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-5 hover:shadow-lg hover:shadow-black/5 transition">
-            <div className="flex items-start justify-between mb-4">
-                <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background: `${dept.color}15` }}
-                >
-                    <Building2 className="w-6 h-6" style={{ color: dept.color }} />
+        <Surface as="article" className="group flex h-full flex-col gap-3 p-4 transition-shadow duration-hover hover:shadow-e2">
+            <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                    {organizationName && (
+                        <p className="mb-1 truncate text-caption text-ink-3" title={organizationName}>
+                            Tổ chức: {organizationName}
+                        </p>
+                    )}
+                    <div className="flex min-w-0 items-center gap-2">
+                        {/* The department's own colour (user data) marks it across the admin screens. */}
+                        <span
+                            aria-hidden="true"
+                            className="size-2.5 shrink-0 rounded-full bg-line-strong"
+                            style={dept.color ? { backgroundColor: dept.color } : undefined}
+                        />
+                        <h2 id={nameId} className="min-w-0 break-words text-title-sm text-ink">
+                            {dept.name}
+                        </h2>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                    <button
-                        type="button"
-                        aria-label={`Sửa phòng ban ${dept.name}`}
-                        onClick={() => onEdit(dept)}
-                        className="p-2 rounded-lg text-[#0071E3] hover:bg-[#EBF3FD] transition-colors"
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <IconButton
+                            ref={triggerRef}
+                            size="sm"
+                            aria-label="Tùy chọn"
+                            aria-describedby={nameId}
+                            className={`-mr-1 -mt-1 ${MENU_TRIGGER_VISIBILITY}`}
+                        >
+                            <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
+                        </IconButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="end"
+                        onCloseAutoFocus={(e) => {
+                            const run = afterClose.current;
+                            afterClose.current = null;
+                            if (!run) return;
+                            e.preventDefault();
+                            triggerRef.current?.focus();
+                            run();
+                        }}
                     >
-                        <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button type="button" aria-label="Xóa"
-                        onClick={() => onDelete(dept)}
-                        className="p-2 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                    {/* {showAddModal && <AddDepartmentModal onClose={() => setShowAddModal(false)} />} */}
-                </div>
+                        <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(dept); }}>
+                            <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Chỉnh sửa
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem destructive onSelect={() => onDelete(dept)}>
+                            <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Xóa
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
-            {organizationName && <p className="text-[12px] text-blue-700 mb-2">Tổ chức: {organizationName}</p>}
-            <h3
-                className="text-[17px] text-[#1D1D1F] mb-1 tracking-[-0.01em]"
-                style={{ fontFamily: SF, fontWeight: 600 }}
-            >
-                {dept.name}
-            </h3>
-            <p className="text-[13px] text-[#6E6E73] leading-relaxed mb-4">{dept.description}</p>
+            {dept.description && (
+                <p className="line-clamp-3 break-words text-body-sm text-ink-2" title={dept.description}>
+                    {dept.description}
+                </p>
+            )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-[#F2F2F7]">
-                <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#AEAEB2]" />
-                    <span className="text-[13px] text-[#6E6E73]">{dept.membersCount} thành viên</span>
-                </div>
+            <div className="mt-auto flex items-center justify-between gap-3 border-t border-line pt-3 text-caption">
+                <span className="inline-flex items-center gap-1.5 text-ink-3">
+                    <Users aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                    <span>
+                        <span className="tabular-nums">{dept.membersCount}</span> thành viên
+                    </span>
+                </span>
                 <button
+                    type="button"
                     onClick={() => onViewDetail(dept.departmentId)}
-                    className="flex items-center gap-1 text-[12px] text-[#0071E3] hover:underline"
-                    style={{ fontWeight: 500 }}
+                    aria-describedby={nameId}
+                    className="inline-flex h-6 items-center rounded-ctl font-medium text-accent-text hover:underline"
                 >
                     Xem chi tiết
-                    <ChevronRight className="w-3.5 h-3.5" />
                 </button>
             </div>
-        </div>
+        </Surface>
     );
 }

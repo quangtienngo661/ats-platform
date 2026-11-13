@@ -1,18 +1,23 @@
 'use client';
 
-import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
-
 import { useState, useActionState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
+import { Check } from 'lucide-react';
 // Import thêm action update
 import { createDepartmentAction, DepartmentState, updateDepartmentAction } from '@/servers/departments/departments.action';
-import SubmitButton from '@/components/common/SubmitButton';
 import { Department } from '@/types/interfaces/departments.interface';
 import { IOrganizationOption } from '@ats-platform/types';
+import { Button, Dialog, Field, Input, Select, Textarea } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 
-const COLOR_OPTIONS = ['#0071E3', '#34C759', '#FF9500', '#6366F1', '#AF52DE', '#FF3B30'];
+/** Stored on the department as data and shown as its marker, so these stay literal colours, not tokens. */
+const COLOR_OPTIONS = [
+    { value: '#0071E3', label: 'Xanh dương' },
+    { value: '#34C759', label: 'Xanh lá' },
+    { value: '#FF9500', label: 'Cam' },
+    { value: '#6366F1', label: 'Chàm' },
+    { value: '#AF52DE', label: 'Tím' },
+    { value: '#FF3B30', label: 'Đỏ' },
+];
 
 interface AddDepartmentModalProps {
     onClose: () => void;
@@ -25,14 +30,16 @@ interface AddDepartmentModalProps {
 
 const initialState = { success: false, message: '' };
 
+const FORM_ID = 'mutate-department-form';
+
 export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult, organizations = [] }: AddDepartmentModalProps) {
     // A department never changes organization, so the picker exists on create only.
     const showOrganizationPicker = !isEdited && organizations.length > 0;
-    const [color, setColor] = useState(isEdited && editingDept?.color ? editingDept.color : COLOR_OPTIONS[0]);
+    const [color, setColor] = useState(isEdited && editingDept?.color ? editingDept.color : COLOR_OPTIONS[0].value);
 
     // 1. Tự động chọn Action dựa trên trạng thái isEdited
     const actionToRun = isEdited ? updateDepartmentAction : createDepartmentAction;
-    const [state, formAction] = useActionState(actionToRun, initialState);
+    const [state, formAction, isPending] = useActionState(actionToRun, initialState);
 
     const onCloseRef = useRef(onClose);
     const onResultRef = useRef(onResult);
@@ -55,136 +62,107 @@ export function MutateDepartmentModal({ onClose, isEdited, editingDept, onResult
     }, [state]);
 
     return (
-        <AccessibleDialog onClose={onClose}><AnimatePresence>
-            <DialogOverlay asChild><motion.div
-                key="backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                
-            >
-                <DialogContent title="Thông tin phòng ban"><motion.div
-                    key="modal"
-                    initial={{ opacity: 0, scale: 0.96, y: 12 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 12 }}
-                    transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    
-                >
-                    <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
-                        <h2
-                            className="text-[20px] text-[#1D1D1F] tracking-[-0.01em]"
-                            style={{ fontFamily: SF, fontWeight: 600 }}
-                        >
-                            {isEdited ? 'Cập nhật phòng ban' : 'Thêm phòng ban mới'}
-                        </h2>
-                        <button aria-label="Đóng"
-                            onClick={onClose}
-                            className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
-                            type="button"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
+        <Dialog
+            open
+            onOpenChange={(open) => {
+                if (!open && !isPending) onClose();
+            }}
+            title={isEdited ? 'Cập nhật phòng ban' : 'Thêm phòng ban mới'}
+            footer={
+                <>
+                    <Button variant="secondary" onClick={onClose}>
+                        Hủy
+                    </Button>
+                    <Button type="submit" form={FORM_ID} loading={isPending}>
+                        {`${isEdited ? 'Cập nhật' : 'Tạo'} phòng ban`}
+                    </Button>
+                </>
+            }
+        >
+            <form id={FORM_ID} action={formAction} className="space-y-4">
+                {/* 2. THÊM HIDDEN INPUT GỬI ID NẾU LÀ CHẾ ĐỘ UPDATE */}
+                {isEdited && editingDept?.departmentId && (
+                    <input type="hidden" name="departmentId" value={editingDept.departmentId} />
+                )}
 
-                    <form action={formAction}>
-                        {/* 2. THÊM HIDDEN INPUT GỬI ID NẾU LÀ CHẾ ĐỘ UPDATE */}
-                        {isEdited && editingDept?.departmentId && (
-                            <input type="hidden" name="departmentId" value={editingDept.departmentId} />
-                        )}
-
-                        <div className="p-6 space-y-4">
-                            {showOrganizationPicker && (
-                                <div>
-                                    <label htmlFor="department-organization" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
-                                        Tổ chức
-                                    </label>
-                                    <select
-                                        id="department-organization"
-                                        name="organizationId"
-                                        required
-                                        defaultValue={organizations.length === 1 ? organizations[0].organizationId : ""}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-white focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
-                                    >
-                                        <option value="" disabled>Chọn tổ chức sở hữu phòng ban</option>
-                                        {organizations.map((organization) => (
-                                            <option key={organization.organizationId} value={organization.organizationId}>
-                                                {organization.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <p className="mt-1.5 text-[12px] text-[#6E6E73]">
-                                        Quản trị viên nền tảng không thuộc tổ chức nào, nên cần chọn tổ chức cho phòng ban mới.
-                                    </p>
-                                </div>
-                            )}
-
-                            <div>
-                                <label htmlFor="mutatedepartmentmodal-field-1" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
-                                    Tên phòng ban
-                                </label>
-                                <input id="mutatedepartmentmodal-field-1"
-                                    type="text"
-                                    name="name"
-                                    required
-                                    placeholder="Nhập tên phòng ban"
-                                    // 3. Đảm bảo fallback về chuỗi rỗng an toàn tuyệt đối
-                                    defaultValue={isEdited ? (editingDept?.name ?? "") : ""}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px]"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="mutatedepartmentmodal-field-2" className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
-                                    Mô tả
-                                </label>
-                                <textarea id="mutatedepartmentmodal-field-2"
-                                    name="description"
-                                    placeholder="Mô tả chức năng và nhiệm vụ"
-                                    rows={3}
-                                    // 3. Đảm bảo fallback về chuỗi rỗng an toàn
-                                    defaultValue={isEdited ? (editingDept?.description ?? "") : ""}
-                                    className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10 outline-none transition text-[14px] resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
-                                    Màu đại diện
-                                </span>
-                                <input type="hidden" name="color" value={color} />
-                                <div className="flex gap-2">
-                                    {COLOR_OPTIONS.map((c) => (
-                                        <button
-                                            key={c}
-                                            type="button"
-                                            onClick={() => setColor(c)}
-                                            className={`w-10 h-10 rounded-xl border-2 transition ${color === c ? 'border-[#1D1D1F] scale-110 shadow-sm' : 'border-transparent hover:border-[#E5E5EA]'}`}
-                                            style={{ background: c }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="p-6 border-t border-[#F2F2F7] flex gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="flex-1 mt-[3px] py-3 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px] text-[#1D1D1F]"
-                                style={{ fontWeight: 500 }}
+                {showOrganizationPicker && (
+                    <Field
+                        label="Tổ chức"
+                        required
+                        hint="Quản trị viên nền tảng không thuộc tổ chức nào, nên cần chọn tổ chức cho phòng ban mới."
+                    >
+                        {(f) => (
+                            <Select
+                                {...f}
+                                name="organizationId"
+                                defaultValue={organizations.length === 1 ? organizations[0].organizationId : ''}
                             >
-                                Hủy
-                            </button>
-                            <div className="flex-1">
-                                <SubmitButton content={`${isEdited ? "Cập nhật" : "Tạo"} phòng ban`} />
-                            </div>
-                        </div>
-                    </form>
-                </motion.div></DialogContent>
-            </motion.div></DialogOverlay>
-        </AnimatePresence></AccessibleDialog>
+                                <option value="" disabled>
+                                    Chọn tổ chức sở hữu phòng ban
+                                </option>
+                                {organizations.map((organization) => (
+                                    <option key={organization.organizationId} value={organization.organizationId}>
+                                        {organization.name}
+                                    </option>
+                                ))}
+                            </Select>
+                        )}
+                    </Field>
+                )}
+
+                <Field label="Tên phòng ban" required>
+                    {(f) => (
+                        <Input
+                            {...f}
+                            type="text"
+                            name="name"
+                            placeholder="Nhập tên phòng ban"
+                            // 3. Đảm bảo fallback về chuỗi rỗng an toàn tuyệt đối
+                            defaultValue={isEdited ? (editingDept?.name ?? '') : ''}
+                        />
+                    )}
+                </Field>
+
+                <Field label="Mô tả">
+                    {(f) => (
+                        <Textarea
+                            {...f}
+                            name="description"
+                            placeholder="Mô tả chức năng và nhiệm vụ"
+                            rows={3}
+                            // 3. Đảm bảo fallback về chuỗi rỗng an toàn
+                            defaultValue={isEdited ? (editingDept?.description ?? '') : ''}
+                        />
+                    )}
+                </Field>
+
+                <fieldset>
+                    <legend className="mb-1.5 text-body-sm font-medium text-ink">Màu đại diện</legend>
+                    <input type="hidden" name="color" value={color} />
+                    <div className="flex flex-wrap gap-2">
+                        {COLOR_OPTIONS.map((option) => {
+                            const selected = color === option.value;
+                            return (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    aria-label={option.label}
+                                    aria-pressed={selected}
+                                    onClick={() => setColor(option.value)}
+                                    className={cn(
+                                        'inline-flex size-9 items-center justify-center rounded-ctl text-surface',
+                                        'transition duration-press ease-out-expo active:scale-[.97]',
+                                        selected && 'ring-2 ring-ink ring-offset-2 ring-offset-surface',
+                                    )}
+                                    style={{ backgroundColor: option.value }}
+                                >
+                                    {selected && <Check aria-hidden="true" strokeWidth={1.75} className="size-4" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </fieldset>
+            </form>
+        </Dialog>
     );
 }

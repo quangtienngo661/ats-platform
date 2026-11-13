@@ -1,25 +1,21 @@
+import type { ReactNode } from 'react';
 import { Plus } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Button, PageToolbar } from '@/components/ui';
 
 interface UserHeaderProps {
     onAdd: () => void;
+    /** Search and filters, placed before the add button. */
+    children?: ReactNode;
 }
 
-export function UserHeader({ onAdd }: UserHeaderProps) {
+export function UserHeader({ onAdd, children }: UserHeaderProps) {
     return (
-        <div className="mb-6">
-            <div className="flex items-center justify-end">
-                <h1 className="sr-only">Quản lý người dùng</h1>
-
-                <button
-                    onClick={onAdd}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
-                    style={{ fontWeight: 500, fontFamily: SF }}
-                >
-                    <Plus className="w-4 h-4" />
-                    Thêm người dùng
-                </button>
-            </div>
-        </div>
+        <PageToolbar title="Quản lý người dùng">
+            {children}
+            <Button onClick={onAdd}>
+                <Plus aria-hidden="true" strokeWidth={1.75} />
+                Thêm người dùng
+            </Button>
+        </PageToolbar>
     );
 }

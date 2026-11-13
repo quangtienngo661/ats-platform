@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useOptimistic, useState, useTransition } from 'react';
-import { SFT } from '@/types/fonts/fonts';
+import { useMemo, useOptimistic, useRef, useState, useTransition } from 'react';
+import { SearchX, Users } from 'lucide-react';
+import { Button, EmptyState, Surface } from '@/components/ui';
 import { UserHeader } from './ui/UserHeader';
 import { UserStats } from './ui/UserStats';
 import { UserFilterBar } from './ui/UserFilterBar';
@@ -28,11 +29,12 @@ export default function UserClient({ initialUsers, organizations }: UserClientPr
   const [filterStatus, setFilterStatus] = useState<UserStatus | ''>('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState<IUserResponseDto | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   // Client-side filter
   const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return optimisticUsers.filter((u) => {
-      const q = searchQuery.toLowerCase();
       const matchSearch =
         !q ||
         u.fullName.toLowerCase().includes(q) ||
@@ -42,6 +44,14 @@ export default function UserClient({ initialUsers, organizations }: UserClientPr
       return matchSearch && matchRole && matchStatus;
     });
   }, [optimisticUsers, searchQuery, filterRole, filterStatus]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterRole('');
+    setFilterStatus('');
+    // The "Xóa bộ lọc" button disappears with the no-match state; keep focus in the toolbar.
+    searchRef.current?.focus();
+  };
 
   const handleCreated = (user: IUserResponseDto) => {
     setUsers((prev) => [user, ...prev]);
@@ -70,20 +80,46 @@ export default function UserClient({ initialUsers, organizations }: UserClientPr
   };
 
   return (
-    <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-      <UserHeader onAdd={() => setShowAddModal(true)} />
+    <div className="space-y-4 p-4 lg:p-6">
+      <UserHeader onAdd={() => setShowAddModal(true)}>
+        <UserFilterBar
+          search={searchQuery}
+          role={filterRole}
+          status={filterStatus}
+          onSearch={setSearchQuery}
+          onRoleChange={setFilterRole}
+          onStatusChange={setFilterStatus}
+          searchRef={searchRef}
+        />
+      </UserHeader>
       <UserStats users={optimisticUsers} />
-      <UserFilterBar
-        onSearch={setSearchQuery}
-        onRoleChange={setFilterRole}
-        onStatusChange={setFilterStatus}
-      />
-      <UserTable
-        users={filtered}
-        organizations={organizations}
-        onEdit={setEditingUser}
-        onDelete={handleDelete}
-      />
+
+      {optimisticUsers.length === 0 ? (
+        <Surface>
+          <EmptyState
+            icon={Users}
+            title="Chưa có người dùng"
+            description="Tài khoản bạn tạo sẽ hiện ở đây."
+            action={<Button onClick={() => setShowAddModal(true)}>Thêm người dùng đầu tiên</Button>}
+          />
+        </Surface>
+      ) : filtered.length === 0 ? (
+        <Surface>
+          <EmptyState
+            icon={SearchX}
+            title="Không có người dùng khớp"
+            description="Đổi từ khóa tìm kiếm hoặc bộ lọc."
+            action={<Button variant="secondary" onClick={clearFilters}>Xóa bộ lọc</Button>}
+          />
+        </Surface>
+      ) : (
+        <UserTable
+          users={filtered}
+          organizations={organizations}
+          onEdit={setEditingUser}
+          onDelete={handleDelete}
+        />
+      )}
 
       {showAddModal && (
         <AddUserModal
