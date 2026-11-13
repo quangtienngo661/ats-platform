@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { IconButton, Kbd } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
+import { useRestoreFocus } from '@/components/ui/restore-focus';
 import { useSwitchUiVariant } from '@/components/ui-variant/useSwitchUiVariant';
 import { hasModifier } from '@/lib/keyboard';
 import { buildCommands, filterCommands, type Command } from './commands';
@@ -18,6 +19,8 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     const { switchTo } = useSwitchUiVariant();
     const [open, setOpen] = useState(false);
     const openRef = useRef(false);
+    const navigated = useRef(false);
+    const restoreFocus = useRestoreFocus();
     const [query, setQuery] = useState('');
     const [active, setActive] = useState(0);
     const [isMac, setIsMac] = useState(false);
@@ -38,6 +41,7 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     // Every open and close goes through here, so a close by any route (Esc, outside click, hotkey, run) resets.
     const changeOpen = useCallback((next: boolean) => {
         openRef.current = next;
+        if (next) navigated.current = false;
         setOpen(next);
         if (!next) {
             setQuery('');
@@ -60,8 +64,11 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
 
     const run = (command: Command | undefined) => {
         if (!command) return;
-        if (command.href) router.push(command.href);
-        else if (command.id === 'ui-legacy') switchTo('legacy');
+        if (command.href) {
+            // The new page owns focus; handing it back to the opener would pull it off the page just opened.
+            navigated.current = true;
+            router.push(command.href);
+        } else if (command.id === 'ui-legacy') switchTo('legacy');
         else command.run?.();
         changeOpen(false);
     };
@@ -116,6 +123,11 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
                     />
                     <RadixDialog.Content
                         aria-describedby={undefined}
+                        onOpenAutoFocus={restoreFocus.onOpenAutoFocus}
+                        onCloseAutoFocus={(e) => {
+                            if (navigated.current) e.preventDefault();
+                            else restoreFocus.onCloseAutoFocus(e);
+                        }}
                         className={cn(
                             'fixed left-1/2 top-[15vh] z-palette w-[calc(100%-32px)] max-w-[560px] -translate-x-1/2',
                             'overflow-hidden rounded-panel bg-surface shadow-e5',
@@ -146,10 +158,10 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
                             />
                         </div>
                         <div id={listId} role="listbox" aria-label="Kết quả" className="max-h-[360px] overflow-y-auto p-2">
-                            {groups.map((group) => (
-                                <div key={group.name} role="group" aria-labelledby={`${uid}-g-${group.name}`}>
+                            {groups.map((group, index) => (
+                                <div key={group.name} role="group" aria-labelledby={`${uid}-g-${index}`}>
                                     <div
-                                        id={`${uid}-g-${group.name}`}
+                                        id={`${uid}-g-${index}`}
                                         role="presentation"
                                         className="px-2 pb-1 pt-2 text-micro font-medium text-ink-3"
                                     >
