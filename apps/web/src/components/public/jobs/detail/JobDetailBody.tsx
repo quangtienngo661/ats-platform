@@ -8,7 +8,7 @@ interface JobDetailBodyProps {
 
 /** Rich-text rhythm for the (server-sanitised) description: lists, headings, links and spacing. */
 const RICH_TEXT = [
-    'max-w-[68ch] break-words text-body text-ink-2',
+    'max-w-[68ch] whitespace-pre-line break-words text-body text-ink-2',
     '[&_p]:my-3 [&_p:first-child]:mt-0',
     '[&_h1]:mb-2 [&_h1]:mt-7 [&_h1]:text-title [&_h1]:text-ink',
     '[&_h2]:mb-2 [&_h2]:mt-7 [&_h2]:text-title [&_h2]:text-ink',

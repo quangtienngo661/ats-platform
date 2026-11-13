@@ -4,7 +4,7 @@ import { useState, useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, FileText, Lock, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
-import { Button, ButtonLink, Sheet, StatusChip } from '@/components/ui';
+import { Button, ButtonLink, Sheet } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { applyForJobAction, ApplicationActionState } from '@/servers/applications/applications.action';
@@ -160,7 +160,6 @@ export function ApplyButton({ job, isLoggedIn, available }: ApplyButtonProps) {
                                                 </p>
                                             )}
                                         </div>
-                                        {cv.parsingStatus && <StatusChip kind="parsing" value={cv.parsingStatus} />}
                                     </label>
                                 ))}
                             </div>
