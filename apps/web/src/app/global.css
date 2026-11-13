@@ -152,6 +152,12 @@ html[data-ui="modern"]:has([data-shell="site"]) {
     scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }
+/* The job page's fixed apply bar (68 px) must not cover the end of the footer on phones. */
+@media (max-width: 1023px) {
+  html[data-ui="modern"]:has([data-apply-bar]) body {
+    padding-bottom: 4.5rem;
+  }
+}
 :where(html[data-ui="modern"]) h1,
 :where(html[data-ui="modern"]) h2,
 :where(html[data-ui="modern"]) h3 {

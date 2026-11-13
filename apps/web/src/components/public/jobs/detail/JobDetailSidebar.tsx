@@ -1,8 +1,9 @@
-import { DollarSign, Briefcase, Building2 } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Banknote, Briefcase, Building2 } from 'lucide-react';
+import { Avatar, Badge, Surface } from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { jobSkillsOf } from '@/lib/job-skills';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
+import { ApplyButton } from './ApplyButton';
 
 function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
@@ -14,9 +15,11 @@ function formatSalary(min?: number | null, max?: number | null): string {
 
 interface JobDetailSidebarProps {
     job: IJobPostingDto;
+    /** When given, the card ends with the apply button (desktop only; phones get the bottom bar). */
+    apply?: { isLoggedIn: boolean; available: boolean };
 }
 
-export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
+export function JobDetailSidebar({ job, apply }: JobDetailSidebarProps) {
     const dept = job.department;
     const category = job.category;
     const skills = jobSkillsOf(job);
@@ -25,67 +28,60 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
         : job.locationType ?? '';
 
     const infoItems = [
-        { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: DollarSign },
-        { label: 'Hình thức', value: location, icon: Briefcase },
-        ...(category ? [{ label: 'Lĩnh vực', value: category.name, icon: Building2 }] : []),
+        { label: 'Mức lương', value: formatSalary(job.salaryMin, job.salaryMax), icon: Banknote, numeric: true },
+        { label: 'Hình thức', value: location, icon: Briefcase, numeric: false },
+        ...(category ? [{ label: 'Lĩnh vực', value: category.name, icon: Building2, numeric: false }] : []),
     ];
 
     return (
         <div className="space-y-4">
-            {/* Job Info */}
-            <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 top-[130px]">
-                <h3 className="text-[15px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>
-                    Thông tin chung
-                </h3>
-                <div className="space-y-4">
-                    {infoItems.map(({ label, value, icon: Icon }) => (
+            <Surface variant="raised" className="p-5">
+                <h2 className="mb-4 text-title-sm text-ink">Thông tin chung</h2>
+                <dl className="space-y-4">
+                    {infoItems.map(({ label, value, icon: Icon, numeric }) => (
                         <div key={label} className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#F5F5F7] flex items-center justify-center flex-shrink-0">
-                                <Icon className="w-4 h-4 text-[#AEAEB2]" />
-                            </div>
-                            <div>
-                                <p className="text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2]" style={{ fontWeight: 600 }}>{label}</p>
-                                <p className="text-[14px] text-[#1D1D1F] mt-0.5" style={{ fontFamily: SFT, fontWeight: 500 }}>{value}</p>
+                            <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-ink-3" />
+                            <div className="min-w-0">
+                                <dt className="text-caption text-ink-3">{label}</dt>
+                                <dd className={numeric ? 'break-words text-body font-medium tabular-nums text-ink' : 'break-words text-body font-medium text-ink'}>
+                                    {value}
+                                </dd>
                             </div>
                         </div>
                     ))}
-                </div>
+                </dl>
 
-                {/* Skills */}
                 {skills.length > 0 && (
-                    <div className="mt-5 pt-5 border-t border-[#F2F2F7]">
-                        <p className="text-[11px] uppercase tracking-[0.06em] text-[#AEAEB2] mb-3" style={{ fontWeight: 600 }}>
-                            Kỹ năng yêu cầu
-                        </p>
+                    <div className="mt-5 border-t border-line pt-5">
+                        <p className="mb-3 text-caption text-ink-3">Kỹ năng yêu cầu</p>
                         <div className="flex flex-wrap gap-1.5">
                             {skills.map(s => (
-                                <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-2.5 py-1" style={{ fontWeight: 500 }}>
-                                    {s.name ?? s.skillId}
-                                </span>
+                                <Badge key={s.skillId} tone="accent">{s.name ?? s.skillId}</Badge>
                             ))}
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Department info */}
+                {apply && (
+                    <div className="mt-6 hidden lg:block">
+                        <ApplyButton job={job} isLoggedIn={apply.isLoggedIn} available={apply.available} />
+                    </div>
+                )}
+            </Surface>
+
             {dept && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#0071E3] flex items-center justify-center text-white text-[13px]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                            {dept.name?.[0]?.toUpperCase()}
-                        </div>
-                        <div>
-                            <p className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>{dept.name}</p>
-                            <p className="text-[12px] text-[#6E6E73]">Phòng ban</p>
+                <Surface variant="plain" className="p-5">
+                    <div className="flex items-center gap-3">
+                        <Avatar name={dept.name} size={40} />
+                        <div className="min-w-0">
+                            <p className="break-words text-body font-medium text-ink">{dept.name}</p>
+                            <p className="text-caption text-ink-3">Phòng ban</p>
                         </div>
                     </div>
                     {dept.description && (
-                        <p className="text-[13px] text-[#6E6E73] leading-[1.6]" style={{ fontFamily: SFT }}>
-                            {dept.description}
-                        </p>
+                        <p className="mt-3 break-words text-body-sm text-ink-2">{dept.description}</p>
                     )}
-                </div>
+                </Surface>
             )}
         </div>
     );
