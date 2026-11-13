@@ -53,11 +53,15 @@ Nhánh: `feat/ui-redesign`.
 
 # Thiết kế lại giao diện — as-built (14/11/2026)
 
-Nhánh `feat/ui-redesign` (từ `dev` `6d03844`), HEAD `8e537ed`, 106 commit (`git rev-list --count 6d03844..HEAD`).
+Nhánh `feat/ui-redesign` (từ `dev` `6d03844`). Lúc ghi bản này HEAD là `8d1c2a3`, 107 commit (`git rev-list --count
+dev..8d1c2a3`); vòng sửa cuối sau review cả nhánh thêm các commit sau đó (`git log 8d1c2a3..HEAD`).
 **Chưa merge.** Hướng A · Mực & kính, chỉ light. Spec:
 `docs/superpowers/specs/2026-11-13-ui-redesign-design.md`; decisions:
 `docs/superpowers/decisions/2026-11-13-ui-redesign-decisions.md`. Bằng chứng: `docs/tasks/ui-redesign/visual-check.md`
 và `docs/tasks/ui-redesign/e2e-final.txt`.
+
+**Cách lùi về giao diện cũ:** env `UI_DEFAULT_VARIANT=legacy` (cả hệ thống) hoặc cookie `talentai-ui=legacy` (từng người
+dùng). Cookie thắng env. Compose chưa truyền `UI_DEFAULT_VARIANT` vào container web (xem "Điều chưa kiểm").
 
 ## Đã làm theo mốc
 
@@ -115,6 +119,15 @@ những dòng đổi hành vi hoặc cấu trúc so với plan.
 | Test stack dùng lại container có sẵn; Mailpit đổi sang cổng 58200 (override ở scratchpad); gỡ stack sau Task 33 | Windows chặn dải cổng 57957–58056 | Không đổi repo |
 | Tăng bundle được chấp nhận và báo cáo, không sửa | Ngưỡng 10% của spec §4.6 dành cho việc bật switch ở M0, không phải ngân sách cả nhánh | Tải đầu chậm hơn trên mobile yếu (xem Bundle) |
 
+## Giao diện cũ không giống từng điểm ảnh
+
+Cookie `talentai-ui=legacy` đưa về mã `src/legacy/`, nhưng không tái hiện đúng giao diện trước redesign:
+
+- `fontFamily.sans` và `fontFamily.mono` mới trong `tailwind.config.js` đổi `font-mono` ở legacy (2 chỗ, cả hai trong
+  `AiUsageLogsTable.tsx`).
+- `Toaster` dùng chung dùng `font-sans` (Geist) cả ở legacy.
+- `RouteError`, `RouteLoading` và `not-found` của cây mới cũng hiện ở legacy.
+
 ## Số test trước/sau
 
 `npm run test:web` (vitest, `apps/web`):
@@ -154,14 +167,21 @@ nhánh này. Số liệu đầy đủ: `visual-check.md`, mục "Bundle".
 
 - Ngưỡng 10% của spec §4.6 dành cho bước bật switch ở M0 (đo lúc đó: +7,9% ở `/my-applications`, +2,9% ở
   `/dashboard`), không phải ngân sách cả nhánh. Cả nhánh vượt xa ngưỡng đó.
-- Khoảng 85% mức tăng của `/my-applications` là nhóm Radix (dropdown-menu, tooltip, popper, roving focus) nằm trong
-  first load của shell. Đây là phân loại theo chuỗi trong chunk, không phải bản đồ module (`next experimental-analyze`
-  ghi dữ liệu nhị phân chưa đọc được). Chưa có số riêng cho `domMax`.
+- Nhóm Radix (dropdown-menu, tooltip, popper, roving focus) chiếm khoảng 85% mức tăng của `/my-applications` theo
+  phân loại chuỗi trong chunk (không phải bản đồ module; `next experimental-analyze` ghi dữ liệu nhị phân chưa đọc
+  được). **Nguồn gốc của nó chưa xác nhận.** Shell ứng viên không dùng `Tooltip` (chỉ `StaffShell` và `StaffSidebar`
+  dùng). Giả thuyết khả dĩ hơn, chưa đo: barrel `@/components/ui/index.ts` được 157 file import, kéo Dialog, Sheet,
+  DropdownMenu, Tooltip vào mọi route. Và `NotificationPanel.tsx` dùng `motion.div` (bản đầy đủ của Motion), nên chỉ
+  đổi `domMax` thành `domAnimation` sẽ không làm gì nhỏ đi. Chưa có số riêng cho `domMax`.
 - Số "2,5–3,5×" ở bản ghi đầu của Task 33 là lỗi script (đếm mỗi chunk hai lần), đã thay bằng bảng trên.
 - Việc tiếp theo: tải muộn menu và tooltip của shell, hoặc thu nhỏ shell. Chưa làm.
 
 ## Điều chưa kiểm
 
+- **`UI_DEFAULT_VARIANT` chưa tới container web:** `docker-compose.yml` và `docker-compose-dev.yml` liệt kê `environment:` của
+  `web` từng biến một và không có biến này, nên đặt nó trong `.env` không có tác dụng ở Docker. Cookie vẫn dùng được.
+  Chưa sửa compose (compose prod nằm trong danh sách cần hỏi trước); thêm `UI_DEFAULT_VARIANT: ${UI_DEFAULT_VARIANT:-}`
+  vào `environment:` của `web` nếu muốn dùng env làm đòn bẩy lùi.
 - **Ảnh so với bản trước redesign:** chưa có. Không dựng lại dữ liệu seed (đã xóa khỏi `ats_test`) nên không chụp được
   màn đã đăng nhập của `dev`. Mọi câu "bản cũ vẫn như vậy" trong `visual-check.md` là so mã nguồn (`git grep` trên
   `dev`) hoặc chưa xác minh.

@@ -190,14 +190,16 @@ này).
   `/dashboard` 680.946 so với 674.113 B (lệch 1%).
 - **Có tăng thật, và vượt ngưỡng 10% của Task 2.** Task 2 chỉ đo sau M0 (+7,9% ở `/my-applications`). Sau M1–M4,
   `/my-applications` lớn hơn `dev` 89% raw, `/dashboard` 29%. Theo "first load" của Next: +34% và +17%.
-- **Nguyên nhân (đo thô, không phải đo chính xác).** Phân loại từng module trong các chunk first load của
-  `/my-applications` theo dấu hiệu chuỗi: nhóm Radix (menu, tooltip, popper, roving focus, remove-scroll, aria-hidden)
-  từ 9.394 lên 219.427 B (+210.033 B), tức khoảng 85% của mức tăng 245.810 B; mã ứng dụng chưa phân loại +42.380 B;
-  `motion` giảm 9.699 B (LazyMotion với `m.*` thay cho `motion.*`). React/React DOM, socket.io, sonner không đổi. Chuỗi
-  `DropdownMenu`, `Tooltip`, `Popper`, `RovingFocusGroup` có trong first load của nhánh và không có trong `dev`. Các
-  thư viện mới là `@radix-ui/react-dropdown-menu` và `@radix-ui/react-tooltip` (và `react-dialog` được dùng ở 6 nơi
-  thay vì 1). Chúng nằm trong first load của mọi route có shell, không phải chỉ của màn dùng chúng. Không có số riêng
-  cho `domMax`. Chưa sửa; ghi lại để quyết định (ví dụ tải muộn menu và tooltip của shell).
+- **Nguyên nhân (đo thô, chưa xác nhận).** Phân loại từng module trong các chunk first load của `/my-applications`
+  theo dấu hiệu chuỗi: nhóm Radix (menu, tooltip, popper, roving focus, remove-scroll, aria-hidden) từ 9.394 lên
+  219.427 B (+210.033 B), tức khoảng 85% của mức tăng 245.810 B; mã ứng dụng chưa phân loại +42.380 B; `motion` giảm
+  9.699 B (LazyMotion với `m.*` thay cho `motion.*`). React/React DOM, socket.io, sonner không đổi. Chuỗi
+  `DropdownMenu`, `Tooltip`, `Popper`, `RovingFocusGroup` có trong first load của nhánh và không có trong `dev`. Việc
+  nhóm Radix lớn lên là số đo; **việc nó đến từ "Radix dropdown/tooltip/popper của shell" thì không được xác nhận**:
+  shell ứng viên không dùng `Tooltip` (chỉ `StaffShell` và `StaffSidebar`). Giả thuyết khả dĩ hơn, chưa đo: barrel
+  `@/components/ui/index.ts` được 157 file import, kéo Dialog, Sheet, DropdownMenu, Tooltip vào mọi route; và
+  `NotificationPanel.tsx` dùng `motion.div` (bản đầy đủ của Motion), nên chỉ đổi `domMax` thành `domAnimation` sẽ không
+  làm gì nhỏ đi. Không có số riêng cho `domMax`. Chưa sửa; ghi lại để quyết định.
 - **Hạn chế của phép đo.** Phân loại theo chuỗi là phỏng đoán có căn cứ, không phải bản đồ module (`next
   experimental-analyze` ghi dữ liệu nhị phân, chưa đọc được). Chỉ liệt kê được 2 nhóm chính, không đủ 5. `dev` build
   dùng `node_modules` của nhánh (nên `@radix-ui/react-dialog` là 1.3.1 thay vì bản khóa của `dev`), và cần ba
