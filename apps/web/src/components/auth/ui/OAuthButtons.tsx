@@ -1,47 +1,27 @@
 import { GitHubIcon, GoogleIcon } from '@/components/public/icons/common.icon';
-import { SFT } from '@/types/fonts/fonts';
+import { Button } from '@/components/ui';
+import { AuthAlert, AuthDivider } from './AuthParts';
 
 interface OAuthButtonsProps {
     errorMessage?: string | null;
 }
 
+/** Not mounted yet: the providers are disabled until the API exposes the OAuth routes. */
 export function OAuthButtons({ errorMessage }: OAuthButtonsProps) {
     return (
-        <div className="mb-6">
-            {errorMessage && (
-                <div className="mb-4 px-4 py-3 rounded-xl bg-[#FFE5E5] text-[#FF3B30] text-[13px] text-center" style={{ fontFamily: SFT }}>
-                    {errorMessage}
-                </div>
-            )}
+        <div className="mb-6 flex flex-col gap-3">
+            {errorMessage ? <AuthAlert>{errorMessage}</AuthAlert> : null}
 
-            <div className="grid grid-cols-2 gap-3">
-                {/* Google */}
-                <button type="button" disabled
-                    // href={`${SERVER_URL}/auth/google`}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-[#E5E5EA] bg-white hover:bg-[#F5F5F7] hover:border-[#D2D2D7] hover:shadow-sm transition text-[13px] text-[#1D1D1F]"
-                    style={{ fontFamily: SFT, fontWeight: 500, textDecoration: 'none' }}
-                >
-                    <GoogleIcon />
-                    Google
-                </button>
+            <Button type="button" variant="secondary" size="lg" disabled className="w-full">
+                <GoogleIcon />
+                Tiếp tục với Google
+            </Button>
+            <Button type="button" variant="secondary" size="lg" disabled className="w-full">
+                <GitHubIcon />
+                Tiếp tục với GitHub
+            </Button>
 
-                {/* GitHub */}
-                <button type="button" disabled
-                    // href={`${SERVER_URL}/auth/github`}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-[#E5E5EA] bg-white hover:bg-[#F5F5F7] hover:border-[#D2D2D7] hover:shadow-sm transition text-[13px] text-[#1D1D1F]"
-                    style={{ fontFamily: SFT, fontWeight: 500, textDecoration: 'none' }}
-                >
-                    <GitHubIcon />
-                    GitHub
-                </button>
-            </div>
-
-            {/* Divider */}
-            <div className="flex items-center gap-3 mt-5">
-                <div className="flex-1 h-px bg-[#F2F2F7]" />
-                <span className="text-[12px] text-[#AEAEB2]" style={{ fontFamily: SFT }}>hoặc</span>
-                <div className="flex-1 h-px bg-[#F2F2F7]" />
-            </div>
+            <AuthDivider />
         </div>
     );
 }

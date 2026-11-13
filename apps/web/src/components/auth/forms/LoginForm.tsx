@@ -1,138 +1,75 @@
 'use client';
 
-import { useState, useActionState } from 'react';
-import { motion } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useActionState } from 'react';
 import Link from 'next/link';
-import { signInAction } from '@/servers/auth/auth.action';
-import SubmitButton from '@/components/common/SubmitButton';
-
 import { useSearchParams } from 'next/navigation';
-
+import { signInAction } from '@/servers/auth/auth.action';
+import { Field, Input } from '@/components/ui';
+import { AuthAlert, AuthHeading, AuthSubmit, PasswordInput } from '../ui/AuthParts';
 
 const initialState = { success: false, message: '' };
 
-const INPUT_CLS = "w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10";
-
 export default function LoginForm() {
-    const [showPw, setShowPw] = useState(false);
     const [state, formAction] = useActionState(signInAction, initialState);
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '';
-
-    
     const resetSuccess = searchParams.get('reset') === 'success';
 
-    // const handleLoginError = (message: string) => {
-    //     toast.error(message);
-    // };
-
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white rounded-[24px] shadow-xl shadow-black/8 border border-[#E5E5EA] p-8"
-        >
-            <h1 className="text-[22px] text-[#1D1D1F] tracking-[-0.02em] mb-1" style={{ fontFamily: SF, fontWeight: 700 }}>
-                Chào mừng trở lại
-            </h1>
-            <p className="text-[14px] text-[#6E6E73] mb-6" style={{ fontFamily: SFT }}>
-                Đăng nhập vào tài khoản của bạn
-            </p>
+        <div className="motion-safe:animate-rise">
+            <AuthHeading title="Chào mừng trở lại" description="Đăng nhập vào tài khoản của bạn" />
 
-            {/* Reset success banner */}
-            {resetSuccess && (
-                <div className="mb-4 px-4 py-3 rounded-xl bg-[#E8F5E9] text-[#34C759] text-[13px] text-center" style={{ fontFamily: SFT }}>
-                    Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.
+            {resetSuccess ? (
+                <div className="mb-4">
+                    <AuthAlert tone="success">Đặt lại mật khẩu thành công. Đăng nhập lại để tiếp tục.</AuthAlert>
                 </div>
-            )}
+            ) : null}
 
-            {/* OAuth buttons
-            <OAuthButtons errorMessage={oauthError} /> */}
-
-            {/* Form */}
             <form action={formAction} className="flex flex-col gap-4">
-                {/* Email */}
-                <div>
-                    <label htmlFor="loginform-field-1" className="block text-[13px] text-[#1D1D1F] mb-1.5 tracking-[-0.01em]" style={{ fontWeight: 500 }}>
-                        Email
-                    </label>
-                    <div className="relative">
-                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input id="loginform-field-1"
-                            type="email" autoComplete="email" spellCheck={false}
+                <Field label="Email">
+                    {(f) => (
+                        <Input
+                            {...f}
+                            size="lg"
                             name="email"
+                            required
+                            type="email"
+                            autoComplete="email"
+                            spellCheck={false}
                             placeholder="your@email.com"
-                            className={INPUT_CLS}
-                            style={{ fontFamily: SFT }}
-                            required
                         />
-                    </div>
+                    )}
+                </Field>
+
+                <div className="flex flex-col gap-2">
+                    <Field label="Mật khẩu">
+                        {(f) => <PasswordInput {...f} required name="password" autoComplete="current-password" placeholder="••••••••" />}
+                    </Field>
+                    <Link href="/forgot-password" className="self-end text-caption text-accent-text hover:underline">
+                        Quên mật khẩu?
+                    </Link>
                 </div>
 
-                {/* Password */}
-                <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="candidate-login-password" className="text-[13px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontWeight: 500 }}>Mật khẩu</label>
-                        <Link href="/forgot-password" className="text-[12px] text-[#0071E3] hover:underline">
-                            Quên mật khẩu?
-                        </Link>
-                    </div>
-                    <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                        <input
-                            id="candidate-login-password"
-                            type={showPw ? 'text' : 'password'}
-                            name="password"
-                            placeholder="••••••••"
-                            className={`${INPUT_CLS} pr-10`}
-                            style={{ fontFamily: SFT }}
-                            required
-                        />
-                        <button
-                            type="button"
-                            aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                            aria-pressed={showPw}
-                            onClick={() => setShowPw(!showPw)}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
-                        >
-                            {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                    </div>
-                </div>
-
-                {/* 2. Ép nó vào form ẩn để gửi kèm lên Server Action */}
                 <input type="hidden" name="role" value="candidate" />
                 <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
-                {/* Error */}
-                {state.message && !state.success && (
-                    <p className="text-[#FF3B30] text-[13px] text-center" style={{ fontFamily: SFT }}>
-                        {/* <> */}
-                        {/* {handleLoginError(state.messag/e)} */}
-                        {/* </> */}
-                        {state.message}
-                    </p>
-                )}
+                {state.message && !state.success ? <AuthAlert>{state.message}</AuthAlert> : null}
 
-                <SubmitButton content="Đăng nhập" />
+                <AuthSubmit>Đăng nhập</AuthSubmit>
             </form>
 
-            <p className="text-center text-[13px] text-[#6E6E73] mt-6" style={{ fontFamily: SFT }}>
+            <p className="mt-6 text-center text-body-sm text-ink-3">
                 Chưa có tài khoản?{' '}
-                <Link href="/register" className="text-[#0071E3] hover:underline" style={{ fontWeight: 500 }}>
+                <Link href="/register" className="font-medium text-accent-text hover:underline">
                     Đăng ký ngay
                 </Link>
             </p>
-
-            <p className="text-center text-[12px] text-[#AEAEB2] mt-3" style={{ fontFamily: SFT }}>
+            <p className="mt-2 text-center text-caption text-ink-3">
                 Là nhân viên?{' '}
-                <Link href="/sign-in/admin" className="text-[#6E6E73] hover:text-[#1D1D1F] hover:underline transition-colors" style={{ fontWeight: 500 }}>
-                    Cổng nội bộ →
+                <Link href="/sign-in/admin" className="font-medium text-ink-2 hover:text-ink hover:underline">
+                    Cổng nội bộ
                 </Link>
             </p>
-        </motion.div>
+        </div>
     );
 }

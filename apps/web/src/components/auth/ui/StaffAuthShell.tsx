@@ -1,4 +1,5 @@
 import { FileSearch, ShieldCheck, SquareKanban, UserCheck } from 'lucide-react';
+import { StaffGlimpse } from './AuthGlimpse';
 import { AuthSplit, type AuthValue } from './AuthSplit';
 
 interface StaffAuthShellProps {
@@ -17,6 +18,7 @@ export function StaffAuthShell({ children }: StaffAuthShellProps) {
         <AuthSplit
             panelLabel="TalentAI cho nhà tuyển dụng"
             values={STAFF_VALUES}
+            glimpse={<StaffGlimpse />}
             note={
                 // On a phone the line breaks between the two sentences, never inside one.
                 <p className="mt-6 px-4 text-center text-caption text-ink-3">
@@ -33,12 +35,7 @@ export function StaffAuthShell({ children }: StaffAuthShellProps) {
                 </p>
             }
         >
-            {/*
-              StaffLoginForm is still the dark glass card it was before the redesign (white text on a translucent
-              fill). This night backing, at the card's own radius, keeps it readable on the light column. Delete it
-              when the form moves to the light Field/Input primitives.
-            */}
-            <div className="rounded-[28px] bg-night">{children}</div>
+            {children}
         </AuthSplit>
     );
 }

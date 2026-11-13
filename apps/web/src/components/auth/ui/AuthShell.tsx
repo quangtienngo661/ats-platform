@@ -1,4 +1,5 @@
 import { ListChecks, MessagesSquare, Search } from 'lucide-react';
+import { CandidateGlimpse } from './AuthGlimpse';
 import { AuthSplit, type AuthValue } from './AuthSplit';
 
 interface AuthShellProps {
@@ -18,6 +19,7 @@ export function AuthShell({ children, showTerms = true }: AuthShellProps) {
         <AuthSplit
             panelLabel="TalentAI cho người tìm việc"
             values={CANDIDATE_VALUES}
+            glimpse={<CandidateGlimpse />}
             note={
                 showTerms && (
                     // The two documents have no pages yet, so they are named, not linked.

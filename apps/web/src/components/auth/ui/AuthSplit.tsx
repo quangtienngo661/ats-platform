@@ -27,6 +27,8 @@ interface AuthSplitProps {
     /** Names the brand panel for screen readers and heads it on screen. */
     panelLabel: string;
     values: readonly AuthValue[];
+    /** A decorative sample shown in the middle of the panel. */
+    glimpse?: ReactNode;
 }
 
 /**
@@ -34,7 +36,7 @@ interface AuthSplitProps {
  * under the logo; from 1024 px a night panel with grain, one soft light and three product values fills the right
  * half. On smaller screens there is only the form.
  */
-export function AuthSplit({ children, note, panelLabel, values }: AuthSplitProps) {
+export function AuthSplit({ children, note, panelLabel, values, glimpse }: AuthSplitProps) {
     return (
         <div className="grid min-h-dvh bg-canvas text-ink lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex min-w-0 flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 sm:px-8 lg:px-12">
@@ -64,6 +66,7 @@ export function AuthSplit({ children, note, panelLabel, values }: AuthSplitProps
                     />
                     <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
                         <p className="text-body-sm text-night-ink-3">{panelLabel}</p>
+                        {glimpse}
                         <ul className="flex flex-col gap-7">
                             {values.map(({ icon: Icon, text }, index) => (
                                 <li
