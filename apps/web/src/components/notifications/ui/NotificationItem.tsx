@@ -1,12 +1,11 @@
 import { Briefcase, CalendarCheck, Settings } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
 import { INotification } from '@/types/interfaces/notification.interface';
 
-// Map notification type → icon + color
-const typeConfig: Record<string, { icon: typeof Briefcase; color: string }> = {
-    application: { icon: Briefcase, color: '#0071E3' },
-    interview: { icon: CalendarCheck, color: '#6366F1' },
-    system: { icon: Settings, color: '#34C759' },
+// Map notification type → icon + token classes (icon tile, unread dot)
+const typeConfig: Record<string, { icon: typeof Briefcase; tile: string; dot: string }> = {
+    application: { icon: Briefcase, tile: 'bg-accent-soft text-accent-text', dot: 'bg-accent' },
+    interview: { icon: CalendarCheck, tile: 'bg-warning-soft text-warning', dot: 'bg-warning' },
+    system: { icon: Settings, tile: 'bg-success-soft text-success', dot: 'bg-success' },
 };
 
 // Relative time format
@@ -33,41 +32,28 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
     return (
         <button
             onClick={onMarkRead}
-            className={`w-full flex items-start gap-3 px-4 py-3 text-left border-b border-[#F2F2F7] last:border-0 transition-colors ${notification.isRead ? 'hover:bg-[#F5F5F7]' : 'bg-[#EBF3FD]/30 hover:bg-[#EBF3FD]/50'
-                }`}
+            className={`flex w-full items-start gap-3 border-b border-line px-4 py-3 text-left transition-colors last:border-0 ${
+                notification.isRead ? 'hover:bg-surface-2' : 'bg-accent-soft/30 hover:bg-accent-soft/50'
+            }`}
         >
             {/* Unread dot */}
-            {!notification.isRead &&
-                (<div className="flex-shrink-0 mt-2">
-                    <div
-                        className="w-2 h-2 rounded-full transition-opacity"
-                        style={{
-                            background: notification.isRead ? 'transparent' : config.color,
-                            opacity: notification.isRead ? 0 : 1,
-                        }}
-                    />
-                </div>)
-            }
+            {!notification.isRead && (
+                <div className="mt-2 shrink-0">
+                    <div className={`size-2 rounded-full ${config.dot}`} />
+                </div>
+            )}
 
             {/* Icon */}
-            <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                style={{ background: `${config.color}15` }}
-            >
-                <Icon className="w-3.5 h-3.5" style={{ color: config.color }} />
+            <div className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-ctl ${config.tile}`}>
+                <Icon className="size-3.5" />
             </div>
 
-            {/* Content */}     
-            <div className="flex-1 min-w-0">
-                <p
-                    className={`text-[12px] leading-[1.45] ${notification.isRead ? 'text-[#6E6E73]' : 'text-[#1D1D1F]'}`}
-                    style={{ fontFamily: SFT, fontWeight: notification.isRead ? 400 : 500 }}
-                >
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+                <p className={`text-caption ${notification.isRead ? 'text-ink-3' : 'font-medium text-ink'}`}>
                     {notification.message}
                 </p>
-                <p className="text-[10px] text-[#AEAEB2] mt-0.5">
-                    {timeAgo(notification.createdAt)}
-                </p>
+                <p className="mt-0.5 text-micro font-normal text-ink-4">{timeAgo(notification.createdAt)}</p>
             </div>
         </button>
     );

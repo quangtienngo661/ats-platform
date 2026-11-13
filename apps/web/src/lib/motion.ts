@@ -10,13 +10,8 @@ export function exitDuration(enter: number): number {
     return enter * 0.7;
 }
 
-/** Delay for the `index`-th child, or `null` once `index` reaches `cap` (or is negative). */
+/** Delay for the `index`-th child, or `null` once `index` reaches `cap` (or is negative). A negative or NaN `step` counts as 0. */
 export function staggerDelay(index: number, step = 0.04, cap = 8): number | null {
     if (index < 0 || index >= cap) return null;
-    return index * step;
+    return step > 0 ? index * step : 0;
 }
-
-export const fadeRise = {
-    hidden: { opacity: 0, y: 6 },
-    show: { opacity: 1, y: 0 },
-} as const;

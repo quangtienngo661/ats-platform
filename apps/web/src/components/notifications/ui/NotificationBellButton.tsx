@@ -20,7 +20,7 @@ export function NotificationBellButton({
             aria-label="Notifications"
             aria-expanded={isOpen}
             onClick={onToggle}
-            className="relative p-2 rounded-xl text-[#6E6E73] hover:bg-[#F5F5F7] transition"
+            className="relative p-2 rounded-card text-ink-3 transition hover:bg-surface-2"
         >
             <Bell className="w-[18px] h-[18px]" />
             <NotificationBadge count={unreadCount} />

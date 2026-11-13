@@ -2,28 +2,16 @@
 
 import { useSwitchUiVariant } from './useSwitchUiVariant';
 
-// z-index is plain CSS: the z-index tokens do not exist yet.
-const pillStyle = {
-  position: 'fixed',
-  left: 16,
-  bottom: 16,
-  zIndex: 70,
-  padding: '8px 14px',
-  border: '1px solid rgba(0, 0, 0, 0.12)',
-  borderRadius: 9999,
-  background: '#ffffff',
-  color: '#1d1d1f',
-  fontSize: 13,
-  lineHeight: '18px',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
-  cursor: 'pointer',
-} as const;
-
 export function UseModernPill() {
   const { switchTo, pending } = useSwitchUiVariant();
 
   return (
-    <button type="button" style={pillStyle} onClick={() => switchTo('modern')} disabled={pending}>
+    <button
+      type="button"
+      onClick={() => switchTo('modern')}
+      disabled={pending}
+      className="fixed bottom-4 left-4 z-toast cursor-pointer rounded-full border border-line bg-surface px-3.5 py-2 text-body-sm text-ink shadow-e3"
+    >
       Dùng giao diện mới
     </button>
   );

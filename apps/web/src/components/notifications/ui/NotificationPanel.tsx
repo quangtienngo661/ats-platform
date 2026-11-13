@@ -2,7 +2,6 @@
 
 import { motion } from 'motion/react';
 import { Bell, CheckCheck } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
 import { INotification } from '@/types/interfaces/notification.interface';
 import { NotificationItem } from './NotificationItem';
 
@@ -27,23 +26,23 @@ export function NotificationPanel({
 
     return (
         <>
-            <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-40" onClick={onClose} />
+            <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-overlay" onClick={onClose} />
 
             <motion.div
                 initial={{ opacity: 0, y: -5, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.97 }}
                 transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className={`${isCompact ? 'w-[360px] rounded-xl' : 'w-[340px] rounded-2xl'} absolute right-0 top-full mt-2 bg-white shadow-xl shadow-black/10 border border-[#E5E5EA] z-50 overflow-hidden`}
+                className={`${isCompact ? 'w-[360px] rounded-card' : 'w-[340px] rounded-panel'} absolute right-0 top-full z-popover mt-2 overflow-hidden bg-surface shadow-e4`}
             >
                 {!isCompact && (
-                    <div className="px-4 py-3 border-b border-[#F2F2F7] flex items-center justify-between">
+                    <div className="flex items-center justify-between border-b border-line px-4 py-3">
                         <div className="flex items-center gap-2">
-                            <span className="text-[13px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
+                            <span className="text-body-sm font-semibold text-ink">
                                 Thông báo
                             </span>
                             {unreadCount > 0 && (
-                                <span className="text-[10px] bg-[#0071E3] text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center" style={{ fontWeight: 600 }}>
+                                <span className="min-w-[18px] rounded-full bg-accent px-1.5 py-0.5 text-center text-micro font-semibold text-surface">
                                     {unreadCount}
                                 </span>
                             )}
@@ -53,10 +52,9 @@ export function NotificationPanel({
                             <button
                                 type="button"
                                 onClick={onMarkAllRead}
-                                className="flex items-center gap-1 text-[11px] text-[#0071E3] hover:text-[#0060C0] transition-colors"
-                                style={{ fontWeight: 500 }}
+                                className="flex items-center gap-1 text-micro text-accent-text transition-colors hover:underline"
                             >
-                                <CheckCheck className="w-3 h-3" />
+                                <CheckCheck className="size-3" />
                                 Đọc tất cả
                             </button>
                         )}
@@ -74,8 +72,8 @@ export function NotificationPanel({
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-10">
-                            <Bell className="w-8 h-8 text-[#AEAEB2] mb-2" />
-                            <p className="text-[12px] text-[#AEAEB2]" style={{ fontWeight: 500 }}>
+                            <Bell className="mb-2 size-8 text-ink-4" />
+                            <p className="text-caption font-medium text-ink-4">
                                 Không có thông báo
                             </p>
                         </div>
@@ -86,10 +84,9 @@ export function NotificationPanel({
                     <button
                         type="button"
                         onClick={onMarkAllRead}
-                        className="w-full h-10 border-t border-[#F2F2F7] bg-white hover:bg-[#F5F5F7] flex items-center justify-center gap-2 text-[12px] text-[#0071E3] transition-colors"
-                        style={{ fontWeight: 600 }}
+                        className="flex h-10 w-full items-center justify-center gap-2 border-t border-line bg-surface text-caption font-semibold text-accent-text transition-colors hover:bg-surface-2"
                     >
-                        <CheckCheck className="w-3.5 h-3.5" />
+                        <CheckCheck className="size-3.5" />
                         Đánh dấu tất cả đã đọc
                     </button>
                 )}

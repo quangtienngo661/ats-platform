@@ -24,7 +24,8 @@ function usePrefersReducedMotion() {
     );
 }
 
-// Colours go through `style`: var() in SVG presentation attributes is not resolved by every engine.
+// Gradient stops, grid and ticks take their colour through `style`, which resolves var(). The Area's `stroke`
+// prop below is an SVG presentation attribute and gets the same rgb(var()) string.
 const ACCENT = 'rgb(var(--accent))';
 const LINE = 'rgb(var(--line))';
 const TICK = { style: { fill: 'rgb(var(--ink-3))' }, fontSize: 12 };

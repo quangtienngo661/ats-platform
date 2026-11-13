@@ -2,7 +2,6 @@
 
 import { useFormStatus } from "react-dom";
 import { ArrowRight } from "lucide-react";
-import { SFT } from "@/types/fonts/fonts";
 
 type SubmitButtonProps = {
     content: string;
@@ -15,11 +14,10 @@ export default function SubmitButton({ content }: SubmitButtonProps) {
         <button
             type="submit"
             disabled={pending}
-            className="flex items-center justify-center gap-2 w-full py-3 bg-[#0071E3] hover:bg-[#0077ED] active:bg-[#006FD6] text-white rounded-xl text-[14px] transition shadow-sm shadow-[#0071E3]/20 disabled:opacity-60 mt-1"
-            style={{ fontFamily: SFT, fontWeight: 500 }}
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-card bg-accent py-3 font-sans text-body-sm font-medium text-surface transition hover:bg-accent/90 active:bg-accent/80 disabled:opacity-60"
         >
             {pending ? (
-                <div className="w-4 h-4 border-2 flex py-2 justify-between items-center border-white/10 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 flex items-center justify-between border-2 border-surface/10 border-t-surface rounded-full animate-spin" />
             ) : (
                 <>{content} <ArrowRight className="w-4 h-4" /></>
             )}

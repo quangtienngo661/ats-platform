@@ -1,0 +1,3 @@
+{
+  "src/app/global-error.tsx": "Replaces the root layout when it throws, so it must stay free of anything that depends on the root layout's font variables or Tailwind theme extensions; it is listed so a future raw value there is a deliberate choice, not a silent one."
+}

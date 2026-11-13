@@ -21,8 +21,10 @@ export default function GlobalError({
 }) {
   return (
     <html lang="vi" data-ui="modern">
-      <body className="bg-canvas text-ink antialiased">
+      <head>
         <title>Lỗi hệ thống | TalentAI</title>
+      </head>
+      <body className="bg-canvas text-ink antialiased">
         <main id="main-content" className="grid min-h-dvh place-items-center px-5 py-16">
           <div role="alert" className="flex w-full max-w-sm flex-col items-center text-center">
             <span className="mb-4 flex size-10 items-center justify-center rounded-card bg-surface-2 text-ink-3">

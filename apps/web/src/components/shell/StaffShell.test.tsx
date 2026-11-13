@@ -135,8 +135,7 @@ describe('StaffShell', () => {
         expect(menu).toHaveFocus();
     });
 
-    // A Radix menu nested in the drawer's Radix dialog loses focus to the dialog's trap (two copies of
-    // focus-scope are installed), so the drawer lists the account actions inline instead.
+    // The drawer lists the account actions inline instead of nesting a second popup menu in the dialog.
     it('lists the account actions inline in the drawer, without a nested menu', async () => {
         stubViewport(false);
         const user = userEvent.setup();

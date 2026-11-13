@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from 'react';
 import { Bold, Italic, List } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
 
 interface RichTextEditorProps {
     id?: string;
@@ -58,12 +57,12 @@ export function RichTextEditor({ id, value, onChange, placeholder, ariaLabel }: 
     };
 
     return (
-        <div className="w-full rounded-xl border border-[#E5E5EA] overflow-hidden focus-within:border-[#0071E3] focus-within:ring-2 focus-within:ring-[#0071E3]/10 transition bg-white flex flex-col">
-            <div className="flex items-center gap-1 p-2 border-b border-[#F2F2F7] bg-[#FAFAFC]">
+        <div className="w-full flex flex-col overflow-hidden rounded-card border border-line bg-surface transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/10">
+            <div className="flex items-center gap-1 border-b border-line bg-surface-2 p-2">
                 <button
                     type="button"
                     onClick={() => format('bold')}
-                    className="p-1.5 rounded-lg hover:bg-[#E5E5EA] text-[#1D1D1F] transition-colors"
+                    className="rounded-ctl p-1.5 text-ink transition-colors hover:bg-line"
                     title="In đậm"
                 >
                     <Bold className="w-4 h-4" />
@@ -71,16 +70,16 @@ export function RichTextEditor({ id, value, onChange, placeholder, ariaLabel }: 
                 <button
                     type="button"
                     onClick={() => format('italic')}
-                    className="p-1.5 rounded-lg hover:bg-[#E5E5EA] text-[#1D1D1F] transition-colors"
+                    className="rounded-ctl p-1.5 text-ink transition-colors hover:bg-line"
                     title="In nghiêng"
                 >
                     <Italic className="w-4 h-4" />
                 </button>
-                <div className="w-px h-4 bg-[#E5E5EA] mx-1" />
+                <div className="mx-1 h-4 w-px bg-line" />
                 <button
                     type="button"
                     onClick={() => format('insertUnorderedList')}
-                    className="p-1.5 rounded-lg hover:bg-[#E5E5EA] text-[#1D1D1F] transition-colors"
+                    className="rounded-ctl p-1.5 text-ink transition-colors hover:bg-line"
                     title="Danh sách"
                 >
                     <List className="w-4 h-4" />
@@ -92,8 +91,7 @@ export function RichTextEditor({ id, value, onChange, placeholder, ariaLabel }: 
             <div
                 id={id}
                 ref={editorRef}
-                className="rich-text-editor-content p-4 min-h-[200px] max-h-[400px] overflow-y-auto text-[14px] text-[#1D1D1F]"
-                style={{ fontFamily: SFT }}
+                className="rich-text-editor-content max-h-[400px] min-h-[200px] overflow-y-auto p-4 font-sans text-body-sm text-ink"
                 role="textbox"
                 aria-label={ariaLabel ?? placeholder ?? 'Nội dung mô tả'}
                 aria-multiline="true"

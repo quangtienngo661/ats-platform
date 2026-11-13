@@ -62,7 +62,7 @@ function useAccountActions(logoutRedirect: string, onBeforeLogout?: () => void) 
 /**
  * The signed-in account and its menu: profile, back to the legacy UI, sign out. Selecting the last two keeps the
  * menu open with the item disabled until the server answers, so the click visibly did something.
- * Not for use inside a `Dialog`/`Sheet`: use `AccountList` there (see its note).
+ * Inside a `Dialog`/`Sheet` use `AccountList` instead (see its note).
  */
 export function AccountMenu({
     name,
@@ -152,9 +152,8 @@ const rowClasses =
     'hover:bg-surface-2/70 disabled:pointer-events-none disabled:text-ink-4';
 
 /**
- * The account and its actions as a plain list, for the mobile navigation drawer. A Radix menu cannot live inside
- * a Radix dialog here: `react-dialog` and `react-dropdown-menu` pin different copies of focus-scope and
- * dismissable-layer, so the dialog's focus trap pulls focus out of the menu and one Esc closes both.
+ * The account and its actions as a plain list, for the mobile navigation drawer. The drawer shows the actions
+ * inline rather than behind a second popup nested in the dialog: one fewer layer to dismiss on a phone.
  */
 export function AccountList({
     name,

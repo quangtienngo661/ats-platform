@@ -48,7 +48,7 @@ export default function StaffLoginForm({ isRoleDifferent }: { isRoleDifferent?: 
                             aria-pressed={isActive}
                             onClick={() => setRole(r.id)}
                             className={cn(
-                                'h-9 rounded-[6px] text-body-sm transition duration-press ease-out-expo',
+                                'h-9 rounded-ctl text-body-sm transition duration-press ease-out-expo',
                                 isActive ? 'bg-surface font-medium text-ink shadow-e2' : 'text-ink-3 hover:text-ink',
                             )}
                         >

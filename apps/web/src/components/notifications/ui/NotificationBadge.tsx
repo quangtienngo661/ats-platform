@@ -6,9 +6,7 @@ export function NotificationBadge({ count }: NotificationBadgeProps) {
     if (count <= 0) return null;
 
     return (
-        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-[#FF3B30] text-white text-[9px] px-1 border-2 border-white animate-pulse"
-            style={{ fontWeight: 700 }}
-        >
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-surface bg-danger-solid px-1 text-micro font-semibold leading-none text-surface motion-safe:animate-pulse">
             {count > 99 ? '99+' : count}
         </span>
     );

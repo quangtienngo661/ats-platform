@@ -58,7 +58,7 @@ export default async function RootLayout({
       <body className={variant === 'legacy' ? inter.className : undefined}>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:text-[13px] focus:text-[#0071E3] focus:shadow-lg focus:outline focus:outline-2 focus:outline-[#0071E3]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-palette focus:rounded-card focus:bg-surface focus:px-4 focus:py-2 focus:text-body-sm focus:text-accent-text focus:shadow-e3 focus:outline focus:outline-2 focus:outline-accent"
         >
           Bỏ qua tới nội dung chính
         </a>
@@ -69,8 +69,8 @@ export default async function RootLayout({
           closeButton
           position="bottom-right"
           toastOptions={{
+            className: 'font-sans',
             style: {
-              fontFamily: 'var(--font-sf), -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
               fontSize: '13px',
               borderRadius: '12px',
             },
