@@ -212,6 +212,21 @@ describe('Table', () => {
         expect(screen.getByRole('cell', { name: '86' })).toHaveClass('text-right', 'tabular-nums');
         expect(screen.getAllByRole('rowgroup')[0]).toHaveClass('sticky', 'z-sticky');
     });
+
+    // An absolutely positioned child (an sr-only header label) must be clipped by the scroller, not by
+    // the page: without a containing block it widened /user-management to 562 px at a 390 px viewport.
+    it('makes its horizontal scroller the containing block of positioned cells', () => {
+        render(
+            <Table>
+                <TBody>
+                    <TR>
+                        <TD>An</TD>
+                    </TR>
+                </TBody>
+            </Table>,
+        );
+        expect(screen.getByRole('table').parentElement).toHaveClass('relative', 'overflow-x-auto');
+    });
 });
 
 describe('PageToolbar', () => {
