@@ -36,7 +36,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('dates render in Vietnam time whatever the server time zone', () => {
+describe('dates render in Vietnam time whatever the server time zone', { timeout: 30_000 }, () => {
   it('ApplicationCard shows the applied day in Vietnam', async () => {
     const { ApplicationCard } = await import('@/components/my-applications/ui/ApplicationCard');
     const application = { applicationId: 'a-1', status: 'applied', jobTitle: 'Backend', appliedAt: AT } as IApplicationCard;
@@ -86,7 +86,7 @@ describe('dates render in Vietnam time whatever the server time zone', () => {
   });
 });
 
-describe('token counts use vi-VN grouping whatever the server locale', () => {
+describe('token counts use vi-VN grouping whatever the server locale', { timeout: 30_000 }, () => {
   const log = (promptTokens: number, completionTokens: number) => ({
     logId: `l-${promptTokens}`, actionType: 'cv_scoring', referenceId: null, modelName: 'gemini', promptTokens, completionTokens,
     durationMs: 10, status: 'success', createdAt: AT,

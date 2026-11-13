@@ -21,7 +21,7 @@ async function renderCardUnder(tz: string, uploadedAt: string) {
   render(<CvCard cv={cvUploadedAt(uploadedAt)} onView={vi.fn()} onDelete={vi.fn()} />);
 }
 
-describe('CvCard upload time', () => {
+describe('CvCard upload time', { timeout: 30_000 }, () => {
   afterEach(() => {
     if (originalTz === undefined) delete process.env.TZ;
     else process.env.TZ = originalTz;

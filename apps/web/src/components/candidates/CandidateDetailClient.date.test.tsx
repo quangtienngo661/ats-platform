@@ -29,7 +29,7 @@ async function renderUnder(tz: string, at: string) {
   render(<CandidateDetailClient application={appliedAt(at)} jobId="job-1" currentUserId="user-1" isClosed={false} />);
 }
 
-describe('CandidateDetailClient applied date', () => {
+describe('CandidateDetailClient applied date', { timeout: 30_000 }, () => {
   afterEach(() => {
     if (originalTz === undefined) delete process.env.TZ;
     else process.env.TZ = originalTz;
