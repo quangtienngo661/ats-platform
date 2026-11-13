@@ -211,7 +211,7 @@ Mỗi primitive một file, export có tên, style chỉ dùng token.
 
 | Primitive | Ghi chú |
 |---|---|
-| `Button` | `variant`: primary (ink), secondary (surface + e1), ghost, danger, accent; `size` sm/md/lg; `loading` hiện spinner nhỏ và `aria-busy`; nhấn co `.97` |
+| `Button` | `variant`: primary (ink), secondary (surface + e2; bản build dùng e2 để nút nhìn ra là bấm được), ghost, danger, accent; `size` sm/md/lg; `loading` hiện spinner nhỏ và `aria-busy`; nhấn co `.97` |
 | `ButtonLink` | `next/link` với cùng style |
 | `IconButton` | bắt buộc `aria-label`; 32/36 px |
 | `Field`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch` | `Field` nối label, hint và lỗi bằng `id`/`aria-describedby`/`aria-invalid` |
