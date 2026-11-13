@@ -68,6 +68,17 @@ describe('design tokens', () => {
     expect(body).toMatch(/transition-duration:\s*0\.01ms/);
   });
 
+  // Reveal/Stagger set an inline animation-delay with fill-mode both: a 0.01ms animation still waited out
+  // its delay at opacity 0. Task 33 measured 5 KPI blocks invisible 50 ms after the dashboard hydrated.
+  it('drops the stagger delay under reduced motion so content shows at once', () => {
+    const block = css.match(
+      /@media \(prefers-reduced-motion: reduce\)\s*\{\s*html\[data-ui="modern"\] \*[^{]*\{([^}]*)\}/,
+    );
+    const body = block?.[1] ?? '';
+    expect(body).toMatch(/animation-delay:\s*0s !important/);
+    expect(body).toMatch(/transition-delay:\s*0s !important/);
+  });
+
   it('keeps spinners turning under reduced motion: a spinner shows progress, not decoration', () => {
     const block = css.match(
       /@media \(prefers-reduced-motion: reduce\)\s*\{\s*(html\[data-ui="modern"\] \*[^{]*)\{([^}]*)\}/,
