@@ -163,7 +163,9 @@ test('admin tạo cấu hình → reload từ database → đăng xuất và thu
   const refreshToken = (await page.context().cookies()).find(
     (cookie) => cookie.name === 'refreshToken',
   )!.value;
-  await page.getByRole('button', { name: 'Đăng xuất', exact: true }).click();
+  // Sign-out lives in the account menu (UI redesign); the trigger is named after the signed-in admin.
+  await page.getByRole('button', { name: 'System Administrator' }).click();
+  await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
   await expect(page).toHaveURL(/\/sign-in\/admin/);
   const cookieNames = (await page.context().cookies()).map(
     (cookie) => cookie.name,

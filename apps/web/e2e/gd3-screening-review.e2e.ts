@@ -105,7 +105,11 @@ test.describe('GĐ3 3b — người duyệt trên kết quả chấm', () => {
     await expect(dialog).toBeHidden();
 
     await expect(recruiterPage.getByText('Đã duyệt', { exact: true }).first()).toBeVisible();
-    await expect(recruiterPage.getByText(`Điểm đã duyệt: ${reviewed.overall}`)).toBeVisible();
+    // The reviewed score now sits in the "Gợi ý AI" panel with the original AI score under it (UI redesign).
+    const aiPanel = recruiterPage.getByRole('region', { name: 'Gợi ý AI', exact: true });
+    await expect(aiPanel.getByText('Đã duyệt', { exact: true })).toBeVisible();
+    await expect(aiPanel.getByRole('meter', { name: 'Gợi ý AI', exact: true })).toHaveAttribute('aria-valuenow', String(reviewed.overall));
+    await expect(aiPanel.getByText(`Điểm AI ban đầu: ${fixture.aiScores.overall}`, { exact: true })).toBeVisible();
   });
 
   test('database: người duyệt, điểm sau duyệt đã làm tròn, và điểm AI + khuyến nghị + trạng thái không đổi', async () => {

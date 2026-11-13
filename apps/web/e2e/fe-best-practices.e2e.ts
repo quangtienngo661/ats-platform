@@ -69,18 +69,20 @@ test.describe('FE best practices with real isolated API data', () => {
     await candidatePage.keyboard.press('Escape');
     await expect(candidatePage.getByRole('dialog')).toHaveCount(0);
     await expect(upload).toBeFocused();
-    await candidatePage.getByRole('button', { name: 'Xem chi tiết & xác nhận', exact: true }).click();
+    // The CV card's file name opens its detail (UI redesign).
+    await candidatePage.getByRole('button', { name: fixture.cvName, exact: true }).click();
     await expect(candidatePage.getByRole('dialog', { name: 'Chi tiết CV', exact: true })).toBeVisible();
     await expect(candidatePage.getByRole('dialog').getByText('React', { exact: true })).toBeVisible();
     await candidatePage.keyboard.press('Escape');
   });
 
   test('resumed interview renders history and current question after refresh', async () => {
+    // Each chat bubble starts with a screen-reader speaker label, "AI: " or "Bạn: " (UI redesign).
     await candidatePage.goto(`/mock-interview/${fixture.sessionId}`);
-    await expect(candidatePage.getByText(fixture.question, { exact: true })).toBeVisible();
-    await expect(candidatePage.getByText(fixture.answer, { exact: true })).toBeVisible();
+    await expect(candidatePage.getByText(`AI: ${fixture.question}`, { exact: true })).toBeVisible();
+    await expect(candidatePage.getByText(`Bạn: ${fixture.answer}`, { exact: true })).toBeVisible();
     await candidatePage.reload();
-    await expect(candidatePage.getByText(fixture.question, { exact: true })).toBeVisible();
+    await expect(candidatePage.getByText(`AI: ${fixture.question}`, { exact: true })).toBeVisible();
     await expect(candidatePage.getByRole('textbox', { name: 'Câu trả lời', exact: true })).toBeVisible();
   });
 

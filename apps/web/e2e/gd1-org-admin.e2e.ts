@@ -211,16 +211,19 @@ test.describe('GĐ1 tuần cuối — portal org_admin với hai tổ chức th�
 
   test('A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu', async () => {
     await organizationPage.goto('/jobs');
-    await organizationPage.getByRole('button', { name: 'Tạo tin mới', exact: true }).click();
+    await organizationPage.getByRole('button', { name: 'Tạo tin tuyển dụng', exact: true }).first().click();
     const owners = organizationPage.getByRole('combobox', { name: /Người phụ trách/ });
     await expect(owners.getByRole('option', { name: new RegExp(fixture.recruiterB.name) })).toHaveCount(0);
     await owners.selectOption(recruiterA.recruiterId);
     await organizationPage.getByRole('textbox', { name: /Tiêu đề vị trí/ }).fill(fixture.jobA.title);
     await organizationPage.getByRole('textbox', { name: /Mô tả công việc/ }).fill('Tin kiểm chứng multi-tenant. Không gọi AI bên ngoài.');
     await organizationPage.getByRole('button', { name: 'Tiếp tục không dùng AI', exact: true }).click();
-    await expect(organizationPage.getByRole('heading', { name: 'Tạo tin tuyển dụng (Bước 2/2)', exact: true })).toBeVisible();
-    await organizationPage.getByRole('button', { name: 'Xuất bản', exact: true }).click();
-    await expect(organizationPage.getByRole('heading', { name: 'Tạo tin tuyển dụng (Bước 2/2)', exact: true })).toBeHidden();
+    // The dialog marks the current step with aria-current (UI redesign); step 2 saves with "Lưu tin".
+    const jobDialog = organizationPage.getByRole('dialog', { name: 'Tạo tin tuyển dụng', exact: true });
+    await expect(jobDialog.getByRole('list', { name: 'Các bước', exact: true })
+      .getByRole('listitem').filter({ hasText: 'Mô tả và yêu cầu' })).toHaveAttribute('aria-current', 'step');
+    await jobDialog.getByRole('button', { name: 'Lưu tin', exact: true }).click();
+    await expect(jobDialog).toBeHidden();
     await organizationPage.reload();
     await expect(organizationPage.getByText(fixture.jobA.title, { exact: true }).first()).toBeVisible();
     const response = await organizationContext.request.get(`${apiBaseUrl()}/job-postings`, {
@@ -240,8 +243,10 @@ test.describe('GĐ1 tuần cuối — portal org_admin với hai tổ chức th�
 
   test('A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức', async () => {
     await organizationPage.goto('/my-profile');
-    await expect(organizationPage.getByText(fixture.adminA.email, { exact: true }).first()).toBeVisible();
-    await expect(organizationPage.getByText(fixture.orgA.name, { exact: true }).first()).toBeVisible();
+    // The staff profile shows "Email: …" and "Quản trị tổ chức · <organization>" (UI redesign).
+    const profile = organizationPage.getByRole('main');
+    await expect(profile.getByText(`Email: ${fixture.adminA.email}`, { exact: true })).toBeVisible();
+    await expect(profile.getByText(`Quản trị tổ chức · ${fixture.orgA.name}`, { exact: true })).toBeVisible();
     await expect(organizationPage.getByText('Không tìm thấy hồ sơ nhà tuyển dụng')).toBeHidden();
     await organizationPage.goto('/interviews');
     await organizationPage.getByRole('button', { name: 'Đặt phỏng vấn', exact: true }).click();
