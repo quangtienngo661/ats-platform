@@ -1,172 +1,110 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, CheckCircle2, XCircle, MessageSquare } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useId, useState, type ReactNode } from 'react';
+import { Check, ChevronDown, X } from 'lucide-react';
+import { Badge } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { IInterviewQnA } from '@/types/interfaces/interview.interface';
-
-// Difficulty badge styles
-const difficultyStyle: Record<string, { color: string; bg: string; label: string }> = {
-    easy: { color: '#34C759', bg: '#F0FDF4', label: 'Dễ' },
-    medium: { color: '#F59E0B', bg: '#FFFBEB', label: 'TB' },
-    hard: { color: '#FF3B30', bg: '#FEF2F2', label: 'Khó' },
-};
-
-function getScoreColor(score: number) {
-    if (score >= 75) return '#34C759';
-    if (score >= 50) return '#F59E0B';
-    return '#FF3B30';
-}
+import { DIFFICULTY_OPTIONS } from './DifficultySelector';
 
 interface QnAAccordionProps {
     qna: IInterviewQnA;
 }
 
+function Block({ label, labelClass = 'text-ink-3', children }: { label: string; labelClass?: string; children: ReactNode }) {
+    return (
+        <div className="min-w-0">
+            <p className={cn('text-caption', labelClass)}>{label}</p>
+            <div className="mt-1">{children}</div>
+        </div>
+    );
+}
+
+function Points({ label, items, icon: Icon, iconClass }: { label: string; items: string[]; icon: typeof Check; iconClass: string }) {
+    return (
+        <Block label={label}>
+            <ul className="flex flex-col gap-1.5">
+                {items.map((point, i) => (
+                    <li key={i} className="flex gap-2 break-words text-body-sm text-ink-2">
+                        <Icon aria-hidden="true" strokeWidth={1.75} className={cn('mt-0.5 size-4 shrink-0', iconClass)} />
+                        <span className="min-w-0">{point}</span>
+                    </li>
+                ))}
+            </ul>
+        </Block>
+    );
+}
+
+/** One question of the report: a disclosure button (question, difficulty, score) that reveals the answer and the AI's review. */
 export function QnAAccordion({ qna }: QnAAccordionProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const score = qna.correctnessScore || 0;
-    const scoreColor = getScoreColor(score);
-    const diffConfig = difficultyStyle[qna.difficulty] || difficultyStyle.medium;
+    const panelId = useId();
+    const difficulty = DIFFICULTY_OPTIONS.find((o) => o.value === qna.difficulty)?.label ?? 'Trung bình';
+    const score = qna.correctnessScore;
+    const covered = qna.coveredPoints ?? [];
+    const missed = qna.missedPoints ?? [];
+    const text = 'whitespace-pre-wrap break-words text-body-sm';
 
     return (
-        <div className="bg-white rounded-xl border border-[#E5E5EA] overflow-hidden transition-shadow hover:shadow-sm">
-            {/* Header — always visible */}
+        <div>
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[#F5F5F7]/50"
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={isOpen ? panelId : undefined}
+                onClick={() => setIsOpen((open) => !open)}
+                className="flex w-full items-start gap-3 rounded-ctl px-3 py-3 text-left transition-colors duration-hover hover:bg-surface-2"
             >
-                {/* Score badge */}
-                <div
-                    className="w-10 h-10 rounded-xl flex flex-col items-center justify-center flex-shrink-0"
-                    style={{ background: `${scoreColor}10` }}
-                >
-                    <span className="text-[14px] leading-none" style={{ fontFamily: SF, fontWeight: 700, color: scoreColor }}>
-                        {Math.round(score)}
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-caption tabular-nums text-ink-3">Câu {qna.orderIndex}</span>
+                        <Badge>{difficulty}</Badge>
+                        {qna.hasFollowup && <Badge tone="accent">Câu hỏi bổ sung</Badge>}
                     </span>
-                </div>
-
-                {/* Question text */}
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] text-[#AEAEB2]" style={{ fontWeight: 600 }}>
-                            Câu {qna.orderIndex}
-                        </span>
-                        <span
-                            className="text-[9px] rounded-full px-1.5 py-0.5"
-                            style={{ background: diffConfig.bg, color: diffConfig.color, fontWeight: 600 }}
-                        >
-                            {diffConfig.label}
-                        </span>
-                        {qna.hasFollowup && (
-                            <span className="text-[9px] rounded-full px-1.5 py-0.5 bg-[#F5F3FF] text-[#6366F1]" style={{ fontWeight: 500 }}>
-                                Follow-up
-                            </span>
-                        )}
-                    </div>
-                    <p className="text-[12px] text-[#1D1D1F] truncate" style={{ fontFamily: SFT }}>
-                        {qna.questionText}
-                    </p>
-                </div>
-
-                {/* Expand icon */}
+                    <span className="break-words text-body-sm text-ink">{qna.questionText}</span>
+                </span>
+                <span className="mt-0.5 shrink-0 text-body-sm font-medium tabular-nums text-ink">
+                    <span className="sr-only">Điểm </span>
+                    {score === null ? '–' : Math.round(score)}
+                </span>
                 <ChevronDown
-                    className="w-4 h-4 text-[#AEAEB2] transition-transform duration-200 flex-shrink-0"
-                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                    className={cn(
+                        'mt-0.5 size-4 shrink-0 text-ink-3 transition-transform duration-hover ease-out-expo',
+                        isOpen && 'rotate-180',
+                    )}
                 />
             </button>
 
-            {/* Expanded content */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                        className="overflow-hidden"
-                    >
-                        <div className="px-4 pb-4 border-t border-[#F2F2F7]">
-                            {/* Answer */}
-                            <div className="mt-3 mb-3">
-                                <p className="text-[10px] text-[#AEAEB2] mb-1" style={{ fontWeight: 600 }}>Câu trả lời</p>
-                                <div className="bg-[#EBF3FD] rounded-xl p-3">
-                                    <p className="text-[12px] text-[#1D1D1F] leading-[1.6]" style={{ fontFamily: SFT }}>
-                                        {qna.answerText || '(Chưa trả lời)'}
-                                    </p>
-                                </div>
-                            </div>
+            {isOpen && (
+                <div id={panelId} className="flex animate-rise flex-col gap-4 px-3 pb-4 pt-1">
+                    <Block label="Câu trả lời của bạn">
+                        <p className={cn(text, 'text-ink-2')}>{qna.answerText || 'Chưa trả lời.'}</p>
+                    </Block>
 
-                            {/* Follow-up */}
-                            {qna.hasFollowup && qna.followupQuestion && (
-                                <div className="mb-3">
-                                    <p className="text-[10px] text-[#6366F1] mb-1 flex items-center gap-1" style={{ fontWeight: 600 }}>
-                                        <MessageSquare className="w-3 h-3" />
-                                        Câu hỏi bổ sung
-                                    </p>
-                                    <div className="bg-[#F5F3FF] rounded-xl p-3 mb-2">
-                                        <p className="text-[12px] text-[#1D1D1F] leading-[1.6]">{qna.followupQuestion}</p>
-                                    </div>
-                                    {qna.followupAnswer && (
-                                        <div className="bg-[#EBF3FD] rounded-xl p-3">
-                                            <p className="text-[12px] text-[#1D1D1F] leading-[1.6]">{qna.followupAnswer}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                    {qna.hasFollowup && qna.followupQuestion && (
+                        <Block label="Câu hỏi bổ sung">
+                            <p className={cn(text, 'text-ink')}>{qna.followupQuestion}</p>
+                            {qna.followupAnswer && <p className={cn(text, 'mt-2 text-ink-2')}>{qna.followupAnswer}</p>}
+                        </Block>
+                    )}
 
-                            {/* Feedback */}
-                            {qna.feedback && (
-                                <div className="mb-3 p-3 bg-[#FFFBEB] rounded-xl border border-[#F59E0B]/20">
-                                    <p className="text-[10px] text-[#F59E0B] mb-1" style={{ fontWeight: 600 }}>Nhận xét AI</p>
-                                    <p className="text-[12px] text-[#1D1D1F] leading-[1.6]" style={{ fontFamily: SFT }}>
-                                        {qna.feedback}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Covered & Missed Points */}
-                            <div className="grid grid-cols-2 gap-3">
-                                {/* Covered */}
-                                {qna.coveredPoints && qna.coveredPoints.length > 0 && (
-                                    <div>
-                                        <p className="text-[10px] text-[#34C759] mb-1.5 flex items-center gap-1" style={{ fontWeight: 600 }}>
-                                            <CheckCircle2 className="w-3 h-3" />
-                                            Đã đề cập
-                                        </p>
-                                        <ul className="space-y-1">
-                                            {qna.coveredPoints.map((p, i) => (
-                                                <li key={i} className="text-[11px] text-[#6E6E73] flex items-start gap-1.5">
-                                                    <div className="w-1 h-1 rounded-full bg-[#34C759] mt-1.5 flex-shrink-0" />
-                                                    {p}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-                                {/* Missed */}
-                                {qna.missedPoints && qna.missedPoints.length > 0 && (
-                                    <div>
-                                        <p className="text-[10px] text-[#FF3B30] mb-1.5 flex items-center gap-1" style={{ fontWeight: 600 }}>
-                                            <XCircle className="w-3 h-3" />
-                                            Chưa đề cập
-                                        </p>
-                                        <ul className="space-y-1">
-                                            {qna.missedPoints.map((p, i) => (
-                                                <li key={i} className="text-[11px] text-[#6E6E73] flex items-start gap-1.5">
-                                                    <div className="w-1 h-1 rounded-full bg-[#FF3B30] mt-1.5 flex-shrink-0" />
-                                                    {p}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
+                    {qna.feedback && (
+                        <div className="rounded-ctl bg-surface-2 p-3">
+                            <Block label="Nhận xét AI" labelClass="text-accent-text">
+                                <p className={cn(text, 'text-ink-2')}>{qna.feedback}</p>
+                            </Block>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+
+                    {(covered.length > 0 || missed.length > 0) && (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {covered.length > 0 && <Points label="Đã đề cập" items={covered} icon={Check} iconClass="text-success" />}
+                            {missed.length > 0 && <Points label="Chưa đề cập" items={missed} icon={X} iconClass="text-danger" />}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

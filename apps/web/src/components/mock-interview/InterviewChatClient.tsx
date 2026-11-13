@@ -1,19 +1,33 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ArrowLeft } from 'lucide-react';
 import { DifficultyLevel } from '@ats-platform/types';
+import { cn } from '@/components/ui/cn';
 import { ChatBubble } from './ui/ChatBubble';
 import { AnswerInput } from './ui/AnswerInput';
-import { SessionSidebar } from './ui/SessionSidebar';
+import { SessionSidebar, questionProgress } from './ui/SessionSidebar';
 import { TypingIndicator } from './ui/TypingIndicator';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { useInterviewChatStore } from '@/stores/useInterviewChatStore';
 import { IInterviewQnA } from '@/types/interfaces/interview.interface';
 import { abandonInterviewSessionAction } from '@/servers/interviews/interviews.action';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+
+// The shared Button/IconButton ghost looks are tuned for light surfaces; these are their night-surface twins.
+const NIGHT_PRESS = 'transition duration-press ease-out-expo active:scale-[.97]';
+const NIGHT_ICON_BUTTON = cn(
+    'inline-flex size-9 shrink-0 items-center justify-center rounded-ctl text-night-ink-2',
+    'hover:bg-night-2 hover:text-night-ink',
+    NIGHT_PRESS,
+);
+const NIGHT_TEXT_BUTTON = cn(
+    'inline-flex h-8 shrink-0 items-center rounded-ctl border border-night-line px-3 text-body-sm font-medium',
+    'text-night-ink-2 hover:bg-night-2 hover:text-night-ink',
+    NIGHT_PRESS,
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,7 +87,7 @@ const rebuildChatHistory = (
                 {
                     id: 'welcome',
                     role: 'ai',
-                    content: `Chào bạn! Chúng ta sẽ bắt đầu phỏng vấn về **${topicName}** với ${totalQuestions} câu hỏi. Sẵn sàng chưa? 😊`,
+                    content: `Chào bạn. Phiên này có ${totalQuestions} câu hỏi về ${topicName}.`,
                     type: 'system',
                 },
                 {
@@ -93,7 +107,7 @@ const rebuildChatHistory = (
     builtHistory.push({
         id: 'resume',
         role: 'ai',
-        content: `Chào mừng bạn quay trở lại! Tiếp tục phỏng vấn về **${topicName}** nhé 😊`,
+        content: `Chào mừng bạn quay lại. Tiếp tục phỏng vấn về ${topicName}.`,
         type: 'system',
     });
 
@@ -153,6 +167,8 @@ export default function InterviewChatClient({
     const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
     const [isAbandoning, setIsAbandoning] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    // Messages rebuilt on load are already on screen; only turns added afterwards rise in.
+    const initialMessageIds = useRef(new Set(builtHistory.map((message) => message.id)));
     const router = useRouter();
 
     const socket = useSocketStore();
@@ -179,9 +195,11 @@ export default function InterviewChatClient({
         }
     };
 
-    // Auto-scroll
+    // Auto-scroll to the latest turn; jump instead of glide when the OS asks for reduced motion.
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const reduce =
+            typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        chatEndRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
     }, [messages, isAiThinking]);
 
     // [Lỗi #3 Fix] Khai báo TRƯỚC useEffect socket để tránh ReferenceError.
@@ -250,7 +268,7 @@ export default function InterviewChatClient({
                 {
                     id: 'generating',
                     role: 'ai',
-                    content: '⏳ AI đang tổng hợp kết quả phỏng vấn của bạn, vui lòng chờ…',
+                    content: 'AI đang tổng hợp kết quả phỏng vấn…',
                     type: 'system',
                 },
             ]);
@@ -263,7 +281,7 @@ export default function InterviewChatClient({
                 {
                     id: 'complete',
                     role: 'ai',
-                    content: '🎉 Chúc mừng bạn đã hoàn thành bài phỏng vấn! Đang chuyển đến trang kết quả…',
+                    content: 'Bạn đã hoàn thành bài phỏng vấn. Đang chuyển đến trang kết quả…',
                     type: 'system',
                 },
             ]);
@@ -345,68 +363,62 @@ export default function InterviewChatClient({
         }
     };
 
-    return (
-        <div className="flex h-screen" style={{ fontFamily: SFT }}>
-            {/* ─── Chat Area ─────────────────────────────────────────── */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Chat header */}
-                <div className="px-5 py-3 border-b border-[#F2F2F7] bg-white flex items-center gap-3">
-                    <button
-                        onClick={() => router.push('/mock-interview')}
-                        className="p-1.5 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] hover:text-[#6E6E73] transition flex-shrink-0"
-                        title="Thoát phỏng vấn"
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center">
-                        <span className="text-white text-[11px]" style={{ fontFamily: SF, fontWeight: 700 }}>AI</span>
-                    </div>
-                    <div>
-                        <p className="text-[13px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                            AI Interviewer · {topicName}
-                        </p>
-                        <p className="text-[11px] text-[#AEAEB2]">
-                            Câu {currentIndex}/{totalQuestions}
-                        </p>
-                    </div>
-                </div>
+    const { shown, ratio } = questionProgress(currentIndex, totalQuestions, isCompleted);
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-5 py-4 bg-[#F5F5F7]">
-                    <div className="max-w-[720px] mx-auto flex flex-col gap-3">
-                        <AnimatePresence mode="popLayout">
+    return (
+        <div className="flex min-h-dvh min-w-0">
+            {/* ─── Chat column ───────────────────────────────────────── */}
+            <div className="flex min-w-0 flex-1 flex-col">
+                <header className="sticky top-0 z-sticky border-b border-night-line bg-night/80 backdrop-blur">
+                    <div className="flex h-14 items-center gap-3 px-4">
+                        <Link href="/mock-interview" aria-label="Thoát phỏng vấn" title="Thoát phỏng vấn" className={NIGHT_ICON_BUTTON}>
+                            <ArrowLeft aria-hidden="true" strokeWidth={1.75} className="size-[18px]" />
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-body-sm font-medium text-night-ink" title={topicName}>
+                                {topicName}
+                            </p>
+                            <p className="text-caption tabular-nums text-night-ink-3">
+                                Câu {shown}/{totalQuestions}
+                            </p>
+                        </div>
+                        {!isCompleted && (
+                            <button type="button" onClick={handleAbandon} className={cn(NIGHT_TEXT_BUTTON, 'lg:hidden')}>
+                                Hủy phỏng vấn
+                            </button>
+                        )}
+                    </div>
+                    {/* Progress rides on the bottom hairline; scaleX keeps it on the compositor. */}
+                    <div
+                        aria-hidden="true"
+                        className="absolute inset-x-0 -bottom-px h-0.5 origin-left bg-accent transition-transform duration-slow ease-out-expo"
+                        style={{ transform: `scaleX(${ratio})` }}
+                    />
+                </header>
+
+                <div className="flex-1 px-4 py-6">
+                    <div className="mx-auto flex max-w-[760px] flex-col gap-4">
+                        <div role="log" aria-label="Hội thoại phỏng vấn" className="flex flex-col gap-4">
                             {messages.map((msg) => (
-                                <motion.div
+                                <div
                                     key={msg.id}
-                                    initial={{ opacity: 0, y: 15, scale: 0.97 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                    className={initialMessageIds.current.has(msg.id) ? undefined : 'animate-rise'}
                                 >
                                     <ChatBubble message={msg} />
-                                </motion.div>
+                                </div>
                             ))}
-                        </AnimatePresence>
+                        </div>
 
-                        {/* Typing indicator */}
-                        <AnimatePresence>
-                            {isAiThinking && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0 }}
-                                >
-                                    <TypingIndicator />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        {isAiThinking && (
+                            <div className="animate-rise">
+                                <TypingIndicator />
+                            </div>
+                        )}
 
                         <div ref={chatEndRef} />
                     </div>
                 </div>
 
-                {/* Input area */}
                 <AnswerInput
                     onSubmit={handleSubmitAnswer}
                     disabled={isAiThinking || isCompleted}
@@ -420,35 +432,32 @@ export default function InterviewChatClient({
                 />
             </div>
 
-            {/* ─── Sidebar ───────────────────────────────────────────── */}
-            <div className="hidden lg:block">
-                <SessionSidebar
-                    topicName={topicName}
-                    category={category}
-                    difficulty={difficulty}
-                    currentIndex={currentIndex}
-                    totalQuestions={totalQuestions}
-                    isCompleted={isCompleted}
-                    sessionId={sessionId}
-                    onAbandon={handleAbandon}
-                />
-            </div>
-
-            {/* Confirm Modal */}
-            <AnimatePresence>
-                {showAbandonConfirm && (
-                    <ConfirmModal
-                        isOpen={showAbandonConfirm}
-                        title="Xác nhận hủy phỏng vấn"
-                        description="Bạn có chắc chắn muốn hủy phiên phỏng vấn này không? Toàn bộ quá trình sẽ không được ghi nhận kết quả."
-                        cancelText="Tiếp tục phỏng vấn"
-                        confirmText="Hủy phiên"
-                        onCancel={() => setShowAbandonConfirm(false)}
-                        onConfirm={handleConfirmAbandon}
-                        isConfirming={isAbandoning}
+            {/* ─── Sidebar (from 1024 px) ────────────────────────────── */}
+            <aside aria-label="Phiên phỏng vấn" className="hidden w-[280px] shrink-0 border-l border-night-line lg:block">
+                <div className="sticky top-0 h-dvh overflow-y-auto">
+                    <SessionSidebar
+                        topicName={topicName}
+                        category={category}
+                        difficulty={difficulty}
+                        currentIndex={currentIndex}
+                        totalQuestions={totalQuestions}
+                        isCompleted={isCompleted}
+                        sessionId={sessionId}
+                        onAbandon={handleAbandon}
                     />
-                )}
-            </AnimatePresence>
+                </div>
+            </aside>
+
+            <ConfirmModal
+                isOpen={showAbandonConfirm}
+                title="Xác nhận hủy phỏng vấn"
+                description="Bạn có chắc chắn muốn hủy phiên phỏng vấn này không? Toàn bộ quá trình sẽ không được ghi nhận kết quả."
+                cancelText="Tiếp tục phỏng vấn"
+                confirmText="Hủy phiên"
+                onCancel={() => setShowAbandonConfirm(false)}
+                onConfirm={handleConfirmAbandon}
+                isConfirming={isAbandoning}
+            />
         </div>
     );
 }

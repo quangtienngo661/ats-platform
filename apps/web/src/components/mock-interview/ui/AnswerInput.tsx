@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send } from 'lucide-react';
-import { SFT } from '@/types/fonts/fonts';
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from 'react';
+import { ArrowUp } from 'lucide-react';
 
 const MAX_HEIGHT = 200; // px — sau đó scroll bên trong, không expand thêm
 
@@ -12,6 +11,10 @@ interface AnswerInputProps {
     placeholder?: string;
 }
 
+/**
+ * The composer pinned to the bottom of the interview, above the phone's home indicator. Enter sends, Shift+Enter
+ * adds a line, and Enter that confirms an IME composition (Vietnamese Telex/VNI on some keyboards) never sends.
+ */
 export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập câu trả lời…' }: AnswerInputProps) {
     const [text, setText] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,59 +38,54 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
         if (!trimmed || disabled) return;
         onSubmit(trimmed);
         setText('');
-        // Reset chiều cao sau khi clear
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.overflowY = 'hidden';
-        }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit();
-        }
+    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key !== 'Enter' || e.shiftKey || e.nativeEvent.isComposing) return;
+        e.preventDefault();
+        handleSubmit();
     };
+
+    const canSend = !disabled && text.trim().length > 0;
 
     return (
-        <div className="border-t border-[#F2F2F7] bg-white px-5 py-3">
-            <div className="max-w-[720px] mx-auto flex items-end gap-3">
-                <div className="flex-1">
-                    <textarea
-                        aria-label="Câu trả lời"
-                        ref={textareaRef}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={disabled}
-                        placeholder={placeholder}
-                        rows={1}
-                        className={[
-                            'w-full rounded-xl border px-4 py-2.5',
-                            'text-[13px] text-[#1D1D1F] placeholder-[#AEAEB2]',
-                            'outline-none transition duration-200',
-                            // Ẩn scrollbar trên mọi trình duyệt
-                            '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-                            // Bỏ resize handle hoàn toàn
-                            'resize-none',
-                            disabled
-                                ? 'bg-[#F5F5F7] border-[#E5E5EA] opacity-50 cursor-not-allowed'
-                                : 'bg-[#F5F5F7] border-[#E5E5EA] focus:border-[#0071E3] focus:bg-white focus:shadow-sm focus:shadow-[#0071E3]/10',
-                        ].join(' ')}
-                        style={{ fontFamily: SFT, overflowY: 'hidden' }}
-                    />
-                    <p className="text-[10px] text-[#AEAEB2] mt-1 ml-1">
-                        Enter để gửi · Shift+Enter để xuống dòng
-                    </p>
-                </div>
-                <button type="button" aria-label="Gửi"
+        <div className="sticky bottom-0 z-sticky border-t border-night-line bg-night/90 px-4 pt-3 backdrop-blur pb-[max(16px,env(safe-area-inset-bottom))]">
+            <div className="mx-auto flex max-w-[760px] items-end gap-2">
+                <textarea
+                    aria-label="Câu trả lời"
+                    aria-describedby="answer-input-hint"
+                    ref={textareaRef}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={disabled}
+                    placeholder={placeholder}
+                    rows={1}
+                    className={[
+                        'block min-h-11 w-full min-w-0 flex-1 resize-none overflow-y-hidden rounded-card border border-night-line',
+                        'bg-night-2 px-4 py-2.5 text-body text-night-ink placeholder:text-night-ink-3',
+                        'transition-colors duration-hover focus:border-night-ink-3',
+                        'disabled:cursor-not-allowed disabled:opacity-60',
+                        '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                    ].join(' ')}
+                />
+                <button
+                    type="button"
+                    aria-label="Gửi câu trả lời"
                     onClick={handleSubmit}
-                    disabled={!text.trim() || disabled}
-                    className="flex-shrink-0 mb-[25.5px] w-10 h-10 rounded-xl flex items-center justify-center transition duration-200 disabled:opacity-30 disabled:cursor-not-allowed bg-[#0071E3] hover:bg-[#0077ED] active:scale-95 text-white shadow-sm shadow-[#0071E3]/20"
+                    disabled={!canSend}
+                    className={[
+                        'inline-flex size-11 shrink-0 items-center justify-center rounded-card',
+                        'bg-night-ink text-night transition duration-press ease-out-expo active:scale-[.97]',
+                        'hover:bg-night-ink-2 disabled:pointer-events-none disabled:bg-night-3 disabled:text-night-ink-3',
+                    ].join(' ')}
                 >
-                    <Send className="w-4 h-4" />
+                    <ArrowUp aria-hidden="true" strokeWidth={1.75} className="size-[18px]" />
                 </button>
             </div>
+            <p id="answer-input-hint" className="mx-auto mt-1.5 hidden max-w-[760px] text-caption text-night-ink-3 sm:block">
+                Enter để gửi · Shift+Enter để xuống dòng
+            </p>
         </div>
     );
 }

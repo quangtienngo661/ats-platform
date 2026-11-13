@@ -1,101 +1,81 @@
-import { TrendingUp, TrendingDown } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useId } from 'react';
+import { TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
+import { Badge, ScoreBar, Stat, Surface, type Tone } from '@/components/ui';
 
-// Xác định màu sắc dựa trên điểm
-function getScoreConfig(score: number) {
-    if (score >= 80) return { color: '#34C759', bg: '#F0FDF4', ringColor: '#34C759', label: 'Xuất sắc' };
-    if (score >= 60) return { color: '#F59E0B', bg: '#FFFBEB', ringColor: '#F59E0B', label: 'Khá' };
-    return { color: '#FF3B30', bg: '#FEF2F2', ringColor: '#FF3B30', label: 'Cần cải thiện' };
+/** The verdict next to the overall score; thresholds unchanged from the previous result page. */
+function scoreVerdict(score: number): { tone: Tone; label: string } {
+    if (score >= 80) return { tone: 'success', label: 'Xuất sắc' };
+    if (score >= 60) return { tone: 'warning', label: 'Khá' };
+    return { tone: 'danger', label: 'Cần cải thiện' };
 }
 
 interface ScoreOverviewProps {
     overallScore: number;
     strengths: string[];
     weaknesses: string[];
+    /** Each question's own score, shown as a bar per question. The API has no per-criterion scores. */
+    questions?: { orderIndex: number; correctnessScore: number | null }[];
 }
 
-export function ScoreOverview({ overallScore, strengths, weaknesses }: ScoreOverviewProps) {
-    const config = getScoreConfig(overallScore);
-    const circumference = 2 * Math.PI * 52;
-    const strokeDashoffset = circumference - (overallScore / 100) * circumference;
+function FeedbackList({ title, icon: Icon, iconClass, items }: { title: string; icon: LucideIcon; iconClass: string; items: string[] }) {
+    const headingId = useId();
+    return (
+        <Surface as="section" aria-labelledby={headingId} className="p-5">
+            <h2 id={headingId} className="flex items-center gap-2 text-title-sm text-ink">
+                <Icon aria-hidden="true" strokeWidth={1.75} className={`size-4 ${iconClass}`} />
+                {title}
+            </h2>
+            {items.length > 0 ? (
+                <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-body text-ink-2 marker:text-ink-4">
+                    {items.map((item, i) => (
+                        <li key={i} className="break-words">
+                            {item}
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="mt-3 text-body-sm text-ink-3">Chưa có nhận xét.</p>
+            )}
+        </Surface>
+    );
+}
+
+export function ScoreOverview({ overallScore, strengths, weaknesses, questions = [] }: ScoreOverviewProps) {
+    const verdict = scoreVerdict(overallScore);
+    const perQuestionId = useId();
+    const ordered = [...questions].sort((a, b) => a.orderIndex - b.orderIndex);
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row gap-6">
-                {/* Score Ring */}
-                <div className="flex flex-col items-center flex-shrink-0">
-                    <div className="relative w-[130px] h-[130px]">
-                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                            {/* Background ring */}
-                            <circle cx="60" cy="60" r="52" fill="none" stroke="#F2F2F7" strokeWidth="8" />
-                            {/* Score ring */}
-                            <circle
-                                cx="60" cy="60" r="52" fill="none"
-                                stroke={config.ringColor}
-                                strokeWidth="8"
-                                strokeLinecap="round"
-                                strokeDasharray={circumference}
-                                strokeDashoffset={strokeDashoffset}
-                                className="transition duration-1000 ease-out"
-                            />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-[28px] leading-none" style={{ fontFamily: SF, fontWeight: 800, color: config.color }}>
-                                {Math.round(overallScore)}
-                            </span>
-                            <span className="text-[11px] text-[#AEAEB2] mt-0.5" style={{ fontWeight: 500 }}>/100</span>
-                        </div>
-                    </div>
-                    <span
-                        className="mt-2 text-[12px] rounded-full px-3 py-1"
-                        style={{ background: config.bg, color: config.color, fontWeight: 600 }}
-                    >
-                        {config.label}
-                    </span>
+        <div className="flex flex-col gap-4">
+            <Surface variant="raised" className="grid gap-6 p-5 sm:p-6 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] md:gap-10">
+                <div className="min-w-0">
+                    <Stat label="Điểm tổng" value={Math.round(overallScore)} suffix="/100" />
+                    <Badge tone={verdict.tone} className="mt-2">
+                        {verdict.label}
+                    </Badge>
+                    <ScoreBar score={overallScore} label="Điểm tổng" className="mt-5" />
                 </div>
 
-                {/* Strengths & Weaknesses */}
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Strengths */}
-                    <div>
-                        <div className="flex items-center gap-1.5 mb-2.5">
-                            <TrendingUp className="w-3.5 h-3.5 text-[#34C759]" />
-                            <span className="text-[12px] text-[#34C759]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                                Điểm mạnh
-                            </span>
-                        </div>
-                        <ul className="space-y-2">
-                            {strengths.map((s, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] mt-1.5 flex-shrink-0" />
-                                    <p className="text-[12px] text-[#1D1D1F] leading-[1.5]" style={{ fontFamily: SFT }}>
-                                        {s}
-                                    </p>
+                {ordered.length > 0 && (
+                    <section aria-labelledby={perQuestionId} className="min-w-0">
+                        <h2 id={perQuestionId} className="text-caption text-ink-3">
+                            Điểm từng câu
+                        </h2>
+                        <ul className="mt-3 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                            {ordered.map((q) => (
+                                <li key={q.orderIndex} className="grid grid-cols-[52px_minmax(0,1fr)] items-center gap-3">
+                                    <span className="text-caption tabular-nums text-ink-3">Câu {q.orderIndex}</span>
+                                    <ScoreBar score={q.correctnessScore} label={`Câu ${q.orderIndex}`} />
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </section>
+                )}
+            </Surface>
 
-                    {/* Weaknesses */}
-                    <div>
-                        <div className="flex items-center gap-1.5 mb-2.5">
-                            <TrendingDown className="w-3.5 h-3.5 text-[#FF3B30]" />
-                            <span className="text-[12px] text-[#FF3B30]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                                Cần cải thiện
-                            </span>
-                        </div>
-                        <ul className="space-y-2">
-                            {weaknesses.map((w, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] mt-1.5 flex-shrink-0" />
-                                    <p className="text-[12px] text-[#1D1D1F] leading-[1.5]" style={{ fontFamily: SFT }}>
-                                        {w}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
+            <div className="grid gap-4 md:grid-cols-2">
+                <FeedbackList title="Điểm mạnh" icon={TrendingUp} iconClass="text-success" items={strengths} />
+                <FeedbackList title="Cần cải thiện" icon={TrendingDown} iconClass="text-danger" items={weaknesses} />
             </div>
         </div>
     );

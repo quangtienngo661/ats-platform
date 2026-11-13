@@ -1,9 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
-import Link from 'next/link';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { RotateCcw } from 'lucide-react';
+import { Breadcrumbs, ButtonLink, EmptyState, PageToolbar, Reveal, Surface } from '@/components/ui';
 import { IInterviewResult } from '@/types/interfaces/interview.interface';
 import { ScoreOverview } from './ui/ScoreOverview';
 import { QnAAccordion } from './ui/QnAAccordion';
@@ -13,97 +11,70 @@ interface InterviewResultClientProps {
     result: IInterviewResult;
 }
 
+/**
+ * The report after a session. The interview layout is the night shell (it also hosts the live chat), so the
+ * report brings its own light canvas: it reads as a document to keep, not as part of the session.
+ */
 export default function InterviewResultClient({ result }: InterviewResultClientProps) {
     const session = result.session;
     if (!session) throw new Error("Thiếu dữ liệu phiên phỏng vấn");
+    const qnas = session.qnas ?? [];
 
     return (
-        // Layout cha có overflow-hidden (cần thiết cho trang chat)
-        // Nên trang result cần tự tạo scroll container riêng
-        <div className="h-full overflow-y-auto">
-            <div className="max-w-[900px] mx-auto px-6 py-8" style={{ fontFamily: SFT }}>
-            {/* ─── Header ─────────────────────────────────────────────── */}
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between mb-6"
-            >
-                <div className="flex items-center gap-3">
-                    <Link
-                        href="/mock-interview"
-                        className="p-2 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] text-[#6E6E73] transition"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                    </Link>
-                    <div>
-                        <h1 className="text-[18px] text-[#1D1D1F] tracking-[-0.02em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                            Kết quả phỏng vấn
-                        </h1>
-                        <p className="text-[12px] text-[#6E6E73]">
-                            {session.topic.name} · {new Date(result.generatedAt).toLocaleDateString('vi-VN')}
-                        </p>
-                    </div>
-                </div>
+        <div className="min-h-dvh bg-canvas text-ink">
+            <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
+                <Reveal className="flex flex-col gap-3">
+                    <Breadcrumbs items={[{ label: 'Phỏng vấn thử', href: '/mock-interview' }, { label: 'Kết quả' }]} />
+                    <PageToolbar title="Kết quả phỏng vấn">
+                        <ButtonLink href="/mock-interview">
+                            <RotateCcw aria-hidden="true" strokeWidth={1.75} />
+                            Làm phiên mới
+                        </ButtonLink>
+                    </PageToolbar>
+                    <p className="-mt-1 break-words text-body-sm text-ink-3">
+                        {session.topic.name} ·{' '}
+                        <time dateTime={result.generatedAt}>
+                            {new Date(result.generatedAt).toLocaleDateString('vi-VN')}
+                        </time>
+                    </p>
+                </Reveal>
 
-                <Link
-                    href="/mock-interview"
-                    className="flex items-center gap-2 px-3.5 py-2 bg-[#EBF3FD] hover:bg-[#D6E9FA] text-[#0071E3] rounded-xl text-[12px] transition"
-                    style={{ fontWeight: 500 }}
-                >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Làm lại
-                </Link>
-            </motion.div>
+                <Reveal delay={0.05}>
+                    <ScoreOverview
+                        overallScore={result.overallScore}
+                        strengths={result.strengths || []}
+                        weaknesses={result.weaknesses || []}
+                        questions={qnas}
+                    />
+                </Reveal>
 
-            {/* ─── Score Overview ──────────────────────────────────────── */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-            >
-                <ScoreOverview
-                    overallScore={result.overallScore}
-                    strengths={result.strengths || []}
-                    weaknesses={result.weaknesses || []}
-                />
-            </motion.div>
+                {result.actionPlan && (
+                    <Reveal delay={0.1}>
+                        <ActionPlanCard actionPlan={result.actionPlan} />
+                    </Reveal>
+                )}
 
-            {/* ─── Action Plan ─────────────────────────────────────────── */}
-            {result.actionPlan && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mt-5"
-                >
-                    <ActionPlanCard actionPlan={result.actionPlan} />
-                </motion.div>
-            )}
-
-            {/* ─── QnA Detail ─────────────────────────────────────────── */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mt-6"
-            >
-                <h2 className="text-[14px] text-[#1D1D1F] mb-4" style={{ fontFamily: SF, fontWeight: 600 }}>
-                    Chi tiết từng câu hỏi
-                </h2>
-                <div className="flex flex-col gap-3">
-                    {session.qnas?.map((qna, index) => (
-                        <motion.div
-                            key={qna.qnaId}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 + index * 0.05 }}
-                        >
-                            <QnAAccordion qna={qna} />
-                        </motion.div>
-                    ))}
-                </div>
-            </motion.div>
-        </div>
+                <Reveal as="section" delay={0.15}>
+                    <h2 className="mb-3 text-title-sm text-ink">Chi tiết từng câu hỏi</h2>
+                    <Surface className="p-1.5">
+                        {qnas.length > 0 ? (
+                            <ul className="divide-y divide-line">
+                                {qnas.map((qna) => (
+                                    <li key={qna.qnaId}>
+                                        <QnAAccordion qna={qna} />
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <EmptyState
+                                className="py-10"
+                                title="Chưa có câu hỏi nào"
+                                description="Phiên này không lưu câu hỏi nào để xem lại."
+                            />
+                        )}
+                    </Surface>
+                </Reveal>
+            </div>
         </div>
     );
 }
