@@ -76,3 +76,16 @@ describe('design tokens', () => {
     expect(config.theme.extend.animation.rise).toContain('280ms');
   });
 });
+
+describe('modern text-wrap rules', () => {
+  it('keep zero-class specificity so utilities such as truncate win', () => {
+    const rules = [...css.matchAll(/([^{}]+)\{[^{}]*text-wrap[^{}]*\}/g)];
+    expect(rules.length).toBeGreaterThan(0);
+    for (const rule of rules) {
+      for (const selector of rule[1].split(',').map((s) => s.trim())) {
+        expect(selector.startsWith(':where(html[data-ui="modern"])')).toBe(true);
+      }
+    }
+    expect(css).not.toMatch(/(^|[\s,}])html\[data-ui="modern"\] p\b/);
+  });
+});
