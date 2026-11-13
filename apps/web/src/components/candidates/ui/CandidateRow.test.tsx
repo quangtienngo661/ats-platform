@@ -26,9 +26,19 @@ const applications: IApplicationDto[] = Array.from({ length: 8 }, (_, index) => 
   screening: null,
 }));
 
-describe('CandidateRow', () => {
+/**
+ * No delay between events, and no pointer-events check: jsdom loads no stylesheet here, so that check can never find
+ * `pointer-events: none` and only costs a computed-style walk up the tree on every click (about 0.1 s per click on
+ * this list, which put the test past the 5 s timeout).
+ */
+const fastUser = () => userEvent.setup({ delay: null, pointerEventsCheck: 0 });
+
+// Measured 13/11/2026, each file alone, 3 runs: 1.2–3.5 s per test after removing the user-event overhead (was 2.5–6 s).
+// What remains is real work (52-row tables rendered twice, a cold first render), so the suite's two parallel workers
+// can still push a test past the 5 s default. 10 s keeps the gate reliable without hiding a hang.
+describe('CandidateRow', { timeout: 10_000 }, () => {
   it('CandidateRow keeps its checkbox enabled with any number of other rows selected (the limit belongs to CompareBar)', async () => {
-    const user = userEvent.setup();
+    const user = fastUser();
     const application = applications[0];
     const onToggle = vi.fn();
     const props = { application, jobId: 'job-1', selected: false, onToggle };
@@ -49,17 +59,21 @@ describe('CandidateRow', () => {
 
     // Exercise the real shared selection state with zero through seven other rows.
     render(<CandidatesFilters applications={applications} jobId="job-1" aiProfiles={[]} />);
-    const target = screen.getByRole('checkbox', { name: 'Chọn Nguyễn Văn 1' });
+    // Rows are keyed by application, so these nodes survive every re-render: query once, reuse.
+    const [target, ...others] = applications.map(app =>
+      screen.getByRole('checkbox', { name: `Chọn ${app.candidate?.user?.fullName}` }));
+    const compare = screen.getByRole('button', { name: 'So sánh' });
     expect(target).toBeEnabled();
-    for (const other of applications.slice(1)) {
-      await user.click(screen.getByRole('checkbox', { name: `Chọn ${other.candidate?.user?.fullName}` }));
+    for (const other of others) {
+      await user.click(other);
+      expect(other).toBeChecked();
       expect(target).toBeEnabled();
       expect(target).not.toBeChecked();
     }
     await user.click(target);
     expect(target).toBeChecked();
     expect(target).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeDisabled();
+    expect(compare).toBeDisabled();
     expect(screen.getByText('Chọn tối đa 4 ứng viên để so sánh')).toBeVisible();
     await user.click(target);
     expect(target).not.toBeChecked();

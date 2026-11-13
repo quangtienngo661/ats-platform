@@ -21,6 +21,13 @@ vi.mock('@/servers/applications/applications.action', () => ({
   exportCandidatesCsvAction: vi.fn(),
 }));
 
+/**
+ * No delay between events, and no pointer-events check: jsdom loads no stylesheet here, so that check can never find
+ * `pointer-events: none` and only costs a computed-style walk up the tree on every click and key (about 0.1 s each on
+ * these lists, which put the selection tests near the 5 s timeout).
+ */
+const fastUser = () => userEvent.setup({ delay: null, pointerEventsCheck: 0 });
+
 const jobId = '10000000-0000-4000-8000-000000000001';
 const aiProfiles: ConfigProfile[] = [{
   configId: '20000000-0000-4000-8000-000000000001',
@@ -66,10 +73,13 @@ function application(
   };
 }
 
-describe('candidate selection', () => {
+// Measured 13/11/2026, each file alone, 3 runs: 1.2–3.5 s per test after removing the user-event overhead (was 2.5–6 s).
+// What remains is real work (52-row tables rendered twice, a cold first render), so the suite's two parallel workers
+// can still push a test past the 5 s default. 10 s keeps the gate reliable without hiding a hang.
+describe('candidate selection', { timeout: 10_000 }, () => {
   // One test per count: each re-renders 52 rows, so a single test for all four ran past the 5 s timeout.
   it.each([0, 4, 50, 51])('CandidateRow keeps its checkbox enabled with any number of other rows selected (%i others)', async (otherSelectedCount) => {
-    const user = userEvent.setup();
+    const user = fastUser();
     const onToggle = vi.fn();
     const applications = Array.from({ length: 52 }, (_, index) => application(index + 1));
     const target = applications[51];
@@ -103,7 +113,7 @@ describe('candidate selection', () => {
   });
 
   it('"Chọn tất cả" selects every visible row and clears them again', async () => {
-    const user = userEvent.setup();
+    const user = fastUser();
     const applications = [
       application(1, 'Nguyễn An', 'applied'),
       application(2, 'Trần Bình', 'applied'),
@@ -164,9 +174,12 @@ const filterApplications: IApplicationDto[] = Array.from({ length: 8 }, (_, inde
   screening: null,
 }));
 
-describe('CandidatesFilters', () => {
+// Measured 13/11/2026, each file alone, 3 runs: 1.2–3.5 s per test after removing the user-event overhead (was 2.5–6 s).
+// What remains is real work (52-row tables rendered twice, a cold first render), so the suite's two parallel workers
+// can still push a test past the 5 s default. 10 s keeps the gate reliable without hiding a hang.
+describe('CandidatesFilters', { timeout: 10_000 }, () => {
   it('"Chọn tất cả" selects every visible row and clears them again', async () => {
-    const user = userEvent.setup();
+    const user = fastUser();
     render(<CandidatesFilters applications={filterApplications} jobId="job-1" aiProfiles={aiProfiles} />);
     await user.click(screen.getByRole('button', { name: /^Phỏng vấn/ }));
     const search = screen.getByRole('textbox', { name: 'Tìm ứng viên' });
@@ -187,23 +200,25 @@ describe('CandidatesFilters', () => {
       expect(checkbox).toBeChecked();
       expect(checkbox).toBeEnabled();
     }
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeDisabled();
+    // CompareBar is always mounted: one query, reused below.
+    const compare = screen.getByRole('button', { name: 'So sánh' });
+    expect(compare).toBeDisabled();
     expect(screen.getByText('Chọn tối đa 4 ứng viên để so sánh')).toBeVisible();
 
     await user.click(all);
     expect(all).not.toBeChecked();
     for (const checkbox of visible) expect(checkbox).not.toBeChecked();
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeDisabled();
+    expect(compare).toBeDisabled();
     expect(screen.queryByText('Chọn tối đa 4 ứng viên để so sánh')).not.toBeInTheDocument();
 
     // Hidden rows were never selected: only the two individual toggles count.
     await user.click(visible[0]);
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeDisabled();
+    expect(compare).toBeDisabled();
     await user.click(visible[1]);
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeEnabled();
+    expect(compare).toBeEnabled();
     await user.click(visible[0]);
     expect(visible[0]).not.toBeChecked();
-    expect(screen.getByRole('button', { name: 'So sánh' })).toBeDisabled();
+    expect(compare).toBeDisabled();
     await user.click(visible[1]);
 
     await user.clear(search);
@@ -220,7 +235,7 @@ describe('CandidatesFilters', () => {
 
 describe('candidate list redesign', () => {
   it('"Xem nhanh {tên}" opens the peek without selecting the row; Esc closes it and returns focus to that button', async () => {
-    const user = userEvent.setup();
+    const user = fastUser();
     render(<CandidatesFilters applications={filterApplications} jobId="job-1" aiProfiles={aiProfiles} />);
     const peekButton = screen.getByRole('button', { name: 'Xem nhanh Lê Thị Bình' });
 
