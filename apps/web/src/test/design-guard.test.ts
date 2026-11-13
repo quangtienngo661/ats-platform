@@ -53,8 +53,13 @@ describe('design guard', () => {
     expect(violations, `\n${violations.join('\n')}\n`).toEqual([]);
   });
 
-  it('allows only global-error.tsx, each entry with a reason', () => {
-    expect(Object.keys(allowList)).toEqual(['src/app/global-error.tsx']);
-    for (const reason of Object.values(allowList)) expect(reason.trim().length).toBeGreaterThan(20);
+  // The mechanism stays for a file that truly cannot use the tokens; today no file needs it.
+  it('has an empty allow-list, and an entry added later must carry a written reason', () => {
+    const entries: [string, unknown][] = Object.entries(allowList);
+    for (const [file, reason] of entries) {
+      expect(typeof reason, file).toBe('string');
+      expect(String(reason).trim().length, file).toBeGreaterThan(20);
+    }
+    expect(entries.map(([file]) => file)).toEqual([]);
   });
 });
