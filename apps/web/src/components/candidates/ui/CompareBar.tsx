@@ -24,6 +24,8 @@ export function CompareBar({ jobId, selectedIds }: CompareBarProps) {
             </div>
             <Button
                 variant="secondary"
+                // 44 px touch target on a phone.
+                className="max-md:h-11"
                 disabled={!canCompare}
                 onClick={() => router.push(`/jobs/${jobId}/compare?ids=${selectedIds.join(',')}`)}
             >

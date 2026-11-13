@@ -28,7 +28,9 @@ function skillNames(value: unknown): string[] {
         value !== null && typeof value === 'object' && !Array.isArray(value)
             ? (value as { hardSkills?: unknown }).hardSkills
             : value;
-    return Array.isArray(list) ? list.filter((item): item is string => typeof item === 'string' && item.trim() !== '') : [];
+    if (!Array.isArray(list)) return [];
+    // The model can repeat a skill; show it once, in first-seen order.
+    return [...new Set(list.filter((item): item is string => typeof item === 'string' && item.trim() !== ''))];
 }
 
 function appliedAtLabel(value?: string): string | null {
@@ -122,7 +124,8 @@ function PeekBody({ application, jobId }: { application: IApplicationDto; jobId:
                 {screeningPending && <StatusChip kind="screening" value={screening.status} />}
                 {recommendation && (
                     <p className="text-body-sm text-ink-2">
-                        Khuyến nghị: <span className="font-medium text-ink">{recommendation}</span>
+                        {/* The AI's own call: a reviewer may have changed the score above, never this. */}
+                        Khuyến nghị của AI: <span className="font-medium text-ink">{recommendation}</span>
                     </p>
                 )}
                 {screening?.aiReasoning && (

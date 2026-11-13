@@ -10,7 +10,8 @@ export function CandidatesStats({ applications }: CandidatesStatsProps) {
     const newCount = applications.filter(a => a.status === 'applied').length;
     const scores = applications
         .map(a => effectiveScreeningScores(a.screening ?? {}).overall)
-        .filter((s): s is number => s != null && s > 0);
+        // overallScore stays null until a screening completes, so 0 is a real score and counts.
+        .filter((s): s is number => s != null);
     const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
     const highScoreCount = scores.filter(s => s >= 90).length;
 

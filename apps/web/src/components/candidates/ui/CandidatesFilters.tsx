@@ -132,7 +132,7 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                     <Input
                         aria-label="Tìm ứng viên"
                         type="text"
-                        placeholder="Tìm theo tên hoặc vị trí"
+                        placeholder="Tìm theo tên"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="pl-8"
@@ -245,7 +245,7 @@ export function CandidatesFilters({ applications, jobId, aiProfiles }: Candidate
                     aiProfiles={aiProfiles}
                 />
                 {selectedCount > 0 && (
-                    <Button variant="ghost" onClick={() => setSelectedIds(new Set())}>
+                    <Button variant="ghost" onClick={() => setSelectedIds(new Set())} className="max-md:h-11">
                         Bỏ chọn
                     </Button>
                 )}

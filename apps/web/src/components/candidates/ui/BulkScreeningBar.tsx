@@ -30,6 +30,8 @@ export function BulkScreeningBar({
         <div className="flex flex-wrap items-center gap-2">
             {showSelected && (
                 <Button
+                    // 44 px touch target on a phone, where the list shows it in the selection bar.
+                    className="max-md:h-11"
                     disabled={selectedCount === 0 || selectedCount > 50}
                     onClick={() => setMode({ kind: 'selected', applications: selectedApplications })}
                 >
