@@ -45,4 +45,20 @@ describe('AiUsageLogsClient', () => {
     expect(screen.getByText('Thời gian TB').closest('div')).toHaveTextContent('1.0s');
     expect(screen.getByText('Thành công (1/2)').closest('div')).toHaveTextContent('50%');
   });
+
+  it('keeps the page controls when the filter matches nothing on this page', async () => {
+    const user = userEvent.setup();
+    render(<AiUsageLogsClient logs={[log({})]} pagination={{ page: 1, limit: 1, total: 3, totalPages: 3 }} />);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc trạng thái AI' }), 'failed');
+    expect(screen.getByRole('heading', { name: 'Không có nhật ký khớp' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Trang 2' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Tiếp' })).toBeEnabled();
+  });
+
+  it('says the page is empty, not that there are no logs, when the page is past the end', () => {
+    render(<AiUsageLogsClient logs={[]} pagination={{ page: 5, limit: 20, total: 40, totalPages: 2 }} />);
+    expect(screen.queryByRole('heading', { name: 'Chưa có nhật ký AI' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Trang này không có nhật ký' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Trang 2' })).toBeVisible();
+  });
 });
