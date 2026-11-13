@@ -36,7 +36,7 @@ describe('RecruiterClient — empty and no-match states', () => {
     expect(screen.getByRole('button', { name: 'Thêm nhà tuyển dụng đầu tiên' })).toBeVisible();
   });
 
-  it('says no recruiter matches a search, and "Xóa bộ lọc" brings every card back', async () => {
+  it('says no recruiter matches a search, and "Xóa tìm kiếm" brings every card back', async () => {
     const user = userEvent.setup();
     render(<RecruiterClient recruiters={recruiters} departments={departments} users={[]} />);
     expect(cardNames()).toEqual(['Nguyễn Văn A', 'Trần Thị B']);
@@ -44,7 +44,7 @@ describe('RecruiterClient — empty and no-match states', () => {
     await user.type(screen.getByRole('textbox', { name: 'Tìm nhà tuyển dụng' }), 'không ai tên này');
     expect(screen.getByRole('heading', { name: 'Không có nhà tuyển dụng khớp' })).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    await user.click(screen.getByRole('button', { name: 'Xóa tìm kiếm' }));
     expect(screen.getByRole('textbox', { name: 'Tìm nhà tuyển dụng' })).toHaveValue('');
     expect(screen.getByRole('textbox', { name: 'Tìm nhà tuyển dụng' })).toHaveFocus();
     expect(cardNames()).toEqual(['Nguyễn Văn A', 'Trần Thị B']);

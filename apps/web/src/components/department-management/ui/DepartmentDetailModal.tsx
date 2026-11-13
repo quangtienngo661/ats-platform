@@ -126,7 +126,7 @@ export function DepartmentDetailModal({ department, onClose }: DepartmentDetailM
                 </dl>
 
                 {department.members.length === 0 ? (
-                    <EmptyState icon={Users} title="Chưa có thành viên nào" className="py-10" />
+                    <EmptyState icon={Users} title="Chưa có thành viên nào" />
                 ) : (
                     <div className="space-y-4">
                         <MemberGroup label="Đang hoạt động" members={activeMembers} />

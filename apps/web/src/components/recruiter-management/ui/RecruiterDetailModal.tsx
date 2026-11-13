@@ -83,17 +83,20 @@ export function RecruiterDetailModal({
                     {rows
                         .filter((row) => row.value)
                         .map(({ icon: Icon, label, value }) => (
-                            <div key={label} className="flex items-start gap-3 py-3">
-                                <Icon aria-hidden="true" strokeWidth={1.75} className="mt-0.5 size-4 shrink-0 text-ink-3" />
-                                <div className="min-w-0">
-                                    <dt className="text-caption text-ink-3">{label}</dt>
-                                    <dd className="mt-0.5 break-words text-body-sm text-ink">{value}</dd>
-                                </div>
+                            // dt and dd sit directly in the group (a valid dl); the icon lives in dt and dd is
+                            // indented by the icon's width plus the gap (16 + 12 px), so the value lines up with the label.
+                            <div key={label} className="py-3">
+                                <dt className="flex items-center gap-3 text-caption text-ink-3">
+                                    <Icon aria-hidden="true" strokeWidth={1.75} className="size-4 shrink-0" />
+                                    {label}
+                                </dt>
+                                <dd className="mt-0.5 break-words pl-7 text-body-sm text-ink">{value}</dd>
                             </div>
                         ))}
                 </dl>
 
-                <div className="flex gap-2">
+                {/* Grid, not flex-1: Button's base is shrink-0, and cn does not merge a class that fights it. */}
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2">
                     <Button
                         variant="danger"
                         onClick={() => {
@@ -105,7 +108,6 @@ export function RecruiterDetailModal({
                         Xóa
                     </Button>
                     <Button
-                        className="flex-1"
                         onClick={() => {
                             onEdit(recruiter);
                             onClose();

@@ -34,7 +34,7 @@ export default function DepartmentClient({ departments, organizations }: Departm
 
     const clearSearch = () => {
         setSearch('');
-        // The "Xóa bộ lọc" button disappears with the no-match state; keep focus in the toolbar.
+        // The "Xóa tìm kiếm" button disappears with the no-match state; keep focus in the toolbar.
         searchRef.current?.focus();
     };
 
@@ -88,7 +88,7 @@ export default function DepartmentClient({ departments, organizations }: Departm
                         icon={SearchX}
                         title="Không có phòng ban khớp"
                         description="Đổi từ khóa tìm kiếm."
-                        action={<Button variant="secondary" onClick={clearSearch}>Xóa bộ lọc</Button>}
+                        action={<Button variant="secondary" onClick={clearSearch}>Xóa tìm kiếm</Button>}
                     />
                 </Surface>
             ) : (

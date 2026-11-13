@@ -63,7 +63,7 @@ export default function RecruiterClient({ recruiters, departments, users, canAss
 
     const clearSearch = () => {
         setSearch('');
-        // The "Xóa bộ lọc" button disappears with the no-match state; keep focus in the toolbar.
+        // The "Xóa tìm kiếm" button disappears with the no-match state; keep focus in the toolbar.
         searchRef.current?.focus();
     };
 
@@ -121,7 +121,7 @@ export default function RecruiterClient({ recruiters, departments, users, canAss
                         icon={SearchX}
                         title="Không có nhà tuyển dụng khớp"
                         description="Đổi từ khóa tìm kiếm."
-                        action={<Button variant="secondary" onClick={clearSearch}>Xóa bộ lọc</Button>}
+                        action={<Button variant="secondary" onClick={clearSearch}>Xóa tìm kiếm</Button>}
                     />
                 </Surface>
             ) : (

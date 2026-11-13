@@ -33,7 +33,7 @@ describe('DepartmentClient — empty and no-match states', () => {
     expect(screen.getByRole('button', { name: 'Thêm phòng ban đầu tiên' })).toBeVisible();
   });
 
-  it('says no department matches a search, and "Xóa bộ lọc" brings every card back', async () => {
+  it('says no department matches a search, and "Xóa tìm kiếm" brings every card back', async () => {
     const user = userEvent.setup();
     render(<DepartmentClient departments={departments} organizations={[]} />);
     expect(cardNames()).toEqual(['Kỹ thuật', 'Kinh doanh']);
@@ -41,7 +41,7 @@ describe('DepartmentClient — empty and no-match states', () => {
     await user.type(screen.getByRole('textbox', { name: 'Tìm phòng ban' }), 'không có phòng này');
     expect(screen.getByRole('heading', { name: 'Không có phòng ban khớp' })).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    await user.click(screen.getByRole('button', { name: 'Xóa tìm kiếm' }));
     expect(screen.getByRole('textbox', { name: 'Tìm phòng ban' })).toHaveValue('');
     expect(screen.getByRole('textbox', { name: 'Tìm phòng ban' })).toHaveFocus();
     expect(cardNames()).toEqual(['Kỹ thuật', 'Kinh doanh']);
