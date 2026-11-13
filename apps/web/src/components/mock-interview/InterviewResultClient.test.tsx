@@ -144,7 +144,7 @@ describe('InterviewResultClient', () => {
             overallScore: '68',
             session: {
                 ...result.session,
-                qnas: result.session.qnas.map((q) => ({ ...q, correctnessScore: String(q.correctnessScore) })),
+                qnas: (result.session?.qnas ?? []).map((q) => ({ ...q, correctnessScore: String(q.correctnessScore) })),
             },
         } as unknown as IInterviewResult;
         render(<InterviewResultClient result={fromApi} />);
