@@ -1,10 +1,11 @@
 import type { ComponentProps } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IApplicationDto } from '@/types/interfaces/application.interface';
 import { KanbanStoreProvider } from '@/stores/useKanbanStore';
-import { updateApplicationStatusAction } from '@/servers/applications/applications.action';
+import { triggerCvScreeningAction, updateApplicationStatusAction } from '@/servers/applications/applications.action';
+import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { toast } from '@/lib/toast';
 import KanbanClient from './KanbanClient';
 
@@ -27,10 +28,10 @@ const applicant = {
   jobPosting: { title: 'Backend Developer', locationType: 'remote' },
 } as unknown as IApplicationDto;
 
-function renderBoard(board: Record<string, IApplicationDto[]> = { applied: [applicant] }) {
+function renderBoard(board: Record<string, IApplicationDto[]> = { applied: [applicant] }, aiProfiles: ConfigProfile[] = []) {
   return render(
     <KanbanStoreProvider initialState={{ board, cancelled: [] }}>
-      <KanbanClient jobId="job-1" />
+      <KanbanClient jobId="job-1" aiProfiles={aiProfiles} />
     </KanbanStoreProvider>,
   );
 }
@@ -56,7 +57,15 @@ async function moveTo(stageLabel: string) {
   await user.keyboard('{ArrowRight}');
   await arrowTo(user, await screen.findByRole('menuitem', { name: stageLabel }));
   await user.keyboard('{Enter}');
+  return user;
 }
+
+/** The "Tùy chọn" button of the card in the column named `stageLabel` (a column is a region named by its heading). */
+function menuButtonIn(stageLabel: string) {
+  return within(screen.getByRole('region', { name: stageLabel })).getByRole('button', { name: 'Tùy chọn' });
+}
+
+const pendingScreening = { ...applicant, status: 'screening', screening: { status: 'pending' } } as unknown as IApplicationDto;
 
 describe('Kanban — "Chuyển sang vòng…" menu', () => {
   beforeEach(() => {
@@ -66,18 +75,20 @@ describe('Kanban — "Chuyển sang vòng…" menu', () => {
   it('moves the applicant to the chosen next stage through the same status action as a drop', async () => {
     await moveTo('Sàng lọc');
 
+    await waitFor(() => expect(updateApplicationStatusAction).toHaveBeenCalledWith('app-1', 'screening'));
     expect(updateApplicationStatusAction).toHaveBeenCalledTimes(1);
-    expect(updateApplicationStatusAction).toHaveBeenCalledWith('app-1', 'screening');
   });
 
   it('keeps the drop guard: skipping two stages is refused with the existing toast and no request', async () => {
     await moveTo('Đã tuyển');
 
-    expect(updateApplicationStatusAction).not.toHaveBeenCalled();
-    expect(toast.error).toHaveBeenCalledWith(
-      'Thao tác không hợp lệ',
-      'Hệ thống không cho phép kéo ứng viên vượt qua 2 vòng cùng lúc.',
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        'Thao tác không hợp lệ',
+        'Hệ thống không cho phép kéo ứng viên vượt qua 2 vòng cùng lúc.',
+      ),
     );
+    expect(updateApplicationStatusAction).not.toHaveBeenCalled();
   });
 
   it('lists every other stage except the current one and "cancelled"', async () => {
@@ -127,7 +138,7 @@ describe('Kanban — "Chuyển sang vòng…" menu', () => {
 
   it('opens the screening dialog from "AI Sàng lọc CV" and returns focus to "Tùy chọn" when it closes', async () => {
     const user = userEvent.setup();
-    renderBoard({ screening: [{ ...applicant, status: 'screening', screening: { status: 'pending' } } as unknown as IApplicationDto] });
+    renderBoard({ screening: [pendingScreening] });
     const trigger = screen.getByRole('button', { name: 'Tùy chọn' });
     trigger.focus();
     await user.keyboard('{Enter}');
@@ -138,5 +149,47 @@ describe('Kanban — "Chuyển sang vòng…" menu', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  describe('focus after a move (WCAG 2.4.3)', () => {
+    it('follows the moved card: its "Tùy chọn" in the new column has focus', async () => {
+      await moveTo('Từ chối');
+
+      await waitFor(() => expect(updateApplicationStatusAction).toHaveBeenCalledWith('app-1', 'rejected'));
+      await waitFor(() => expect(menuButtonIn('Từ chối')).toHaveFocus());
+    });
+
+    it('keeps focus on the same card’s "Tùy chọn" when the move is refused', async () => {
+      await moveTo('Đã tuyển');
+
+      await waitFor(() => expect(toast.error).toHaveBeenCalled());
+      await waitFor(() => expect(menuButtonIn('Ứng tuyển')).toHaveFocus());
+    });
+
+    it('returns to the moved card in "Sàng lọc" after the screening dialog it opened is closed', async () => {
+      const user = await moveTo('Sàng lọc');
+
+      await screen.findByRole('dialog', { name: 'Cấu hình sàng lọc AI' });
+      await user.click(screen.getByRole('button', { name: 'Bỏ qua' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      await waitFor(() => expect(menuButtonIn('Sàng lọc')).toHaveFocus());
+    });
+
+    it('falls back to "Tùy chọn" when the quick "Sàng lọc" button that opened the dialog is gone after screening starts', async () => {
+      vi.mocked(triggerCvScreeningAction).mockResolvedValue({ success: true, message: '' });
+      const profile = {
+        configId: 'cfg-1', name: 'Chuẩn', isDefault: true, description: null,
+        skillsWeight: 50, experienceWeight: 30, educationWeight: 20, minimumScoreThreshold: 60,
+      } as unknown as ConfigProfile;
+      const user = userEvent.setup();
+      renderBoard({ screening: [pendingScreening] }, [profile]);
+
+      await user.click(screen.getByRole('button', { name: 'Sàng lọc' }));
+      await user.click(await screen.findByRole('button', { name: 'Bắt đầu sàng lọc' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(screen.queryByRole('button', { name: 'Sàng lọc' })).toBeNull();
+      await waitFor(() => expect(menuButtonIn('Sàng lọc')).toHaveFocus());
+    });
   });
 });
