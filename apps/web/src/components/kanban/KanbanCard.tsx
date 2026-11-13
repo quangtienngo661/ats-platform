@@ -1,20 +1,57 @@
 'use client';
 
+import { useId, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { MoreHorizontal, Star, Clock, MapPin, ExternalLink } from 'lucide-react';
+import { ArrowRightLeft, ChevronRight, Clock, Cpu, ExternalLink, MapPin, MoreHorizontal, Star } from 'lucide-react';
 import Link from 'next/link';
-import { Candidate } from '@/types/interfaces/kanban.interface';
-import { DRAG_TYPE, SF, SFT } from '../../types/constants/kanban.constants';
+import { ScreeningStatus } from '@ats-platform/types';
+import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
+import { DRAG_TYPE, stages } from '../../types/constants/kanban.constants';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
+import { statusTone, type Tone } from '@/lib/status-tones';
+import {
+  Avatar,
+  Badge,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  IconButton,
+  Surface,
+} from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 
 interface KanbanCardProps {
   candidate: Candidate;
   jobId: string;
-  onMenu: (id: string, x: number, y: number) => void;
   onDrop: (dragId: string, dropId: string) => void;
+  /** Same path as a drop on a column: every guard of the board applies. */
+  onMoveToStage: (id: string, stage: Stage) => void;
+  onRequestScreening: (id: string) => void;
 }
 
-export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanCardProps) {
+type ScreeningLabel = { text: string; tone: Tone };
+
+/** The card's own wording (recruiters rely on it); only the tone comes from the shared table. */
+function screeningLabels(candidate: Candidate): ScreeningLabel[] {
+  const { screeningStatus: status, stage } = candidate;
+  const tone = (value: string) => statusTone('screening', value).tone;
+  const labels: ScreeningLabel[] = [];
+  const notScreened = !status || status === ScreeningStatus.pending;
+  if (notScreened && stage === 'applied') labels.push({ text: 'Chưa sàng lọc', tone: tone(ScreeningStatus.pending) });
+  if (notScreened && stage === 'screening') labels.push({ text: 'Chờ AI Sàng lọc', tone: tone(ScreeningStatus.pending) });
+  if (status === ScreeningStatus.processing) labels.push({ text: 'Đang AI Sàng lọc', tone: tone(ScreeningStatus.processing) });
+  if (status === ScreeningStatus.completed) labels.push({ text: 'Đã AI Sàng lọc', tone: tone(ScreeningStatus.completed) });
+  if (candidate.reviewed) labels.push({ text: 'Đã duyệt', tone: 'accent' });
+  if (status === ScreeningStatus.failed) labels.push({ text: 'Sàng lọc thất bại', tone: tone(ScreeningStatus.failed) });
+  return labels;
+}
+
+export default function KanbanCard({ candidate, jobId, onDrop, onMoveToStage, onRequestScreening }: KanbanCardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: DRAG_TYPE,
     item: { id: candidate.id },
@@ -29,110 +66,164 @@ export default function KanbanCard({ candidate, jobId, onMenu, onDrop }: KanbanC
     collect: m => ({ isOver: m.isOver() }),
   });
 
-  
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
+  const afterClose = useRef<(() => void) | null>(null);
+  const hintId = useId();
+
+  const profileHref = `/jobs/${jobId}/candidates/${candidate.id}`;
+  const canScreen = candidate.stage === 'screening' && candidate.screeningStatus !== ScreeningStatus.completed;
+  const screeningHint = candidate.stage !== 'screening'
+    ? 'Chỉ áp dụng ở bước Sàng lọc'
+    : candidate.screeningStatus === ScreeningStatus.completed ? 'Ứng viên này đã được sàng lọc' : undefined;
+  const moveTargets = stages.filter(s => s.id !== candidate.stage && s.id !== 'cancelled');
+  const labels = screeningLabels(candidate);
+  const location = WORK_TYPE_LABELS[candidate.location as WorkType];
 
   return (
     <div
       ref={(el: HTMLDivElement | null) => { drag(el); drop(el); }}
-      className={`group bg-white rounded-2xl border border-[#F2F2F7] p-4 cursor-grab active:cursor-grabbing select-none transition duration-200 ${isDragging ? 'opacity-40 scale-[0.97] shadow-lg' : isOver ? 'border-[#0071E3] shadow-md scale-[1.01]' : 'hover:shadow-md hover:border-[#E5E5EA]'
-        }`}
-      style={{ fontFamily: SFT }}
+      className={cn(
+        'group relative cursor-grab select-none rounded-card transition-transform duration-hover ease-out-expo active:cursor-grabbing',
+        isDragging
+          ? 'shadow-e4 motion-safe:rotate-1 motion-safe:scale-[1.02]'
+          : 'motion-safe:hover:-translate-y-0.5',
+        isOver && !isDragging && 'ring-2 ring-accent',
+      )}
     >
-      {/* Avatar + name + menu */}
-      <div className="flex items-start gap-3 mb-3">
-        <div className="relative flex-shrink-0">
-          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-white text-[12px]"
-            style={{ background: candidate.avatarColor, fontFamily: SF, fontWeight: 600 }}>
-            {candidate.initials}
+      <Surface className="p-3 transition-shadow duration-hover hover:shadow-e3">
+        {/* Avatar + name + menu */}
+        <div className="flex items-start gap-2.5">
+          <Avatar name={candidate.name} size={32} />
+          <div className="min-w-0 flex-1">
+            <Link
+              href={profileHref}
+              draggable={false}
+              title={candidate.name}
+              className="block truncate rounded-ctl text-body-sm font-medium text-ink hover:underline"
+            >
+              {candidate.name}
+            </Link>
+            <p className="truncate text-caption text-ink-3" title={candidate.role}>{candidate.role}</p>
           </div>
-          <div className="absolute -bottom-1.5 -right-1.5 min-w-[20px] px-1 h-[20px] rounded-full flex items-center justify-center border-2 border-white text-[9px]"
-            style={{
-              background: candidate.screeningStatus === 'pending' ? '#E5E5EA' : candidate.score >= 90 ? '#34C759' : candidate.score >= 80 ? '#0071E3' : '#F59E0B',
-              color: candidate.screeningStatus === 'pending' ? '#6E6E73' : '#fff',
-              fontFamily: SF, fontWeight: 700
-            }}>
-            {candidate.screeningStatus === 'pending' ? <Clock className="w-2.5 h-2.5" /> : candidate.score}
-          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton
+                ref={triggerRef}
+                size="sm"
+                aria-label="Tùy chọn"
+                className="-mr-1 -mt-1 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0"
+              >
+                <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
+              </IconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              onCloseAutoFocus={e => {
+                const run = afterClose.current;
+                afterClose.current = null;
+                if (!run) return;
+                e.preventDefault();
+                triggerRef.current?.focus();
+                run();
+              }}
+            >
+              <DropdownMenuItem asChild>
+                <Link href={profileHref}>
+                  <ExternalLink aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                  Xem hồ sơ
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={!canScreen}
+                aria-describedby={screeningHint ? hintId : undefined}
+                onSelect={() => { afterClose.current = () => onRequestScreening(candidate.id); }}
+              >
+                <Cpu aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                AI Sàng lọc CV
+              </DropdownMenuItem>
+              {screeningHint && (
+                // role="none": a menu may only own menu items; the text stays visible and serves as the item's description.
+                <p id={hintId} role="none" className="pb-1.5 pl-8 pr-2 text-caption text-ink-3">{screeningHint}</p>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <span className="flex items-center gap-2">
+                    <ArrowRightLeft aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                    Chuyển sang vòng…
+                  </span>
+                  <ChevronRight aria-hidden="true" strokeWidth={1.75} className="size-4 text-ink-3" />
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {moveTargets.map(s => (
+                    <DropdownMenuItem key={s.id} onSelect={() => onMoveToStage(candidate.id, s.id)}>
+                      {s.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>{candidate.name}</p>
-          <p className="text-[11px] text-[#AEAEB2] truncate mt-0.5">{candidate.role}</p>
-          {(!candidate.screeningStatus || candidate.screeningStatus === 'pending') && candidate.stage === 'applied' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#F5F5F7] text-[#6E6E73] px-1.5 py-0.5 rounded-md border border-[#E5E5EA] font-medium">Chưa sàng lọc</span>
-          )}
-          {(!candidate.screeningStatus || candidate.screeningStatus === 'pending') && candidate.stage === 'screening' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Chờ AI Sàng lọc</span>
-          )}
-          {candidate.screeningStatus === 'processing' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#FFFBEB] text-[#F59E0B] px-1.5 py-0.5 rounded-md border border-[#F59E0B]/20 font-medium">Đang AI Sàng lọc</span>
-          )}
-          {candidate.screeningStatus === 'completed' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#F0FDF4] text-[#34C759] px-1.5 py-0.5 rounded-md border border-[#34C759]/20 font-medium">Đã AI Sàng lọc</span>
-          )}
-          {candidate.reviewed && (
-            <span className="inline-block mt-1 ml-1 text-[9px] bg-[#EBF3FD] text-[#0071E3] px-1.5 py-0.5 rounded-md border border-[#0071E3]/20 font-medium">Đã duyệt</span>
-          )}
-          {candidate.screeningStatus === 'failed' && (
-            <span className="inline-block mt-1 text-[9px] bg-[#FEF2F2] text-red-600 px-1.5 py-0.5 rounded-md border border-red-500/20 font-medium">Sàng lọc thất bại</span>
-          )}
-        </div>
-        <button type="button" aria-label="Tùy chọn"
-          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 p-1 rounded-lg text-[#AEAEB2] hover:text-[#6E6E73] hover:bg-[#F5F5F7] transition flex-shrink-0"
-          onClick={e => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); onMenu(candidate.id, r.left, r.bottom + 4); }}
-        >
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
-      </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1 mb-3">
-        {candidate.tags.map(t => (
-          <span key={t} className="text-[10px] bg-[#F5F5F7] text-[#6E6E73] rounded-md px-2 py-0.5 border border-[#F2F2F7]">{t}</span>
-        ))}
-      </div>
-
-      {/* Stars */}
-      <div className="flex items-center gap-0.5 mb-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star key={i} className={`w-4 h-4 ${i < candidate.rating ? 'fill-[#0071E3] text-[#0071E3]' : 'text-[#E5E5EA]'}`} />
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-[#AEAEB2]">
-            <MapPin className="w-2.5 h-2.5" />
-            <span className="text-[11px]">{WORK_TYPE_LABELS[candidate.location as WorkType]}</span>
+        {labels.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-1">
+            {labels.map(l => <Badge key={l.text} tone={l.tone}>{l.text}</Badge>)}
           </div>
-          <div className="flex items-center gap-1 text-[#AEAEB2]">
-            <Clock className="w-2.5 h-2.5" />
-            <span className="text-[11px]">{candidate.daysInStage}d</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Hover actions */}
-      <div className="mt-3 pt-3 border-t border-[#F2F2F7] flex items-center justify-between transition-opacity">
-        <Link href={`/jobs/${jobId}/candidates/${candidate.id}`} className="flex items-center gap-1 text-[11px] text-[#AEAEB2] hover:text-[#0071E3] transition-colors">
-          <ExternalLink className="w-3 h-3" /><span>Hồ sơ</span>
-        </Link>
-        {candidate.stage === 'screening' && candidate.screeningStatus === 'pending' ? (
-          <button
-            className="flex items-center gap-1 text-[11px] text-[#0071E3] hover:text-[#0056B3] transition-colors font-medium"
-            onClick={e => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); onMenu(candidate.id, r.left, r.bottom + 4); }}
-          >
-            <Star className="w-3 h-3" /><span>Sàng lọc</span>
-          </button>
-        ) : (
-          <button
-            className="flex items-center gap-1 text-[11px] text-[#AEAEB2] hover:text-[#0071E3] transition-colors"
-            onClick={e => { const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); onMenu(candidate.id, r.left, r.bottom + 4); }}
-          >
-            <MoreHorizontal className="w-3 h-3" /><span>Tùy chọn</span>
-          </button>
         )}
-      </div>
+
+        {candidate.tags.length > 0 && (
+          <ul className="mt-2 flex flex-wrap gap-1" aria-label="Thẻ">
+            {candidate.tags.map(t => (
+              <li key={t} className="rounded-ctl bg-surface-2 px-1.5 py-0.5 text-micro text-ink-2">{t}</li>
+            ))}
+          </ul>
+        )}
+
+        {/* Footer */}
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-line pt-2.5 text-caption text-ink-3">
+          <div className="flex min-w-0 items-center gap-3">
+            {location && (
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <MapPin aria-hidden="true" strokeWidth={1.75} className="size-3.5 shrink-0" />
+                <span className="truncate">{location}</span>
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 tabular-nums">
+              <Clock aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+              {candidate.daysInStage}d
+            </span>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            {candidate.stage === 'screening' && candidate.screeningStatus === ScreeningStatus.pending && (
+              <button
+                type="button"
+                onClick={() => onRequestScreening(candidate.id)}
+                className="rounded-ctl font-medium text-accent-text hover:underline"
+              >
+                Sàng lọc
+              </button>
+            )}
+            <span className="flex items-center gap-px" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  strokeWidth={1.75}
+                  className={cn('size-3', i < candidate.rating ? 'fill-accent stroke-accent' : 'text-line-strong')}
+                />
+              ))}
+            </span>
+            {candidate.screeningStatus === ScreeningStatus.pending ? (
+              <Clock role="img" aria-label="Chưa có điểm" strokeWidth={1.75} className="size-3.5" />
+            ) : (
+              <span className="font-medium tabular-nums text-ink" title={candidate.reviewed ? 'Điểm đã duyệt' : 'Điểm AI'}>{candidate.score}</span>
+            )}
+          </div>
+        </div>
+      </Surface>
     </div>
   );
 }

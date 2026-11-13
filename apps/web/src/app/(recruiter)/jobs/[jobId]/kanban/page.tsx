@@ -26,9 +26,10 @@ export default async function JobKanbanPage({ params }: JobKanbanPageProps) {
 
     return (
         <KanbanStoreProvider key={`${jobId}:${JSON.stringify([boardData, cancelledApplications])}`} initialState={{ board: boardData, cancelled: cancelledApplications }}>
-        <div className="flex flex-col h-full bg-[#F5F5F7]">
+        {/* Below lg the page grows with the board; from lg it fills the viewport under the 3.5rem top bar. */}
+        <div className="flex flex-col lg:h-[calc(100dvh-3.5rem)]">
             <InitSocketRoom jobId={jobId} />
-            <CandidatesHeader jobId={jobId} activeView="kanban" />
+            <CandidatesHeader jobId={jobId} activeView="kanban" title={applications[0]?.jobPosting?.title} />
             <KanbanClient
                 jobId={jobId}
                 aiProfiles={aiProfiles}

@@ -32,8 +32,9 @@ function renderCard(overrides: Partial<Candidate>) {
       <KanbanCard
         candidate={{ ...candidate, ...overrides }}
         jobId="job-1"
-        onMenu={vi.fn()}
         onDrop={vi.fn()}
+        onMoveToStage={vi.fn()}
+        onRequestScreening={vi.fn()}
       />
     </DndProvider>,
   );

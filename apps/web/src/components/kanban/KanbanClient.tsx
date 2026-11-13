@@ -3,21 +3,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { motion, AnimatePresence } from 'motion/react';
-import Link from 'next/link';
-import { ExternalLink, Cpu, X, ArchiveX, Clock } from 'lucide-react';
+import { ArchiveX, Clock } from 'lucide-react';
 import KanbanColumn from './KanbanColumn';
 import ScreeningConfigModal from './ScreeningConfigModal';
 import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
-import { stages, SF, SFT } from '../../types/constants/kanban.constants';
+import { stages } from '../../types/constants/kanban.constants';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { updateApplicationStatusAction } from '@/servers/applications/applications.action';
 import { toast } from '@/lib/toast';
 import { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { useKanBanStore } from '@/stores/useKanbanStore';
 import { useSocketStore } from '@/stores/useSocketStore';
-import { ScreeningStatus } from '@ats-platform/types';
 import { boardToCandidates } from './kanban-mappers';
+import { Avatar, Button, EmptyState, Sheet } from '@/components/ui';
 
 // ── Component ───────────────────────────────────────────────────────────────
 interface KanbanClientProps {
@@ -37,7 +35,6 @@ export default function KanbanClient({
 
   const [cancelledApplications, setCancelledApplications] = useState<IApplicationDto[]>(initialCancelledApplications);
   const [candidates, setCandidates] = useState<Candidate[]>(() => boardToCandidates(kanbanBoard));
-  const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number; stage: Stage; screeningStatus?: ScreeningStatus } | null>(null);
   const [query, ] = useState('');
   const [showCancelled, setShowCancelled] = useState(false);
   const [showScreeningModal, setShowScreeningModal] = useState<string | null>(null);
@@ -134,10 +131,10 @@ export default function KanbanClient({
         }
       },
       actionButtonStyle: {
-        backgroundColor: '#0071E3',
-        color: '#ffffff',
+        backgroundColor: 'rgb(var(--ink))',
+        color: 'rgb(var(--surface))',
         fontWeight: 500,
-        borderRadius: '8px'
+        borderRadius: '6px'
       }
     });
   };
@@ -205,124 +202,61 @@ export default function KanbanClient({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex py-2 flex-col flex-1" style={{ fontFamily: SFT }}>
-
-        {/* ── Cancelled slide-over backdrop & panel ─────────────────────── */}
-        <AnimatePresence>
-          {showCancelled && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/20 z-40"
-                onClick={() => setShowCancelled(false)}
-              />
-              <motion.div
-                initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                transition={{ ease: [0.25, 0.46, 0.45, 0.94], duration: 0.3 }}
-                className="fixed right-0 top-0 h-full w-[360px] bg-white shadow-2xl z-50 flex flex-col"
-                style={{ fontFamily: SFT }}
-              >
-                <div className="flex items-center justify-between px-5 py-4 border-b border-[#F2F2F7]">
-                  <div>
-                    <h2 className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>Đã hủy / Rút đơn</h2>
-                    <p className="text-[12px] text-[#AEAEB2]">{cancelledApplications.length} ứng viên</p>
-                  </div>
-                  <button type="button" aria-label="Đóng" onClick={() => setShowCancelled(false)} className="p-1.5 rounded-lg hover:bg-[#F5F5F7] transition-colors">
-                    <X className="w-4 h-4 text-[#070708]" />
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-                  {cancelledApplications.length === 0 && (
-                    <p className="text-[13px] text-[#AEAEB2] text-center py-8">Không có ứng viên nào.</p>
-                  )}
-                  {cancelledApplications.map(app => {
-                    const name = app.candidate?.user?.fullName || 'N/A';
-                    const initials = name.split(' ').filter(Boolean).slice(-2).map(w => w[0]).join('').toUpperCase();
-                    const days = app.appliedAt
-                      ? Math.max(0, Math.floor((Date.now() - new Date(app.appliedAt).getTime()) / 86400000))
-                      : 0;
-                    return (
-                      <div key={`${app.applicationId}`} className="flex items-center gap-3 p-3 rounded-xl border border-[#F2F2F7] hover:bg-[#F5F5F7] transition-colors">
-                        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-white text-[11px] flex-shrink-0"
-                          style={{ background: '#94A3B8', fontFamily: SF, fontWeight: 600 }}>
-                          {initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>{name}</p>
-                          <p className="text-[11px] text-[#AEAEB2] truncate">{app.jobPosting?.title || ''}</p>
-                        </div>
-                        <div className="flex items-center gap-1 text-[#AEAEB2] flex-shrink-0">
-                          <Clock className="w-3 h-3" />
-                          <span className="text-[10px]">{days}d</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* ── Trigger button — nằm trên cùng, trước kanban board ─────────── */}
-        <div className="px-4 mr-3 lg:px-6 pb-2 flex items-center justify-end">
-          <button
-            onClick={() => setShowCancelled(true)}
-            className="flex items-center gap-1.5 border border-[#E5E5EA] hover:border-[#D2D2D7] text-[#6E6E73] rounded-xl px-3 py-1.5 text-[12px] transition hover:bg-[#F5F5F7]"
-          >
-            <ArchiveX className="w-3.5 h-3.5" />
+      <div className="flex min-h-0 flex-1 flex-col">
+        {/* ── Trigger for the cancelled list, above the board ───────────── */}
+        <div className="flex items-center justify-end px-4 pt-4 lg:px-6">
+          <Button variant="secondary" size="sm" onClick={() => setShowCancelled(true)}>
+            <ArchiveX aria-hidden="true" strokeWidth={1.75} />
             Đã hủy / Rút đơn
-            <span className="bg-[#E5E5EA] text-[#1D1D1F] text-[10px] rounded-full px-1.5 py-0.5" style={{ fontWeight: 600 }}>
+            <span className="rounded-ctl bg-surface-2 px-1.5 text-micro tabular-nums text-ink-2">
               {cancelledApplications.length}
             </span>
-          </button>
+          </Button>
         </div>
 
-        {/* ── Context menu ──────────────────────────────────────────────── */}
-        {contextMenu && (
-          <>
-            <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
-            <div className="fixed z-50 bg-white rounded-2xl shadow-xl border border-[#E5E5EA] overflow-hidden w-[200px]"
-              style={{ left: contextMenu.x, top: contextMenu.y }}>
-              <Link href={`/jobs/${jobId}/candidates/${contextMenu.id}`} className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
-                onClick={() => setContextMenu(null)}>
-                <ExternalLink className="w-3.5 h-3.5" />Xem hồ sơ
-              </Link>
-              <button
-                disabled={contextMenu.stage !== 'screening' || contextMenu.screeningStatus === ScreeningStatus.completed}
-                title={contextMenu.stage !== 'screening' ? 'Chỉ áp dụng ở bước Sàng lọc' : contextMenu.screeningStatus === 'completed' ? 'Ứng viên này đã được sàng lọc' : undefined}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-[13px] transition-colors ${contextMenu.stage === 'screening' && contextMenu.screeningStatus !== 'completed'
-                  ? 'text-[#0071E3] hover:bg-[#EBF3FD]'
-                  : 'text-[#AEAEB2] cursor-not-allowed'
-                  }`}
-                onClick={() => {
-                  if (contextMenu.stage === 'screening') {
-                    setShowScreeningModal(contextMenu.id);
-                  }
-                  setContextMenu(null);
-                }}
-              >
-                <Cpu className="w-3.5 h-3.5" />AI Sàng lọc CV
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* ── Kanban board ──────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-x-auto overflow-y-auto p-4 lg:p-6 w-full">
-          <div className="flex gap-4 min-w-full h-full">
+        {/* ── Kanban board: scrolls on its own so the horizontal scrollbar stays in view ── */}
+        <div className="min-h-0 flex-1 overflow-auto">
+          <div className="flex min-h-full w-max gap-3 px-4 pb-4 pt-3 lg:px-6 lg:pb-6">
             {stages.map(stage => (
               <KanbanColumn key={stage.id} stage={stage}
                 jobId={jobId}
                 candidates={filtered.filter(c => c.stage === stage.id)}
                 onDropToColumn={handleDropToColumn} onReorder={handleReorder}
-                onMenuOpen={(id, x, y) => {
-                  const c = candidates.find(c => c.id === id);
-                  if (c) setContextMenu({ id, x, y, stage: c.stage, screeningStatus: c.screeningStatus });
-                }} />
+                onMoveToStage={handleDropToColumn}
+                onRequestScreening={setShowScreeningModal} />
             ))}
           </div>
         </div>
+
+        {/* ── Cancelled / withdrawn applications ─────────────────────────── */}
+        <Sheet open={showCancelled} onOpenChange={setShowCancelled} title="Đã hủy / Rút đơn">
+          <p className="-mt-2 mb-3 text-caption tabular-nums text-ink-3">{cancelledApplications.length} ứng viên</p>
+          {cancelledApplications.length === 0 ? (
+            <EmptyState icon={ArchiveX} title="Không có ứng viên nào." />
+          ) : (
+            <ul className="space-y-1">
+              {cancelledApplications.map(app => {
+                const name = app.candidate?.user?.fullName || 'N/A';
+                const days = app.appliedAt
+                  ? Math.max(0, Math.floor((Date.now() - new Date(app.appliedAt).getTime()) / 86400000))
+                  : 0;
+                return (
+                  <li key={`${app.applicationId}`} className="flex items-center gap-3 rounded-card px-2 py-2.5 transition-colors duration-hover hover:bg-surface-2">
+                    <Avatar name={name} size={32} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-body-sm font-medium text-ink" title={name}>{name}</p>
+                      <p className="truncate text-caption text-ink-3" title={app.jobPosting?.title}>{app.jobPosting?.title || ''}</p>
+                    </div>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-ink-3">
+                      <Clock aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                      {days}d
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Sheet>
 
         {/* ── Screening Config Modal ────────────────────────────────────── */}
         {showScreeningModal && (
