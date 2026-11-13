@@ -24,7 +24,7 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
 
     return (
         <header className="flex flex-wrap items-start gap-4">
-            <Avatar name={name || '?'} size={40} className="size-16 rounded-card text-title" />
+            <Avatar name={name || '?'} size={64} />
             <div className="min-w-0 flex-1">
                 <h1 className="break-words text-heading text-ink">{name}</h1>
                 <p className="break-all text-body text-ink-3">{profile.user?.email}</p>

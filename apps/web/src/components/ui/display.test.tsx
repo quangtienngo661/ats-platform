@@ -88,6 +88,14 @@ describe('Avatar', () => {
         expect(initials).toHaveAttribute('aria-hidden', 'true');
         expect(initials.closest('[title]')).toHaveAttribute('title', 'Lê Ngọc Hân');
     });
+
+    it('renders size 64 as one size, not mixed with the 40 px classes', () => {
+        render(<Avatar name="Lê Ngọc Hân" size={64} />);
+        const root = screen.getByText('NH').closest('[title]') as HTMLElement;
+        expect(root).toHaveClass('size-16', 'rounded-card', 'text-title');
+        expect(root).not.toHaveClass('size-10');
+        expect(root).not.toHaveClass('rounded-lg');
+    });
 });
 
 /** Manual clock: rAF callbacks queue up and run when the test advances time. */
