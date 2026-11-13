@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { InterviewType, ScheduleStatus } from '@ats-platform/types';
 import { getMyInterviewSchedulesAction } from '@/servers/interviews/interviews.action';
 import { getApplicationScorecardsAction } from '@/servers/scorecards/scorecards.action';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ClipboardList } from 'lucide-react';
+import { Button, EmptyState, Skeleton, StatusChip, Surface } from '@/components/ui';
 import type { IScorecardListItem } from '@/types/interfaces/evaluation.interface';
 import type { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import {
@@ -19,11 +20,6 @@ interface ScorecardPanelProps {
   isClosed: boolean;
 }
 
-const statusLabels: Record<ScheduleStatus, string> = {
-  [ScheduleStatus.scheduled]: 'Đã lên lịch',
-  [ScheduleStatus.completed]: 'Đã hoàn tất',
-  [ScheduleStatus.cancelled]: 'Đã huỷ',
-};
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
@@ -96,41 +92,41 @@ export function ScorecardPanel({
     <section
       aria-label="Nội dung đánh giá"
       aria-busy={loading}
-      className="space-y-5"
-      style={{ fontFamily: SFT }}
+      className="space-y-4"
     >
-      <h2
-        className="text-[16px] text-[#1D1D1F]"
-        style={{ fontFamily: SF, fontWeight: 600 }}
-      >
-        Đánh giá phỏng vấn
-      </h2>
+      <h2 className="text-title-sm text-ink">Đánh giá phỏng vấn</h2>
       {isClosed && (
-        <p className="text-[13px] text-[#6E6E73] bg-[#F5F5F7] rounded-xl p-4">
+        <p className="rounded-card bg-surface-2 p-4 text-body-sm text-ink-3">
           Đơn đã chốt, chỉ có thể xem đánh giá.
         </p>
       )}
       {loading ? (
-        <p role="status" className="text-[14px] text-[#6E6E73]">
-          Đang tải đánh giá phỏng vấn…
-        </p>
+        <div role="status" className="space-y-3">
+          <span className="sr-only">Đang tải đánh giá phỏng vấn…</span>
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
       ) : error ? (
-        <div className="bg-white rounded-2xl border border-[#F2F2F7] p-6">
-          <p role="alert" className="text-[13px] text-[#DC2626]">
+        <Surface className="p-4">
+          <p role="alert" className="text-body-sm text-danger">
             {error}
           </p>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            className="mt-3"
             onClick={() => setReload((value) => value + 1)}
-            className="min-h-11 mt-3 px-4 py-2 border border-[#E5E5EA] rounded-xl text-[13px] text-[#0071E3] hover:bg-[#F5F5F7]"
           >
             Thử lại
-          </button>
-        </div>
+          </Button>
+        </Surface>
       ) : cards.length === 0 ? (
-        <p className="bg-white rounded-2xl border border-[#F2F2F7] p-6 text-[14px] text-[#6E6E73]">
-          Chưa có buổi phỏng vấn.
-        </p>
+        <Surface>
+          <EmptyState
+            icon={ClipboardList}
+            title="Chưa có buổi phỏng vấn."
+            description="Đánh giá mở ra sau khi buổi phỏng vấn hoàn tất."
+          />
+        </Surface>
       ) : (
         cards.map((schedule) => {
           const saved = scorecards.find(
@@ -143,33 +139,29 @@ export function ScorecardPanel({
             (!saved || saved.author.userId === currentUserId);
           const date = dateFormat.format(new Date(schedule.startAt));
           return (
-            <article
+            <Surface
+              as="article"
               key={schedule.interviewId}
               aria-label={`Buổi phỏng vấn ngày ${date}`}
-              className="bg-white rounded-2xl border border-[#F2F2F7] p-6 space-y-4"
+              className="space-y-4 p-4"
             >
-              <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h3
-                    className="text-[15px] text-[#1D1D1F]"
-                    style={{ fontFamily: SF, fontWeight: 600 }}
-                  >
+                  <h3 className="text-body font-medium text-ink">
                     <time dateTime={schedule.startAt}>{date}</time> ·{' '}
                     {schedule.interviewType === InterviewType.online
                       ? 'Trực tuyến'
                       : 'Trực tiếp'}
                   </h3>
-                  <p className="text-[13px] text-[#6E6E73] mt-1">
+                  <p className="mt-1 text-body-sm text-ink-3">
                     Người phỏng vấn:{' '}
                     {schedule.interviewer?.fullName ?? saved?.author.fullName}
                   </p>
                 </div>
-                <span className="text-[12px] bg-[#F5F5F7] text-[#6E6E73] rounded-full px-2.5 py-1">
-                  {statusLabels[schedule.status]}
-                </span>
+                <StatusChip kind="schedule" value={schedule.status} />
               </div>
               {editing === schedule.interviewId && canWrite ? (
-                <div className="border-t border-[#F2F2F7] pt-4 space-y-3">
+                <div className="space-y-3 border-t border-line pt-4">
                   <ScorecardForm
                     interviewId={schedule.interviewId}
                     initial={
@@ -190,62 +182,48 @@ export function ScorecardPanel({
                       setReload((value) => value + 1);
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setEditing(null)}
-                    className="min-h-11 px-4 py-2 text-[13px] text-[#6E6E73] border border-[#E5E5EA] rounded-xl hover:bg-[#F5F5F7]"
-                  >
+                  <Button variant="ghost" onClick={() => setEditing(null)}>
                     Huỷ
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
                   {saved ? (
-                    <div className="border-t border-[#F2F2F7] pt-4 space-y-3">
-                      <p className="text-[13px] text-[#6E6E73]">
+                    <div className="space-y-3 border-t border-line pt-4">
+                      <p className="text-body-sm text-ink-3">
                         Người đánh giá: {saved.author.fullName} ·{' '}
                         <time dateTime={saved.submittedAt}>
                           {dateFormat.format(new Date(saved.submittedAt))}
                         </time>
                       </p>
-                      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px] text-[#1D1D1F]">
+                      <dl className="grid grid-cols-1 gap-3 text-body-sm text-ink sm:grid-cols-2">
                         {SCORECARD_RATINGS.map(({ key, label }) => (
                           <div key={key} className="flex gap-2">
-                            <dt>{label}:</dt>
-                            <dd style={{ fontWeight: 600 }}>{saved[key]}/5</dd>
+                            <dt className="text-ink-3">{label}:</dt>
+                            <dd className="font-medium tabular-nums">{saved[key]}/5</dd>
                           </div>
                         ))}
                       </dl>
-                      <p
-                        className="text-[14px] text-[#0071E3]"
-                        style={{ fontWeight: 600 }}
-                      >
+                      <p className="text-body font-medium text-accent-text">
                         {SCORECARD_RECOMMENDATION_LABELS[saved.recommendation]}
                       </p>
                       {saved.comment && (
-                        <p className="text-[14px] text-[#1D1D1F] leading-relaxed whitespace-pre-wrap break-words">
+                        <p className="whitespace-pre-wrap break-words text-body text-ink-2">
                           {saved.comment}
                         </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-[13px] text-[#6E6E73]">
-                      Chưa có đánh giá.
-                    </p>
+                    <p className="text-body-sm text-ink-3">Chưa có đánh giá.</p>
                   )}
                   {canWrite && (
-                    <button
-                      type="button"
-                      onClick={() => setEditing(schedule.interviewId)}
-                      className="min-h-11 px-4 py-2 bg-[#0071E3] text-white text-[13px] rounded-xl hover:bg-[#005BB5] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
-                      style={{ fontWeight: 600 }}
-                    >
+                    <Button onClick={() => setEditing(schedule.interviewId)}>
                       {saved ? 'Sửa đánh giá' : 'Nộp đánh giá'}
-                    </button>
+                    </Button>
                   )}
                 </>
               )}
-            </article>
+            </Surface>
           );
         })
       )}
