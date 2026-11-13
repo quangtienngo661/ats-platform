@@ -1,5 +1,6 @@
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { Reveal } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { JobParsedRequirements } from './JobParsedRequirements';
 
 interface JobDetailBodyProps {
@@ -8,7 +9,7 @@ interface JobDetailBodyProps {
 
 /** Rich-text rhythm for the (server-sanitised) description: lists, headings, links and spacing. */
 const RICH_TEXT = [
-    'max-w-[68ch] whitespace-pre-line break-words text-body text-ink-2',
+    'max-w-[68ch] break-words text-body text-ink-2',
     '[&_p]:my-3 [&_p:first-child]:mt-0',
     '[&_h1]:mb-2 [&_h1]:mt-7 [&_h1]:text-title [&_h1]:text-ink',
     '[&_h2]:mb-2 [&_h2]:mt-7 [&_h2]:text-title [&_h2]:text-ink',
@@ -22,13 +23,19 @@ const RICH_TEXT = [
     '[&_blockquote]:my-4 [&_blockquote]:border-l-2 [&_blockquote]:border-line-strong [&_blockquote]:pl-4',
 ].join(' ');
 
+/** HTML from the editor has newlines between block tags; only plain text needs its own line breaks kept. */
+const BLOCK_TAG = /<(p|div|h[1-6]|ul|ol|li|blockquote|br|table|pre)\b/i;
+
 export function JobDetailBody({ job }: JobDetailBodyProps) {
     return (
         <div className="space-y-10">
             {job.description && (
                 <Reveal as="section" delay={0.06}>
                     <h2 className="mb-4 text-title text-ink">Mô tả công việc</h2>
-                    <div className={RICH_TEXT} dangerouslySetInnerHTML={{ __html: job.description }} />
+                    <div
+                        className={cn(RICH_TEXT, !BLOCK_TAG.test(job.description) && 'whitespace-pre-line')}
+                        dangerouslySetInnerHTML={{ __html: job.description }}
+                    />
                 </Reveal>
             )}
 
