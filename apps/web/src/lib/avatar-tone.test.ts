@@ -29,6 +29,11 @@ describe('avatarInitials', () => {
         ['An', 'A'],
         ['  nguyễn  văn  an ', 'VA'],
         ['', ''],
+        // Job titles reach the avatar too (dashboard open jobs): punctuation is not an initial (Task 33 saw "E(").
+        ['Senior Backend Engineer (NestJS)', 'EN'],
+        ['Phân tích dữ liệu Đông Nam Á (', 'NÁ'],
+        ['C++ / .NET', 'CN'],
+        ['(…)', ''],
     ])('%j → %j', (name, initials) => {
         expect(avatarInitials(name)).toBe(initials);
     });
