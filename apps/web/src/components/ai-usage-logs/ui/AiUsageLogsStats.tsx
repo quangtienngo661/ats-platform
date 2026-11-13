@@ -15,7 +15,7 @@ export function AiUsageLogsStats({ logs }: AiUsageLogsStatsProps) {
     const successRate = logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0;
 
     const stats = [
-        { value: totalTokens.toLocaleString(), label: 'Tổng tokens' },
+        { value: totalTokens.toLocaleString('vi-VN'), label: 'Tổng tokens' },
         { value: `${(avgDuration / 1000).toFixed(1)}s`, label: 'Thời gian TB' },
         { value: `${successRate}%`, label: `Thành công (${successCount}/${logs.length})` },
         { value: failedCount.toString(), label: 'Thất bại' },

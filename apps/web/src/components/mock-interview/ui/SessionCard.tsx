@@ -36,6 +36,7 @@ export function SessionCard({ session }: SessionCardProps) {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh',
     });
     const href = sessionHref(session);
     const action = session.status === 'in_progress' ? 'Tiếp tục' : session.status === 'completed' ? 'Xem kết quả' : null;

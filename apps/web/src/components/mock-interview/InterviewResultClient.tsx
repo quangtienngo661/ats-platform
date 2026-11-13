@@ -34,7 +34,7 @@ export default function InterviewResultClient({ result }: InterviewResultClientP
                     <p className="-mt-1 break-words text-body-sm text-ink-3">
                         {session.topic.name} ·{' '}
                         <time dateTime={result.generatedAt}>
-                            {new Date(result.generatedAt).toLocaleDateString('vi-VN')}
+                            {new Date(result.generatedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                         </time>
                     </p>
                 </Reveal>

@@ -23,12 +23,12 @@ const ACTION_CONFIG: Record<IAiUsageLogDto['actionType'], { label: string; icon:
 // ── Format helpers ───────────────────────────────────────────────────────────
 function formatDate(dateStr: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' });
 }
 
 function formatTime(dateStr: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
 }
 
 function formatDuration(ms: number): string {
@@ -69,10 +69,10 @@ function LogRow({ log }: { log: IAiUsageLogDto }) {
             </TD>
 
             <TD numeric>
-                <span className="font-mono tabular-nums text-ink">{totalTokens.toLocaleString()}</span>
+                <span className="font-mono tabular-nums text-ink">{totalTokens.toLocaleString('vi-VN')}</span>
                 <div className="mt-0.5 flex justify-end gap-2 font-mono text-micro tabular-nums text-ink-3">
-                    <span>↑ {log.promptTokens.toLocaleString()}</span>
-                    <span>↓ {log.completionTokens.toLocaleString()}</span>
+                    <span>↑ {log.promptTokens.toLocaleString('vi-VN')}</span>
+                    <span>↓ {log.completionTokens.toLocaleString('vi-VN')}</span>
                 </div>
             </TD>
 

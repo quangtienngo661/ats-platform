@@ -83,7 +83,7 @@ export function CandidateOverviewTab({
             <InfoItem label="Hình thức" value={workType} />
             <InfoItem
               label="Ngày nộp"
-              value={application.appliedAt ? new Date(application.appliedAt).toLocaleDateString('vi-VN') : 'N/A'}
+              value={application.appliedAt ? new Date(application.appliedAt).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A'}
             />
             <InfoItem label="Phòng ban" value={application.jobPosting?.department?.name || 'N/A'} />
             <InfoItem label="Trạng thái sàng lọc" value={screeningStatus === 'completed' ? 'Hoàn tất' : 'Đang chờ'} />
