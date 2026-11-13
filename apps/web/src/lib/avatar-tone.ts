@@ -15,9 +15,16 @@ export function avatarTone(name: string): { bg: string; fg: string } {
     return TONES[hash % TONES.length];
 }
 
-/** First letter of the last two words (Vietnamese given-name order), uppercase. */
+/**
+ * First letter of the last two words (Vietnamese given-name order), uppercase. Only letters and digits count, so a
+ * job title such as "Engineer (NestJS)" gives "EN", not "E(".
+ */
 export function avatarInitials(name: string): string {
-    const words = name.normalize('NFC').trim().split(/\s+/).filter(Boolean);
+    const words = name
+        .normalize('NFC')
+        .split(/\s+/)
+        .map((w) => w.replace(/[^\p{L}\p{N}]/gu, ''))
+        .filter(Boolean);
     return words
         .slice(-2)
         .map((w) => w.charAt(0))
