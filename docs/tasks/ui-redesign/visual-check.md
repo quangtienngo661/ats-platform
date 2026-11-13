@@ -5,8 +5,8 @@ trình duyệt VN lệch ngày). **Nhánh:** `feat/ui-redesign`. **Hướng:** A
 
 ## Kết quả
 
-- 45 nhóm màn × 3 kích thước = 135 ảnh viewport, cộng 7 ảnh trước khi sửa, 18 ảnh kiểm riêng, 5 ảnh legacy
-  (165 PNG, 13,7 MB, trung bình 197 KB). Thư mục: [`screenshots/`](screenshots/).
+- 45 nhóm màn × 3 kích thước = 135 ảnh viewport, cộng 7 ảnh trước khi sửa, 16 ảnh kiểm riêng, 5 ảnh legacy
+  (163 PNG, 13,6 MB, trung bình 84 KB; đếm bằng `git ls-files`). Thư mục: [`screenshots/`](screenshots/).
 - **Tìm thấy 10 lỗi, sửa cả 10** (8 lỗi có test đỏ trước, 2 lỗi chỉ là layout). Còn **15 điểm mở**, ghi ở cuối.
 - Sau khi sửa: `scrollWidth === 390` trên **45/45** màn ở 390 px. Không còn console error nào trên màn redesign, trừ 2 trường
   hợp chủ đích (trang 404 trả HTTP 404; job không tồn tại trả trạng thái lỗi).
@@ -29,40 +29,42 @@ trình duyệt VN lệch ngày). **Nhánh:** `feat/ui-redesign`. **Hướng:** A
 
 ## Bảng màn × kích thước
 
-✓ = không thấy lỗi. ✗ sửa `sha` = lỗi đã sửa, ảnh trong thư mục là ảnh sau khi sửa. ✗ mở = xem mục "Điểm còn mở".
+✓ = không có lỗi mới thấy được; điểm mở (O) ghi cạnh dấu ✓ vẫn áp dụng cho màn đó. ✗ sửa `sha` = lỗi đã sửa, ảnh trong
+thư mục là ảnh sau khi sửa. ✗ mở = xem mục "Điểm còn mở". O3 (formatter ngày không có `timeZone`) còn có thể áp dụng cho
+các màn không ghi O3 ở đây: bảng chỉ ghi nơi tên component trong O3 chắc chắn có mặt.
 
 | Nhóm màn (tên ảnh) | 1440 | 1024 | 390 |
 |---|---|---|---|
 | guest-home | ✓ | ✓ | ✓ |
 | guest-job-postings | ✓ | ✓ | ✓ |
-| guest-job-detail | ✗ sửa `8faea67` | ✗ sửa `8faea67` | ✗ sửa `8faea67` |
+| guest-job-detail | ✗ sửa `8faea67`; mở O5 | ✗ sửa `8faea67`; mở O5 | ✗ sửa `8faea67`; mở O5 |
 | guest-job-detail-long (tiêu đề 120 ký tự) | ✓ | ✓ | ✓ |
 | guest-sign-in, sign-in-admin, register, forgot-password, reset-password, verify-email, verification-success | ✓ | ✓ | ✓ |
 | guest-not-found | ✓ | ✓ | ✓ |
 | candidate-home | ✓ | ✓ | ✓ |
 | candidate-job-postings | ✓ | ✓ | ✓ |
-| candidate-job-detail (thanh ứng tuyển trên tab bar) | ✗ sửa `8faea67` | ✗ sửa `8faea67` | ✗ sửa `8faea67` |
+| candidate-job-detail (thanh ứng tuyển trên tab bar) | ✗ sửa `8faea67`; mở O3, O5 | ✗ sửa `8faea67`; mở O3, O5 | ✗ sửa `8faea67`; mở O3, O5 |
 | candidate-job-detail-closed (tin đã đóng → 404) | ✓ | ✓ | ✓ |
-| candidate-my-applications | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` |
-| candidate-my-application-detail | ✓ | ✓ | ✓ |
-| candidate-my-cvs | ✗ sửa `3cf4780` | ✗ sửa `3cf4780` | ✗ sửa `3cf4780` |
-| candidate-my-interviews | ✓ | ✓ | ✓ |
-| candidate-profile | ✓ | ✓ | ✗ mở (O9) |
+| candidate-my-applications | ✗ sửa `ef19b60`; mở O4 | ✗ sửa `ef19b60`; mở O4 | ✗ sửa `ef19b60`; mở O4 |
+| candidate-my-application-detail | ✓ (O3) | ✓ (O3) | ✓ (O3) |
+| candidate-my-cvs | ✗ sửa `3cf4780`; mở O11, O15 | ✗ sửa `3cf4780`; mở O11, O15 | ✗ sửa `3cf4780`; mở O11, O15 |
+| candidate-my-interviews | ✓ (O3, O14) | ✓ (O3, O14) | ✓ (O3, O14) |
+| candidate-profile | ✓ (O11) | ✓ (O11) | ✗ mở (O9, O11) |
 | candidate-mock-interview | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` |
 | candidate-mock-interview-result | ✗ sửa `ef19b60`, `eceb8a5` | ✗ sửa `ef19b60`, `eceb8a5` | ✗ sửa `ef19b60`, `eceb8a5` |
 | candidate-mock-interview-session | ✓ | ✓ | ✓ |
-| recruiter-dashboard | ✗ sửa `bb3f007`, `d409d78`, `62586d6` | ✗ sửa (như 1440) | ✗ sửa (như 1440) |
+| recruiter-dashboard | ✗ sửa `bb3f007`, `d409d78`, `62586d6`; mở O7 | ✗ sửa (như 1440); mở O7 | ✗ sửa (như 1440); mở O7 |
 | recruiter-jobs (tin 120 ký tự) | ✓ | ✓ | ✓ |
 | recruiter-candidates | ✓ | ✓ | ✓ |
 | recruiter-candidates-long-job | ✓ | ✓ | ✗ mở (O10) |
 | recruiter-candidate-detail (tên 100 ký tự) | ✗ sửa `05b7cc2`, `3cf4780`, `ef19b60`; ✗ mở (O8) | ✗ sửa (như 1440); ✗ mở (O8) | ✗ sửa `05b7cc2`, `3cf4780`, `ef19b60` |
-| recruiter-compare | ✗ sửa `dccdf3f` | ✗ sửa `dccdf3f` | ✗ sửa `dccdf3f` |
-| recruiter-kanban, kanban-long-job | ✓ | ✓ | ✓ |
-| recruiter-interviews | ✗ mở (O2) | ✗ mở (O2) | ✗ mở (O2) |
+| recruiter-compare | ✗ sửa `dccdf3f`; mở O3, O6 | ✗ sửa `dccdf3f`; mở O3, O6 | ✗ sửa `dccdf3f`; mở O3, O6 |
+| recruiter-kanban, kanban-long-job | ✓ (O11, O12) | ✓ (O11, O12) | ✓ (O11, O12) |
+| recruiter-interviews | ✗ mở (O2, O3, O14) | ✗ mở (O2, O3, O14) | ✗ mở (O2, O3, O14) |
 | recruiter-my-profile | ✓ | ✓ | ✓ |
 | recruiter-candidates-missing-job (job không tồn tại) | ✗ mở (O13) | ✗ mở (O13) | ✗ mở (O13) |
 | orgadmin-department-management, recruiter-management, ai-configuration | ✓ | ✓ | ✓ |
-| admin-user-management | ✓ | ✓ | ✗ sửa `83d9bea` |
+| admin-user-management | ✓ (O12) | ✓ (O12) | ✗ sửa `83d9bea`; mở O12 |
 | admin-skill-management, interview-topic-management, job-category-management, company-profile, dashboard | ✓ | ✓ | ✓ |
 | admin-ai-usage-logs | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` | ✗ sửa `ef19b60` |
 
@@ -153,7 +155,7 @@ Transform inline từ motion (`m.*`) ở mốc +50 ms: 0 ở mọi lần đo. `.
 | Mục | Kết quả |
 |---|---|
 | Lớp kéo Kanban (drag layer) | ✓ Thẻ gốc mờ; một thẻ nổi `fixed z-popover` đi theo chuột; cột đích tô màu. `check-kanban-drag-1440.png` |
-| Sticky header | ✓ Thanh trên `top-0 z-header`; thẻ đầu trang chi tiết ứng viên `top-14 z-sticky`; tiêu đề ngày ở `/my-interviews` `top-[60px]`. Xem O8 |
+| Sticky header | ✓ Thanh trên `top-0 z-header`; thẻ đầu trang chi tiết ứng viên `top-14 z-sticky`; tiêu đề ngày ở `/my-interviews` `top-[60px]` (ảnh: `candidate-my-interviews-390.png`). Xem O8 |
 | Hover hiện menu dòng | ✓ (bảng bàn phím ở trên) |
 | Vòng của NotificationBadge | ✓ Không có cha nào cắt (`overflow` visible), badge nằm trong viewport ở 390. `check-notification-badge-390.png`, `-1440.png` |
 | `whitespace-pre-line` trên mô tả tin | ✗ → sửa ở D4 |
@@ -164,22 +166,44 @@ Transform inline từ motion (`m.*`) ở mốc +50 ms: 0 ở mọi lần đo. `.
 | Nhãn tab bar ứng viên ở 390/360 | ✓ "Phỏng vấn thử" kết thúc ở 387/360 px, không bị cắt |
 | Nút mũi tên phân trang JobSearchClient trên điện thoại | Chưa kiểm: chỉ có 7 tin, chưa đủ một trang thứ hai |
 
-### Bundle (build production, `NODE_ENV=production`)
+### Bundle (build production, `NODE_ENV=production`, so với `dev`)
 
-Cách đo giống Task 2: hợp các chunk trong `page_client-reference-manifest.js` (clientModules + entryJSFiles).
+Đo lại cả hai nhánh trong cùng một phiên, cùng Next 16.3.3 (Turbopack), cùng script: hợp các chunk `.js` trong
+`page_client-reference-manifest.js` (clientModules + entryJSFiles), mỗi chunk đếm một lần, raw và gzip. Thêm số "first
+load" Next tự ghi ở `diagnostics/route-bundle-stats.json`. `dev` build từ worktree `6d03844` (cùng merge-base với nhánh
+này).
 
-| Route | Task 2 (sau M0) raw | Bây giờ raw / gzip | Trình duyệt tải lần đầu (JS đã giải nén) |
-|---|---|---|---|
-| `/my-applications` | 296.693 B | 1.037.227 / 318.213 B | 973.716 B (21 script) |
-| `/dashboard` | 693.335 B | 1.748.721 / 524.075 B | 1.371.090 B (23 script) |
-| `/jobs/[jobId]/kanban` | — | 1.211.591 / 364.711 B | — |
-| `/` | — | 1.024.891 / 314.865 B | 955.378 B (20 script) |
-| `static/chunks` tổng | 2.510.156 B | 2.703.532 B | — |
+| Route | `dev` raw / gzip | Nhánh raw / gzip | Raw tăng | First load Next: `dev` → nhánh |
+|---|---|---|---|---|
+| `/my-applications` | 275.058 / 90.186 | 520.531 / 159.963 | +89% (gzip +77%) | 714.161 → 959.971 (+34%) |
+| `/dashboard` | 680.946 / 204.199 | 876.278 / 262.894 | +29% (gzip +29%) | 1.120.049 → 1.315.718 (+17%) |
+| `/jobs/[jobId]/kanban` | 394.837 / 122.510 | 607.713 / 183.212 | +54% (gzip +50%) | 833.940 → 1.047.153 (+26%) |
+| `/` | 269.098 / 88.240 | 514.363 / 158.289 | +91% (gzip +79%) | 708.201 → 953.803 (+35%) |
+| `static/chunks` tổng | 2.032.872 B (60 tệp) | 2.703.546 B (77 tệp) | +33% | — |
 
-**Chưa so được trực tiếp với số Task 2.** Tổng `static/chunks` chỉ tăng 7,7%, nhưng số theo route tăng 2,5–3,5 lần.
-Hai nguyên nhân cùng khớp với số liệu này: các màn M1–M4 thêm code thật, hoặc manifest của Next 16.3 liệt kê nhiều
-chunk hơn cho mỗi route (ví dụ chunk của các layout). Muốn tách hai nguyên nhân thì chạy cùng script trên một bản
-build của `dev`. Tôi chưa làm được bước này (xem "Chưa kiểm"). Không có số riêng cho `domMax`.
+**Kết luận.**
+
+- **Số 2,5–3,5× ở bản ghi đầu là lỗi của script, không phải code.** Script đó đếm cùng một chunk hai lần, một lần ghi
+  `/_next/static/chunks/x.js` (trong clientModules), một lần `static/chunks/x.js` (trong entryJSFiles). Dựng lại script
+  đó trên build hiện tại cho 1.037.255 B ở `/my-applications` (bản ghi đầu: 1.037.227 B), còn gộp theo đường dẫn chuẩn
+  hóa cho 520.531 B. Trên `dev`, cùng script chuẩn hóa cho 275.058 B, khớp số Task 2 "trước" (275.066 B) trong 8 B;
+  `/dashboard` 680.946 so với 674.113 B (lệch 1%).
+- **Có tăng thật, và vượt ngưỡng 10% của Task 2.** Task 2 chỉ đo sau M0 (+7,9% ở `/my-applications`). Sau M1–M4,
+  `/my-applications` lớn hơn `dev` 89% raw, `/dashboard` 29%. Theo "first load" của Next: +34% và +17%.
+- **Nguyên nhân (đo thô, không phải đo chính xác).** Phân loại từng module trong các chunk first load của
+  `/my-applications` theo dấu hiệu chuỗi: nhóm Radix (menu, tooltip, popper, roving focus, remove-scroll, aria-hidden)
+  từ 9.394 lên 219.427 B (+210.033 B), tức khoảng 85% của mức tăng 245.810 B; mã ứng dụng chưa phân loại +42.380 B;
+  `motion` giảm 9.699 B (LazyMotion với `m.*` thay cho `motion.*`). React/React DOM, socket.io, sonner không đổi. Chuỗi
+  `DropdownMenu`, `Tooltip`, `Popper`, `RovingFocusGroup` có trong first load của nhánh và không có trong `dev`. Các
+  thư viện mới là `@radix-ui/react-dropdown-menu` và `@radix-ui/react-tooltip` (và `react-dialog` được dùng ở 6 nơi
+  thay vì 1). Chúng nằm trong first load của mọi route có shell, không phải chỉ của màn dùng chúng. Không có số riêng
+  cho `domMax`. Chưa sửa; ghi lại để quyết định (ví dụ tải muộn menu và tooltip của shell).
+- **Hạn chế của phép đo.** Phân loại theo chuỗi là phỏng đoán có căn cứ, không phải bản đồ module (`next
+  experimental-analyze` ghi dữ liệu nhị phân, chưa đọc được). Chỉ liệt kê được 2 nhóm chính, không đủ 5. `dev` build
+  dùng `node_modules` của nhánh (nên `@radix-ui/react-dialog` là 1.3.1 thay vì bản khóa của `dev`), và cần ba
+  việc thủ công mà `dev` bình thường không cần: `turbopack.root: 'E:/'` (Turbopack từ chối symlink `node_modules`
+  trỏ ra ngoài root), `tsc -b libs/shared/types`, và chép thư mục Prisma client đã sinh. Ba việc này chỉ nằm trong
+  worktree đã xóa.
 
 ## Giao diện cũ (fallback)
 
@@ -194,7 +218,7 @@ Cookie `talentai-ui=legacy`, 1440 px:
 | Khách `/job-postings` | `legacy` | có | 0 |
 
 Ảnh `legacy-*.png` trông như sản phẩm cũ: logo Sparkles xanh, nhãn nhóm chữ hoa giãn chữ, nút xanh đặc. **Chưa so
-từng điểm ảnh với bản build trước redesign** (xem "Chưa kiểm"). Một lệch thấy được: pill che khối tài khoản ở chân
+ảnh với bản build trước redesign** (xem "Chưa kiểm"). Một lệch thấy được: pill che khối tài khoản ở chân
 sidebar cũ (O1).
 
 ## Điểm còn mở
@@ -202,26 +226,27 @@ sidebar cũ (O1).
 | # | Điểm | Vì sao chưa sửa |
 |---|---|---|
 | O1 | Pill "Dùng giao diện mới" (`fixed bottom-4 left-4`) che tên và email ở chân sidebar staff của giao diện cũ (`legacy-recruiter-*.png`) | Spec §4.3 chốt "góc dưới trái". Cần quyết định: dời sang phải hoặc nâng lên trên chân sidebar |
-| O2 | `/interviews`: tuần và "Hôm nay" tính theo giờ server. Lúc 01:xx giờ VN thứ Bảy 14/11, trang ghi "Hôm nay Thứ 6 13/11". Tuần chỉ có Thứ 2–Thứ 6, nên chưa rõ lịch ngày thứ Bảy/Chủ nhật có hiện không | Lỗi múi giờ phía server, không gây console error. Chưa kiểm bản cũ có giống không |
+| O2 | `/interviews`: tuần và "Hôm nay" tính theo giờ server. Lúc 01:xx giờ VN thứ Bảy 14/11, trang ghi "Hôm nay Thứ 6 13/11". Tuần chỉ có Thứ 2–Thứ 6, nên chưa rõ lịch ngày thứ Bảy/Chủ nhật có hiện không | Lỗi múi giờ phía server, không gây console error. Chưa xác minh với bản cũ |
 | O3 | Khoảng 15 formatter ngày khác vẫn không có `timeZone` (`ApplicationDetail`, `ApplicationTimeline`, `MyInterviewsClient`, `ScheduleCard`, `ScheduleDetailDrawer`, `CompareTable`, `CandidatePeek`, `NotesPanel`, `ScorecardPanel`, `ProfileHeader`, `ApplyButton`…). Ở Server Component, chúng hiển thị ngày UTC cho người dùng VN mà không báo lỗi | Theo brief, chỉ sửa formatter gây console error trên màn đã xem. Nên làm một task riêng |
-| O4 | "AI Score: 0%" cho đơn chưa sàng lọc (`/my-applications`) | API trả 0; bản cũ giống hệt |
+| O4 | "AI Score: 0%" cho đơn chưa sàng lọc (`/my-applications`) | API trả 0. Mã nguồn `dev` in cùng chuỗi với cùng điều kiện (`aiScore != null`), nên bản cũ cũng in số này khi API trả 0 (đối chiếu mã nguồn bằng `git grep`, chưa chạy bản cũ) |
 | O5 | Bộ lọc HTML của API bỏ thẻ `<h3>` trong mô tả tin, nên "Trách nhiệm", "Yêu cầu" hiện như chữ thường | Phía API |
-| O6 | Trang so sánh: "Kỹ năng phù hợp: Chưa có" dù đơn có kỹ năng khớp (`matched_skills` dạng `{hardSkills: […]}`, giống fixture gd3) | Chưa xác minh dạng dữ liệu thật; có thể có từ trước |
-| O7 | Phễu dashboard (Ứng tuyển 2, Phỏng vấn 0) khác số tab ở danh sách ứng viên (Phỏng vấn 2) | Ngữ nghĩa của API; bản cũ cùng số |
+| O6 | Trang so sánh: "Kỹ năng phù hợp: Chưa có" dù đơn có kỹ năng khớp (`matched_skills` dạng `{hardSkills: […]}`, giống fixture gd3) | Chưa xác minh dạng dữ liệu thật; chưa xác minh với bản cũ |
+| O7 | Phễu dashboard (Ứng tuyển 2, Phỏng vấn 0) khác số tab ở danh sách ứng viên (Phỏng vấn 2) | Ngữ nghĩa của API; chưa xác minh với bản cũ |
 | O8 | Chi tiết ứng viên ở ≥768 px: thẻ đầu trang sticky cao khoảng 200 px khi tên dài 100 ký tự (`check-sticky-candidate-detail-1024.png`) | Cần quyết định thiết kế, ví dụ `line-clamp-2` khi dính |
 | O9 | Hồ sơ ứng viên ở 390: cột tên hẹp vì nút "Sửa hồ sơ" nằm cạnh, email bẻ thành 3 dòng giữa từ | Cần quyết định bố cục (nút xuống dòng riêng) |
 | O10 | Ô thống kê "Điểm AI trung bình" ở 390 ghi "Chưa có" cỡ chữ lớn, xuống 2 dòng | Nhỏ; cần quyết định chữ cho giá trị rỗng |
-| O11 | Chữ tiếng Anh người dùng thấy: "avg", "8d" (Kanban), "Present" (CV), "My CVs" (hồ sơ), "AI Score", accessible name "Notifications" | Phần lớn có từ bản cũ; cần chốt cách dịch |
+| O11 | Chữ tiếng Anh người dùng thấy: "avg", "8d" (Kanban), "Present" (CV), "My CVs" (hồ sơ), "AI Score", accessible name "Notifications" | Cả 6 chuỗi ("avg", "Xd", "Present", "My CVs", "AI Score", aria-label "Notifications") có trong mã nguồn `dev` (`git grep`), nên không phải lỗi mới của redesign. Chưa so ảnh render với bản cũ. Cần chốt cách dịch |
 | O12 | Mọi nút menu dòng tên là "Tùy chọn", không kèm tên dòng (Kanban, `/user-management`). `CvCard` thì ghi "Tùy chọn cho <tệp>" | A11y: người dùng trình đọc màn hình không phân biệt được các nút. Đổi tên sẽ làm vỡ test e2e/unit đang truy vấn "Tùy chọn" |
-| O13 | `/jobs/<id không tồn tại>/candidates` hiện "Không tải được dữ liệu." thay vì 404, và log lỗi server ra console (dev). Tin thuộc phòng ban khác cũng hiện chữ này (API 403) | Hành vi có từ trước; cần quyết định có map 403/404 hay không |
+| O13 | `/jobs/<id không tồn tại>/candidates` hiện "Không tải được dữ liệu." thay vì 404, và log lỗi server ra console (dev). Tin thuộc phòng ban khác cũng hiện chữ này (API 403) | Trang `dev` cũng không bắt lỗi của server action (không map 403/404), nên lỗi rơi vào error boundary; chưa chạy bản cũ để xem nó hiện gì. Câu "Không tải được dữ liệu." là của `RouteError` mới. Cần quyết định có map 403/404 hay không |
 | O14 | "Vào phòng họp" là nút xanh đặc. Brief chỉ cho màu accent ở focus, link, vùng chọn và AI; nút chính màu mực | Cần quyết định thiết kế |
 | O15 | Bấm một CV "Đã phân tích" nhưng chưa có dữ liệu trích xuất thì không có gì xảy ra (`CvDetailModal` trả `null`) | Trường hợp biên của dữ liệu; cần chốt trạng thái rỗng |
 
 ## Chưa kiểm
 
-- **So ảnh với bản build trước redesign:** `git worktree add` của `dev` trong scratchpad lỗi `Filename too long`
-  (đường dẫn migration Prisma vượt giới hạn Windows). Worktree đã gỡ, không ép tiếp. Vì vậy cũng chưa có số bundle
-  trước/sau theo cùng một cách đo.
+- **So ảnh với bản build trước redesign:** chưa làm. Đã có bản build `dev` (số bundle ở trên), nhưng không dựng
+  lại dữ liệu seed (đã xóa khỏi `ats_test`) nên không chụp được màn đã đăng nhập; trang đăng nhập đơn lẻ không đủ để
+  so. Mọi câu "bản cũ vẫn như vậy" ở trên là so mã nguồn (`git grep` trên `dev`) hoặc chưa xác minh, không phải so ảnh.
+  Lần trước `git worktree add` lỗi `Filename too long`; lần này `git -c core.longpaths=true worktree add` chạy được.
 - Trang `error.tsx` của các nhóm và `/auth-callback`.
 - Phân trang JobSearchClient trên điện thoại (thiếu dữ liệu cho trang 2).
 - Thiết bị thật, Safari iOS và Android Chrome thật; mọi kết quả ở trên là Chromium headless (Playwright) với viewport
