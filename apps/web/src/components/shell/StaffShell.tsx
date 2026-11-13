@@ -1,12 +1,12 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
 import { TooltipProvider } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
 import type { INotification } from '@/types/interfaces/notification.interface';
 import { NavDrawer, NavDrawerClose } from './NavDrawer';
-import { sidebarCookie, staffBreadcrumbs } from './staff-nav';
+import { isRailCookie, SIDEBAR_COOKIE, sidebarCookie, staffBreadcrumbs } from './staff-nav';
 import { StaffSidebar } from './StaffSidebar';
 import { CommandPalette } from './CommandPalette';
 import { StaffTopBar } from './StaffTopBar';
@@ -46,6 +46,18 @@ export function StaffShell({
     const [labelsEntering, setLabelsEntering] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const crumbs = useMemo(() => staffBreadcrumbs(pathname), [pathname]);
+
+    // A prefetched layout can carry an `initialCollapsed` from before a toggle in another layout; the cookie holds
+    // the latest choice. Applied before paint and without the label entrance, so nothing flickers. No cookie: keep
+    // the prop, which the server read from the same (absent) cookie.
+    useLayoutEffect(() => {
+        const prefix = `${SIDEBAR_COOKIE}=`;
+        const saved = document.cookie
+            .split(';')
+            .map((c) => c.trim())
+            .find((c) => c.startsWith(prefix));
+        if (saved !== undefined) setCollapsed(isRailCookie(saved.slice(prefix.length)));
+    }, []);
 
     // A drawer left open while the window grows past 1024 px would trap focus in hidden content.
     useEffect(() => {

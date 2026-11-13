@@ -10,7 +10,8 @@ const base =
     'transition duration-press ease-out-expo active:scale-[.97] disabled:pointer-events-none [&_svg]:shrink-0';
 
 const variants: Record<ButtonVariant, string> = {
-    primary: 'bg-ink text-surface hover:bg-ink/90',
+    // A primary button is a 44 px touch target below md; min-h leaves every size's h-* in charge from md up.
+    primary: 'bg-ink text-surface hover:bg-ink/90 max-md:min-h-11',
     secondary: 'bg-surface text-ink shadow-e2 hover:bg-surface-2 data-[state=open]:bg-surface-2',
     ghost: 'text-ink-2 hover:bg-ink/5 hover:text-ink data-[state=open]:bg-ink/5 data-[state=open]:text-ink',
     // Hover darkens: a lighter red or blue would drop white text below 4.5:1.

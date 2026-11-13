@@ -166,8 +166,9 @@ html[data-ui="modern"]:has([data-shell="site"]) {
 :where(html[data-ui="modern"]) p {
   text-wrap: pretty;
 }
+/* A spinner is a progress signal, not decoration, so it keeps turning. */
 @media (prefers-reduced-motion: reduce) {
-  html[data-ui="modern"] *,
+  html[data-ui="modern"] *:not(.animate-spin),
   html[data-ui="modern"] *::before,
   html[data-ui="modern"] *::after {
     animation-duration: 0.01ms !important;

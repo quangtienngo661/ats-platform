@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react';
 import { useRef, type KeyboardEvent } from 'react';
 import { cn } from '@/components/ui/cn';
+import { hasModifier } from '@/lib/keyboard';
 import type { IInterviewTopic } from '@/types/interfaces/interview.interface';
 
 interface TopicSelectorProps {
@@ -18,6 +19,7 @@ export function TopicSelector({ topics, selectedId, onSelect }: TopicSelectorPro
     const tabStop = selectedIndex >= 0 ? selectedIndex : 0;
 
     function onKeyDown(e: KeyboardEvent, index: number) {
+        if (hasModifier(e)) return;
         let next: number;
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (index + 1) % topics.length;
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (index - 1 + topics.length) % topics.length;

@@ -2,6 +2,7 @@
 
 import * as m from 'motion/react-m';
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { hasModifier } from '@/lib/keyboard';
 import { spring } from '@/lib/motion';
 import { cn } from './cn';
 
@@ -30,6 +31,7 @@ export function Tabs({ tabs, value, onValueChange }: TabsProps) {
     }
 
     function onKeyDown(e: KeyboardEvent, index: number) {
+        if (hasModifier(e)) return;
         const last = tabs.length - 1;
         let target: number | null = null;
         if (e.key === 'ArrowRight') target = (index + 1) % tabs.length;

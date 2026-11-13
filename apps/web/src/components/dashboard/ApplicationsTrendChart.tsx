@@ -1,6 +1,6 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useId, useSyncExternalStore } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Surface } from '@/components/ui';
 
@@ -42,6 +42,9 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 
 export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartProps) {
     const reduced = usePrefersReducedMotion();
+    // One gradient per chart, so two charts on a page never share it. useId can hold characters such as ":" that
+    // url(#…) would need escaped; keep only the safe ones.
+    const fillId = `trend-fill-${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
     return (
         <Surface className="h-full p-5">
             <h2 className="text-title-sm text-ink">Ứng tuyển theo thời gian</h2>
@@ -51,7 +54,7 @@ export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartP
                     <ResponsiveContainer width="100%" height={220}>
                         <AreaChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
                             <defs>
-                                <linearGradient id="dashboard-trend-fill" x1="0" y1="0" x2="0" y2="1">
+                                <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="0%" style={{ stopColor: ACCENT, stopOpacity: 0.16 }} />
                                     <stop offset="100%" style={{ stopColor: ACCENT, stopOpacity: 0 }} />
                                 </linearGradient>
@@ -64,7 +67,7 @@ export default function ApplicationsTrendChart({ data }: ApplicationsTrendChartP
                                 type="monotone"
                                 dataKey="value"
                                 stroke={ACCENT}
-                                fill="url(#dashboard-trend-fill)"
+                                fill={`url(#${fillId})`}
                                 strokeWidth={2}
                                 dot={false}
                                 activeDot={{ r: 4, strokeWidth: 2, style: { fill: ACCENT, stroke: 'rgb(var(--surface))' } }}

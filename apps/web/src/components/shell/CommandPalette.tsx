@@ -7,6 +7,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { IconButton, Kbd } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
 import { useSwitchUiVariant } from '@/components/ui-variant/useSwitchUiVariant';
+import { hasModifier } from '@/lib/keyboard';
 import { buildCommands, filterCommands, type Command } from './commands';
 
 const TITLE = 'Tìm hoặc đi tới';
@@ -47,7 +48,9 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                // Every repeat of a held Ctrl+K is still kept from the browser, but only the first press toggles.
                 e.preventDefault();
+                if (e.repeat) return;
                 changeOpen(!openRef.current);
             }
         };
@@ -72,13 +75,16 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
     }, [activeId]);
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        // An IME owns its keys while composing (Vietnamese commits with Enter). Safari sends the committing key with
+        // isComposing already false, but keyCode 229.
+        if (e.nativeEvent.isComposing || e.keyCode === 229) return;
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (hasModifier(e)) return;
             e.preventDefault();
             if (results.length === 0) return;
             const step = e.key === 'ArrowDown' ? 1 : -1;
             setActive((i) => (i + step + results.length) % results.length);
         } else if (e.key === 'Enter') {
-            if (e.nativeEvent.isComposing) return;
             e.preventDefault();
             run(activeCommand);
         }
@@ -135,7 +141,8 @@ export function CommandPalette({ userRole }: { userRole?: string }) {
                                 placeholder="Gõ tên trang hoặc lệnh"
                                 autoComplete="off"
                                 spellCheck={false}
-                                className="h-12 min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-3"
+                                // The open panel already shows where focus is; `!` beats the global :focus-visible ring.
+                                className="h-12 min-w-0 flex-1 bg-transparent text-body text-ink !outline-none placeholder:text-ink-3"
                             />
                         </div>
                         <div id={listId} role="listbox" aria-label="Kết quả" className="max-h-[360px] overflow-y-auto p-2">

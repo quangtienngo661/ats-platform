@@ -2,6 +2,7 @@
 
 import * as m from 'motion/react-m';
 import { useId, useRef, type KeyboardEvent } from 'react';
+import { hasModifier } from '@/lib/keyboard';
 import { spring } from '@/lib/motion';
 import { cn } from './cn';
 
@@ -19,6 +20,7 @@ export function Segmented({ options, value, onValueChange, label }: SegmentedPro
     const refs = useRef<Array<HTMLButtonElement | null>>([]);
 
     function onKeyDown(e: KeyboardEvent, index: number) {
+        if (hasModifier(e)) return;
         const step =
             e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
         if (!step) return;
