@@ -1,24 +1,52 @@
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
+import { Button, Input, PageToolbar, Segmented } from '@/components/ui';
+
+export type JobFilter = 'all' | 'active' | 'draft' | 'closed';
 
 interface JobPostingsHeaderProps {
     onAdd: () => void;
+    filter: JobFilter;
+    onFilterChange: (filter: JobFilter) => void;
+    counts: Record<JobFilter, number>;
+    search: string;
+    onSearchChange: (value: string) => void;
 }
 
-export function JobPostingsHeader({ onAdd }: JobPostingsHeaderProps) {
-    return (
-        <div className="mb-6">
-            <div className="flex items-center justify-end">
-                <h1 className="sr-only">Tin tuyển dụng</h1>
+const FILTERS: { value: JobFilter; label: string }[] = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'active', label: 'Đang tuyển' },
+    { value: 'draft', label: 'Bản nháp' },
+    { value: 'closed', label: 'Đã đóng' },
+];
 
-                <button
-                    onClick={onAdd}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
-                    style={{ fontWeight: 500 }}
-                >
-                    <Plus className="w-4 h-4" />
-                    Tạo tin mới
-                </button>
+export function JobPostingsHeader({ onAdd, filter, onFilterChange, counts, search, onSearchChange }: JobPostingsHeaderProps) {
+    return (
+        <PageToolbar title="Tin tuyển dụng">
+            <Segmented
+                label="Lọc theo trạng thái"
+                value={filter}
+                onValueChange={(v) => onFilterChange(v as JobFilter)}
+                options={FILTERS.map((f) => ({ value: f.value, label: `${f.label} ${counts[f.value]}` }))}
+            />
+            <div className="relative w-full sm:w-56">
+                <Search
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                    className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3"
+                />
+                <Input
+                    type="search"
+                    aria-label="Tìm tin tuyển dụng"
+                    placeholder="Tìm theo tên hoặc phòng ban"
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-8"
+                />
             </div>
-        </div>
+            <Button onClick={onAdd}>
+                <Plus aria-hidden="true" strokeWidth={1.75} />
+                Tạo tin tuyển dụng
+            </Button>
+        </PageToolbar>
     );
 }

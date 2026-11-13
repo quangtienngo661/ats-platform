@@ -1,6 +1,15 @@
 import Link from 'next/link';
-import { Briefcase, MapPin, Clock, Users, Edit3, Trash2, CheckCircle, XCircle, List, LayoutGrid } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Clock, MapPin, MoreHorizontal, Users } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    IconButton,
+    StatusChip,
+    Surface,
+} from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
 
@@ -28,18 +37,11 @@ const salaryFormat = (min: number | null, max: number | null): string => {
     return `${formatAmount(min)} - ${formatAmount(max)} VNĐ`;
 };
 
-
 interface JobPostingCardProps {
     job: IJobPostingDto;
     onEdit: (job: IJobPostingDto) => void;
     onDelete: (job: IJobPostingDto) => void;
 }
-
-const statusConfig: Record<string, { label: string; bg: string; text: string; Icon: typeof CheckCircle }> = {
-    active: { label: 'Đang tuyển', bg: '#F0FDF4', text: '#16A34A', Icon: CheckCircle },
-    draft: { label: 'Bản nháp', bg: '#F5F5F7', text: '#6E6E73', Icon: Edit3 },
-    closed: { label: 'Đã đóng', bg: '#FEF2F2', text: '#DC2626', Icon: XCircle },
-};
 
 function timeAgo(dateStr?: string | null): string {
     if (!dateStr) return 'Bản nháp';
@@ -52,107 +54,77 @@ function timeAgo(dateStr?: string | null): string {
     return weeks === 1 ? '1 tuần trước' : `${weeks} tuần trước`;
 }
 
-type TApplication = {
-    candidate?: {
-        userId?: string;
-    };
-    cvId?: string;
-    status?: string;
-}
+type TApplication = { status?: string };
 
 export function JobPostingCard({ job, onEdit, onDelete }: JobPostingCardProps) {
-    const deptColor = job.department?.color || '#6E6E73';
-    const deptBg = `${deptColor}15`;
-    const status = statusConfig[job.status || 'draft'] || statusConfig.draft;
-    const skills = job.jobPostingSkills?.map(jps => jps.skill.name) || [];
+    const skills = job.jobPostingSkills?.map((jps) => jps.skill.name) || [];
     const applicantCount = job.applications?.filter((a: TApplication) => a.status !== 'cancelled').length || 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-md hover:shadow-black/5 transition group cursor-pointer p-5">
-            <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: deptBg }}>
-                    <Briefcase className="w-5 h-5" style={{ color: deptColor }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                            <h3 className="text-[15px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>{job.title}</h3>
-                            <div className="flex items-center gap-3 mt-1 flex-wrap">
-                                <span className="text-[12px] rounded-full px-2.5 py-0.5" style={{ background: deptBg, color: deptColor, fontWeight: 500 }}>
-                                    {job.department?.name || 'N/A'}
-                                </span>
-                                <div className="flex items-center gap-1 text-[#AEAEB2]">
-                                    <MapPin className="w-3 h-3" />
-                                    <span className="text-[12px]">{WORK_TYPE_LABELS[job.locationType as WorkType] || job.locationType}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-[#AEAEB2]">
-                                    <Clock className="w-3 h-3" />
-                                    <span className="text-[12px]">{timeAgo(job.publishedAt || job.createdAt)}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                            <div className="flex items-center gap-1.5 text-[11px] rounded-full px-2.5 py-1" style={{ background: status.bg, color: status.text, fontWeight: 500 }}>
-                                <status.Icon className="w-3 h-3" />
-                                {status.label}
-                            </div>
-                        </div>
+        <Surface className="p-4 transition-shadow duration-hover hover:shadow-e2">
+            <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <h3 className="min-w-0 break-words text-title-sm text-ink" title={job.title}>
+                            {job.title}
+                        </h3>
+                        <StatusChip kind="job" value={job.status || 'draft'} />
+                    </div>
+                    <p className="mt-0.5 truncate text-body-sm text-ink-3" title={job.department?.name}>
+                        {job.department?.name || 'N/A'}
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-caption text-ink-3">
+                        <span className="inline-flex items-center gap-1">
+                            <MapPin aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                            {WORK_TYPE_LABELS[job.locationType as WorkType] || job.locationType}
+                        </span>
+                        <span className="tabular-nums text-ink-2">{salaryFormat(job.salaryMin ?? null, job.salaryMax ?? null)}</span>
+                        <span className="inline-flex items-center gap-1 tabular-nums">
+                            <Clock aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                            {timeAgo(job.publishedAt || job.createdAt)}
+                        </span>
+                        <Link
+                            href={`/jobs/${job.jobId}/candidates`}
+                            className="inline-flex items-center gap-1 font-medium text-accent-text hover:underline"
+                        >
+                            <Users aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                            <span className="tabular-nums">{applicantCount}</span> ứng viên
+                        </Link>
                     </div>
 
-                    {/* Tags */}
                     {skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                            {skills.map(t => (
-                                <span key={t} className="text-[11px] bg-[#F5F5F7] text-[#6E6E73] rounded-lg px-2 py-0.5 border border-[#F2F2F7]">{t}</span>
+                        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Kỹ năng">
+                            {skills.map((t) => (
+                                <li key={t} className="rounded-ctl bg-surface-2 px-2 py-0.5 text-micro text-ink-2">
+                                    {t}
+                                </li>
                             ))}
-                        </div>
+                        </ul>
                     )}
-
-                    {/* Footer */}
-                    <div className="flex items-center gap-5 flex-wrap">
-                        <div className="flex items-center gap-1.5">
-                            <Users className="w-3.5 h-3.5 text-[#0071E3]" />
-                            <span className="text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>{applicantCount}</span>
-                            <span className="text-[12px] text-[#AEAEB2]">ứng viên</span>
-                        </div>
-
-                        <div className="text-[12px] text-[#6E6E73] mt-[2px]">
-                            {salaryFormat(job.salaryMin || null, job.salaryMax || null)}
-                        </div>
-
-                        <div className="flex items-center gap-2 ml-auto">
-                            <Link
-                                href={`/jobs/${job.jobId}/candidates`}
-                                className="flex items-center gap-1.5 text-[12px] text-[#0071E3] bg-[#EBF3FD] hover:bg-[#D6E9FA] px-3 py-1.5 rounded-lg transition-colors"
-                                style={{ fontWeight: 500 }}
-                                onClick={e => e.stopPropagation()}
-                            >
-                                <List className="w-3 h-3" />
-                                Ứng viên
-                            </Link>
-                            <Link
-                                href={`/jobs/${job.jobId}/kanban`}
-                                className="flex items-center gap-1.5 text-[12px] text-[#6366F1] bg-[#F5F3FF] hover:bg-[#EDE9FE] px-3 py-1.5 rounded-lg transition-colors"
-                                style={{ fontWeight: 500 }}
-                                onClick={e => e.stopPropagation()}
-                            >
-                                <LayoutGrid className="w-3 h-3" />
-                                Kanban
-                            </Link>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                    <button type="button" aria-label={`Sửa tin ${job.title}`} onClick={() => onEdit(job)} className="p-2 rounded-xl text-[#0071E3] hover:bg-[#EBF3FD] transition-colors">
-                        <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button type="button" aria-label="Xóa" onClick={() => onDelete(job)} className="p-2 rounded-xl text-[#AEAEB2] hover:bg-[#FEF2F2] hover:text-red-500 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <IconButton size="sm" aria-label={`Thao tác với tin ${job.title}`}>
+                            <MoreHorizontal strokeWidth={1.75} />
+                        </IconButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                            <Link href={`/jobs/${job.jobId}/candidates`}>Xem ứng viên</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/jobs/${job.jobId}/kanban`}>Kanban</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onEdit(job)}>Sửa tin</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem destructive onSelect={() => onDelete(job)}>
+                            Xóa tin
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-        </div>
+        </Surface>
     );
 }

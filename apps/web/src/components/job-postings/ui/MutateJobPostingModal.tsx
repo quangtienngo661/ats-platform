@@ -1,10 +1,8 @@
 'use client';
 
-import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
-
-import { useActionState, useEffect, useState, type MouseEvent } from 'react';
-import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles, X } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useActionState, useEffect, useState } from 'react';
+import { Check } from 'lucide-react';
+import { Button, Dialog, Field, Select } from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { toast } from '@/lib/toast';
 import { JobPostingStep1 } from './JobPostingStep1';
@@ -30,6 +28,13 @@ interface MutateJobPostingModalProps {
     userRole?: string;
 }
 
+type StepOneErrors = { title?: string; description?: string };
+
+const STEPS = [
+    { n: 1, label: 'Thông tin chung' },
+    { n: 2, label: 'Mô tả và yêu cầu' },
+] as const;
+
 export function MutateJobPostingModal({
     onClose,
     editingJob,
@@ -46,6 +51,7 @@ export function MutateJobPostingModal({
     );
     const [isParsing, setIsParsing] = useState(false);
     const [selectedSkillToAdd, setSelectedSkillToAdd] = useState('');
+    const [errors, setErrors] = useState<StepOneErrors>({});
 
     const parsedJobPosting = useJobPostingStore(state => state.parsedData);
     const setParsedData = useJobPostingStore(state => state.setParsedData);
@@ -96,36 +102,25 @@ export function MutateJobPostingModal({
 
     const updateField = (key: string, value: string) => {
         setFormData(prev => ({ ...prev, [key]: value }));
+        if (key === 'title' || key === 'description') setErrors(prev => ({ ...prev, [key]: undefined }));
     };
 
     const validateStepOne = () => {
-        if (!lockedDepartment) {
-            toast.error('Vui lòng chọn recruiter phụ trách có phòng ban');
-            return false;
-        }
+        if (!lockedDepartment) return false;
 
-        if (!formData.title.trim()) {
-            toast.error('Vui lòng điền tiêu đề vị trí');
-            return false;
-        }
-
-        if (!formData.description.trim()) {
-            toast.error('Vui lòng điền mô tả công việc');
-            return false;
-        }
-
-        return true;
+        const next: StepOneErrors = {};
+        if (!formData.title.trim()) next.title = 'Nhập tiêu đề vị trí.';
+        if (!formData.description.trim()) next.description = 'Nhập mô tả công việc.';
+        setErrors(next);
+        return Object.keys(next).length === 0;
     };
 
-    const handleParseClick = async (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-
+    const handleParseClick = async () => {
         if (!validateStepOne()) {
             return;
         }
 
         setIsParsing(true);
-
 
         const result = await parseJdPreviewAction(formData.description);
         setIsParsing(false);
@@ -139,13 +134,6 @@ export function MutateJobPostingModal({
         setSkills(result.data.requirements?.hard_skills ?? []);
         setStep(2);
         toast.success(result.message);
-    };
-
-    const handleSubmitClick = (event: MouseEvent<HTMLButtonElement>) => {
-        if (!lockedDepartment) {
-            event.preventDefault();
-            toast.error('Vui lòng chọn recruiter phụ trách có phòng ban');
-        }
     };
 
     const handleAddExistingSkill = () => {
@@ -163,128 +151,119 @@ export function MutateJobPostingModal({
         setSkills(prev => prev.filter(skill => skill !== skillToRemove));
     };
 
+    const formId = 'job-posting-form';
+    const busy = isPending || isParsing;
+
     return (
-        <AccessibleDialog onClose={onClose} dismissible={!isPending}><DialogOverlay asChild><div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" >
-            <DialogContent title="Thông tin tin tuyển dụng"><div
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
-                
-                style={{ fontFamily: SFT }}
-            >
-                <div className="flex items-center justify-between px-6 py-5 border-b border-[#F2F2F7]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#0056B3] flex items-center justify-center flex-shrink-0">
-                            <Sparkles className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h2 className="text-[20px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                                {isEditing ? 'Chỉnh sửa tin tuyển dụng' : `Tạo tin tuyển dụng (Bước ${step}/2)`}
-                            </h2>
-                            <p className="text-[12px] text-[#6E6E73]">
-                                {step === 1 ? 'Điền thông tin cơ bản để AI phân tích' : 'Hoàn thiện thông tin và xuất bản'}
-                            </p>
-                        </div>
-                    </div>
-                    <button aria-label="Đóng" type="button" onClick={onClose} className="p-2 hover:bg-[#F5F5F7] rounded-lg transition-colors flex-shrink-0">
-                        <X className="w-4 h-4 text-[#6E6E73]" />
-                    </button>
+        <Dialog
+            open
+            onOpenChange={open => { if (!open && !isPending) onClose(); }}
+            title={isEditing ? 'Sửa tin tuyển dụng' : 'Tạo tin tuyển dụng'}
+            size="lg"
+            footer={
+                <>
+                    {step === 2 && !isEditing ? (
+                        <Button variant="secondary" onClick={() => setStep(1)} disabled={busy} className="mr-auto">
+                            Quay lại
+                        </Button>
+                    ) : null}
+                    <Button variant="ghost" onClick={onClose} disabled={isPending}>
+                        Hủy
+                    </Button>
+                    {step === 1 ? (
+                        <>
+                            <Button
+                                variant="secondary"
+                                disabled={busy || !lockedDepartment}
+                                onClick={() => { if (validateStepOne()) { setParsedData(null); setStep(2); } }}
+                            >
+                                Tiếp tục không dùng AI
+                            </Button>
+                            <Button onClick={handleParseClick} loading={busy} disabled={!lockedDepartment}>
+                                {busy ? 'Đang phân tích…' : 'Tiếp tục'}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button type="submit" form={formId} loading={isPending} disabled={isParsing || !lockedDepartment}>
+                            {isPending ? 'Đang lưu…' : 'Lưu tin'}
+                        </Button>
+                    )}
+                </>
+            }
+        >
+            <ol className="mb-5 flex items-center gap-3" aria-label="Các bước">
+                {STEPS.map(({ n, label }, i) => {
+                    const current = step === n;
+                    const done = !current && (step > n || (isEditing && n === 1));
+                    return (
+                        <li
+                            key={n}
+                            data-step={n}
+                            aria-current={current ? 'step' : undefined}
+                            className={`flex min-w-0 items-center gap-2 text-body-sm ${current ? 'font-medium text-ink' : 'text-ink-3'}`}
+                        >
+                            <span
+                                aria-hidden="true"
+                                className={`flex size-6 shrink-0 items-center justify-center rounded-full text-caption tabular-nums ${
+                                    current ? 'bg-ink text-surface' : done ? 'bg-accent-soft text-accent-text' : 'bg-surface-2 text-ink-3'
+                                }`}
+                            >
+                                {done ? <Check strokeWidth={2} className="size-3.5" /> : n}
+                            </span>
+                            <span className="truncate">{label}</span>
+                            {i < STEPS.length - 1 ? <span aria-hidden="true" className="ml-1 h-px w-8 bg-line-strong" /> : null}
+                        </li>
+                    );
+                })}
+            </ol>
+
+            <form id={formId} action={formAction} className="space-y-5">
+                {!isEditing && <input type="hidden" name="createdBy" value={ownerId} />}
+                {manager && !isEditing && (
+                    <Field
+                        label="Người phụ trách"
+                        required
+                        error={owners.length === 0 ? 'Cần thêm recruiter vào phòng ban trước khi tạo tin.' : undefined}
+                    >
+                        {f => (
+                            <Select {...f} value={ownerId} onChange={event => setOwnerId(event.target.value)}>
+                                <option value="">Chọn recruiter phụ trách</option>
+                                {owners.map(owner => (
+                                    <option key={owner.recruiterId} value={owner.recruiterId}>
+                                        {owner.user?.fullName} · {owner.user?.email} · {owner.department?.name}
+                                    </option>
+                                ))}
+                            </Select>
+                        )}
+                    </Field>
+                )}
+                {isEditing && <input type="hidden" name="jobId" value={editingJob.jobId} />}
+
+                <div className={step === 1 ? 'block' : 'hidden'}>
+                    <JobPostingStep1
+                        formData={formData}
+                        updateField={updateField}
+                        department={lockedDepartment}
+                        errors={errors}
+                    />
                 </div>
 
-                <form action={formAction} className="flex flex-col overflow-hidden">
-                    {!isEditing && <input type="hidden" name="createdBy" value={ownerId} />}
-                    {manager && !isEditing && <div className="px-6 pt-4">
-                        <label htmlFor="job-owner" className="block text-[13px] mb-2">Người phụ trách *</label>
-                        <select id="job-owner" value={ownerId} onChange={event => setOwnerId(event.target.value)} required className="border rounded-xl p-3 w-full">
-                            <option value="">Chọn recruiter phụ trách</option>
-                            {owners.map(owner => <option key={owner.recruiterId} value={owner.recruiterId}>{owner.user?.fullName} · {owner.user?.email} · {owner.department?.name}</option>)}
-                        </select>
-                        {owners.length === 0 && <p role="status" className="text-sm text-gray-500 mt-2">Cần thêm recruiter vào phòng ban trước khi tạo tin.</p>}
-                    </div>}
-                    {isEditing && <input type="hidden" name="jobId" value={editingJob.jobId} />}
-
-                    <div className={step === 1 ? 'contents' : 'hidden'}>
-                        <JobPostingStep1
-                            formData={formData}
-                            updateField={updateField}
-                            department={lockedDepartment}
-                        />
-                    </div>
-
-                    <div className={step === 2 ? 'contents' : 'hidden'}>
-                        <JobPostingStep2
-                            formData={formData}
-                            updateField={updateField}
-                            parsedJobPosting={parsedJobPosting}
-                            isParsing={isParsing}
-                            skills={skills}
-                            skillsDb={skillsDb}
-                            categories={categories}
-                            removeSkill={removeSkill}
-                            selectedSkillToAdd={selectedSkillToAdd}
-                            setSelectedSkillToAdd={setSelectedSkillToAdd}
-                            handleAddExistingSkill={handleAddExistingSkill}
-                        />
-                    </div>
-
-                    <div className="flex items-center justify-between px-6 py-4 border-t border-[#F2F2F7] bg-white">
-                        {step === 2 && !isEditing ? (
-                            <button
-                                type="button"
-                                onClick={() => setStep(1)}
-                                className="flex items-center gap-2 px-5 py-2.5 text-[#6E6E73] hover:text-[#1D1D1F] transition-colors text-[14px]"
-                                style={{ fontWeight: 500 }}
-                            >
-                                <ArrowLeft className="w-4 h-4" /> Quay lại
-                            </button>
-                        ) : (
-                            <div />
-                        )}
-
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-5 py-2.5 border border-[#E5E5EA] hover:bg-[#F5F5F7] rounded-xl transition-colors text-[14px]"
-                                style={{ fontWeight: 500 }}
-                            >
-                                Hủy
-                            </button>
-
-                            {step === 1 && <button type="button" disabled={isPending || isParsing || !lockedDepartment} onClick={() => { if (validateStepOne()) { setParsedData(null); setStep(2); } }} className="text-blue-700 text-sm disabled:text-gray-400">Tiếp tục không dùng AI</button>}
-                            {step === 1 ? (
-                                <button
-                                    type="button"
-                                    onClick={handleParseClick}
-                                    disabled={isPending || isParsing || !lockedDepartment}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
-                                    style={{ fontWeight: 600 }}
-                                >
-                                    {isPending || isParsing ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Đang phân tích…
-                                        </>
-                                    ) : (
-                                        <>
-                                            Tiếp tục <ArrowRight className="w-4 h-4" />
-                                        </>
-                                    )}
-                                </button>
-                            ) : (
-                                <button
-                                    type="submit"
-                                    onClick={handleSubmitClick}
-                                    disabled={isPending || isParsing || !lockedDepartment}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[14px]"
-                                    style={{ fontWeight: 600 }}
-                                >
-                                    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    {isPending ? 'Đang lưu…' : isEditing ? 'Cập nhật' : 'Xuất bản'}
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </form>
-            </div></DialogContent>
-        </div></DialogOverlay></AccessibleDialog>
+                <div className={step === 2 ? 'block' : 'hidden'}>
+                    <JobPostingStep2
+                        formData={formData}
+                        updateField={updateField}
+                        parsedJobPosting={parsedJobPosting}
+                        isParsing={isParsing}
+                        skills={skills}
+                        skillsDb={skillsDb}
+                        categories={categories}
+                        removeSkill={removeSkill}
+                        selectedSkillToAdd={selectedSkillToAdd}
+                        setSelectedSkillToAdd={setSelectedSkillToAdd}
+                        handleAddExistingSkill={handleAddExistingSkill}
+                    />
+                </div>
+            </form>
+        </Dialog>
     );
 }
