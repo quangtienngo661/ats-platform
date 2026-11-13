@@ -137,7 +137,7 @@ export function ScorecardForm({
                 <label
                   key={score}
                   className={cn(
-                    'flex size-9 cursor-pointer items-center justify-center rounded-ctl text-body-sm tabular-nums transition-colors duration-hover has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
+                    'flex size-11 cursor-pointer items-center justify-center rounded-ctl text-body-sm tabular-nums transition-colors duration-hover has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
                     values[key] === score
                       ? 'bg-ink text-surface'
                       : 'bg-surface text-ink shadow-e2 hover:bg-surface-2',

@@ -49,6 +49,8 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
     }
 
     const name = application.candidate?.user?.fullName || 'N/A';
+    const email = application.candidate?.user?.email;
+    const phone = application.candidate?.user?.phoneNumber;
     const linkDownload = `${SERVER_URL}/cvs/${application.cvId}/download?name=${name}`;
     const appliedAt = application.appliedAt ? new Date(application.appliedAt).toLocaleDateString('vi-VN') : 'N/A';
 
@@ -78,6 +80,12 @@ export default function CandidateDetailClient({ application, jobId, currentUserI
                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
                     </p>
+                    {(email || phone) && (
+                        <p className="mt-0.5 flex flex-wrap gap-x-3 break-all text-body-sm text-ink-3">
+                            {email && <span>{email}</span>}
+                            {phone && <span>{phone}</span>}
+                        </p>
+                    )}
                 </div>
                 <div className="flex shrink-0 gap-2">
                     <a href={linkDownload} target="_blank" rel="noreferrer" download className={buttonClasses({ variant: 'secondary' })}>

@@ -1,6 +1,7 @@
 import { Hourglass } from 'lucide-react';
 import { effectiveScreeningScores } from '@ats-platform/types';
 import { ReviewScreeningButton } from './ReviewScreeningButton';
+import { round1 } from './ReviewScreeningDialog';
 import { Badge, EmptyState, ScoreBar, Surface } from '@/components/ui';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
@@ -114,7 +115,7 @@ export function CandidateOverviewTab({
               </div>
               <ScoreBar score={overallScore} label="Gợi ý AI" className="mt-2" />
               {effective.isReviewed && originalOverall != null && (
-                <p className="mt-2 text-caption text-ink-3">Điểm AI ban đầu: {String(Math.round(Number(originalOverall.toString())))}</p>
+                <p className="mt-2 text-caption text-ink-3">Điểm AI ban đầu: {String(round1(Number(originalOverall.toString())))}</p>
               )}
             </div>
 

@@ -22,7 +22,7 @@ const FIELDS: { field: ScoreField; label: string; inputLabel: string }[] = [
 ];
 
 // Scores are kept to one decimal, like the Decimal(5,1) columns they end up in.
-const round1 = (value: number) => Math.round(value * 10) / 10;
+export const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** The AI's own score, whatever shape it arrived in (number or Decimal string). */
 function aiScore(screening: ICVScreening, field: ScoreField): number | null {
