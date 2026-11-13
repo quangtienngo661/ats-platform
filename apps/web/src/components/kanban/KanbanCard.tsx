@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { ArrowRightLeft, ChevronRight, Clock, Cpu, ExternalLink, MapPin, MoreHorizontal, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -25,6 +25,13 @@ import {
 } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
 
+/**
+ * A request from the board to put focus on this card's "Tùy chọn" button:
+ * - `now`: after a move from the menu (the card may have just mounted in its new column);
+ * - `if-lost`: after the screening dialog closed, only when its opener is gone and focus fell to `<body>`.
+ */
+export type MenuFocusRequest = 'now' | 'if-lost';
+
 interface KanbanCardProps {
   candidate: Candidate;
   jobId: string;
@@ -32,6 +39,9 @@ interface KanbanCardProps {
   /** Same path as a drop on a column: every guard of the board applies. */
   onMoveToStage: (id: string, stage: Stage) => void;
   onRequestScreening: (id: string) => void;
+  focusMenuTrigger?: MenuFocusRequest;
+  /** Called once a focus request has been handled, so the board can drop it. */
+  onMenuTriggerFocused?: () => void;
 }
 
 type ScreeningLabel = { text: string; tone: Tone };
@@ -51,7 +61,15 @@ function screeningLabels(candidate: Candidate): ScreeningLabel[] {
   return labels;
 }
 
-export default function KanbanCard({ candidate, jobId, onDrop, onMoveToStage, onRequestScreening }: KanbanCardProps) {
+export default function KanbanCard({
+  candidate,
+  jobId,
+  onDrop,
+  onMoveToStage,
+  onRequestScreening,
+  focusMenuTrigger,
+  onMenuTriggerFocused,
+}: KanbanCardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: DRAG_TYPE,
     item: { id: candidate.id },
@@ -70,6 +88,22 @@ export default function KanbanCard({ candidate, jobId, onDrop, onMoveToStage, on
   /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
   const afterClose = useRef<(() => void) | null>(null);
   const hintId = useId();
+
+  useEffect(() => {
+    if (!focusMenuTrigger) return;
+    if (focusMenuTrigger === 'now') {
+      triggerRef.current?.focus();
+      onMenuTriggerFocused?.();
+      return;
+    }
+    // A closing dialog returns focus to its opener in a 0 ms timeout; run after it and step in only if that
+    // opener was gone (the quick "Sàng lọc" button disappears once screening starts) and focus fell to <body>.
+    const timer = window.setTimeout(() => {
+      if (!document.activeElement || document.activeElement === document.body) triggerRef.current?.focus();
+      onMenuTriggerFocused?.();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [focusMenuTrigger, onMenuTriggerFocused]);
 
   const profileHref = `/jobs/${jobId}/candidates/${candidate.id}`;
   const canScreen = candidate.stage === 'screening' && candidate.screeningStatus !== ScreeningStatus.completed;
@@ -158,7 +192,7 @@ export default function KanbanCard({ candidate, jobId, onDrop, onMoveToStage, on
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   {moveTargets.map(s => (
-                    <DropdownMenuItem key={s.id} onSelect={() => onMoveToStage(candidate.id, s.id)}>
+                    <DropdownMenuItem key={s.id} onSelect={() => { afterClose.current = () => onMoveToStage(candidate.id, s.id); }}>
                       {s.label}
                     </DropdownMenuItem>
                   ))}
@@ -202,7 +236,7 @@ export default function KanbanCard({ candidate, jobId, onDrop, onMoveToStage, on
               <button
                 type="button"
                 onClick={() => onRequestScreening(candidate.id)}
-                className="rounded-ctl font-medium text-accent-text hover:underline"
+                className="inline-flex h-6 items-center rounded-ctl px-1 font-medium text-accent-text hover:underline"
               >
                 Sàng lọc
               </button>

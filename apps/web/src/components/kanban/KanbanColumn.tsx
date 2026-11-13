@@ -4,7 +4,7 @@ import { useId } from 'react';
 import { useDrop } from 'react-dnd';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import KanbanCard from './KanbanCard';
+import KanbanCard, { type MenuFocusRequest } from './KanbanCard';
 import { Candidate, Stage, StageConfig } from '@/types/interfaces/kanban.interface';
 import { DRAG_TYPE } from '../../types/constants/kanban.constants';
 import { statusTone, type Tone } from '@/lib/status-tones';
@@ -27,6 +27,9 @@ interface KanbanColumnProps {
   onReorder: (dragId: string, dropId: string) => void;
   onMoveToStage: (id: string, stage: Stage) => void;
   onRequestScreening: (id: string) => void;
+  /** The card that should take focus on its "Tùy chọn" button, if it is in this column. */
+  focusRequest: { id: string; when: MenuFocusRequest } | null;
+  onFocusHandled: () => void;
 }
 
 export default function KanbanColumn({
@@ -37,6 +40,8 @@ export default function KanbanColumn({
   onReorder,
   onMoveToStage,
   onRequestScreening,
+  focusRequest,
+  onFocusHandled,
 }: KanbanColumnProps) {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: DRAG_TYPE,
@@ -83,6 +88,8 @@ export default function KanbanColumn({
                 onDrop={onReorder}
                 onMoveToStage={onMoveToStage}
                 onRequestScreening={onRequestScreening}
+                focusMenuTrigger={focusRequest?.id === c.id ? focusRequest.when : undefined}
+                onMenuTriggerFocused={onFocusHandled}
               />
             </m.div>
           ))}

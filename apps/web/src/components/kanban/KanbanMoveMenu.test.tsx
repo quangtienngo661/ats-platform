@@ -8,6 +8,7 @@ import { triggerCvScreeningAction, updateApplicationStatusAction } from '@/serve
 import type { ConfigProfile } from '@/types/interfaces/configProfile.interface';
 import { toast } from '@/lib/toast';
 import KanbanClient from './KanbanClient';
+import { MotionProvider } from '@/components/common/MotionProvider';
 
 vi.mock('next/link', () => ({
   default: ({ children, ...props }: ComponentProps<'a'>) => <a {...props}>{children}</a>,
@@ -29,10 +30,13 @@ const applicant = {
 } as unknown as IApplicationDto;
 
 function renderBoard(board: Record<string, IApplicationDto[]> = { applied: [applicant] }, aiProfiles: ConfigProfile[] = []) {
+  // MotionProvider as in the app: a moved card's old copy stays mounted while it animates out, as in a browser.
   return render(
-    <KanbanStoreProvider initialState={{ board, cancelled: [] }}>
-      <KanbanClient jobId="job-1" aiProfiles={aiProfiles} />
-    </KanbanStoreProvider>,
+    <MotionProvider>
+      <KanbanStoreProvider initialState={{ board, cancelled: [] }}>
+        <KanbanClient jobId="job-1" aiProfiles={aiProfiles} />
+      </KanbanStoreProvider>
+    </MotionProvider>,
   );
 }
 

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ArchiveX, Clock } from 'lucide-react';
 import KanbanColumn from './KanbanColumn';
+import type { MenuFocusRequest } from './KanbanCard';
 import ScreeningConfigModal from './ScreeningConfigModal';
 import { Candidate, Stage } from '@/types/interfaces/kanban.interface';
 import { stages } from '../../types/constants/kanban.constants';
@@ -38,6 +39,10 @@ export default function KanbanClient({
   const [query, ] = useState('');
   const [showCancelled, setShowCancelled] = useState(false);
   const [showScreeningModal, setShowScreeningModal] = useState<string | null>(null);
+  // Which card's "Tùy chọn" button takes focus next (WCAG 2.4.3): a card moved from its menu remounts in its new
+  // column, and a dialog's opener can disappear, so focus would otherwise fall to <body>.
+  const [focusRequest, setFocusRequest] = useState<{ id: string; when: MenuFocusRequest } | null>(null);
+  const clearFocusRequest = useCallback(() => setFocusRequest(null), []);
   const socket = useSocketStore();
 
   const updateKanbanBoard = useKanBanStore(s => s.updateKanbanBoard);
@@ -139,6 +144,24 @@ export default function KanbanClient({
     });
   };
 
+  /** A move chosen in a card's menu: the same path as a drop, then focus follows the card (or stays, if refused). */
+  const moveFromMenu = (id: string, stage: Stage) => {
+    setFocusRequest({ id, when: 'now' });
+    handleDropToColumn(id, stage);
+  };
+
+  const closeScreeningModal = () => {
+    const id = showScreeningModal;
+    setShowScreeningModal(null);
+    if (id) setFocusRequest({ id, when: 'if-lost' });
+  };
+
+  // A move into "Sàng lọc" opens the dialog; hold it until the moved card has focus, so that card is its opener.
+  const screeningModalId =
+    showScreeningModal && !(focusRequest?.when === 'now' && focusRequest.id === showScreeningModal)
+      ? showScreeningModal
+      : null;
+
   useEffect(() => {
     if (socket.status !== 'connected') return;
 
@@ -222,8 +245,10 @@ export default function KanbanClient({
                 jobId={jobId}
                 candidates={filtered.filter(c => c.stage === stage.id)}
                 onDropToColumn={handleDropToColumn} onReorder={handleReorder}
-                onMoveToStage={handleDropToColumn}
-                onRequestScreening={setShowScreeningModal} />
+                onMoveToStage={moveFromMenu}
+                onRequestScreening={setShowScreeningModal}
+                focusRequest={focusRequest}
+                onFocusHandled={clearFocusRequest} />
             ))}
           </div>
         </div>
@@ -232,7 +257,7 @@ export default function KanbanClient({
         <Sheet open={showCancelled} onOpenChange={setShowCancelled} title="Đã hủy / Rút đơn">
           <p className="-mt-2 mb-3 text-caption tabular-nums text-ink-3">{cancelledApplications.length} ứng viên</p>
           {cancelledApplications.length === 0 ? (
-            <EmptyState icon={ArchiveX} title="Không có ứng viên nào." />
+            <EmptyState icon={ArchiveX} title="Không có ứng viên nào" />
           ) : (
             <ul className="space-y-1">
               {cancelledApplications.map(app => {
@@ -241,7 +266,7 @@ export default function KanbanClient({
                   ? Math.max(0, Math.floor((Date.now() - new Date(app.appliedAt).getTime()) / 86400000))
                   : 0;
                 return (
-                  <li key={`${app.applicationId}`} className="flex items-center gap-3 rounded-card px-2 py-2.5 transition-colors duration-hover hover:bg-surface-2">
+                  <li key={`${app.applicationId}`} className="flex items-center gap-3 px-2 py-2.5">
                     <Avatar name={name} size={32} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-body-sm font-medium text-ink" title={name}>{name}</p>
@@ -259,13 +284,13 @@ export default function KanbanClient({
         </Sheet>
 
         {/* ── Screening Config Modal ────────────────────────────────────── */}
-        {showScreeningModal && (
+        {screeningModalId && (
           <ScreeningConfigModal
-            applicationId={showScreeningModal}
-            candidateName={candidates.find(c => c.id === showScreeningModal)?.name || ''}
-            roleName={candidates.find(c => c.id === showScreeningModal)?.role || ''}
+            applicationId={screeningModalId}
+            candidateName={candidates.find(c => c.id === screeningModalId)?.name || ''}
+            roleName={candidates.find(c => c.id === screeningModalId)?.role || ''}
             aiProfiles={aiProfiles}
-            onClose={() => setShowScreeningModal(null)}
+            onClose={closeScreeningModal}
             onSuccess={() => {
               // Cập nhật UI ngay lập tức — server sẽ xử lý bất đồng bộ qua BullMQ
               setCandidates(prev => prev.map(c =>
