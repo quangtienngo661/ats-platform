@@ -93,7 +93,7 @@ export function SessionSidebar({
                 <button
                     type="button"
                     onClick={onAbandon}
-                    className="mt-auto inline-flex h-9 w-full items-center justify-center rounded-ctl border border-night-line text-body-sm font-medium text-night-ink-2 transition duration-press ease-out-expo hover:bg-night-2 hover:text-night-ink active:scale-[.97]"
+                    className="mt-auto inline-flex h-9 w-full items-center justify-center rounded-ctl border border-night-ink-3 text-body-sm font-medium text-night-ink-2 transition duration-press ease-out-expo hover:bg-night-2 hover:text-night-ink active:scale-[.97]"
                 >
                     Hủy phỏng vấn
                 </button>

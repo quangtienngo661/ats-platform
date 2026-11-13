@@ -1,47 +1,30 @@
 import { useId } from 'react';
 import { Badge, Surface } from '@/components/ui';
 
+/** A list marker at the very start of a line: `-`, `•`, `*`, `1.` or `1)`, then whitespace. */
 const LIST_MARKER = /^(?:\d+[.)]|[-*•])\s+/;
 
-function startsSentence(text: string): boolean {
-    const first = text.charAt(0);
-    return /\d/.test(first) || (first !== first.toLowerCase() && first === first.toUpperCase());
-}
-
 /**
- * Turns the AI's action plan into ordered steps. The API returns one string: usually 3–5 sentences, sometimes
- * lines with list markers. Lines win when there are several; otherwise a sentence ends at . ! ? … followed by
- * a capital or a digit, so "Node.js", "20.5" and "v.v. cho" stay whole. Text and order are never changed.
+ * Turns the AI's action plan (one string from the API) into steps, using only structure the text already has:
+ * one step per non-blank line, with a leading list marker removed. Prose is never cut at sentence punctuation,
+ * since "TP. Hồ Chí Minh", "ThS. Nguyễn" or "e.g. React" would break into wrong steps; a plan without line
+ * breaks stays one step. Text and order are never changed.
  */
 export function splitActionPlan(plan: string): string[] {
-    const lines = plan
+    return plan
         .split(/\r?\n/)
         .map((line) => line.trim().replace(LIST_MARKER, '').trim())
         .filter(Boolean);
-    if (lines.length !== 1) return lines;
-
-    const parts = lines[0].split(/([.!?…])\s+/);
-    const sentences: string[] = [];
-    let current = parts[0];
-    for (let i = 1; i < parts.length; i += 2) {
-        const next = parts[i + 1] ?? '';
-        current += parts[i];
-        if (startsSentence(next)) {
-            sentences.push(current);
-            current = next;
-        } else {
-            current += ` ${next}`;
-        }
-    }
-    sentences.push(current);
-    return sentences.map((s) => s.trim()).filter(Boolean);
 }
 
 interface ActionPlanCardProps {
     actionPlan: string;
 }
 
-/** The plan as a numbered list (CSS counters, so a screen reader hears each number once, as the list position). */
+/**
+ * Several steps render as a numbered list (CSS counters, so a screen reader hears each number once, as the list
+ * position). A single step is prose, not a sequence, so it renders as a paragraph.
+ */
 export function ActionPlanCard({ actionPlan }: ActionPlanCardProps) {
     const headingId = useId();
     const steps = splitActionPlan(actionPlan);
@@ -55,21 +38,25 @@ export function ActionPlanCard({ actionPlan }: ActionPlanCardProps) {
                 </h2>
                 <Badge tone="accent">Gợi ý AI</Badge>
             </div>
-            <ol aria-labelledby={headingId} className="mt-4 flex flex-col gap-3 [counter-reset:step]">
-                {steps.map((step, index) => (
-                    <li
-                        key={index}
-                        className={[
-                            'flex gap-3 break-words text-body text-ink-2 [counter-increment:step]',
-                            'before:flex before:size-6 before:shrink-0 before:items-center before:justify-center',
-                            'before:rounded-full before:bg-accent-soft before:font-mono before:text-caption',
-                            'before:tabular-nums before:text-accent-text before:content-[counter(step)]',
-                        ].join(' ')}
-                    >
-                        <span className="min-w-0 pt-px">{step}</span>
-                    </li>
-                ))}
-            </ol>
+            {steps.length === 1 ? (
+                <p className="mt-4 whitespace-pre-wrap break-words text-body text-ink-2">{steps[0]}</p>
+            ) : (
+                <ol aria-labelledby={headingId} className="mt-4 flex flex-col gap-3 [counter-reset:step]">
+                    {steps.map((step, index) => (
+                        <li
+                            key={index}
+                            className={[
+                                'flex gap-3 break-words text-body text-ink-2 [counter-increment:step]',
+                                'before:flex before:size-6 before:shrink-0 before:items-center before:justify-center',
+                                'before:rounded-full before:bg-accent-soft before:font-mono before:text-caption',
+                                'before:tabular-nums before:text-accent-text before:content-[counter(step)]',
+                            ].join(' ')}
+                        >
+                            <span className="min-w-0 pt-px">{step}</span>
+                        </li>
+                    ))}
+                </ol>
+            )}
         </Surface>
     );
 }

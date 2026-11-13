@@ -62,9 +62,10 @@ export function AnswerInput({ onSubmit, disabled = false, placeholder = 'Nhập 
                     placeholder={placeholder}
                     rows={1}
                     className={[
-                        'block min-h-11 w-full min-w-0 flex-1 resize-none overflow-y-hidden rounded-card border border-night-line',
+                        // The outline must reach 3:1 against night-2 and night (WCAG 1.4.11); night-line is ~1.2:1.
+                        'block min-h-11 w-full min-w-0 flex-1 resize-none overflow-y-hidden rounded-card border border-night-ink-3',
                         'bg-night-2 px-4 py-2.5 text-body text-night-ink placeholder:text-night-ink-3',
-                        'transition-colors duration-hover focus:border-night-ink-3',
+                        'transition-colors duration-hover focus:border-night-ink-2',
                         'disabled:cursor-not-allowed disabled:opacity-60',
                         '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
                     ].join(' ')}

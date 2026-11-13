@@ -24,7 +24,7 @@ const NIGHT_ICON_BUTTON = cn(
     NIGHT_PRESS,
 );
 const NIGHT_TEXT_BUTTON = cn(
-    'inline-flex h-8 shrink-0 items-center rounded-ctl border border-night-line px-3 text-body-sm font-medium',
+    'inline-flex h-8 shrink-0 items-center rounded-ctl border border-night-ink-3 px-3 text-body-sm font-medium',
     'text-night-ink-2 hover:bg-night-2 hover:text-night-ink',
     NIGHT_PRESS,
 );
@@ -196,10 +196,13 @@ export default function InterviewChatClient({
     };
 
     // Auto-scroll to the latest turn; jump instead of glide when the OS asks for reduced motion.
+    // `block: 'start'` asks for more than the page can scroll, so it lands at the very end of the document. The
+    // sticky composer stays in flow after this sentinel, so at the end it sits below the last bubble, never on it.
+    // ('end'/'nearest' would align the sentinel to the viewport bottom, under the composer, whatever its height.)
     useEffect(() => {
         const reduce =
             typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        chatEndRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+        chatEndRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     }, [messages, isAiThinking]);
 
     // [Lỗi #3 Fix] Khai báo TRƯỚC useEffect socket để tránh ReferenceError.
