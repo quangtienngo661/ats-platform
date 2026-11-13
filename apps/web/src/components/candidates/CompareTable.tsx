@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { AiRecommendation, ApplicationStatus, ScorecardRecommendation } from '@ats-platform/types';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Surface } from '@/components/ui';
 import type { IComparisonItem } from '@/types/interfaces/evaluation.interface';
 
 interface CompareTableProps {
@@ -84,18 +84,18 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
     ];
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-[#F2F2F7] bg-white" style={{ fontFamily: SFT }}>
+        <Surface className="overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full table-fixed text-left" style={{ minWidth: 224 * (items.length + 1) }}>
                     <caption className="sr-only">So sánh thông tin và đánh giá ứng viên</caption>
                     <thead>
-                        <tr className="border-b border-[#F2F2F7] bg-[#FAFAFA]">
-                            <th scope="col" className="w-56 px-6 py-4 text-[13px] font-semibold text-[#6E6E73]">Tiêu chí</th>
+                        <tr>
+                            <th scope="col" className="sticky left-0 z-sticky w-56 border-b border-line bg-surface-2 px-4 py-3 text-caption font-medium text-ink-3">Tiêu chí</th>
                             {items.map(item => (
-                                <th key={item.applicationId} scope="col" className="px-6 py-4 text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
+                                <th key={item.applicationId} scope="col" className="break-words border-b border-line bg-surface-2 px-4 py-3 text-body-sm font-semibold text-ink">
                                     <Link
                                         href={`/jobs/${jobId}/candidates/${item.applicationId}`}
-                                        className="text-[#0071E3] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
+                                        className="rounded-ctl text-accent-text hover:underline"
                                     >
                                         {item.candidateName}
                                     </Link>
@@ -105,10 +105,10 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
                     </thead>
                     <tbody>
                         {rows.map(row => (
-                            <tr key={row.label} className="border-b border-[#F2F2F7] last:border-0">
-                                <th scope="row" className="px-6 py-4 text-[13px] font-medium text-[#6E6E73]">{row.label}</th>
+                            <tr key={row.label} className="group">
+                                <th scope="row" className="sticky left-0 z-sticky border-b border-line bg-surface px-4 py-3 text-caption font-medium text-ink-3 group-last:border-b-0">{row.label}</th>
                                 {items.map(item => (
-                                    <td key={item.applicationId} className="break-words px-6 py-4 align-top text-[13px] text-[#1D1D1F]">
+                                    <td key={item.applicationId} className="break-words border-b border-line px-4 py-3 align-top text-body-sm tabular-nums text-ink group-last:border-b-0">
                                         {row.value(item)}
                                     </td>
                                 ))}
@@ -117,6 +117,6 @@ export function CompareTable({ items, jobId }: CompareTableProps) {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </Surface>
     );
 }
