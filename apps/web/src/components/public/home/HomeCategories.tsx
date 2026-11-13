@@ -25,7 +25,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
 
     return (
         <section aria-labelledby="home-categories-title" className="py-12 sm:py-16">
-            <Reveal className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
+            <Reveal inView className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
                 <CategoryRail
                     items={items}
                     heading={

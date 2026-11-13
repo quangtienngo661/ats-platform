@@ -18,7 +18,7 @@ const STEPS = [
 export function HomeSteps() {
     return (
         <section aria-labelledby="home-steps-title" className="py-12 sm:py-16">
-            <Reveal className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
+            <Reveal inView className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
                 <h2 id="home-steps-title" className="text-heading text-ink sm:text-display-sm">
                     Cách TalentAI hoạt động
                 </h2>

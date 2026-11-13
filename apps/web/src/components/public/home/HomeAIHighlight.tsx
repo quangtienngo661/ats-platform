@@ -100,7 +100,7 @@ function SampleMatch() {
 export function HomeAIHighlight() {
     return (
         <section aria-labelledby="home-ai-title" className="py-12 sm:py-16 lg:py-20">
-            <Reveal className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
+            <Reveal inView className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
                 <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
                     <div className="min-w-0 lg:col-span-5">
                         <h2 id="home-ai-title" className="text-heading text-ink sm:text-display-sm">

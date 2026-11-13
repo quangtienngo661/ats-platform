@@ -190,3 +190,8 @@ html[data-ui="modern"]:has([data-shell="site"]) {
   pointer-events: none;
   display: block;
 }
+/* Sections held back until they scroll into view (see RevealInView); legacy UI is untouched. */
+:where(html[data-ui="modern"]) [data-reveal="pending"] {
+  opacity: 0;
+  transform: translateY(8px);
+}
