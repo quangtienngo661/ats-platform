@@ -136,4 +136,22 @@ describe('InterviewResultClient', () => {
 
         expect(screen.getByRole('link', { name: 'Làm phiên mới' })).toHaveAttribute('href', '/mock-interview');
     });
+
+    // The API serialises Prisma Decimal columns as strings ("72"); Task 33 saw every bar read "Chưa có điểm".
+    it('reads the overall and question scores the API sends as decimal strings', () => {
+        const fromApi = {
+            ...result,
+            overallScore: '68',
+            session: {
+                ...result.session,
+                qnas: result.session.qnas.map((q) => ({ ...q, correctnessScore: String(q.correctnessScore) })),
+            },
+        } as unknown as IInterviewResult;
+        render(<InterviewResultClient result={fromApi} />);
+
+        expect(screen.getByRole('meter', { name: 'Điểm tổng' })).toHaveAttribute('aria-valuenow', '68');
+        expect(screen.getByRole('meter', { name: 'Câu 1' })).toHaveAttribute('aria-valuenow', '90');
+        expect(screen.getByRole('meter', { name: 'Câu 2' })).toHaveAttribute('aria-valuenow', '40');
+        expect(screen.queryByText('Chưa có điểm')).toBeNull();
+    });
 });
