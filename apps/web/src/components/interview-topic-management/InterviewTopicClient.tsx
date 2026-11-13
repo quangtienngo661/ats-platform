@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { SFT } from '@/types/fonts/fonts';
+import { useMemo, useRef, useState } from 'react';
+import { ClipboardList, SearchX } from 'lucide-react';
+import { Button, EmptyState, Surface } from '@/components/ui';
 import { IInterviewTopic } from '@/types/interfaces/interview.interface';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 import { InterviewTopicHeader } from './ui/InterviewTopicHeader';
@@ -24,6 +25,7 @@ export default function InterviewTopicClient({ topics, jobCategories }: Intervie
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingTopic, setEditingTopic] = useState<IInterviewTopic | null>(null);
+    const searchRef = useRef<HTMLInputElement>(null);
 
     const filteredTopics = useMemo(() => {
         const q = searchQuery.trim().toLowerCase();
@@ -35,19 +37,52 @@ export default function InterviewTopicClient({ topics, jobCategories }: Intervie
         });
     }, [topics, searchQuery, selectedCategoryId]);
 
+    const clearFilters = () => {
+        setSearchQuery('');
+        setSelectedCategoryId('');
+        // The clear button disappears with the no-match state; keep focus in the toolbar.
+        searchRef.current?.focus();
+    };
+
     return (
-        <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-            <InterviewTopicHeader onAdd={() => setShowCreateModal(true)} />
+        <div className="space-y-4 p-4 lg:p-6">
+            <InterviewTopicHeader onAdd={() => setShowCreateModal(true)}>
+                <InterviewTopicFilterBar
+                    categories={jobCategories}
+                    search={searchQuery}
+                    categoryId={selectedCategoryId}
+                    onSearch={setSearchQuery}
+                    onCategoryChange={setSelectedCategoryId}
+                    searchRef={searchRef}
+                />
+            </InterviewTopicHeader>
             <InterviewTopicStats topics={topics} />
-            <InterviewTopicFilterBar
-                categories={jobCategories}
-                onSearch={setSearchQuery}
-                onCategoryChange={setSelectedCategoryId}
-            />
-            <InterviewTopicTable
-                topics={filteredTopics}
-                onEdit={setEditingTopic}
-            />
+
+            {topics.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={ClipboardList}
+                        title="Chưa có chủ đề"
+                        description="Chủ đề phỏng vấn bạn tạo sẽ hiện ở đây."
+                        action={<Button onClick={() => setShowCreateModal(true)}>Thêm chủ đề đầu tiên</Button>}
+                    />
+                </Surface>
+            ) : filteredTopics.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={SearchX}
+                        title="Không có chủ đề khớp"
+                        description={selectedCategoryId ? 'Đổi từ khóa tìm kiếm hoặc bộ lọc.' : 'Đổi từ khóa tìm kiếm.'}
+                        action={
+                            <Button variant="secondary" onClick={clearFilters}>
+                                {selectedCategoryId ? 'Xóa bộ lọc' : 'Xóa tìm kiếm'}
+                            </Button>
+                        }
+                    />
+                </Surface>
+            ) : (
+                <InterviewTopicTable topics={filteredTopics} onEdit={setEditingTopic} />
+            )}
 
             {showCreateModal && (
                 <MutateInterviewTopicModal

@@ -5,17 +5,19 @@ import { Trash2 } from 'lucide-react';
 import { deleteInterviewTopicAction, InterviewTopicActionState } from '@/servers/interviews/interviews.action';
 import { toast } from '@/lib/toast';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { IconButton } from '@/components/ui';
 
 const initialState: InterviewTopicActionState = { success: false, message: '' };
 
-interface DeleteInterviewTopicButtonProps {
+interface DeleteInterviewTopicDialogProps {
     topicId: string;
-    disabled?: boolean;
+    open: boolean;
+    onClose: () => void;
 }
 
-export function DeleteInterviewTopicButton({ topicId, disabled }: DeleteInterviewTopicButtonProps) {
+/** The confirm dialog and the delete action. Keep it mounted: the action state lives here. */
+export function DeleteInterviewTopicDialog({ topicId, open, onClose }: DeleteInterviewTopicDialogProps) {
     const [state, dispatch, isPending] = useActionState(deleteInterviewTopicAction, initialState);
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     useEffect(() => {
         if (state.success && state.message) {
@@ -28,31 +30,45 @@ export function DeleteInterviewTopicButton({ topicId, disabled }: DeleteIntervie
     const confirmDelete = () => {
         const formData = new FormData();
         formData.set('topicId', topicId);
-        setIsConfirmOpen(false);
+        onClose();
         startTransition(() => dispatch(formData));
     };
 
     return (
+        <ConfirmModal
+            isOpen={open}
+            title="Xóa chủ đề phỏng vấn"
+            description="Bạn có chắc muốn xóa chủ đề phỏng vấn này? Thao tác này không thể hoàn tác."
+            confirmText="Xóa"
+            isConfirming={isPending}
+            onConfirm={confirmDelete}
+            onCancel={onClose}
+        />
+    );
+}
+
+interface DeleteInterviewTopicButtonProps {
+    topicId: string;
+    disabled?: boolean;
+}
+
+/** A stand-alone delete button with its own confirm dialog. The topic table uses the row menu and the dialog instead. */
+export function DeleteInterviewTopicButton({ topicId, disabled }: DeleteInterviewTopicButtonProps) {
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+    return (
         <>
-            <button
-                type="button"
+            <IconButton
+                size="sm"
                 onClick={() => setIsConfirmOpen(true)}
-                disabled={disabled || isPending}
+                disabled={disabled}
                 aria-label="Xóa chủ đề phỏng vấn"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#AEAEB2] transition-colors hover:bg-[#FFE5E5] hover:text-[#FF3B30] disabled:cursor-not-allowed disabled:opacity-40"
+                className="hover:text-danger"
                 title={disabled ? 'Không thể xóa chủ đề đã có phiên phỏng vấn' : 'Xóa'}
             >
-                <Trash2 className="w-4 h-4" aria-hidden="true" />
-            </button>
-            <ConfirmModal
-                isOpen={isConfirmOpen}
-                title="Xóa chủ đề phỏng vấn"
-                description="Bạn có chắc muốn xóa chủ đề phỏng vấn này? Thao tác này không thể hoàn tác."
-                confirmText="Xóa"
-                isConfirming={isPending}
-                onConfirm={confirmDelete}
-                onCancel={() => setIsConfirmOpen(false)}
-            />
+                <Trash2 aria-hidden="true" strokeWidth={1.75} />
+            </IconButton>
+            <DeleteInterviewTopicDialog topicId={topicId} open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} />
         </>
     );
 }

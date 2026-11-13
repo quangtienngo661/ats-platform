@@ -1,56 +1,60 @@
 'use client';
 
-import { Search, ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { SF } from '@/types/fonts/fonts';
+import type { Ref } from 'react';
+import { Search } from 'lucide-react';
+import { Input, Select } from '@/components/ui';
 
 interface SkillFilterBarProps {
     categories: string[];
+    search: string;
+    category: string;
     onSearch: (query: string) => void;
     onCategoryChange: (category: string) => void;
+    /** Lets the list put focus back in the search field after clearing the filters. */
+    searchRef?: Ref<HTMLInputElement>;
 }
 
-export function SkillFilterBar({ categories, onSearch, onCategoryChange }: SkillFilterBarProps) {
-    const [query, setQuery] = useState('');
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const handleSearch = (value: string) => {
-        setQuery(value);
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => onSearch(value), 300);
-    };
-
-    useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
-
+/** Controlled, so the list's "Xóa tìm kiếm" / "Xóa bộ lọc" can reset every field at once. */
+export function SkillFilterBar({
+    categories,
+    search,
+    category,
+    onSearch,
+    onCategoryChange,
+    searchRef,
+}: SkillFilterBarProps) {
     return (
-        <div className="flex items-center gap-3 mb-5 flex-wrap">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[220px]">
-                <Search className="w-4 h-4 text-[#AEAEB2] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input aria-label="Tìm kỹ năng"
+        <>
+            <div className="relative w-full sm:w-56">
+                <Search
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                    className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3"
+                />
+                <Input
+                    ref={searchRef}
+                    aria-label="Tìm kỹ năng"
                     type="text"
-                    value={query}
-                    onChange={(e) => handleSearch(e.target.value)}
+                    value={search}
+                    onChange={(e) => onSearch(e.target.value)}
                     placeholder="Tìm kiếm kỹ năng…"
-                    className="w-full pl-9 pr-4 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white"
-                    style={{ fontFamily: SF }}
+                    className="pl-8"
                 />
             </div>
 
-            {/* Category filter */}
-            <div className="relative">
-                <select aria-label="Lọc danh mục kỹ năng"
-                    onChange={(e) => onCategoryChange(e.target.value)}
-                    className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white cursor-pointer"
-                    style={{ fontFamily: SF }}
-                >
-                    <option value="">Tất cả danh mục</option>
-                    {categories.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#AEAEB2] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-        </div>
+            <Select
+                aria-label="Lọc danh mục kỹ năng"
+                value={category}
+                onChange={(e) => onCategoryChange(e.target.value)}
+                className="w-full sm:w-44"
+            >
+                <option value="">Tất cả danh mục</option>
+                {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                        {cat}
+                    </option>
+                ))}
+            </Select>
+        </>
     );
 }

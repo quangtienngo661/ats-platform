@@ -1,227 +1,217 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ChevronDown, Edit2, Trash2, Plus, FolderOpen, Folder, Briefcase } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { useId, useRef, useState } from 'react';
+import { ChevronDown, ChevronRight, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    Badge,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    IconButton,
+    Surface,
+} from '@/components/ui';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
+import type { CategoryNode } from '../categoryTree';
 
-// ── Colors for parent categories ──────────────────────────────────────────────
-const CATEGORY_COLORS = ['#6366F1', '#0EA5E9', '#F59E0B', '#34C759', '#EC4899', '#0071E3'];
+/** Pixels of indent per level; also the step between the vertical guide lines. */
+const INDENT = 16;
+/** Left padding of a row at depth 0, and the width of the 32 px toggle column the guides run through. */
+const ROW_PAD = 12;
+const TOGGLE = 32;
 
-// ── Child Row (no state needed — but lives inside client parent) ─────────────
-function ChildCategoryRow({
-    category,
-    onEdit,
-    onDelete,
-}: {
-    category: IJobCategoryDto;
+/** Always visible on touch and narrow screens; on a wide screen with hover it shows on row hover or focus. */
+const MENU_TRIGGER_VISIBILITY =
+    'group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:hover)_and_(min-width:1024px)]:opacity-0';
+
+interface RowActions {
     onEdit: (cat: IJobCategoryDto) => void;
     onDelete: (cat: IJobCategoryDto) => void;
-}) {
-    return (
-        <div className="group flex items-center gap-3 px-5 py-3 hover:bg-[#F5F5F7] transition-colors border-t border-[#F2F2F7]">
-            {/* Indent */}
-            <div className="w-5 h-5 ml-6 flex-shrink-0" />
-
-            {/* Icon */}
-            <div className="w-7 h-7 rounded-lg bg-[#F5F5F7] flex items-center justify-center flex-shrink-0">
-                <Folder className="w-3.5 h-3.5 text-[#AEAEB2]" />
-            </div>
-
-            {/* Name */}
-            <span className="flex-1 text-[13px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
-                {category.name}
-            </span>
-
-            {/* Job count badge */}
-            <div className="flex items-center gap-1.5 mr-2">
-                <Briefcase className="w-3 h-3 text-[#AEAEB2]" />
-                <span className="text-[11px] text-[#AEAEB2]">{category.jobPostings?.length || 0}</span>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                    type="button"
-                    aria-label={`Sửa danh mục ${category.name}`}
-                    onClick={() => onEdit(category)}
-                    className="p-1.5 rounded-lg text-[#6366F1] hover:bg-[#F5F3FF] transition-colors"
-                >
-                    <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button type="button" aria-label="Xóa"
-                    onClick={() => onDelete(category)}
-                    className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                >
-                    <Trash2 className="w-3.5 h-3.5" />
-                </button>
-            </div>
-        </div>
-    );
+    onAddChild: (parentId: string) => void;
 }
 
-// ── Parent Category Row ──────────────────────────────────────────────────────
-function ParentCategoryRow({
+function RowMenu({
     category,
-    colorIndex,
+    nameId,
+    canAddChild,
     onEdit,
     onDelete,
     onAddChild,
-}: {
-    category: IJobCategoryDto;
-    colorIndex: number;
-    onEdit: (cat: IJobCategoryDto) => void;
-    onDelete: (cat: IJobCategoryDto) => void;
-    onAddChild: (parentId: string) => void;
-}) {
-    const [expanded, setExpanded] = useState(true);
-    const color = CATEGORY_COLORS[colorIndex % CATEGORY_COLORS.length];
-    const childCount = category.childCategories?.length || 0;
-    const totalJobCount = category.childCategories?.reduce((sum, child) => sum + (child.jobPostings?.length || 0), category.jobPostings?.length || 0) || 0;
+}: RowActions & { category: IJobCategoryDto; nameId: string; canAddChild: boolean }) {
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    /** Runs once the menu has closed and focus is back on its trigger, so a dialog it opens returns focus there. */
+    const afterClose = useRef<(() => void) | null>(null);
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] overflow-hidden hover:shadow-md hover:shadow-black/5 transition">
-            {/* Parent row */}
-            <div className="group flex items-center gap-3 px-5 py-4">
-                {/* Expand toggle */}
-                <button
-                    type="button"
-                    aria-label={expanded ? `Thu gọn ${category.name}` : `Mở rộng ${category.name}`}
-                    aria-expanded={childCount > 0 ? expanded : undefined}
-                    onClick={() => setExpanded(!expanded)}
-                    className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-[#AEAEB2] hover:text-[#6E6E73] transition-colors"
-                    disabled={childCount === 0}
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <IconButton
+                    ref={triggerRef}
+                    size="sm"
+                    aria-label="Tùy chọn"
+                    aria-describedby={nameId}
+                    className={MENU_TRIGGER_VISIBILITY}
                 >
-                    {childCount > 0 ? (
-                        expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+                    <MoreHorizontal aria-hidden="true" strokeWidth={1.75} />
+                </IconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+                align="end"
+                onCloseAutoFocus={(e) => {
+                    const run = afterClose.current;
+                    afterClose.current = null;
+                    if (!run) return;
+                    e.preventDefault();
+                    triggerRef.current?.focus();
+                    run();
+                }}
+            >
+                {canAddChild && (
+                    <DropdownMenuItem onSelect={() => { afterClose.current = () => onAddChild(category.categoryId); }}>
+                        <Plus aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Thêm danh mục con
+                    </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onSelect={() => { afterClose.current = () => onEdit(category); }}>
+                    <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                    Chỉnh sửa
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem destructive onSelect={() => { afterClose.current = () => onDelete(category); }}>
+                    <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                    Xóa
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
+/** One row of the tree. A level of depth adds `INDENT` px of padding and one vertical guide line. */
+function CategoryRow({
+    category,
+    depth,
+    subtitle,
+    jobCount,
+    toggle,
+    ...actions
+}: RowActions & {
+    category: IJobCategoryDto;
+    depth: number;
+    subtitle?: string;
+    jobCount: number;
+    toggle?: { expanded: boolean; controls: string; onToggle: () => void };
+}) {
+    const nameId = useId();
+
+    return (
+        <div
+            data-row
+            className="group relative flex items-center gap-2 py-2 pr-3 transition-colors duration-hover hover:bg-surface-2/60"
+            style={{ paddingInlineStart: ROW_PAD + depth * INDENT }}
+        >
+            {Array.from({ length: depth }, (_, level) => (
+                <span
+                    key={level}
+                    aria-hidden="true"
+                    className="absolute inset-y-0 border-l border-line"
+                    style={{ insetInlineStart: ROW_PAD + level * INDENT + TOGGLE / 2 }}
+                />
+            ))}
+
+            {toggle ? (
+                <IconButton
+                    size="sm"
+                    aria-label={toggle.expanded ? `Thu gọn ${category.name}` : `Mở rộng ${category.name}`}
+                    aria-expanded={toggle.expanded}
+                    aria-controls={toggle.controls}
+                    onClick={toggle.onToggle}
+                    className="relative"
+                >
+                    {toggle.expanded ? (
+                        <ChevronDown aria-hidden="true" strokeWidth={1.75} />
                     ) : (
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#E5E5EA]" />
+                        <ChevronRight aria-hidden="true" strokeWidth={1.75} />
                     )}
-                </button>
+                </IconButton>
+            ) : (
+                <span aria-hidden="true" className="relative flex size-8 shrink-0 items-center justify-center">
+                    <span className="size-1.5 rounded-full bg-line-strong" />
+                </span>
+            )}
 
-                {/* Icon */}
-                <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${color}15` }}
-                >
-                    {expanded && childCount > 0
-                        ? <FolderOpen className="w-4.5 h-4.5" style={{ color }} />
-                        : <Folder className="w-4.5 h-4.5" style={{ color }} />
-                    }
-                </div>
-
-                {/* Name + child count */}
-                <div className="flex-1 min-w-0">
-                    <p
-                        className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] truncate"
-                        style={{ fontFamily: SF, fontWeight: 600 }}
-                    >
-                        {category.name}
-                    </p>
-                    <p className="text-[11px] text-[#AEAEB2] mt-0.5">
-                        {childCount} danh mục con
-                    </p>
-                </div>
-
-                {/* Job count */}
-                <div
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg flex-shrink-0"
-                    style={{ background: `${color}10` }}
-                >
-                    <Briefcase className="w-3 h-3" style={{ color }} />
-                    <span className="text-[11px]" style={{ color, fontWeight: 600 }}>
-                        {totalJobCount} việc làm
-                    </span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                    <button
-                        onClick={() => onAddChild(category.categoryId)}
-                        className="p-1.5 rounded-lg text-[#34C759] hover:bg-[#E8F5E9] transition-colors"
-                        title="Thêm danh mục con"
-                    >
-                        <Plus className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                        onClick={() => onEdit(category)}
-                        className="p-1.5 rounded-lg text-[#6366F1] hover:bg-[#F5F3FF] transition-colors"
-                        title="Sửa"
-                    >
-                        <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                        onClick={() => onDelete(category)}
-                        className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                        title="Xóa"
-                    >
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                </div>
+            <div className="relative min-w-0 flex-1">
+                <p id={nameId} className="truncate font-medium text-ink" title={category.name}>
+                    {category.name}
+                </p>
+                {subtitle && <p className="text-caption text-ink-3">{subtitle}</p>}
             </div>
 
-            {/* Children */}
-            <AnimatePresence initial={false}>
-                {expanded && childCount > 0 && (
-                    <motion.div
-                        key="children"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="overflow-hidden"
-                    >
-                        {category.childCategories?.map((child) => (
-                            <ChildCategoryRow
-                                key={child.categoryId}
-                                category={child}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
-                            />
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <Badge className="relative tabular-nums">{jobCount} việc làm</Badge>
+
+            <div className="relative">
+                <RowMenu category={category} nameId={nameId} canAddChild={depth === 0} {...actions} />
+            </div>
         </div>
     );
 }
 
-// ── Tree Container ───────────────────────────────────────────────────────────
-interface JobCategoryTreeProps {
-    categories: IJobCategoryDto[];
-    onEdit: (cat: IJobCategoryDto) => void;
-    onDelete: (cat: IJobCategoryDto) => void;
-    onAddChild: (parentId: string) => void;
+function RootCategory({ node, ...actions }: RowActions & { node: CategoryNode }) {
+    const [expanded, setExpanded] = useState(true);
+    const listId = useId();
+    const { category, children } = node;
+    const childCount = children.length;
+    const totalJobCount = children.reduce(
+        (sum, child) => sum + (child.jobPostings?.length || 0),
+        category.jobPostings?.length || 0,
+    );
+
+    return (
+        <li>
+            <Surface className="overflow-hidden">
+                <CategoryRow
+                    category={category}
+                    depth={0}
+                    subtitle={`${childCount} danh mục con`}
+                    jobCount={totalJobCount}
+                    toggle={
+                        childCount > 0
+                            ? { expanded, controls: listId, onToggle: () => setExpanded((v) => !v) }
+                            : undefined
+                    }
+                    {...actions}
+                />
+                {expanded && childCount > 0 && (
+                    <ul id={listId} className="animate-fade-in border-t border-line">
+                        {children.map((child) => (
+                            <li key={child.categoryId}>
+                                <CategoryRow
+                                    category={child}
+                                    depth={1}
+                                    jobCount={child.jobPostings?.length || 0}
+                                    {...actions}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </Surface>
+        </li>
+    );
 }
 
-export function JobCategoryTree({ categories, onEdit, onDelete, onAddChild }: JobCategoryTreeProps) {
-    return (
-        <div className="flex flex-col gap-3">
-            {categories
-                .filter(cat => !cat.parentCategoryId)
-                .map((cat, index) =>
-                    <ParentCategoryRow
-                        key={cat.categoryId}
-                        category={cat}
-                        colorIndex={index}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onAddChild={onAddChild}
-                    />
-                )}
+interface JobCategoryTreeProps extends RowActions {
+    /** Root categories with the children to show. The caller shows the empty and no-match states. */
+    nodes: CategoryNode[];
+}
 
-            {categories.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-[#E5E5EA]">
-                    <FolderOpen className="w-10 h-10 text-[#AEAEB2] mb-3" />
-                    <p className="text-[15px] text-[#6E6E73]" style={{ fontWeight: 500 }}>
-                        Chưa có danh mục nào
-                    </p>
-                    <p className="text-[12px] text-[#AEAEB2] mt-1">
-                        Hãy tạo danh mục đầu tiên để bắt đầu
-                    </p>
-                </div>
-            )}
-        </div>
+/** A nested list, not an ARIA tree: each parent has a toggle button and every row has its own menu. */
+export function JobCategoryTree({ nodes, ...actions }: JobCategoryTreeProps) {
+    return (
+        <ul className="space-y-3">
+            {nodes.map((node) => (
+                <RootCategory key={node.category.categoryId} node={node} {...actions} />
+            ))}
+        </ul>
     );
 }

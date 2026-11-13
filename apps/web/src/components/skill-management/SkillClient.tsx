@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { SFT } from '@/types/fonts/fonts';
+import { useMemo, useRef, useState } from 'react';
+import { SearchX, Zap } from 'lucide-react';
+import { Button, EmptyState, Surface } from '@/components/ui';
 import { SkillHeader } from './ui/SkillHeader';
 import { SkillStats } from './ui/SkillStats';
 import { SkillFilterBar } from './ui/SkillFilterBar';
@@ -22,6 +23,7 @@ export default function SkillClient({ skills }: SkillClientProps) {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingSkill, setEditingSkill] = useState<ISkillDto | null>(null);
+    const searchRef = useRef<HTMLInputElement>(null);
 
     // Unique categories derived from current skills list
     const categories = useMemo(() => {
@@ -39,6 +41,12 @@ export default function SkillClient({ skills }: SkillClientProps) {
         });
     }, [skills, searchQuery, selectedCategory]);
 
+    const clearFilters = () => {
+        setSearchQuery('');
+        setSelectedCategory('');
+        // The clear button disappears with the no-match state; keep focus in the toolbar.
+        searchRef.current?.focus();
+    };
 
     const handleDelete = async (skillId: string) => {
         const result = await deleteSkillAction(skillId);
@@ -50,19 +58,44 @@ export default function SkillClient({ skills }: SkillClientProps) {
     };
 
     return (
-        <div className="p-6 lg:p-8" style={{ fontFamily: SFT }}>
-            <SkillHeader onAdd={() => setShowAddModal(true)} />
+        <div className="space-y-4 p-4 lg:p-6">
+            <SkillHeader onAdd={() => setShowAddModal(true)}>
+                <SkillFilterBar
+                    categories={categories}
+                    search={searchQuery}
+                    category={selectedCategory}
+                    onSearch={setSearchQuery}
+                    onCategoryChange={setSelectedCategory}
+                    searchRef={searchRef}
+                />
+            </SkillHeader>
             <SkillStats skills={filtered} />
-            <SkillFilterBar
-                categories={categories}
-                onSearch={setSearchQuery}
-                onCategoryChange={setSelectedCategory}
-            />
-            <SkillTable
-                skills={filtered}
-                onEdit={setEditingSkill}
-                onDelete={handleDelete}
-            />
+
+            {skills.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={Zap}
+                        title="Chưa có kỹ năng"
+                        description="Kỹ năng bạn tạo sẽ hiện ở đây."
+                        action={<Button onClick={() => setShowAddModal(true)}>Thêm kỹ năng đầu tiên</Button>}
+                    />
+                </Surface>
+            ) : filtered.length === 0 ? (
+                <Surface>
+                    <EmptyState
+                        icon={SearchX}
+                        title="Không có kỹ năng khớp"
+                        description={selectedCategory ? 'Đổi từ khóa tìm kiếm hoặc bộ lọc.' : 'Đổi từ khóa tìm kiếm.'}
+                        action={
+                            <Button variant="secondary" onClick={clearFilters}>
+                                {selectedCategory ? 'Xóa bộ lọc' : 'Xóa tìm kiếm'}
+                            </Button>
+                        }
+                    />
+                </Surface>
+            ) : (
+                <SkillTable skills={filtered} onEdit={setEditingSkill} onDelete={handleDelete} />
+            )}
 
             {showAddModal && (
                 <AddSkillModal
