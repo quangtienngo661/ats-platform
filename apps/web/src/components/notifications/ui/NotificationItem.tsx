@@ -53,7 +53,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
                 <p className={`text-caption ${notification.isRead ? 'text-ink-3' : 'font-medium text-ink'}`}>
                     {notification.message}
                 </p>
-                <p className="mt-0.5 text-micro font-normal text-ink-4">{timeAgo(notification.createdAt)}</p>
+                <p className="mt-0.5 text-micro font-normal text-ink-3">{timeAgo(notification.createdAt)}</p>
             </div>
         </button>
     );

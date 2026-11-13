@@ -73,7 +73,7 @@ export function NotificationPanel({
                     ) : (
                         <div className="flex flex-col items-center justify-center py-10">
                             <Bell className="mb-2 size-8 text-ink-4" />
-                            <p className="text-caption font-medium text-ink-4">
+                            <p className="text-caption font-medium text-ink-3">
                                 Không có thông báo
                             </p>
                         </div>
