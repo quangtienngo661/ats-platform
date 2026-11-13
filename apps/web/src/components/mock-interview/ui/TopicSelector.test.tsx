@@ -48,6 +48,22 @@ describe('TopicSelector keyboard', () => {
         expect(c).toHaveAttribute('aria-checked', 'true');
     });
 
+    it('leaves arrow, Home and End keys to the browser while Alt, Ctrl or Meta is held', async () => {
+        const user = userEvent.setup();
+        render(<Harness />);
+        await user.tab();
+        const [a] = screen.getAllByRole('radio');
+        for (const keys of ['{Alt>}{ArrowRight}{/Alt}', '{Control>}{ArrowDown}{/Control}', '{Meta>}{End}{/Meta}']) {
+            await user.keyboard(keys);
+            expect(a, keys).toHaveFocus();
+            expect(screen.getAllByRole('radio').map((r) => r.getAttribute('aria-checked')), keys).toEqual([
+                'false',
+                'false',
+                'false',
+            ]);
+        }
+    });
+
     it('jumps with Home and End', async () => {
         const user = userEvent.setup();
         render(<Harness />);

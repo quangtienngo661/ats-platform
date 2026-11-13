@@ -51,6 +51,9 @@ describe('design tokens', () => {
   it.each([
     ['line-strong', 'surface'],
     ['accent', 'surface'],
+    // Night controls (interview composer, night text buttons) draw their outline in night-ink-3.
+    ['night-ink-3', 'night'],
+    ['night-ink-3', 'night-2'],
   ])('component %s on %s is at least 3:1', (fg, bg) => {
     expect(ratio(fg, bg), `${fg} on ${bg}`).toBeGreaterThanOrEqual(3);
   });
@@ -63,6 +66,17 @@ describe('design tokens', () => {
     const body = block?.[1] ?? '';
     expect(body).toMatch(/animation-duration:\s*0\.01ms/);
     expect(body).toMatch(/transition-duration:\s*0\.01ms/);
+  });
+
+  it('keeps spinners turning under reduced motion: a spinner shows progress, not decoration', () => {
+    const block = css.match(
+      /@media \(prefers-reduced-motion: reduce\)\s*\{\s*(html\[data-ui="modern"\] \*[^{]*)\{([^}]*)\}/,
+    );
+    expect(block, 'reduced-motion block for html[data-ui="modern"] *').not.toBeNull();
+    const selectors = (block?.[1] ?? '').split(',').map((s) => s.trim());
+    expect(block?.[2]).toMatch(/animation-iteration-count:\s*1 !important/);
+    expect(selectors).toContain('html[data-ui="modern"] *:not(.animate-spin)');
+    expect(selectors).not.toContain('html[data-ui="modern"] *');
   });
 
   it('keeps the tailwind motion durations equal to the spec', () => {

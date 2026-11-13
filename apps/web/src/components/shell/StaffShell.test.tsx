@@ -74,6 +74,25 @@ describe('StaffShell', () => {
         expect(document.cookie).toContain('talentai-sidebar=full');
     });
 
+    // A prefetched layout can carry the state from before a toggle elsewhere; the cookie is the latest choice.
+    it('takes the collapsed state from the cookie when it disagrees with the server prop', () => {
+        document.cookie = 'talentai-sidebar=rail; path=/';
+        renderShell({ initialCollapsed: false });
+        expect(screen.getByRole('button', { name: 'Mở rộng thanh bên' })).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('expands from a stale rail prop when the cookie says full, without replaying the label animation', () => {
+        document.cookie = 'talentai-sidebar=full; path=/';
+        const { container } = renderShell({ initialCollapsed: true });
+        expect(screen.getByRole('button', { name: 'Thu gọn thanh bên' })).toHaveAttribute('aria-expanded', 'true');
+        expect(container.querySelector('[data-labels="enter"]')).toBeNull();
+    });
+
+    it('keeps the server prop when there is no sidebar cookie', () => {
+        renderShell({ initialCollapsed: true });
+        expect(screen.getByRole('button', { name: 'Mở rộng thanh bên' })).toHaveAttribute('aria-expanded', 'false');
+    });
+
     it('keeps every nav link named in the rail, and names it in a tooltip on focus', async () => {
         renderShell({ initialCollapsed: true });
         expect(screen.getByRole('button', { name: 'Mở rộng thanh bên' })).toHaveAttribute('aria-expanded', 'false');

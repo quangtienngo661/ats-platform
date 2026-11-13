@@ -49,6 +49,20 @@ describe('Button', () => {
         render(<Button type="submit">Đăng nhập</Button>);
         expect(screen.getByRole('button', { name: 'Đăng nhập' })).toHaveAttribute('type', 'submit');
     });
+
+    // jsdom computes no layout, so the 44 px mobile target is pinned by its class, not by a measured height.
+    it('token contract: only a primary button, at every size, carries the 44 px mobile min-height class', () => {
+        for (const size of ['sm', 'md', 'lg'] as const) {
+            const { unmount } = render(<Button size={size}>Lưu thay đổi</Button>);
+            expect(screen.getByRole('button').className.split(' ')).toContain('max-md:min-h-11');
+            unmount();
+        }
+        for (const variant of ['secondary', 'ghost', 'danger', 'accent'] as const) {
+            const { unmount } = render(<Button variant={variant}>Hủy</Button>);
+            expect(screen.getByRole('button').className.split(' ')).not.toContain('max-md:min-h-11');
+            unmount();
+        }
+    });
 });
 
 describe('IconButton', () => {
@@ -67,5 +81,11 @@ describe('ButtonLink', () => {
         render(<ButtonLink href="/job-postings">Tìm việc</ButtonLink>);
         expect(screen.getByRole('link', { name: 'Tìm việc' })).toHaveAttribute('href', '/job-postings');
         expect(screen.queryByRole('button')).toBeNull();
+    });
+
+    // A link drawn as a primary button gets the same 44 px mobile target.
+    it('token contract: shares the primary 44 px mobile min-height class with Button', () => {
+        render(<ButtonLink href="/register">Đăng ký</ButtonLink>);
+        expect(screen.getByRole('link', { name: 'Đăng ký' }).className.split(' ')).toContain('max-md:min-h-11');
     });
 });

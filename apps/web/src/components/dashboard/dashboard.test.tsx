@@ -102,7 +102,7 @@ describe('ApplicationsTrendChart', () => {
     const { container } = render(
       <ApplicationsTrendChart data={[{ month: 'T10', value: 2 }, { month: 'T11', value: 5 }]} />,
     );
-    const stops = container.querySelectorAll('#dashboard-trend-fill stop');
+    const stops = container.querySelector('linearGradient')?.querySelectorAll('stop') ?? [];
     expect(stops).toHaveLength(2);
     stops.forEach((stop) => {
       expect(stop.getAttribute('style')).toContain('var(--accent)');
@@ -120,5 +120,24 @@ describe('ApplicationsTrendChart', () => {
     expect(line?.getAttribute('stroke')).toBe('rgb(var(--accent))');
     expect(line?.getAttribute('style') ?? '').not.toContain('fill:');
     expect(area?.getAttribute('style') ?? '').not.toContain('stroke:');
+  });
+
+  it('gives each chart its own gradient id and fills its area from that gradient', () => {
+    const data = [{ month: 'T10', value: 2 }, { month: 'T11', value: 5 }];
+    const { container } = render(
+      <>
+        <ApplicationsTrendChart data={data} />
+        <ApplicationsTrendChart data={data} />
+      </>,
+    );
+    const gradients = [...container.querySelectorAll('linearGradient')];
+    const areas = [...container.querySelectorAll('.recharts-area-area')];
+    expect(gradients).toHaveLength(2);
+    expect(areas).toHaveLength(2);
+    const ids = gradients.map((g) => g.id);
+    expect(new Set(ids).size).toBe(2);
+    // A colon (React's useId) or any other CSS-special character would break url(#…).
+    for (const id of ids) expect(id).toMatch(/^[A-Za-z][\w-]*$/);
+    expect(areas.map((a) => a.getAttribute('fill'))).toEqual(ids.map((id) => `url(#${id})`));
   });
 });

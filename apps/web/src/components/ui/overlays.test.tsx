@@ -196,6 +196,19 @@ describe('Tabs', () => {
         expect(t1).toHaveAttribute('aria-selected', 'true');
     });
 
+    it('leaves arrow, Home and End keys to the browser while Alt, Ctrl or Meta is held', async () => {
+        const user = userEvent.setup();
+        render(<Tabs tabs={TABS} />);
+        const [t1] = screen.getAllByRole('tab');
+        t1.focus();
+        for (const keys of ['{Alt>}{ArrowRight}{/Alt}', '{Control>}{ArrowLeft}{/Control}', '{Meta>}{End}{/Meta}']) {
+            await user.keyboard(keys);
+            expect(t1, keys).toHaveAttribute('aria-selected', 'true');
+            expect(t1, keys).toHaveFocus();
+        }
+        expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel A');
+    });
+
     it('only links the selected tab to its panel, and copes with values containing spaces', () => {
         const odd = [
             { value: 'Ghi chú nội bộ', label: 'Ghi chú', content: <p>Panel ghi chú</p> },
@@ -260,5 +273,18 @@ describe('Segmented', () => {
         screen.getByRole('radio', { name: 'Danh sách' }).focus();
         await user.keyboard('{ArrowRight}');
         expect(onValueChange).toHaveBeenCalledWith('kanban');
+    });
+
+    it('leaves the arrows to the browser while Alt, Ctrl or Meta is held', async () => {
+        const user = userEvent.setup();
+        const onValueChange = vi.fn();
+        render(<Segmented options={options} value="list" onValueChange={onValueChange} label="Kiểu xem" />);
+        const list = screen.getByRole('radio', { name: 'Danh sách' });
+        list.focus();
+        for (const keys of ['{Alt>}{ArrowRight}{/Alt}', '{Control>}{ArrowDown}{/Control}', '{Meta>}{ArrowLeft}{/Meta}']) {
+            await user.keyboard(keys);
+            expect(onValueChange, keys).not.toHaveBeenCalled();
+            expect(list, keys).toHaveFocus();
+        }
     });
 });

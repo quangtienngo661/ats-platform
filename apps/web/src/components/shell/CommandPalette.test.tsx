@@ -119,4 +119,36 @@ describe('CommandPalette', () => {
         expect(router.push).not.toHaveBeenCalled();
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
+
+    // Safari ends an IME composition with isComposing false but keyCode 229 on the committing Enter.
+    it('ignores the Enter that Safari sends with keyCode 229 to end a composition', async () => {
+        await openPalette();
+        fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter', keyCode: 229, isComposing: false });
+        expect(router.push).not.toHaveBeenCalled();
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('leaves the arrows to the browser while Alt, Ctrl or Meta is held', async () => {
+        const { user } = await openPalette();
+        const input = screen.getByRole('combobox');
+        const first = screen.getAllByRole('option')[0].id;
+        for (const keys of ['{Alt>}{ArrowDown}{/Alt}', '{Control>}{ArrowUp}{/Control}', '{Meta>}{ArrowDown}{/Meta}']) {
+            await user.keyboard(keys);
+            expect(input, keys).toHaveAttribute('aria-activedescendant', first);
+        }
+    });
+
+    it('toggles once while Ctrl+K is held, and keeps the browser shortcut off the repeats', async () => {
+        await openPalette();
+        const repeat = fireEvent.keyDown(window, { key: 'k', ctrlKey: true, repeat: true });
+        expect(repeat, 'default prevented on the repeat').toBe(false);
+        expect(screen.getByRole('dialog', { name: 'Tìm hoặc đi tới' })).toBeInTheDocument();
+    });
+
+    // jsdom applies no Tailwind: the important utility beats the global :focus-visible outline, because the open
+    // panel already shows where focus is.
+    it('class contract: draws no focus outline on its own search input', async () => {
+        await openPalette();
+        expect(screen.getByRole('combobox').className.split(' ')).toContain('!outline-none');
+    });
 });
