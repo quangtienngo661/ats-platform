@@ -160,7 +160,7 @@ describe('InterviewResultClient', () => {
         const only = qna({ qnaId: 'q-1', orderIndex: 1, questionText: 'useEffect chạy khi nào?', answerText: 'Không biết.' });
         return {
             ...result,
-            session: { ...result.session!, qnas: [{ ...only, correctnessScore: score }] },
+            session: { ...result.session, qnas: [{ ...only, correctnessScore: score }] },
         } as unknown as IInterviewResult;
     }
 
