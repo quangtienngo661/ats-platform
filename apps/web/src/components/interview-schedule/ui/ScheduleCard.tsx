@@ -1,4 +1,7 @@
 import { Clock, MapPin, UserRound, Video } from 'lucide-react';
+import { Badge } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
+import { statusTone } from '@/lib/status-tones';
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 
 interface ScheduleCardProps {
@@ -10,54 +13,43 @@ function formatTime(value: string) {
     return new Date(value).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 }
 
-/** Card colour follows the schedule status; only finished or cancelled cards carry a status pill. */
-const statusStyle: Record<string, { card: string; time: string; pill?: { label: string; className: string } }> = {
-    scheduled: { card: 'border-[#BBD7F8] bg-white hover:border-[#0071E3]', time: 'text-[#0071E3]' },
-    completed: {
-        card: 'border-[#BBF7D0] bg-[#F0FDF4] hover:border-[#16A34A]',
-        time: 'text-[#16A34A]',
-        pill: { label: 'Hoàn tất', className: 'bg-white text-[#16A34A]' },
-    },
-    cancelled: {
-        card: 'border-[#E5E5EA] bg-[#F5F5F7] opacity-70 hover:border-[#AEAEB2]',
-        time: 'text-[#6E6E73]',
-        pill: { label: 'Đã hủy', className: 'bg-white text-[#6E6E73]' },
-    },
-};
+/** Only finished or cancelled cards carry a status pill; its tone comes from the shared `schedule` status table. */
+const PILL_LABEL: Record<string, string> = { completed: 'Hoàn tất', cancelled: 'Đã hủy' };
 
 export function ScheduleCard({ schedule, onSelect }: ScheduleCardProps) {
     const candidateName = schedule.application?.candidate?.user?.fullName ?? 'Ứng viên';
     const jobTitle = schedule.application?.jobPosting?.title ?? 'Tin tuyển dụng';
     const online = schedule.interviewType === 'online';
     const TypeIcon = online ? Video : MapPin;
-    const style = statusStyle[schedule.status] ?? statusStyle.scheduled;
+    const pillLabel = PILL_LABEL[schedule.status];
+    const cancelled = schedule.status === 'cancelled';
 
     return (
         <button
             type="button"
             onClick={() => onSelect(schedule)}
-            className={`w-full rounded-xl border p-3 text-left shadow-[0_1px_2px_rgba(24,24,27,0.04),0_4px_10px_-4px_rgba(24,24,27,0.08)] transition hover:-translate-y-0.5 ${style.card}`}
+            className={cn(
+                'w-full min-w-0 rounded-card bg-surface p-3 text-left shadow-e1',
+                'transition duration-hover ease-out-expo hover:-translate-y-0.5 hover:shadow-e3 active:scale-[.97]',
+                cancelled && 'opacity-60',
+            )}
         >
             <div className="flex items-center justify-between gap-2">
-                <span className={`inline-flex items-center gap-1 text-[12px] ${style.time}`} style={{ fontWeight: 600 }}>
-                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1 text-caption font-medium tabular-nums text-ink">
+                    <Clock className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {formatTime(schedule.startAt)} · {schedule.durationMinutes} phút
                 </span>
-                {style.pill && (
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] ${style.pill.className}`} style={{ fontWeight: 600 }}>
-                        {style.pill.label}
-                    </span>
-                )}
+                {pillLabel && <Badge tone={statusTone('schedule', schedule.status).tone}>{pillLabel}</Badge>}
             </div>
-            <p className="mt-2 truncate text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>{candidateName}</p>
-            <p className="mt-0.5 truncate text-[11px] text-[#6E6E73]">{jobTitle}</p>
-            <div className="mt-2 flex items-center gap-3 text-[11px] text-[#6E6E73]">
-                <span className="inline-flex items-center gap-1">
-                    <TypeIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            <p className="mt-2 truncate text-body-sm font-medium text-ink" title={candidateName}>{candidateName}</p>
+            <p className="mt-0.5 truncate text-caption text-ink-3" title={jobTitle}>{jobTitle}</p>
+            <div className="mt-2 flex items-center gap-3 text-caption text-ink-3">
+                <span className="inline-flex shrink-0 items-center gap-1">
+                    <TypeIcon className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {online ? 'Trực tuyến' : 'Trực tiếp'}
                 </span>
                 <span className="inline-flex min-w-0 items-center gap-1">
-                    <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
+                    <UserRound className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                     <span className="truncate">{schedule.interviewer?.fullName ?? 'Interviewer'}</span>
                 </span>
             </div>

@@ -17,7 +17,7 @@ export default async function RecruiterProfilePage() {
 
     if (!recruiter) {
         return (
-            <div className="p-6 text-[14px] text-[#6E6E73]">
+            <div className="p-6 text-body-sm text-ink-3">
                 Không tìm thấy hồ sơ nhà tuyển dụng. Vui lòng liên hệ quản trị viên.
             </div>
         );
