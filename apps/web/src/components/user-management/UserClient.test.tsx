@@ -68,6 +68,7 @@ describe('UserClient — empty and no-match states', () => {
   it('clears the search and the filters from the no-match state', async () => {
     const user = userEvent.setup();
     render(<UserClient initialUsers={users} organizations={[]} />);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc trạng thái người dùng' }), UserStatus.inactive);
     await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc vai trò' }), UserRole.org_admin);
     await user.type(screen.getByRole('textbox', { name: 'Tìm người dùng' }), 'ats.test');
     expect(await screen.findByRole('heading', { name: 'Không có người dùng khớp' })).toBeVisible();
@@ -75,7 +76,10 @@ describe('UserClient — empty and no-match states', () => {
     await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
 
     expect(screen.getByRole('textbox', { name: 'Tìm người dùng' })).toHaveValue('');
+    // The button that had focus is gone with the no-match state; focus lands in the toolbar, not on <body>.
+    expect(screen.getByRole('textbox', { name: 'Tìm người dùng' })).toHaveFocus();
     expect(screen.getByRole('combobox', { name: 'Lọc vai trò' })).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Lọc trạng thái người dùng' })).toHaveValue('');
     expect(screen.getAllByRole('row')).toHaveLength(rowsFor(2));
     expect(screen.queryByRole('heading', { name: 'Không có người dùng khớp' })).not.toBeInTheDocument();
   });
