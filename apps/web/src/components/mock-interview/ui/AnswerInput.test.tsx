@@ -57,12 +57,24 @@ describe('AnswerInput', () => {
         expect(onSubmit).toHaveBeenCalledWith('Dùng key ổn định');
     });
 
-    it('sends nothing while disabled, even on Enter', () => {
-        const { onSubmit, textarea } = setup({ disabled: true });
+    it('locks the send button while the AI is answering, keeping the draft for afterwards', async () => {
+        const user = userEvent.setup();
+        const onSubmit = vi.fn();
+        const { rerender } = render(<AnswerInput onSubmit={onSubmit} />);
+        const textarea = screen.getByRole('textbox', { name: 'Câu trả lời' });
+        const send = screen.getByRole('button', { name: 'Gửi câu trả lời' });
 
-        fireEvent.change(textarea, { target: { value: 'Trả lời' } });
-        fireEvent.keyDown(textarea, { key: 'Enter' });
+        await user.type(textarea, 'Bản nháp');
+        rerender(<AnswerInput onSubmit={onSubmit} disabled />);
 
+        expect(textarea).toBeDisabled();
+        expect(send).toBeDisabled();
+        await user.click(send);
         expect(onSubmit).not.toHaveBeenCalled();
+
+        rerender(<AnswerInput onSubmit={onSubmit} />);
+
+        expect(textarea).toHaveValue('Bản nháp');
+        expect(send).toBeEnabled();
     });
 });

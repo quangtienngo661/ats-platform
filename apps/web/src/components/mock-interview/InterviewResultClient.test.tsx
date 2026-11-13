@@ -30,8 +30,11 @@ const result: IInterviewResult = {
     overallScore: 68,
     strengths: ['Nắm vững vòng đời component.'],
     weaknesses: ['Chưa giải thích được khi nào nên memo hóa.'],
-    actionPlan:
-        'Ôn lại cơ chế reconciliation của React. Luyện viết custom hook có cleanup đúng cách. Đọc tài liệu về Server Components.',
+    actionPlan: [
+        '1. Ôn lại cơ chế reconciliation của React.',
+        '2. Luyện viết custom hook có cleanup đúng cách.',
+        '3. Đọc tài liệu về Server Components.',
+    ].join('\n'),
     generatedAt: '2026-11-10T03:00:00.000Z',
     session: {
         sessionId: 's-1',
@@ -96,6 +99,14 @@ describe('InterviewResultClient', () => {
             'Luyện viết custom hook có cleanup đúng cách.',
             'Đọc tài liệu về Server Components.',
         ]);
+    });
+
+    it('shows a prose plan as one paragraph, never cut at an abbreviation', () => {
+        const prose = 'Học thêm về hệ thống phân tán. Chuyển tới TP. Hồ Chí Minh để thực tập.';
+        render(<InterviewResultClient result={{ ...result, actionPlan: prose }} />);
+
+        expect(screen.getByText(prose)).toBeInTheDocument();
+        expect(screen.queryByRole('list', { name: 'Kế hoạch cải thiện' })).not.toBeInTheDocument();
     });
 
     it('opens a question to reveal the answer and the AI feedback, and closes it again', async () => {
