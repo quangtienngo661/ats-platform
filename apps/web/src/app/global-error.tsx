@@ -1,7 +1,17 @@
 'use client';
 
+import { CircleAlert } from 'lucide-react';
+// The file, not the `@/components/ui` barrel: this boundary loads with every page, the barrel pulls in Radix.
+import { Button } from '@/components/ui/Button';
+import './global.css';
+
 export const dynamic = 'force-dynamic';
 
+/**
+ * Replaces the root layout when the layout itself throws, so it brings its own document and global styles (Next.js
+ * does not carry them over). It has no access to the root layout's Geist font classes or the variant cookie: the
+ * modern rules apply, on the system font stack.
+ */
 export default function GlobalError({
   error,
   reset,
@@ -10,30 +20,25 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="vi">
-      <body>
-        <main className="flex min-h-screen items-center justify-center bg-[#F5F5F7] px-6">
-          <section className="w-full max-w-[420px] rounded-2xl border border-[#E5E5EA] bg-white p-6 text-center shadow-sm">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#FF3B30]">
-              System error
-            </p>
-            <h1 className="mt-2 text-[22px] font-bold text-[#1D1D1F]">
-              Khong the hien thi trang
-            </h1>
-            <p className="mt-2 text-[14px] leading-6 text-[#6E6E73]">
-              He thong dang gap loi tam thoi. Vui long thu lai.
-            </p>
+    <html lang="vi" data-ui="modern">
+      <head>
+        <title>Lỗi hệ thống | TalentAI</title>
+      </head>
+      <body className="bg-canvas text-ink antialiased">
+        <main id="main-content" className="grid min-h-dvh place-items-center px-5 py-16">
+          <div role="alert" className="flex w-full max-w-sm flex-col items-center text-center">
+            <span className="mb-4 flex size-10 items-center justify-center rounded-card bg-surface-2 text-ink-3">
+              <CircleAlert size={20} strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <h1 className="text-title text-ink">Không hiển thị được trang.</h1>
+            <p className="mt-2 text-body text-ink-3">Hệ thống đang gặp lỗi tạm thời. Thử lại sau giây lát.</p>
             {error.digest && (
-              <p className="mt-3 text-[11px] text-[#AEAEB2]">Digest: {error.digest}</p>
+              <p className="mt-3 font-mono text-caption text-ink-3">Mã lỗi: {error.digest}</p>
             )}
-            <button
-              type="button"
-              onClick={reset}
-              className="mt-5 rounded-xl bg-[#0071E3] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#0077ED]"
-            >
-              Thu lai
-            </button>
-          </section>
+            <Button size="lg" onClick={reset} className="mt-6">
+              Thử lại
+            </Button>
+          </div>
         </main>
       </body>
     </html>

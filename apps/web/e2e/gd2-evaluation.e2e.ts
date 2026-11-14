@@ -65,7 +65,8 @@ test.describe('GĐ2 SP1 — đánh giá ứng viên', () => {
   async function expectSavedScorecard(page: Page) {
     const interview = page.getByRole('region', { name: 'Nội dung đánh giá', exact: true }).getByRole('article');
     await expect(interview).toHaveCount(1);
-    await expect(interview.getByText('Đã hoàn tất', { exact: true })).toBeVisible();
+    // "Đã xong" is the StatusChip wording for a completed schedule (UI redesign, statusTone 'schedule').
+    await expect(interview.getByText('Đã xong', { exact: true })).toBeVisible();
     await expect(interview).toContainText(`Người phỏng vấn: ${fixture.recruiterA.name}`);
     await expect(interview).toContainText(`Người đánh giá: ${fixture.recruiterA.name}`);
     await expect(interview.getByRole('definition')).toHaveText(ratings.map(({ score }) => `${score}/5`));
@@ -109,13 +110,15 @@ test.describe('GĐ2 SP1 — đánh giá ứng viên', () => {
     await expect(recruiterAPage.getByRole('tab', { name: 'Đánh giá phỏng vấn', exact: true })).toHaveAttribute('aria-selected', 'true');
 
     const interview = recruiterAPage.getByRole('region', { name: 'Nội dung đánh giá', exact: true }).getByRole('article');
-    await expect(interview.getByText('Đã hoàn tất', { exact: true })).toBeVisible();
+    await expect(interview.getByText('Đã xong', { exact: true })).toBeVisible();
     await expect(interview).toContainText(`Người phỏng vấn: ${fixture.recruiterA.name}`);
     await interview.getByRole('button', { name: 'Nộp đánh giá', exact: true }).click();
     const form = interview.getByRole('form', { name: 'Đánh giá phỏng vấn', exact: true });
     for (const { label, score } of ratings) {
-      await form.getByRole('radiogroup', { name: label, exact: true })
-        .getByRole('radio', { name: String(score), exact: true }).check();
+      // The radio is visually hidden inside its label; a user clicks the visible number (UI redesign).
+      const group = form.getByRole('radiogroup', { name: label, exact: true });
+      await group.getByText(String(score), { exact: true }).click();
+      await expect(group.getByRole('radio', { name: String(score), exact: true })).toBeChecked();
     }
     await form.getByRole('combobox', { name: 'Khuyến nghị', exact: true }).selectOption('yes');
     await form.getByRole('textbox', { name: 'Nhận xét', exact: true }).fill(comment());

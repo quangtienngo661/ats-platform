@@ -1,6 +1,10 @@
-import { Pencil } from 'lucide-react';
+'use client';
+
+import { useId, useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
+import { DropdownMenuSeparator, RowActionsItem, RowActionsMenu, TD, TR } from '@/components/ui';
 import { IInterviewTopic } from '@/types/interfaces/interview.interface';
-import { DeleteInterviewTopicButton } from './DeleteInterviewTopicButton';
+import { DeleteInterviewTopicDialog } from './DeleteInterviewTopicDialog';
 
 interface InterviewTopicRowProps {
     topic: IInterviewTopic;
@@ -9,30 +13,57 @@ interface InterviewTopicRowProps {
 
 export function InterviewTopicRow({ topic, onEdit }: InterviewTopicRowProps) {
     const sessions = topic._count?.sessions ?? 0;
+    const categoryName = topic.category?.name || 'Chưa phân loại';
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const nameId = useId();
+    const reasonId = useId();
 
     return (
-        <div className="grid grid-cols-[minmax(220px,1.5fr)_minmax(180px,1fr)_110px_120px] gap-4 border-b border-[#F2F2F7] px-4 py-3 text-[13px] last:border-b-0">
-            <div className="min-w-0">
-                <p className="truncate text-[#1D1D1F]" style={{ fontWeight: 600 }}>{topic.name}</p>
-                <p className="mt-0.5 text-[11px] text-[#AEAEB2]">ID: {topic.topicId.slice(0, 8)}</p>
-            </div>
-            <div className="flex items-center text-[#6E6E73]">
-                {topic.category?.name || 'Chưa phân loại'}
-            </div>
-            <div className="flex items-center text-[#6E6E73]">
-                {sessions}
-            </div>
-            <div className="flex items-center justify-end gap-1.5">
-                <button
-                    type="button"
-                    onClick={() => onEdit(topic)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#6E6E73] transition-colors hover:bg-[#EBF3FD] hover:text-[#0071E3]"
-                    title="Chỉnh sửa"
-                >
-                    <Pencil className="w-4 h-4" />
-                </button>
-                <DeleteInterviewTopicButton topicId={topic.topicId} disabled={sessions > 0} />
-            </div>
-        </div>
+        <TR className="group">
+            <TD>
+                <div className="min-w-0 max-w-48 sm:max-w-80">
+                    <p id={nameId} className="truncate font-medium text-ink" title={topic.name}>
+                        {topic.name}
+                    </p>
+                    <p className="font-mono text-caption text-ink-3">ID: {topic.topicId.slice(0, 8)}</p>
+                    <p className="truncate text-caption text-ink-3 sm:hidden">{categoryName}</p>
+                </div>
+            </TD>
+            <TD className="max-sm:hidden">
+                <span className="block max-w-48 truncate" title={categoryName}>
+                    {categoryName}
+                </span>
+            </TD>
+            <TD numeric>{sessions}</TD>
+            <TD className="w-px whitespace-nowrap text-right">
+                <RowActionsMenu describedBy={nameId}>
+                    <RowActionsItem afterClose={() => onEdit(topic)}>
+                        <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Chỉnh sửa
+                    </RowActionsItem>
+                    <DropdownMenuSeparator />
+                    <RowActionsItem
+                        destructive
+                        disabled={sessions > 0}
+                        aria-describedby={sessions > 0 ? reasonId : undefined}
+                        afterClose={() => setConfirmingDelete(true)}
+                    >
+                        <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                        Xóa
+                    </RowActionsItem>
+                    {sessions > 0 && (
+                        // role="none": a menu may only own menu items; the text stays visible and serves as the item's description.
+                        <p id={reasonId} role="none" className="pb-1.5 pl-8 pr-2 text-caption text-ink-3">
+                            Không thể xóa chủ đề đã có phiên phỏng vấn
+                        </p>
+                    )}
+                </RowActionsMenu>
+                <DeleteInterviewTopicDialog
+                    topicId={topic.topicId}
+                    open={confirmingDelete}
+                    onClose={() => setConfirmingDelete(false)}
+                />
+            </TD>
+        </TR>
     );
 }

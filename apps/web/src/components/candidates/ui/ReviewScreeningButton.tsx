@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ClipboardCheck } from 'lucide-react';
 import type { ICVScreening } from '@ats-platform/types';
+import { Button } from '@/components/ui';
 import { ReviewScreeningDialog } from './ReviewScreeningDialog';
 
 interface ReviewScreeningButtonProps {
@@ -18,11 +19,10 @@ export function ReviewScreeningButton({ applicationId, screening }: ReviewScreen
 
     return (
         <>
-            <button type="button" onClick={() => setOpen(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#E5E5EA] bg-white text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]">
-                <ClipboardCheck className="w-4 h-4" aria-hidden="true" />
+            <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>
+                <ClipboardCheck aria-hidden="true" />
                 Duyệt điểm
-            </button>
+            </Button>
             {open && (
                 <ReviewScreeningDialog
                     applicationId={applicationId}

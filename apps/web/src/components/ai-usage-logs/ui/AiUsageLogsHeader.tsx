@@ -1,6 +1,7 @@
+import type { ReactNode } from 'react';
+import { PageToolbar } from '@/components/ui';
 
-export function AiUsageLogsHeader() {
-    return (
-        <h1 className="sr-only">AI Usage Logs</h1>
-    );
+/** The page title with the filters beside it. */
+export function AiUsageLogsHeader({ children }: { children?: ReactNode }) {
+    return <PageToolbar title="AI Usage Logs">{children}</PageToolbar>;
 }

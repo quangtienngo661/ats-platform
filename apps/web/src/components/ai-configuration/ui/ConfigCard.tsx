@@ -2,15 +2,29 @@
 
 import { CheckCircle, ChevronDown, ChevronUp, Copy, MoreHorizontal, Pencil, Save, Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
 import { ConfigProfile } from "../../../types/interfaces/configProfile.interface";
-import { motion, AnimatePresence } from 'motion/react';
-import { WeightRow } from "./WeightRow";
-import { SF } from "@/types/fonts/fonts";
+import {
+    Badge,
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    IconButton,
+} from "@/components/ui";
+import { cn } from "@/components/ui/cn";
+import { duration, ease, exitDuration } from "@/lib/motion";
 import { aiConfigToast } from "@/lib/toast";
+import { WeightBar, WeightRow } from "./WeightRow";
 
 function totalOf(p: ConfigProfile) {
     return p.skillsWeight + p.experienceWeight + p.educationWeight;
 }
+
+const ICON = { 'aria-hidden': true, strokeWidth: 1.75 } as const;
 
 export function ConfigCard({
     profile, organizationName, onUpdate, onDelete, onSetDefault, onDuplicate,
@@ -22,29 +36,26 @@ export function ConfigCard({
     onSetDefault: () => void | Promise<void>;
     onDuplicate: () => void | Promise<void>;
 }) {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     // Draft state — only applied when user clicks Save
     const [draft, setDraft] = useState<ConfigProfile>(profile);
     const [isCollapsed, setIsCollapsed] = useState(profile.collapsed)
 
-    // useEffect(() => {
-    //     setIsCollapsed(profile.collapsed);
-    // }, [isCollapsed]);
-
     const total = totalOf(draft);
     const isValid = total === 100;
     const remaining = 100 - total;
+    const shown = isEditing ? draft : profile;
 
     const handleStartEdit = () => {
         setDraft(profile); // reset to latest saved state
         setIsEditing(true);
-        setMenuOpen(false);
+        setIsCollapsed(false);
     };
 
     const handleCancelEdit = () => {
         setDraft(profile); // discard changes
         setIsEditing(false);
+        setIsCollapsed(profile.isDefault ? false : true);
     };
 
     const handleSave = () => {
@@ -56,276 +67,161 @@ export function ConfigCard({
         setIsEditing(false);
     };
 
-    const handleCollapse = () => {
-        setIsCollapsed(prev => !prev);
-    };
-
-    const handleDuplicate = () => {
-        onDuplicate();
-        setMenuOpen(false);
-    }
+    const totalTone = isEditing ? (isValid ? 'success' : total > 100 ? 'danger' : 'warning') : 'neutral';
 
     return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={`bg-white rounded-2xl border transition ${profile.isDefault ? 'border-[#0071E3] shadow-md shadow-[#0071E3]/10' : 'border-[#E5E5EA]'
-                }`}
+        <m.div
+            exit={{ opacity: 0, transition: { duration: exitDuration(duration.base) } }}
+            className={cn('rounded-card bg-surface', profile.isDefault ? 'shadow-e2' : 'shadow-e1')}
         >
             {/* ── Header ── */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F2F2F7]">
-                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${profile.isDefault ? 'bg-[#34C759]' : 'bg-[#33CCFF]'}`} />
-
-                <div className="flex-1 min-w-0">
-                    {organizationName && <p className="text-[12px] text-blue-700 mb-1">Tổ chức: {organizationName}</p>}
-                    {/* Title input */}
-                    <div className="relative">
-                        <input aria-label="Tên cấu hình"
-                            type="text"
-                            disabled={!isEditing}
-                            value={isEditing ? (draft.name || '') : (profile.name || '')}
-                            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                            className="text-[15px] text-[#1D1D1F] tracking-[-0.01em] bg-transparent outline-none w-full rounded-md focus-visible:ring-2 focus-visible:ring-[#0071E3]/40 disabled:cursor-default disabled:select-none pb-px"
-                            style={{ fontFamily: SF, fontWeight: 600 }}
-                        />
-                        {isEditing && (
-                            <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors ${draft.name !== profile.name ? 'bg-[#FF9500]' : 'bg-[#0071E3]'}`} />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
+                <div className="min-w-0 flex-1 basis-[12rem]">
+                    {organizationName && (
+                        <p className="mb-1 truncate text-caption text-ink-3" title={organizationName}>{`Tổ chức: ${organizationName}`}</p>
+                    )}
+                    <input
+                        aria-label="Tên cấu hình"
+                        type="text"
+                        disabled={!isEditing}
+                        value={shown.name || ''}
+                        title={shown.name || undefined}
+                        onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                        className={cn(
+                            'block w-full min-w-0 truncate rounded-ctl text-title-sm font-medium text-ink outline-none disabled:cursor-default',
+                            isEditing ? 'h-8 bg-surface-2 px-2' : 'bg-transparent',
                         )}
-                    </div>
-                    {/* Description input */}
-                    <div className="relative">
-                        <input aria-label="Mô tả cấu hình"
-                            type="text"
-                            disabled={!isEditing}
-                            value={isEditing ? (draft.description || '') : (profile.description || '')}
-                            onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-                            className="text-[12px] text-[#AEAEB2] bg-transparent outline-none w-full rounded-md focus-visible:ring-2 focus-visible:ring-[#0071E3]/40 disabled:cursor-default disabled:select-none pb-px"
-                            style={{ fontFamily: SF }}
-                        />
-                        {isEditing && (
-                            <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors ${draft.description !== profile.description ? 'bg-[#FF9500]' : 'bg-[#D1D1D6]'}`} />
+                    />
+                    <input
+                        aria-label="Mô tả cấu hình"
+                        type="text"
+                        disabled={!isEditing}
+                        value={shown.description || ''}
+                        title={shown.description || undefined}
+                        onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                        className={cn(
+                            'mt-0.5 block w-full min-w-0 truncate rounded-ctl text-caption text-ink-3 outline-none disabled:cursor-default',
+                            isEditing ? 'h-8 bg-surface-2 px-2' : 'bg-transparent',
                         )}
-                    </div>
+                    />
                 </div>
 
-                <div className="flex items-center gap-1 flex-shrink-0">
-                    {/* Status badges — alongside the weight badge */}
-                    {profile.isDefault && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#eaffe3] text-[#019b22] flex-shrink-0" style={{ fontWeight: 600 }}>
-                            Mặc định
-                        </span>
-                    )}
+                <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center justify-end gap-1.5">
+                    {profile.isDefault && <Badge tone="accent">Mặc định</Badge>}
+                    {isEditing && <Badge tone="warning">Đang chỉnh sửa</Badge>}
+                    <Badge tone={totalTone} className="tabular-nums">{`${isEditing ? total : totalOf(profile)}/100`}</Badge>
+
                     {isEditing && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF4E5] text-[#FF9500] flex-shrink-0" style={{ fontWeight: 600 }}>
-                            Đang chỉnh sửa
-                        </span>
+                        <IconButton size="sm" aria-label="Hủy chỉnh sửa" onClick={handleCancelEdit}>
+                            <X {...ICON} />
+                        </IconButton>
                     )}
-                    {/* Tổng trọng số badge — show draft total when editing */}
-                    <span
-                        className={`text-[11px] px-2.5 py-1 rounded-full mr-1 ${isEditing
-                            ? (isValid ? 'bg-[#F0FDF4] text-[#16A34A]' : total > 100 ? 'bg-[#FFE5E5] text-[#FF3B30]' : 'bg-[#FFF4E5] text-[#FF9500]')
-                            : 'bg-[#F5F5F7] text-[#6E6E73]'
-                            }`}
-                        style={{ fontWeight: 600 }}
-                    >
-                        {isEditing ? `${total}/100` : `${totalOf(profile)}/100`}
-                    </span>
 
-                    {/* Cancel edit button — visible only when editing */}
-                    <AnimatePresence>
-                        {isEditing && (
-                            <motion.button
-                                key="cancel-edit"
-                                initial={{ opacity: 0, scale: 0.7 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.7 }}
-                                transition={{ duration: 0.15 }}
-                                onClick={() => { handleCancelEdit(); setIsCollapsed(profile.isDefault ? false : true); }}
-                                title="Hủy chỉnh sửa"
-                                className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                            >
-                                <X className="w-4 h-4" />
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <IconButton size="sm" aria-label="Tùy chọn">
+                                <MoreHorizontal {...ICON} />
+                            </IconButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={handleStartEdit}>
+                                <Pencil {...ICON} className="size-4 text-ink-3" />Chỉnh sửa cấu hình
+                            </DropdownMenuItem>
+                            {!profile.isDefault && (
+                                <DropdownMenuItem onSelect={() => { onSetDefault(); }}>
+                                    <Star {...ICON} className="size-4 text-ink-3" />Đặt làm mặc định
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onSelect={() => { onDuplicate(); }}>
+                                <Copy {...ICON} className="size-4 text-ink-3" />Nhân bản
+                            </DropdownMenuItem>
+                            {!profile.isDefault && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem destructive onSelect={() => { onDelete(); }}>
+                                        <Trash2 {...ICON} className="size-4" />Xóa cấu hình
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
-                    {/* Kebab menu */}
-                    <div className="relative">
-                        <button type="button" aria-label="Tùy chọn"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                            className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
-                        >
-                            <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                        {menuOpen && (
-                            <>
-                                <button type="button" tabIndex={-1} aria-label="Đóng menu" className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-                                <div className="absolute right-0 top-full mt-1 w-[190px] bg-white rounded-xl shadow-xl border border-[#E5E5EA] z-40 overflow-hidden">
-                                    {/* Edit option */}
-                                    <button
-                                        onClick={() => { handleStartEdit(); setIsCollapsed(false); }}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
-                                    >
-                                        <Pencil className="w-3.5 h-3.5 text-[#0071E3]" />Chỉnh sửa cấu hình
-                                    </button>
-                                    {!profile.isDefault && (
-                                        <button
-                                            onClick={() => { onSetDefault(); setMenuOpen(false); }}
-                                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
-                                        >
-                                            <Star className="w-3.5 h-3.5 text-[#0071E3]" />Đặt làm mặc định
-                                        </button>
-                                    )}
-                                    <button
-                                        onClick={() => { handleDuplicate(); setMenuOpen(false); }}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#1D1D1F] hover:bg-[#F5F5F7] transition-colors"
-                                    >
-                                        <Copy className="w-3.5 h-3.5 text-[#6E6E73]" />Nhân bản
-                                    </button>
-                                    {!profile.isDefault && (
-                                        <button
-                                            onClick={() => { onDelete(); setMenuOpen(false); }}
-                                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />Xóa cấu hình
-                                        </button>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Collapse */}
-                    <button
-                        type="button"
+                    <IconButton
+                        size="sm"
                         aria-label={isCollapsed ? 'Mở rộng cấu hình' : 'Thu gọn cấu hình'}
                         aria-expanded={!isCollapsed}
-                        onClick={handleCollapse}
-                        className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors"
+                        onClick={() => setIsCollapsed((prev) => !prev)}
                     >
-                        {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-
-                    </button>
+                        {isCollapsed ? <ChevronDown {...ICON} /> : <ChevronUp {...ICON} />}
+                    </IconButton>
                 </div>
             </div>
 
             {/* ── Body (collapsible) ── */}
             <AnimatePresence initial={false}>
                 {!isCollapsed && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="overflow-hidden"
+                    <m.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, transition: { duration: exitDuration(duration.base) } }}
+                        transition={{ duration: duration.base, ease: ease.out }}
                     >
-                        <div className="p-5 space-y-3">
-                            {/* 3 criteria weight rows */}
+                        <div className="space-y-3 px-5 pb-5">
                             <WeightRow
-                                color="#0071E3" label="Kỹ năng" weight={isEditing ? draft.skillsWeight : profile.skillsWeight}
+                                tone="skills" label="Kỹ năng" weight={shown.skillsWeight}
                                 disabled={!isEditing}
                                 onWeightChange={(v) => setDraft({ ...draft, skillsWeight: v })}
                             />
                             <WeightRow
-                                color="#6366F1" label="Kinh nghiệm" weight={isEditing ? draft.experienceWeight : profile.experienceWeight}
+                                tone="experience" label="Kinh nghiệm" weight={shown.experienceWeight}
                                 disabled={!isEditing}
                                 onWeightChange={(v) => setDraft({ ...draft, experienceWeight: v })}
                             />
                             <WeightRow
-                                color="#009900" label="Học vấn" weight={isEditing ? draft.educationWeight : profile.educationWeight}
+                                tone="education" label="Học vấn" weight={shown.educationWeight}
                                 disabled={!isEditing}
                                 onWeightChange={(v) => setDraft({ ...draft, educationWeight: v })}
                             />
-
-                            {/* Threshold row */}
-                            <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${isEditing ? 'border-[#E5E5EA] bg-[#FAFAFA]' : 'border-[#F2F2F7] bg-[#FAFAFA] opacity-70'}`}>
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#D2691E]" />
-                                        <span className="text-[13px] text-[#1D1D1F] truncate" style={{ fontWeight: 500 }}>
-                                            Ngưỡng điểm tối thiểu
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                                        <input aria-label="Ngưỡng điểm tối thiểu"
-                                            type="number" min="0" max="100"
-                                            disabled={!isEditing}
-                                            value={isEditing ? draft.minimumScoreThreshold : profile.minimumScoreThreshold}
-                                            onChange={(e) => setDraft({ ...draft, minimumScoreThreshold: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) })}
-                                            className="w-14 px-2 py-1 text-center text-[13px] border border-[#E5E5EA] rounded-lg focus:border-[#FF9500] outline-none bg-white disabled:bg-[#F5F5F7] disabled:cursor-not-allowed"
-                                            style={{ fontFamily: SF, fontWeight: 700 }}
-                                        />
-                                        <span className="text-[12px] text-[#AEAEB2]">pts</span>
-                                    </div>
-                                </div>
-                                <input aria-label="Ngưỡng điểm tối thiểu"
-                                    type="range" min="0" max="100"
-                                    disabled={!isEditing}
-                                    value={isEditing ? draft.minimumScoreThreshold : profile.minimumScoreThreshold}
-                                    onChange={(e) => setDraft({ ...draft, minimumScoreThreshold: parseInt(e.target.value) })}
-                                    className="w-full disabled:cursor-not-allowed"
-                                    style={{ accentColor: isEditing ? '#D2691E' : '#D1D1D6' }}
-                                />
-                                <p className="text-[11px] text-[#AEAEB2]">
+                            <WeightRow
+                                tone="threshold" label="Ngưỡng điểm tối thiểu" ariaLabel="Ngưỡng điểm tối thiểu" unit="pts"
+                                weight={shown.minimumScoreThreshold}
+                                disabled={!isEditing}
+                                onWeightChange={(v) => setDraft({ ...draft, minimumScoreThreshold: v })}
+                            >
+                                <p className="text-micro text-ink-3">
                                     ≥ threshold + 20 → Hire &nbsp;·&nbsp; ≥ threshold → Interview &nbsp;·&nbsp; &lt; threshold → Reject
                                 </p>
+                            </WeightRow>
+
+                            <WeightBar skills={shown.skillsWeight} experience={shown.experienceWeight} education={shown.educationWeight} />
+
+                            <div className="flex items-center justify-between text-micro tabular-nums text-ink-3">
+                                <span>{`Kỹ năng ${shown.skillsWeight}%`}</span>
+                                <span>{`Kinh nghiệm ${shown.experienceWeight}%`}</span>
+                                <span>{`Học vấn ${shown.educationWeight}%`}</span>
                             </div>
 
-                            {/* Remaining hint — only shown in edit mode */}
-                            {isEditing && !isValid && (
-                                <p className={`text-[12px] text-center ${remaining > 0 ? 'text-[#FF9500]' : 'text-[#FF3B30]'}`}>
-                                    {remaining > 0
-                                        ? `Còn thiếu ${remaining}% — tổng phải bằng 100`
-                                        : `Vượt quá ${-remaining}% — tổng phải bằng 100`}
-                                </p>
-                            )}
-
-                            {/* Visual combined bar */}
-                            <div className="h-2.5 bg-[#F2F2F7] rounded-full overflow-hidden flex">
-                                {[
-                                    { key: 'skills', w: isEditing ? draft.skillsWeight : profile.skillsWeight, color: '#0071E3' },
-                                    { key: 'experience', w: isEditing ? draft.experienceWeight : profile.experienceWeight, color: '#6366F1' },
-                                    { key: 'education', w: isEditing ? draft.educationWeight : profile.educationWeight, color: '#009900' },
-                                ].map(({ key, w, color }) => (
-                                    w > 0 && (
-                                        <div key={key} className="h-full transition-[width] duration-300" style={{ width: `${w}%`, background: color }} />
-                                    )
-                                ))}
-                            </div>
-
-                            {/* Legend */}
-                            <div className="flex items-center justify-between text-[11px] text-[#AEAEB2]">
-                                {[
-                                    { label: 'Kỹ năng', w: isEditing ? draft.skillsWeight : profile.skillsWeight, color: '#0071E3' },
-                                    { label: 'Kinh nghiệm', w: isEditing ? draft.experienceWeight : profile.experienceWeight, color: '#6366F1' },
-                                    { label: 'Học vấn', w: isEditing ? draft.educationWeight : profile.educationWeight, color: '#009900' },
-                                ].map(({ label, w, color }) => (
-                                    <div key={label} className="flex items-center gap-1">
-                                        <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                                        <span>{label} {w}%</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Save button — only enabled when in edit mode AND weights are valid */}
-                            <div className="pt-2 border-t border-[#F2F2F7]">
-                                <button
-                                    disabled={!isEditing || !isValid}
-                                    onClick={handleSave}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] disabled:bg-[#E5E5EA] disabled:text-[#AEAEB2] text-white rounded-xl transition shadow-sm text-[13px]"
-                                    style={{ fontWeight: 600 }}
+                            {/* Save — enabled only when editing AND the weights add up */}
+                            <div className="flex items-center justify-between gap-3 pt-2">
+                                <p
+                                    role="status"
+                                    className={cn('min-w-0 text-caption', remaining > 0 ? 'text-warning' : 'text-danger')}
                                 >
-                                    {isEditing ? <Save className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                    {isEditing && !isValid
+                                        ? remaining > 0
+                                            ? `Còn thiếu ${remaining}% — tổng phải bằng 100`
+                                            : `Vượt quá ${-remaining}% — tổng phải bằng 100`
+                                        : null}
+                                </p>
+                                <Button disabled={!isEditing || !isValid} onClick={handleSave} className="ml-auto">
+                                    {isEditing ? <Save {...ICON} /> : <CheckCircle {...ICON} />}
                                     {isEditing ? 'Lưu cấu hình' : 'Đã lưu'}
-                                </button>
+                                </Button>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </m.div>
     );
 }

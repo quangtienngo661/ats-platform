@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyInterviewChatPage from '@/legacy/app/(interview-session)/mock-interview/[sessionId]/page';
 import { InterviewChatStoreProvider } from '@/stores/useInterviewChatStore';
 import InterviewChatClient from '@/components/mock-interview/InterviewChatClient';
 import InterviewGeneratingClient from '@/components/mock-interview/InterviewGeneratingClient';
@@ -10,6 +12,7 @@ export const metadata = {
 };
 
 export default async function InterviewChatPage({ params }: { params: Promise<{ sessionId: string }> }) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyInterviewChatPage params={params} />;
     const { sessionId } = await params;
 
     // [Lỗi #6 Fix] Guard null: nếu không có session in_progress thì 404

@@ -1,8 +1,9 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyJobsPage from '@/legacy/app/(public)/job-postings/page';
 import { positivePage } from '@/lib/pagination';
 import { parseJobFilterParams } from '@/lib/job-filter-params';
 import { getJobFilterOptionsAction, getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
 import { getViewerJobCategoriesAction } from '@/servers/job-categories/job-categories.action';
-import { PublicFooter } from '@/components/public/layout/PublicFooter';
 import { JobSearchClient } from '@/components/public/jobs/JobSearchClient';
 
 interface JobsPageProps {
@@ -23,6 +24,7 @@ export const metadata = {
 };
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyJobsPage searchParams={searchParams} />;
     const params = await searchParams;
     const page = positivePage(params.page);
     const filters = parseJobFilterParams(params);
@@ -42,21 +44,18 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     ]);
 
     return (
-        <>
-            <JobSearchClient
-                initialJobs={jobs.items}
-                total={jobs.pagination.total}
-                categories={categories}
-                skills={filterOptions.skills}
-                currentPage={page}
-                initialQuery={{
-                    q: params.q,
-                    categoryId: params.categoryId,
-                    locationType: params.locationType,
-                    ...filters,
-                }}
-            />
-            <PublicFooter />
-        </>
+        <JobSearchClient
+            initialJobs={jobs.items}
+            total={jobs.pagination.total}
+            categories={categories}
+            skills={filterOptions.skills}
+            currentPage={page}
+            initialQuery={{
+                q: params.q,
+                categoryId: params.categoryId,
+                locationType: params.locationType,
+                ...filters,
+            }}
+        />
     );
 }

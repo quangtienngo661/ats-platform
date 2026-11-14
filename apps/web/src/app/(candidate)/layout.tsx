@@ -1,5 +1,9 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import { LegacyFrame } from '@/components/ui-variant/LegacyFrame';
+import LegacyCandidateLayout from '@/legacy/app/(candidate)/layout';
 import type { ReactNode } from 'react';
-import { PublicHeader } from '@/components/public/layout/PublicHeader';
+import { CandidateTabBar } from '@/components/shell/CandidateTabBar';
+import { SiteHeader } from '@/components/shell/SiteHeader';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { decodeTokenPayload } from '@/lib/decodeTokenPayload';
@@ -11,6 +15,14 @@ export const metadata = {
 };
 
 export default async function CandidateLayout({ children }: { children: ReactNode }) {
+  if ((await getUiVariant()) === 'legacy') {
+    return (
+      <LegacyFrame>
+        <LegacyCandidateLayout>{children}</LegacyCandidateLayout>
+      </LegacyFrame>
+    );
+  }
+
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value || "";
 
@@ -35,15 +47,16 @@ export default async function CandidateLayout({ children }: { children: ReactNod
     ]);
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#F5F5F7]">
-            <PublicHeader
+        <div className="flex min-h-dvh flex-col bg-canvas">
+            <SiteHeader
                 userInfo={userInfo}
                 initialNotifications={notifications.items}
                 initialUnreadCount={unreadCount}
             />
-            <main id="main-content" className="flex flex-col flex-grow pt-[60px]">
+            <main id="main-content" className="flex flex-1 flex-col">
                 {children}
             </main>
+            {userInfo.role === 'candidate' ? <CandidateTabBar /> : null}
         </div>
     );
 }

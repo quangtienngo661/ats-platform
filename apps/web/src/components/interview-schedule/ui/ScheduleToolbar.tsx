@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui';
 
 interface ScheduleToolbarProps {
     weekLabel: string;
@@ -10,36 +11,22 @@ interface ScheduleToolbarProps {
 
 export function ScheduleToolbar({ weekLabel, canGoPrevious, onPrevious, onNext, onCreate }: ScheduleToolbarProps) {
     return (
-        <div className="flex w-full flex-wrap items-center gap-2">
-            <button
-                type="button"
-                onClick={onPrevious}
-                disabled={!canGoPrevious}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#E5E5EA] text-[#6E6E73] transition-colors hover:bg-[#F5F5F7] disabled:cursor-not-allowed disabled:opacity-40"
-                title="Tuần trước"
-            >
-                <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="min-w-[140px] text-center text-[13px] text-[#1D1D1F]" style={{ fontWeight: 600 }}>
-                Tuần {weekLabel}
-            </span>
-            <button
-                type="button"
-                onClick={onNext}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#E5E5EA] text-[#6E6E73] transition-colors hover:bg-[#F5F5F7]"
-                title="Tuần sau"
-            >
-                <ChevronRight className="h-4 w-4" />
-            </button>
-            <button
-                type="button"
-                onClick={onCreate}
-                className="ml-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0071E3] px-4 py-2.5 text-[13px] text-white shadow-sm transition-colors hover:bg-[#0077ED]"
-                style={{ fontWeight: 700 }}
-            >
-                <Plus className="h-4 w-4" />
+        <>
+            <div className="flex items-center gap-1">
+                <IconButton aria-label="Tuần trước" title="Tuần trước" onClick={onPrevious} disabled={!canGoPrevious}>
+                    <ChevronLeft aria-hidden="true" strokeWidth={1.75} />
+                </IconButton>
+                <span className="min-w-[8.5rem] text-center text-body-sm font-medium tabular-nums text-ink">
+                    Tuần {weekLabel}
+                </span>
+                <IconButton aria-label="Tuần sau" title="Tuần sau" onClick={onNext}>
+                    <ChevronRight aria-hidden="true" strokeWidth={1.75} />
+                </IconButton>
+            </div>
+            <Button onClick={onCreate}>
+                <Plus aria-hidden="true" strokeWidth={1.75} />
                 Đặt phỏng vấn
-            </button>
-        </div>
+            </Button>
+        </>
     );
 }

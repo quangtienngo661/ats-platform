@@ -1,5 +1,5 @@
-import { Edit2, FileText, Send, Calendar } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Pencil } from 'lucide-react';
+import { Avatar, Button } from '@/components/ui';
 import { ICandidateDto } from '@/types/interfaces/candidate.interface';
 
 interface ProfileHeaderProps {
@@ -8,72 +8,33 @@ interface ProfileHeaderProps {
 }
 
 function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('vi-VN', {
-        month: 'long', year: 'numeric',
-    });
+    return new Date(dateStr).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
 }
 
 export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
-    const initials = profile.user?.fullName
-        .split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase();
+    const name = profile.user?.fullName ?? '';
+    const stats = [
+        `${profile.cvCount ?? 0} CV`,
+        `${profile.applicationCount ?? 0} đơn ứng tuyển`,
+        profile.yearsOfExperience && profile.yearsOfExperience > 0
+            ? `${profile.yearsOfExperience} năm kinh nghiệm`
+            : null,
+        profile.user?.createdAt ? `Tham gia ${formatDate(profile.user.createdAt)}` : null,
+    ].filter((item): item is string => item !== null);
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-6 mb-5">
-            <div className="flex items-start gap-5">
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[20px] flex-shrink-0"
-                    style={{ fontFamily: SF, fontWeight: 700 }}
-                >
-                    {initials}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <h1
-                                className="text-[22px] text-[#1D1D1F] tracking-[-0.02em]"
-                                style={{ fontFamily: SF, fontWeight: 700 }}
-                            >
-                                {profile.user?.fullName}
-                            </h1>
-                            {profile.currentTitle && (
-                                <p className="text-[14px] text-[#6E6E73] mt-0.5">{profile.currentTitle}</p>
-                            )}
-                        </div>
-
-                        <button
-                            onClick={onEdit}
-                            className="flex items-center gap-2 px-3 py-2 bg-[#F5F5F7] hover:bg-[#EBEBF0] text-[#1D1D1F] rounded-xl transition text-[12px]"
-                            style={{ fontWeight: 500 }}
-                        >
-                            <Edit2 className="w-3.5 h-3.5" />
-                            Chỉnh sửa
-                        </button>
-                    </div>
-
-                    {/* Quick stats */}
-                    <div className="flex items-center gap-4 mt-3">
-                        <span className="flex items-center gap-1.5 text-[12px] text-[#AEAEB2]">
-                            <FileText className="w-3.5 h-3.5" />
-                            {profile.cvCount} CV
-                        </span>
-                        <span className="flex items-center gap-1.5 text-[12px] text-[#AEAEB2]">
-                            <Send className="w-3.5 h-3.5" />
-                            {profile.applicationCount} đơn ứng tuyển
-                        </span>
-                        {profile.yearsOfExperience && profile.yearsOfExperience > 0 && (
-                            <span className="flex items-center gap-1.5 text-[12px] text-[#AEAEB2]">
-                                {profile.yearsOfExperience} năm kinh nghiệm
-                            </span>
-                        )}
-                        <span className="flex items-center gap-1.5 text-[12px] text-[#AEAEB2]">
-                            <Calendar className="w-3.5 h-3.5" />
-                            Tham gia {formatDate(profile.user?.createdAt || '')}
-                        </span>
-                    </div>
-                </div>
+        <header className="flex flex-wrap items-start gap-4">
+            <Avatar name={name || '?'} size={64} />
+            <div className="min-w-0 flex-1">
+                <h1 className="break-words text-heading text-ink">{name}</h1>
+                <p className="break-all text-body text-ink-3">{profile.user?.email}</p>
+                {profile.currentTitle && <p className="mt-1 break-words text-body text-ink-2">{profile.currentTitle}</p>}
+                <p className="mt-2 text-caption text-ink-3">{stats.join(' · ')}</p>
             </div>
-        </div>
+            <Button variant="secondary" onClick={onEdit}>
+                <Pencil aria-hidden="true" strokeWidth={1.75} />
+                Sửa hồ sơ
+            </Button>
+        </header>
     );
 }

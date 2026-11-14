@@ -1,9 +1,18 @@
 'use client';
 
-import { MotionConfig } from 'motion/react';
+import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import type { ReactNode } from 'react';
 
-/** Honors the OS "reduce motion" setting for every motion/react animation in the app. */
+/**
+ * Loads the animation features lazily and honors the OS "reduce motion" setting.
+ * `domMax`, not `domAnimation`: only `domMax` carries the layout feature, without which `layoutId` indicators
+ * (Tabs, Segmented) jump instead of sliding.
+ * Not `strict`: existing code still uses `motion.*`, which must keep working next to `m.*`.
+ */
 export function MotionProvider({ children }: { children: ReactNode }) {
-    return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+    return (
+        <LazyMotion features={domMax}>
+            <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        </LazyMotion>
+    );
 }

@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyCandidateDetailPage from '@/legacy/app/(recruiter)/jobs/[jobId]/candidates/[id]/page';
 import CandidateDetailClient from '@/components/candidates/CandidateDetailClient';
 import { getApplicationByIdAction } from '@/servers/applications/applications.action';
 import { getMeAction } from '@/servers/users/users.action';
@@ -8,6 +10,7 @@ interface CandidateDetailPageProps {
 }
 
 export default async function CandidateDetailPage({ params }: CandidateDetailPageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyCandidateDetailPage params={params} />;
     const { jobId, id } = await params;
     const [application, currentUser] = await Promise.all([
         getApplicationByIdAction(id),

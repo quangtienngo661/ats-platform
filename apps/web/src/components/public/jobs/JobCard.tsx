@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import { Clock, MapPin, Building2, ChevronRight } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Badge } from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { jobSkillsOf } from '@/lib/job-skills';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
+
+/** Skills shown on a card; the rest are counted as "+n". */
+const MAX_SKILLS = 3;
 
 const formatAmount = (value: number): string => {
     if (value >= 1_000_000_000) {
@@ -40,77 +42,82 @@ function timeAgo(dateStr?: string | null): string {
     return weeks === 1 ? '1 tuần trước' : `${weeks} tuần trước`;
 }
 
+/** First letter of the first two words: "TalentAI Partner" → "TP". */
+function initialsOf(name: string): string {
+    return name
+        .normalize('NFC')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((word) => word.charAt(0))
+        .join('')
+        .toUpperCase();
+}
+
 interface JobCardProps {
     job: IJobPostingDto;
 }
 
+/**
+ * One posting in the job list. The whole card is a single link: it lifts 2 px on hover and gives a little on
+ * press. Title clamps to two lines and the company to one, each with the full text in `title`, so a 120-character
+ * name never pushes the card wider than a 390 px phone.
+ */
 export function JobCard({ job }: JobCardProps) {
-    const dept = job.department;
+    const company = job.department?.name || 'TalentAI Partner';
+    const workType = WORK_TYPE_LABELS[(job.locationType || 'onsite') as WorkType] || job.locationType;
     const skills = jobSkillsOf(job);
-    const deptColor = dept?.color || '#0071E3';
-    const deptBg = `${deptColor}15`;
-    
 
     return (
         <Link
             href={`/job-postings/${job.jobId}`}
-            className="group flex flex-col bg-white rounded-3xl border border-[#F2F2F7] hover:border-[#E5E5EA] hover:shadow-xl hover:shadow-black/5 transition duration-300 overflow-hidden"
-            style={{ fontFamily: SFT }}
+            className="group flex gap-3 rounded-card bg-surface p-4 shadow-e1 transition duration-hover ease-out-expo hover:-translate-y-0.5 hover:shadow-e3 active:scale-[.995] active:duration-press sm:gap-4 sm:p-5"
         >
-            <div className="p-5 flex-1 flex flex-col">
-                {/* Header: Icon & Salary */}
-                <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm" style={{ background: deptBg }}>
-                        <Building2 className="w-6 h-6" style={{ color: deptColor }} />
-                    </div>
-                    <div className="bg-[#F0FDF4] text-[#16A34A] px-3 py-1.5 rounded-full text-[12px]" style={{ fontWeight: 600 }}>
-                        {salaryFormat(job.salaryMin, job.salaryMax)}
-                    </div>
-                </div>
+            <span
+                aria-hidden="true"
+                className="flex size-10 shrink-0 select-none items-center justify-center rounded-card bg-surface-2 text-body-sm font-medium text-ink-2"
+            >
+                {initialsOf(company)}
+            </span>
 
-                {/* Main Info */}
-                <div className="mb-4 flex-1">
-                    <h3 className="text-[16px] text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors leading-snug mb-2 line-clamp-2" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        {job.title}
-                    </h3>
-                    <p className="text-[13px] text-[#6E6E73] flex items-center gap-1.5 truncate" style={{ fontWeight: 500 }}>
-                        {dept?.name || 'TalentAI Partner'}
-                    </p>
-                </div>
-
-                {/* Meta details */}
-                <div className="flex flex-col gap-2.5 mb-5 mt-auto">
-                    <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
-                        <MapPin className="w-3.5 h-3.5 text-[#AEAEB2]" />
-                        <span className="truncate">{WORK_TYPE_LABELS[(job.locationType || 'onsite') as WorkType] || job.locationType}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[12px] text-[#6E6E73]">
-                        <Clock className="w-3.5 h-3.5 text-[#AEAEB2]" />
-                        <span>Đăng {timeAgo(job.publishedAt || job.createdAt)}</span>
-                    </div>
-                </div>
-
-                {/* Skills/Tags */}
-                {skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                        {skills.slice(0, 3).map(s => (
-                            <span key={s.skillId} className="text-[11px] bg-[#F5F5F7] text-[#6E6E73] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
-                                {s.name ?? s.skillId}
-                            </span>
+            {/*
+              Phones stack title, salary, company and then skills with the posted time on the right. From 640 px the
+              salary and the time take a right-hand column, so a card without skills is two rows high.
+            */}
+            <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] content-start gap-x-4">
+                <h3
+                    title={job.title}
+                    className="col-span-2 line-clamp-2 break-words text-title-sm text-ink sm:col-span-1"
+                >
+                    {job.title}
+                </h3>
+                <p className="col-span-2 mt-1 text-body-sm font-medium tabular-nums text-ink sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:mt-0 sm:pt-0.5 sm:text-right">
+                    {salaryFormat(job.salaryMin, job.salaryMax)}
+                </p>
+                <p className="col-span-2 mt-1 flex min-w-0 items-center gap-1.5 text-body-sm text-ink-3 sm:col-span-1 sm:row-start-2">
+                    <span title={company} className="min-w-0 truncate">
+                        {company}
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    <span className="shrink-0">{workType}</span>
+                </p>
+                <p className="col-start-2 row-start-4 mt-3 self-end text-right text-caption text-ink-3 sm:row-start-2 sm:mt-1 sm:self-center">
+                    Đăng {timeAgo(job.publishedAt || job.createdAt)}
+                </p>
+                {skills.length > 0 ? (
+                    <div className="col-start-1 row-start-4 mt-3 flex min-w-0 flex-wrap gap-1.5 sm:col-span-2 sm:row-start-3">
+                        {skills.slice(0, MAX_SKILLS).map((s) => (
+                            <Badge key={s.skillId} className="max-w-[12rem]">
+                                <span title={s.name ?? s.skillId} className="min-w-0 truncate">
+                                    {s.name ?? s.skillId}
+                                </span>
+                            </Badge>
                         ))}
-                        {skills.length > 3 && (
-                            <span className="text-[11px] bg-[#F5F5F7] text-[#AEAEB2] rounded-lg px-2.5 py-1 border border-[#F2F2F7]">
-                                +{skills.length - 3}
-                            </span>
-                        )}
+                        {skills.length > MAX_SKILLS ? (
+                            <Badge className="tabular-nums">+{skills.length - MAX_SKILLS}</Badge>
+                        ) : null}
                     </div>
-                )}
-            </div>
-
-            {/* Footer action */}
-            <div className="px-5 py-3 border-t border-[#F2F2F7] bg-[#FAFAFC] flex items-center justify-between group-hover:bg-[#EBF3FD] transition-colors">
-                <span className="text-[12px] text-[#6E6E73] group-hover:text-[#0071E3]" style={{ fontWeight: 500 }}>Xem chi tiết</span>
-                <ChevronRight className="w-4 h-4 text-[#AEAEB2] group-hover:text-[#0071E3] transition-colors group-hover:translate-x-0.5" />
+                ) : null}
             </div>
         </Link>
     );

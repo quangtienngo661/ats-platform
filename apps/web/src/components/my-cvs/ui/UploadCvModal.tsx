@@ -1,12 +1,10 @@
 'use client';
 
-import { AccessibleDialog, DialogOverlay, DialogContent } from '@/components/common/AccessibleDialog';
-
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { X, FileUp, FileText, Trash2 } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
-import { motion, AnimatePresence } from 'motion/react';
-import SubmitButton from '@/components/common/SubmitButton';
+import { useFormStatus } from 'react-dom';
+import { FileText, FileUp, X } from 'lucide-react';
+import { Button, Dialog, Field, Input } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { CvActionState, uploadCvAction } from '@/servers/cvs/cvs.action';
 import { toast } from '@/lib/toast';
 import { useCvStore } from '@/stores/useCvStore';
@@ -16,15 +14,34 @@ interface UploadCvModalProps {
 }
 
 const initialState: CvActionState = { success: false, message: '' };
+const NOT_PDF_MESSAGE = 'Không tải được tệp. Chỉ nhận tệp PDF.';
+
+function isPdf(file: File): boolean {
+    return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+}
+
 function formatFileSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+function SubmitButton({ disabled }: { disabled: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={disabled} loading={pending}>
+            Tải lên
+        </Button>
+    );
+}
+
 export function UploadCvModal({ onClose }: UploadCvModalProps) {
     const [state, formAction] = useActionState(uploadCvAction, initialState);
     const [file, setFile] = useState<File | null>(null);
+    const [fileError, setFileError] = useState('');
+    const [dragging, setDragging] = useState(false);
+    // dragenter/dragleave fire for every child crossed; count them instead of trusting a single leave.
+    const dragDepth = useRef(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const addCv = useCvStore((store) => store.addCv);
     const handledCvId = useRef<string | null>(null);
@@ -47,177 +64,164 @@ export function UploadCvModal({ onClose }: UploadCvModalProps) {
         }
     }, [state, addCv])
 
-    const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target.files?.[0];
-        if (selectedFile) {
-            setFile(selectedFile);
+    const clearInput = () => {
+        // Reset the file input so the same file can be re-selected
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const acceptFile = (selected: File | undefined) => {
+        if (!selected) return;
+        if (!isPdf(selected)) {
+            setFile(null);
+            setFileError(NOT_PDF_MESSAGE);
+            clearInput();
+            return;
         }
+        setFileError('');
+        setFile(selected);
+    };
+
+    const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+        acceptFile(event.target.files?.[0]);
+    };
+
+    // A file dropped anywhere else would make the browser open it and leave the page.
+    useEffect(() => {
+        const stop = (event: DragEvent) => event.preventDefault();
+        window.addEventListener('dragover', stop);
+        window.addEventListener('drop', stop);
+        return () => {
+            window.removeEventListener('dragover', stop);
+            window.removeEventListener('drop', stop);
+        };
+    }, []);
+
+    const handleDragEnter = (event: React.DragEvent<HTMLElement>) => {
+        event.preventDefault();
+        dragDepth.current += 1;
+        setDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        dragDepth.current = Math.max(0, dragDepth.current - 1);
+        if (dragDepth.current === 0) setDragging(false);
+    };
+
+    const handleDrop = (event: React.DragEvent<HTMLElement>) => {
+        event.preventDefault();
+        dragDepth.current = 0;
+        setDragging(false);
+        const dropped = event.dataTransfer.files?.[0];
+        if (!dropped) return;
+        // The form posts the input's own files, so hand the dropped file to it.
+        try {
+            if (fileInputRef.current) fileInputRef.current.files = event.dataTransfer.files;
+        } catch {
+            /* acceptFile still validates; the picker remains the fallback */
+        }
+        acceptFile(dropped);
     };
 
     const handleRemoveFile = () => {
         setFile(null);
-        // Reset the file input so the same file can be re-selected
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        setFileError('');
+        clearInput();
     };
+
     const defaultFileName = file ? file.name.replace(/\.pdf$/i, '') : '';
+    const errorMessage = fileError || (!state.success ? state.message : '');
 
     return (
-        <AccessibleDialog onClose={onClose}><AnimatePresence>
-            <DialogOverlay asChild><motion.div
-                key="backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 p-4"
-                
+        <Dialog open onOpenChange={(open) => { if (!open) onClose(); }} title="Tải CV lên">
+            <form
+                action={formAction}
+                className="flex flex-col gap-4"
+                onDragEnter={handleDragEnter}
+                onDragOver={(event) => event.preventDefault()}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
             >
-                <DialogContent title="Tải CV lên"><motion.div
-                    key="modal"
-                    initial={{ opacity: 0, scale: 0.96, y: 12 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 12 }}
-                    transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-                    
-                >
-                    {/* ── Header ── */}
-                    <div className="flex items-center justify-between p-6 border-b border-[#F2F2F7]">
-                        <h2
-                            className="text-[20px] text-[#1D1D1F] tracking-[-0.01em]"
-                            style={{ fontFamily: SF, fontWeight: 600 }}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    name="file"
+                    accept=".pdf"
+                    id="cv-upload-input"
+                    aria-label="Chọn tệp CV"
+                    onChange={handleFileSelected}
+                    className="sr-only"
+                />
+
+                {file === null ? (
+                    <div
+                        className={cn(
+                            'flex flex-col items-center rounded-card border-2 border-dashed px-4 py-8 text-center',
+                            'transition duration-hover ease-out-expo',
+                            dragging ? 'border-accent bg-accent-soft/40' : 'border-line-strong',
+                        )}
+                    >
+                        <FileUp size={24} strokeWidth={1.75} aria-hidden="true" className="text-ink-3" />
+                        <p className="mt-3 text-body-sm font-medium text-ink">Kéo thả tệp PDF vào đây</p>
+                        <p className="mt-1 text-caption text-ink-3">PDF, tối đa 5 MB</p>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="mt-4"
+                            onClick={() => fileInputRef.current?.click()}
                         >
-                            Tải CV lên
-                        </h2>
-                        <button aria-label="Đóng" onClick={onClose} className="p-2 rounded-lg text-[#AEAEB2] hover:bg-[#F5F5F7] transition-colors" type="button">
-                            <X className="w-4 h-4" />
-                        </button>
+                            Chọn tệp
+                        </Button>
                     </div>
-
-                    {/* ── Form ── */}
-                    <form action={formAction}>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            name="file"
-                            accept=".pdf"
-                            id="cv-upload-input"
-                            onChange={handleFileSelected}
-                            className="hidden"
-                        />
-
-                        {file === null ? (
-                            /* ── Step 1: File selection (drag-drop area) ── */
-                            <div className="p-6">
-                                <span className="block text-[13px] text-[#1D1D1F] mb-3" style={{ fontWeight: 500 }}>
-                                    Chọn file CV <span className="text-[#FF3B30]">*</span>
-                                </span>
-
-                                <label
-                                    htmlFor="cv-upload-input"
-                                    className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-[#E5E5EA] hover:border-[#0071E3] rounded-2xl cursor-pointer transition-colors bg-[#FAFAFA] hover:bg-[#F0F7FF]"
-                                >
-                                    <FileUp className="w-8 h-8 text-[#AEAEB2] mb-3" />
-                                    <p className="text-[13px] text-[#6E6E73] mb-1" style={{ fontWeight: 500 }}>
-                                        Kéo thả hoặc nhấn để chọn file
-                                    </p>
-                                    <p className="text-[11px] text-[#AEAEB2]">
-                                        PDF — tối đa 5MB
-                                    </p>
-                                </label>
-
-                                <p className="text-[11px] text-[#AEAEB2] mt-3">
-                                    AI sẽ tự động phân tích CV sau khi tải lên
+                ) : (
+                    <>
+                        <div className="flex items-center gap-3 rounded-card bg-surface-2 p-3">
+                            <span className="flex size-10 shrink-0 items-center justify-center rounded-card bg-surface text-ink-2">
+                                <FileText size={20} strokeWidth={1.75} aria-hidden="true" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-body-sm font-medium text-ink" title={file.name}>
+                                    {file.name}
                                 </p>
+                                <p className="text-caption tabular-nums text-ink-3">{formatFileSize(file.size)}</p>
                             </div>
-                        ) : (
-                            /* ── Step 2: Name input + file preview card ── */
-                            <div className="p-6 flex flex-col gap-5">
-                                {/* CV Name input */}
-                                <div>
-                                    <label
-                                        htmlFor="cvFileName"
-                                        className="block text-[13px] text-[#1D1D1F] mb-2"
-                                        style={{ fontWeight: 500 }}
-                                    >
-                                        Tên CV <span className="text-[#FF3B30]">*</span>
-                                    </label>
-                                    <input
-                                        id="cvFileName"
-                                        type="text"
-                                        name="fileName"
-                                        defaultValue={defaultFileName}
-                                        placeholder="Nhập tên CV của bạn"
-                                        required
-                                        minLength={3}
-                                        className="w-full px-4 py-3 rounded-xl border border-[#E5E5EA] bg-[#FAFAFA] text-[14px] text-[#1D1D1F] placeholder-[#AEAEB2] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/20 focus:bg-white"
-                                        style={{ fontFamily: SFT }}
-                                    />
-                                </div>
-
-                                {/* File Preview Card */}
-                                <div>
-                                    <span className="block text-[13px] text-[#1D1D1F] mb-2" style={{ fontWeight: 500 }}>
-                                        File đã chọn
-                                    </span>
-                                    <div className="flex items-center gap-3 p-3 rounded-xl border border-[#E5E5EA] bg-[#FAFAFA]">
-                                        {/* PDF Icon */}
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#FF3B30]/10 flex items-center justify-center">
-                                            <FileText className="w-5 h-5 text-[#FF3B30]" />
-                                        </div>
-
-                                        {/* File info */}
-                                        <div className="flex-1 min-w-0">
-                                            <p
-                                                className="text-[13px] text-[#1D1D1F] truncate"
-                                                style={{ fontWeight: 500 }}
-                                                title={file.name}
-                                            >
-                                                {file.name}
-                                            </p>
-                                            <p className="text-[11px] text-[#AEAEB2]">
-                                                {formatFileSize(file.size)}
-                                            </p>
-                                        </div>
-
-                                        {/* Remove button */}
-                                        <button
-                                            type="button"
-                                            onClick={handleRemoveFile}
-                                            className="flex-shrink-0 p-2 rounded-lg text-[#AEAEB2] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors"
-                                            title="Xóa file"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <p className="text-[11px] text-[#AEAEB2]">
-                                    AI sẽ tự động phân tích CV sau khi tải lên
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Error message */}
-                        {state.message && !state.success && (
-                            <div className="mx-6 mb-4 px-4 py-3 rounded-xl bg-[#FEF2F2] border border-[#FECACA]">
-                                <p className="text-[13px] text-[#DC2626]">{state.message}</p>
-                            </div>
-                        )}
-
-                        {/* ── Footer buttons ── */}
-                        <div className="p-6 border-t border-[#F2F2F7] flex gap-3">
-                            <button type="button" onClick={onClose} className="flex-1 mt-[3px] py-3 rounded-xl border border-[#E5E5EA] hover:bg-[#F5F5F7] transition-colors text-[14px] text-[#1D1D1F]" style={{ fontWeight: 500 }}>
-                                Hủy
+                            <button
+                                type="button"
+                                onClick={handleRemoveFile}
+                                aria-label="Bỏ tệp đã chọn"
+                                className="flex size-8 shrink-0 items-center justify-center rounded-ctl text-ink-3 transition duration-press ease-out-expo hover:bg-ink/5 hover:text-ink active:scale-[.97]"
+                            >
+                                <X size={16} strokeWidth={1.75} aria-hidden="true" />
                             </button>
-                            <div className="flex-1">
-                                <SubmitButton content="Tải lên" />
-                            </div>
                         </div>
-                    </form>
-                </motion.div></DialogContent>
-            </motion.div></DialogOverlay>
-        </AnimatePresence ></AccessibleDialog>
+                        <Field label="Tên CV" required>
+                            {(control) => (
+                                <Input
+                                    {...control}
+                                    key={file.name}
+                                    type="text"
+                                    name="fileName"
+                                    defaultValue={defaultFileName}
+                                    placeholder="Nhập tên CV"
+                                    minLength={3}
+                                />
+                            )}
+                        </Field>
+                    </>
+                )}
+
+                {errorMessage && (
+                    <p role="alert" className="rounded-ctl bg-danger-soft px-3 py-2 text-body-sm text-danger">
+                        {errorMessage}
+                    </p>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2">
+                    <Button variant="ghost" onClick={onClose}>
+                        Hủy
+                    </Button>
+                    <SubmitButton disabled={file === null} />
+                </div>
+            </form>
+        </Dialog>
     );
 }

@@ -1,3 +1,4 @@
+import { Surface } from '@/components/ui';
 import { IInterviewTopic } from '@/types/interfaces/interview.interface';
 
 interface InterviewTopicStatsProps {
@@ -10,24 +11,20 @@ export function InterviewTopicStats({ topics }: InterviewTopicStatsProps) {
     const activeTopics = topics.filter((topic) => (topic._count?.sessions ?? 0) > 0).length;
 
     const stats = [
-        { label: 'Tổng chủ đề', value: topics.length, bg: '#EBF3FD', color: '#0071E3' },
-        { label: 'Danh mục', value: categories.size, bg: '#F0FDF4', color: '#16A34A' },
-        { label: 'Đã sử dụng', value: activeTopics, bg: '#FFFBEB', color: '#D97706' },
-        { label: 'Phiên phỏng vấn', value: totalSessions, bg: '#F5F3FF', color: '#7C3AED' },
+        { label: 'Tổng chủ đề', value: topics.length },
+        { label: 'Danh mục', value: categories.size },
+        { label: 'Đã sử dụng', value: activeTopics },
+        { label: 'Phiên phỏng vấn', value: totalSessions },
     ];
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            {stats.map((item) => (
-                <div key={item.label} className="rounded-xl border border-[#E5E5EA] bg-white px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: item.bg }}>
-                            <span className="text-[15px]" style={{ color: item.color, fontWeight: 700 }}>{item.value}</span>
-                        </div>
-                        <span className="text-[12px] text-[#6E6E73]">{item.label}</span>
-                    </div>
+        <Surface as="dl" className="grid grid-cols-1 divide-y divide-line sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+            {stats.map(({ label, value }) => (
+                <div key={label} className="flex items-baseline justify-between gap-3 px-4 py-2.5 sm:block sm:py-3">
+                    <dt className="text-caption text-ink-3">{label}</dt>
+                    <dd className="text-title-sm tabular-nums text-ink sm:mt-0.5">{value}</dd>
                 </div>
             ))}
-        </div>
+        </Surface>
     );
 }

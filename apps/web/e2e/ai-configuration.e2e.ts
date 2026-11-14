@@ -1,7 +1,7 @@
 // Real browser → Next server action → Nest API → PostgreSQL → reload.
 // No route interception, unsigned JWT fixture, fake API or mocked database.
 import { randomUUID } from 'node:crypto';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { apiBaseUrl } from './support/local-target';
 
 let accessToken = '';
@@ -79,8 +79,14 @@ test.afterEach(async ({ request, page }) => {
   }
 });
 
-for (const closeButton of ['Hủy', 'Đóng cấu hình']) {
-  test(`admin đăng nhập → điền cấu hình → ${closeButton} → không có bản ghi mới`, async ({
+const closers = {
+  Hủy: (page: Page) =>
+    page.getByRole('button', { name: 'Hủy', exact: true }).click(),
+  Esc: (page: Page) => page.keyboard.press('Escape'),
+};
+
+for (const [closer, close] of Object.entries(closers)) {
+  test(`admin đăng nhập → điền cấu hình → ${closer} → không có bản ghi mới`, async ({
     page,
     request,
   }) => {
@@ -90,12 +96,12 @@ for (const closeButton of ['Hủy', 'Đóng cấu hình']) {
       .getByRole('button', { name: 'Thêm cấu hình mới', exact: true })
       .first()
       .click();
-    await page.getByRole('textbox', { name: 'Tên cấu hình *' }).fill(name);
+    await page.getByRole('textbox', { name: 'Tên cấu hình', exact: true }).fill(name);
     await page
-      .getByRole('combobox', { name: 'Tổ chức *' })
+      .getByRole('combobox', { name: 'Tổ chức', exact: true })
       .selectOption(process.env.WEB_E2E_ORGANIZATION_ID!);
 
-    await page.getByRole('button', { name: closeButton, exact: true }).click();
+    await close(page);
     await expect(
       page.getByRole('heading', { name: 'Thêm cấu hình mới' }),
     ).toBeHidden();
@@ -121,9 +127,9 @@ test('admin tạo cấu hình → reload từ database → đăng xuất và thu
     .getByRole('button', { name: 'Thêm cấu hình mới', exact: true })
     .first()
     .click();
-  await page.getByRole('textbox', { name: 'Tên cấu hình *' }).fill(name);
+  await page.getByRole('textbox', { name: 'Tên cấu hình', exact: true }).fill(name);
   await page
-    .getByRole('combobox', { name: 'Tổ chức *' })
+    .getByRole('combobox', { name: 'Tổ chức', exact: true })
     .selectOption(process.env.WEB_E2E_ORGANIZATION_ID!);
   await page
     .getByRole('button', { name: 'Thêm cấu hình', exact: true })
@@ -157,7 +163,9 @@ test('admin tạo cấu hình → reload từ database → đăng xuất và thu
   const refreshToken = (await page.context().cookies()).find(
     (cookie) => cookie.name === 'refreshToken',
   )!.value;
-  await page.getByRole('button', { name: 'Đăng xuất', exact: true }).click();
+  // Sign-out lives in the account menu (UI redesign); the trigger is named after the signed-in admin.
+  await page.getByRole('button', { name: 'System Administrator' }).click();
+  await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
   await expect(page).toHaveURL(/\/sign-in\/admin/);
   const cookieNames = (await page.context().cookies()).map(
     (cookie) => cookie.name,

@@ -117,4 +117,5 @@ Nx (`@nx/jest`) orchestrates Jest per project. Only `apps/api` has a jest config
 - The project brain (`@`-imported at the top) — the real per-app detail. `apps/api/CLAUDE.md` and `apps/web/CLAUDE.md` are pointer stubs to it, nothing more — don't cite a section number from them, they have none.
 - `libs/CLAUDE.md` — full detail for both shared libs; this file only holds what's genuinely repo-wide.
 - `docs/deliveries/` — per-step plan summaries and as-built records (e.g. `gd2-sp1-evaluation.md`).
+- `docs/deliveries/ui-redesign.md` — the web UI redesign (Direction A · Mực & kính): plan summary plus as-built (milestones, deviations, test and bundle numbers, unchecked items, follow-ups). Branch `feat/ui-redesign`.
 - Solo-developer project (per the roadmap's risk register) — no per-module ownership split exists.

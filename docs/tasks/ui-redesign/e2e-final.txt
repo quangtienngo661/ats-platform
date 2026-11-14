@@ -1,0 +1,373 @@
+
+> @ats-platform/source@0.0.0 test:e2e:web
+> playwright test --config apps/web/playwright.config.ts
+
+[WebServer] (node:36820) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Do_an_1/Main/Project/alsp-ai-harness/projects/ats-platform/apps/web/e2e/support/local-target.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to E:\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ Warning: Next.js ignored pnpm-lock.yaml in E:\Do_an_1\Main\Project\alsp-ai-harness because it is outside the current Git repository (E:\Do_an_1\Main\Project\alsp-ai-harness\projects\ats-platform).
+[WebServer]  To use this directory, set `turbopack.root` in your Next.js config.
+[WebServer] 
+
+Running 48 tests using 1 worker
+
+  ok  1 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:89:7 › admin đăng nhập → điền cấu hình → Hủy → không có bản ghi mới (4.4s)
+  ok  2 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:89:7 › admin đăng nhập → điền cấu hình → Esc → không có bản ghi mới (4.1s)
+  ok  3 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:120:5 › admin tạo cấu hình → reload từ database → đăng xuất và thu hồi phiên (6.1s)
+  ok  4 [chromium] › apps\web\e2e\ai-configuration.e2e.ts:181:5 › admin thiếu access cookie → refresh → đọc cấu hình ngay trong request hiện tại (3.9s)
+GĐ1: waiting 43s for the real local auth window.
+  ok  5 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:33:7 › FE best practices with real isolated API data › public location filters reach the API; legacy rich text is sanitized (5.1s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="(candidate...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <MyCvsPage>
+[WebServer]         <Provider initialState={[...]}>
+[WebServer]           <MyCvsClient>
+[WebServer]             <div className="mx-auto fl...">
+[WebServer]               <MyCvsHeader>
+[WebServer]               <MyCvsStats>
+[WebServer]               <Stagger className="grid grid-...">
+[WebServer]                 <div className="grid grid-...">
+[WebServer]                   <div className="animate-ri..." style={{...}}>
+[WebServer]                     <CvCard cv={{cvId:"e7e7...", ...}} onView={function onView} onDelete={function onDelete}>
+[WebServer]                       <div className="relative f...">
+[WebServer]                         <div className="flex items...">
+[WebServer]                           <span>
+[WebServer]                           <div className="min-w-0 fl...">
+[WebServer]                             <button>
+[WebServer]                             <p className="mt-0.5 tex...">
+[WebServer] +                             01:17 14/11/2026
+[WebServer] -                             18:17 13/11/2026
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CvCard (apps/web/src/components/my-cvs/ui/CvCard.tsx:54:21)
+[WebServer]     at <unknown> (apps/web/src/components/my-cvs/MyCvsClient.tsx:81:33)
+[WebServer]     at Array.map (<anonymous>)
+[WebServer]     at MyCvsClient (apps/web/src/components/my-cvs/MyCvsClient.tsx:79:35)
+[WebServer]     at MyCvsPage (src\app\(candidate)\my-cvs\page.tsx:13:13)
+[WebServer]   52 |                         </p>
+[WebServer]   53 |                     )}
+[WebServer] > 54 |                     <p className="mt-0.5 text-caption tabular-nums text-ink-3">Tải lên {formatDate(cv.uploadedAt)}</p>
+[WebServer]      |                     ^
+[WebServer]   55 |                 </div>
+[WebServer]   56 |                 <div className="relative -mr-1 -mt-1">
+[WebServer]   57 |                     <DropdownMenu>
+  ok  6 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:57:7 › FE best practices with real isolated API data › candidate callback keeps its query; CV data and dialog focus survive reload (3.8s)
+  ok  7 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:79:7 › FE best practices with real isolated API data › resumed interview renders history and current question after refresh (2.5s)
+  ok  8 [chromium] › apps\web\e2e\fe-best-practices.e2e.ts:89:7 › FE best practices with real isolated API data › recruiter Kanban initializes the correct board; mobile navigation restores focus (7.9s)
+  ok  9 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:43:5 › A2: guest không truy cập trực tiếp recruiter-management hoặc my-profile (1.7s)
+GĐ1: waiting 46s for the real local auth window.
+  ok 10 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:96:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A7: admin tạo org_admin có Organization và đọc nhãn tổ chức từ database (5.4s)
+  ok 11 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:134:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A1/A2: org_admin login, menu, private routes và refresh giữ phạm vi tổ chức (7.3s)
+  ok 12 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:181:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A4: org_admin không có Recruiter tạo account + profile cùng department qua UI (2.0s)
+  ok 13 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:212:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A5: org_admin chọn recruiter owner để tạo job thủ công và reload dữ liệu đã lưu (1.8s)
+  ok 14 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:244:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A6: org_admin xem hồ sơ User/Organization và đặt interview với recruiter trong tổ chức (1.8s)
+  ok 15 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:278:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A7/A9: đổi default A không đổi B; đoán UUID B không đọc/ghi được dữ liệu tenant (273ms)
+  ok 16 [chromium] › apps\web\e2e\gd1-org-admin.e2e.ts:334:7 › GĐ1 tuần cuối — portal org_admin với hai tổ chức thật › A3/A8: admin đổi organization qua UI, HTTP dùng binding mới và refresh cũ bị thu hồi (2.7s)
+GĐ1: waiting 40s for the real local auth window.
+  ok 17 [chromium] › apps\web\e2e\gd2-bulk-screening.e2e.ts:53:7 › GĐ2 SP2 — chấm hàng loạt và xuất CSV › C16: recruiter queues one applied application, sees the completed skip, and downloads CSV (7.4s)
+GĐ1: waiting 59s for the real local auth window.
+  ok 18 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:84:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C17: recruiter books an online interview at 09:00 Vietnam time and the API stores 02:00Z (3.2s)
+  ok 19 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:107:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › R3: recruiter books an onsite interview at 14:00 with its address (942ms)
+  ok 20 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:122:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C5: the candidate sees both upcoming interviews in Vietnam time (1.3s)
+  ok 21 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:142:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C1/C15: neither the page nor the API gives the candidate the recruiter's contact details (36ms)
+  ok 22 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:161:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C16: rejecting the application cancels both interviews and the candidate sees them cancelled (597ms)
+  ok 23 [chromium] › apps\web\e2e\gd2-candidate-schedules.e2e.ts:178:7 › GĐ2 tuần 1 — lịch phỏng vấn của ứng viên › C8/C15: the candidate reads the timeline of the rejected application, without staff notes (1.4s)
+GĐ1: waiting 54s for the real local auth window.
+  ok 24 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:60:7 › GĐ2 SP3 — email thông báo cho ứng viên › nộp đơn gửi email xác nhận tới đúng địa chỉ ứng viên (556ms)
+  ok 25 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:77:7 › GĐ2 SP3 — email thông báo cho ứng viên › sang screening không gửi, sang interview gửi email mời phỏng vấn (613ms)
+  ok 26 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:95:7 › GĐ2 SP3 — email thông báo cho ứng viên › tạo lịch online gửi email có giờ Việt Nam và có thông báo in-app (583ms)
+  ok 27 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:123:7 › GĐ2 SP3 — email thông báo cho ứng viên › đổi giờ gửi email kèm giờ cũ (563ms)
+  ok 28 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:140:7 › GĐ2 SP3 — email thông báo cho ứng viên › từ chối gửi một email trung tính liệt kê lịch bị hủy, không lộ lý do (568ms)
+  ok 29 [chromium] › apps\web\e2e\gd2-email-notifications.e2e.ts:154:7 › GĐ2 SP3 — email thông báo cho ứng viên › tổng cộng đúng 5 email, không có email hủy riêng, mọi row đã sent (3.0s)
+GĐ1: waiting 54s for the real local auth window.
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="8bde8247-2..." loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/jobs/100a..." tree={[...]} params={{jobId:"100...", ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="(recruiter...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <CandidateDetailPage>
+[WebServer]                     <CandidateDetailClient application={{...}} jobId="100aa8ec-9..." currentUserId="7d1a3e7a-9..." ...>
+[WebServer]                       <div className="space-y-4 ...">
+[WebServer]                         <LinkComponent>
+[WebServer]                         <Surface className="flex flex-...">
+[WebServer]                           <div className="rounded-ca...">
+[WebServer]                             <Avatar>
+[WebServer]                             <div className="min-w-0 fl...">
+[WebServer]                               <div>
+[WebServer]                               <p className="mt-0.5 bre...">
+[WebServer] +                               14/11/2026
+[WebServer] -                               13/11/2026
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CandidateDetailClient (apps/web/src/components/candidates/CandidateDetailClient.tsx:80:21)
+[WebServer]     at CandidateDetailPage (src\app\(recruiter)\jobs\[jobId]\candidates\[id]\page.tsx:23:12)
+[WebServer]   78 |                         <StatusChip kind="application" value={application.status} />
+[WebServer]   79 |                     </div>
+[WebServer] > 80 |                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
+[WebServer]      |                     ^
+[WebServer]   81 |                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
+[WebServer]   82 |                     </p>
+[WebServer]   83 |                     {(email || phone) && (
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="8bde8247-2..." loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/jobs/100a..." tree={[...]} params={{jobId:"100...", ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="(recruiter...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <CandidateDetailPage>
+[WebServer]                     <CandidateDetailClient application={{...}} jobId="100aa8ec-9..." currentUserId="7d1a3e7a-9..." ...>
+[WebServer]                       <div className="space-y-4 ...">
+[WebServer]                         <LinkComponent>
+[WebServer]                         <Surface className="flex flex-...">
+[WebServer]                           <div className="rounded-ca...">
+[WebServer]                             <Avatar>
+[WebServer]                             <div className="min-w-0 fl...">
+[WebServer]                               <div>
+[WebServer]                               <p className="mt-0.5 bre...">
+[WebServer] +                               14/11/2026
+[WebServer] -                               13/11/2026
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CandidateDetailClient (apps/web/src/components/candidates/CandidateDetailClient.tsx:80:21)
+[WebServer]     at CandidateDetailPage (src\app\(recruiter)\jobs\[jobId]\candidates\[id]\page.tsx:23:12)
+[WebServer]   78 |                         <StatusChip kind="application" value={application.status} />
+[WebServer]   79 |                     </div>
+[WebServer] > 80 |                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
+[WebServer]      |                     ^
+[WebServer]   81 |                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
+[WebServer]   82 |                     </p>
+[WebServer]   83 |                     {(email || phone) && (
+  ok 30 [chromium] › apps\web\e2e\gd2-evaluation.e2e.ts:103:7 › GĐ2 SP1 — đánh giá ứng viên › A nộp đánh giá cho lịch đã hoàn tất của mình và đọc lại sau reload (5.7s)
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="8bde8247-2..." loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/jobs/100a..." tree={[...]} params={{jobId:"100...", ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="(recruiter...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <CandidateDetailPage>
+[WebServer]                     <CandidateDetailClient application={{...}} jobId="100aa8ec-9..." currentUserId="4df246b9-1..." ...>
+[WebServer]                       <div className="space-y-4 ...">
+[WebServer]                         <LinkComponent>
+[WebServer]                         <Surface className="flex flex-...">
+[WebServer]                           <div className="rounded-ca...">
+[WebServer]                             <Avatar>
+[WebServer]                             <div className="min-w-0 fl...">
+[WebServer]                               <div>
+[WebServer]                               <p className="mt-0.5 bre...">
+[WebServer] +                               14/11/2026
+[WebServer] -                               13/11/2026
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CandidateDetailClient (apps/web/src/components/candidates/CandidateDetailClient.tsx:80:21)
+[WebServer]     at CandidateDetailPage (src\app\(recruiter)\jobs\[jobId]\candidates\[id]\page.tsx:23:12)
+[WebServer]   78 |                         <StatusChip kind="application" value={application.status} />
+[WebServer]   79 |                     </div>
+[WebServer] > 80 |                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
+[WebServer]      |                     ^
+[WebServer]   81 |                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
+[WebServer]   82 |                     </p>
+[WebServer]   83 |                     {(email || phone) && (
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="8bde8247-2..." loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/jobs/100a..." tree={[...]} params={{jobId:"100...", ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="(recruiter...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <CandidateDetailPage>
+[WebServer]                     <CandidateDetailClient application={{...}} jobId="100aa8ec-9..." currentUserId="4df246b9-1..." ...>
+[WebServer]                       <div className="space-y-4 ...">
+[WebServer]                         <LinkComponent>
+[WebServer]                         <Surface className="flex flex-...">
+[WebServer]                           <div className="rounded-ca...">
+[WebServer]                             <Avatar>
+[WebServer]                             <div className="min-w-0 fl...">
+[WebServer]                               <div>
+[WebServer]                               <p className="mt-0.5 bre...">
+[WebServer] +                               14/11/2026
+[WebServer] -                               13/11/2026
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CandidateDetailClient (apps/web/src/components/candidates/CandidateDetailClient.tsx:80:21)
+[WebServer]     at CandidateDetailPage (src\app\(recruiter)\jobs\[jobId]\candidates\[id]\page.tsx:23:12)
+[WebServer]   78 |                         <StatusChip kind="application" value={application.status} />
+[WebServer]   79 |                     </div>
+[WebServer] > 80 |                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
+[WebServer]      |                     ^
+[WebServer]   81 |                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
+[WebServer]   82 |                     </p>
+[WebServer]   83 |                     {(email || phone) && (
+  ok 31 [chromium] › apps\web\e2e\gd2-evaluation.e2e.ts:141:7 › GĐ2 SP1 — đánh giá ứng viên › B cùng khoa đọc đánh giá của A và thêm ghi chú qua giao diện (4.0s)
+  ok 32 [chromium] › apps\web\e2e\gd2-evaluation.e2e.ts:171:7 › GĐ2 SP1 — đánh giá ứng viên › B chọn hai ứng viên và xem điểm AI cùng trung bình đánh giá (3.0s)
+  ok 33 [chromium] › apps\web\e2e\gd2-evaluation.e2e.ts:197:7 › GĐ2 SP1 — đánh giá ứng viên › Ứng viên nhận 403 cho đánh giá/ghi chú và payload đơn không lộ khoá nội bộ (172ms)
+  ok 34 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:43:7 › GĐ2 tuần 1 — lọc tìm việc › C11/C13: the salary range in the URL and on the page, bounds included, draft never shown (1.4s)
+  ok 35 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:62:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E15: a minimum above the maximum stays on the page with a message (1.2s)
+  ok 36 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:74:7 › GĐ2 tuần 1 — lọc tìm việc › C12/C13: skills match any, the options come from active postings only (1.6s)
+  ok 37 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:91:7 › GĐ2 tuần 1 — lọc tìm việc › C13/E17: a link with a bad filter still opens, and "Xóa bộ lọc" clears the new filters (1.7s)
+  ok 38 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:103:7 › GĐ2 tuần 1 — lọc tìm việc › C12: the public filter options list active skills by name and never the draft's (15ms)
+  ok 39 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:114:7 › GĐ2 tuần 1 — lọc tìm việc › C14: the home page picks a work type and the job search receives it (1.5s)
+  ok 40 [chromium] › apps\web\e2e\gd2-job-filter.e2e.ts:126:7 › GĐ2 tuần 1 — lọc tìm việc › the filter panel does not overflow a phone screen (837ms)
+GĐ1: waiting 40s for the real local auth window.
+[WebServer] [browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="dba3c276-f..." loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/jobs/9670..." tree={[...]} params={{jobId:"967...", ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="(recruiter...">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <CandidateDetailPage>
+[WebServer]                     <CandidateDetailClient application={{...}} jobId="967005a1-8..." currentUserId="3730d81e-3..." ...>
+[WebServer]                       <div className="space-y-4 ...">
+[WebServer]                         <LinkComponent>
+[WebServer]                         <Surface className="flex flex-...">
+[WebServer]                           <div className="rounded-ca...">
+[WebServer]                             <Avatar>
+[WebServer]                             <div className="min-w-0 fl...">
+[WebServer]                               <div>
+[WebServer]                               <p className="mt-0.5 bre...">
+[WebServer] +                               7/11/2026
+[WebServer] -                               6/11/2026
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer] 
+[WebServer]     at <unknown> (https://react.dev/link/hydration-mismatch)
+[WebServer]     at p (<anonymous>)
+[WebServer]     at CandidateDetailClient (apps/web/src/components/candidates/CandidateDetailClient.tsx:80:21)
+[WebServer]     at CandidateDetailPage (src\app\(recruiter)\jobs\[jobId]\candidates\[id]\page.tsx:23:12)
+[WebServer]   78 |                         <StatusChip kind="application" value={application.status} />
+[WebServer]   79 |                     </div>
+[WebServer] > 80 |                     <p className="mt-0.5 break-words text-body-sm text-ink-3">
+[WebServer]      |                     ^
+[WebServer]   81 |                         {application.jobPosting?.title ? `${application.jobPosting.title} · ` : ''}Nộp ngày {appliedAt}
+[WebServer]   82 |                     </p>
+[WebServer]   83 |                     {(email || phone) && (
+  ok 41 [chromium] › apps\web\e2e\gd3-screening-review.e2e.ts:82:7 › GĐ3 3b — người duyệt trên kết quả chấm › recruiter sửa một điểm, bắt buộc có lý do, rồi lưu (3.1s)
+  ok 42 [chromium] › apps\web\e2e\gd3-screening-review.e2e.ts:115:7 › GĐ3 3b — người duyệt trên kết quả chấm › database: người duyệt, điểm sau duyệt đã làm tròn, và điểm AI + khuyến nghị + trạng thái không đổi (105ms)
+  ok 43 [chromium] › apps\web\e2e\gd3-screening-review.e2e.ts:138:7 › GĐ3 3b — người duyệt trên kết quả chấm › Kanban: thẻ đã duyệt hiện điểm mới và "Đã duyệt", thẻ chưa duyệt giữ điểm AI (961ms)
+  ok 44 [chromium] › apps\web\e2e\gd3-screening-review.e2e.ts:150:7 › GĐ3 3b — người duyệt trên kết quả chấm › CSV: điểm hiệu lực, điểm AI gốc và cờ "Đã duyệt" (51ms)
+  ok 45 [chromium] › apps\web\e2e\gd3-screening-review.e2e.ts:180:7 › GĐ3 3b — người duyệt trên kết quả chấm › ứng viên thấy điểm đã duyệt trong các trường điểm quen thuộc và không thấy trường duyệt nào (165ms)
+  ok 46 [chromium] › apps\web\e2e\session-policy.e2e.ts:4:5 › candidate refresh phiên thật → bị chặn trang admin → login trở về trang việc làm (1.8s)
+GĐ1: waiting 55s for the real local auth window.
+  ok 47 [chromium] › apps\web\e2e\ui-variant.e2e.ts:47:7 › UI variant switch with a real candidate session › account menu switches to the legacy UI and the pill switches back (3.2s)
+  ok 48 [chromium] › apps\web\e2e\ui-variant.e2e.ts:60:7 › UI variant switch with a real candidate session › the chosen variant survives a reload (4.1s)
+
+  48 passed (8.9m)
+EXIT=0

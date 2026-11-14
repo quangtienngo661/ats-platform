@@ -1,28 +1,47 @@
-import { SF, SFT } from '@/types/fonts/fonts';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
+import { Reveal } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { JobParsedRequirements } from './JobParsedRequirements';
 
 interface JobDetailBodyProps {
     job: IJobPostingDto;
 }
 
+/** Rich-text rhythm for the (server-sanitised) description: lists, headings, links and spacing. */
+const RICH_TEXT = [
+    'max-w-[68ch] break-words text-body text-ink-2',
+    '[&_p]:my-3 [&_p:first-child]:mt-0',
+    '[&_h1]:mb-2 [&_h1]:mt-7 [&_h1]:text-title [&_h1]:text-ink',
+    '[&_h2]:mb-2 [&_h2]:mt-7 [&_h2]:text-title [&_h2]:text-ink',
+    '[&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-title-sm [&_h3]:text-ink',
+    '[&_h4]:mb-1 [&_h4]:mt-5 [&_h4]:font-semibold [&_h4]:text-ink',
+    '[&_strong]:font-semibold [&_strong]:text-ink',
+    '[&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5',
+    '[&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-5',
+    '[&_li]:pl-1 [&_li::marker]:text-ink-4',
+    '[&_a]:text-accent-text [&_a]:underline [&_a]:underline-offset-2',
+    '[&_blockquote]:my-4 [&_blockquote]:border-l-2 [&_blockquote]:border-line-strong [&_blockquote]:pl-4',
+].join(' ');
+
+/** HTML from the editor has newlines between block tags; only plain text needs its own line breaks kept. */
+const BLOCK_TAG = /<(p|div|h[1-6]|ul|ol|li|blockquote|br|table|pre)\b/i;
+
 export function JobDetailBody({ job }: JobDetailBodyProps) {
     return (
-        <div className="space-y-5">
-            <JobParsedRequirements parsedRequirements={job.parsedRequirements} />
-
+        <div className="space-y-10">
             {job.description && (
-                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
-                    <h2 className="text-[18px] text-[#1D1D1F] mb-4 tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        Mô tả công việc
-                    </h2>
+                <Reveal as="section" delay={0.06}>
+                    <h2 className="mb-4 text-title text-ink">Mô tả công việc</h2>
                     <div
-                        className="text-[14px] text-[#6E6E73] leading-[1.75] whitespace-pre-line"
-                        style={{ fontFamily: SFT }}
+                        className={cn(RICH_TEXT, !BLOCK_TAG.test(job.description) && 'whitespace-pre-line')}
                         dangerouslySetInnerHTML={{ __html: job.description }}
                     />
-                </div>
+                </Reveal>
             )}
+
+            <Reveal delay={0.12}>
+                <JobParsedRequirements parsedRequirements={job.parsedRequirements} />
+            </Reveal>
         </div>
     );
 }

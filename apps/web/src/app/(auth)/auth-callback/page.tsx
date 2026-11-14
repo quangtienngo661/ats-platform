@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyAuthCallbackPage from '@/legacy/app/(auth)/auth-callback/page';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -7,6 +9,7 @@ interface AuthCallbackPageProps {
     searchParams: Promise<{ token?: string; error?: string }>;
 }
 export default async function AuthCallbackPage({ searchParams }: AuthCallbackPageProps) {
+    if ((await getUiVariant()) === 'legacy') return LegacyAuthCallbackPage({ searchParams }); // redirect-only page, no UI to switch
     const { token, error } = await searchParams;
 
     if (error || !token) {

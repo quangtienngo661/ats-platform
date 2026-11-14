@@ -69,7 +69,7 @@ describe('MyInterviewsClient (C5)', () => {
     expect(within(online).getByText('09:00')).toBeInTheDocument();
     expect(within(online).getByText('60 phút')).toBeInTheDocument();
     expect(within(online).getByText('Trực tuyến')).toBeInTheDocument();
-    const link = within(online).getByRole('link', { name: 'Tham gia phòng họp' });
+    const link = within(online).getByRole('link', { name: 'Vào phòng họp' });
     expect(link).toHaveAttribute('href', 'https://meet.example.com/abc-defg-hij');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -105,7 +105,7 @@ describe('MyInterviewsClient (C5)', () => {
     renderPage([candidateSchedule({ startAt: '2026-10-05T02:30:00.000Z', application: job('Frontend Engineer') })]);
     const running = within(upcomingGroup()).getByRole('article', { name: 'Frontend Engineer' });
     expect(within(running).getByText('Đang diễn ra')).toBeInTheDocument();
-    expect(within(running).getByRole('link', { name: 'Tham gia phòng họp' })).toBeInTheDocument();
+    expect(within(running).getByRole('link', { name: 'Vào phòng họp' })).toBeInTheDocument();
   });
 
   it('shows a non-http(s) meeting link as plain text, never as a link (E10)', () => {
@@ -126,8 +126,19 @@ describe('MyInterviewsClient (C5)', () => {
 
   it('explains the empty page to a candidate with no interviews (E1)', () => {
     renderPage([], []);
-    expect(screen.getByText('Bạn chưa có lịch phỏng vấn nào')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Chưa có lịch phỏng vấn' })).toBeInTheDocument();
     expect(screen.queryByRole('article')).toBeNull();
+  });
+
+  it('groups interviews under a day heading and flags today', () => {
+    renderPage([
+      candidateSchedule({ interviewId: 'today', startAt: '2026-10-05T07:00:00.000Z', application: job('Frontend Engineer') }),
+      candidateSchedule({ interviewId: 'later', startAt: '2026-10-06T02:00:00.000Z', application: job('Backend Engineer') }),
+    ]);
+    const days = within(upcomingGroup()).getAllByRole('heading', { level: 3 });
+    expect(days).toHaveLength(2);
+    expect(days[0]).toHaveTextContent('Hôm nay');
+    expect(days[1]).not.toHaveTextContent('Hôm nay');
   });
 
   it('offers the next history page while there is one', () => {

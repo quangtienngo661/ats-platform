@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyInterviewSchedulePage from '@/legacy/app/(recruiter)/interviews/page';
 import InterviewScheduleClient from '@/components/interview-schedule/InterviewScheduleClient';
 import {
     getMyInterviewSchedulesAction,
@@ -52,6 +54,7 @@ function getMinimumVisibleWeek(today: Date) {
 }
 
 export default async function InterviewSchedulePage({ searchParams }: InterviewSchedulePageProps) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyInterviewSchedulePage searchParams={searchParams} />;
     const params = await searchParams;
     const today = new Date();
     today.setHours(0, 0, 0, 0);

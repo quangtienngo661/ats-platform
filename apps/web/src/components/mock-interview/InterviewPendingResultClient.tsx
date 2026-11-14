@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoaderCircle } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { TypingDots } from './ui/TypingIndicator';
 import { useSocketStore } from '@/stores/useSocketStore';
 import { getInterviewResultAction } from '@/servers/interviews/interviews.action';
 import { IInterviewResult } from '@/types/interfaces/interview.interface';
@@ -55,19 +54,21 @@ export default function InterviewPendingResultClient({
     }, [router, sessionId]);
 
     return (
-        <div className="h-full min-h-[calc(100vh-64px)] flex items-center justify-center bg-[#F5F5F7] px-6" style={{ fontFamily: SFT }}>
-            <div className="w-full max-w-[460px] bg-white rounded-2xl border border-[#E5E5EA] p-8 text-center shadow-sm">
-                <div className="w-14 h-14 rounded-2xl bg-[#EBF3FD] flex items-center justify-center mx-auto mb-4">
-                    <LoaderCircle className="w-7 h-7 text-[#0071E3] animate-spin" />
+        <div className="flex min-h-dvh items-center justify-center px-4 py-10">
+            <div className="w-full max-w-[440px] animate-rise text-center">
+                <div role="status">
+                    <TypingDots className="text-night-ink-3" />
+                    <h1 className="mt-5 text-title text-night-ink">Đang tổng hợp kết quả</h1>
+                    <p className="mt-2 break-words text-body text-night-ink-2">
+                        {topicName ? `${topicName} đang được chấm điểm.` : 'Bài phỏng vấn đang được chấm điểm.'}
+                        {' '}Trang này sẽ tự cập nhật khi kết quả sẵn sàng.
+                    </p>
                 </div>
-                {pollFailed && <p role="alert" className="mb-3 text-[13px] text-[#FF3B30]">Không thể cập nhật kết quả. Đang thử kết nối lại…</p>}
-                <h1 className="text-[20px] text-[#1D1D1F] mb-2" style={{ fontFamily: SF, fontWeight: 700 }}>
-                    Đang tổng hợp kết quả
-                </h1>
-                <p className="text-[13px] text-[#6E6E73] leading-relaxed">
-                    {topicName ? `${topicName} đang được chấm điểm.` : 'Bài phỏng vấn đang được chấm điểm.'}
-                    {' '}Trang này sẽ tự cập nhật khi kết quả sẵn sàng.
-                </p>
+                {pollFailed && (
+                    <p role="alert" className="mt-4 text-body-sm text-night-ink">
+                        Không cập nhật được kết quả. Đang thử lại…
+                    </p>
+                )}
             </div>
         </div>
     );

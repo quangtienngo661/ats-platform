@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyMockInterviewPage from '@/legacy/app/(candidate)/mock-interview/page';
 import MockInterviewClient from '@/components/mock-interview/MockInterviewClient';
 import { getInterviewTopicsAction, getMySessionsAction } from '@/servers/interviews/interviews.action';
 
@@ -7,6 +9,7 @@ export const metadata = {
 };
 
 export default async function MockInterviewPage() {
+    if ((await getUiVariant()) === 'legacy') return <LegacyMockInterviewPage />;
     const [topics, history] = await Promise.all([
         getInterviewTopicsAction(),
         getMySessionsAction(),

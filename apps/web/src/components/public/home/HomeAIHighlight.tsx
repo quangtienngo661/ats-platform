@@ -1,104 +1,142 @@
-import Link from 'next/link';
-import { Bot, Sparkles, Zap, ArrowRight, ScanLine } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { ArrowRight, Check, ListChecks, MessagesSquare, Minus, ScanText } from 'lucide-react';
+import { Avatar, Badge, ButtonLink, Reveal, ScoreBar, Surface } from '@/components/ui';
+import { HOME_CONTAINER, SECTION_RISE } from './home-layout';
 
-export function HomeAIHighlight() {
+const POINTS = [
+    { icon: ScanText, text: 'Tự đọc CV, bạn không phải nhập lại kinh nghiệm và kỹ năng.' },
+    { icon: ListChecks, text: 'Đối chiếu từng kỹ năng trong CV với yêu cầu của tin.' },
+    { icon: MessagesSquare, text: 'Luyện phỏng vấn với AI và xem nhận xét sau mỗi phiên.' },
+] as const;
+
+/** Invented values: the card is captioned "Ví dụ" and says so again in its footnote. */
+const SAMPLE = {
+    job: 'Kỹ sư Frontend (React)',
+    candidate: 'Nguyễn Minh Anh',
+    experience: '4 năm kinh nghiệm',
+    overall: 82,
+    criteria: [
+        { label: 'Kỹ năng', score: 86 },
+        { label: 'Kinh nghiệm', score: 78 },
+        { label: 'Học vấn', score: 70 },
+    ],
+    matched: ['React', 'TypeScript', 'Next.js'],
+    missing: ['GraphQL'],
+} as const;
+
+/** What the AI looks at, as the sample result a recruiter would see. Not real data. */
+function SampleMatch() {
     return (
-        <section className="bg-gradient-to-b from-[#F5F5F7] to-white py-20 border-b border-[#E5E5EA]">
-            <div className="max-w-[1200px] mx-auto px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    {/* Text Content */}
-                    <div>
-                        <div className="inline-flex items-center gap-2 bg-[#EBF3FD] text-[#0071E3] rounded-full px-4 py-1.5 text-[12px] mb-6" style={{ fontFamily: SFT, fontWeight: 600 }}>
-                            <Bot className="w-4 h-4" />
-                            AI-Powered ATS Platform
-                        </div>
-                        <h2 className="text-[34px] lg:text-[42px] text-[#1D1D1F] tracking-[-0.03em] leading-[1.2] mb-6" style={{ fontFamily: SF, fontWeight: 700 }}>
-                            Để AI đánh giá CV thay bạn trong <span className="text-[#0071E3]">5 giây</span>
-                        </h2>
-                        <p className="text-[17px] text-[#6E6E73] leading-[1.6] mb-8" style={{ fontFamily: SFT }}>
-                            TalentAI sử dụng công nghệ LLM tiên tiến nhất để đọc hiểu, phân tích và trích xuất dữ liệu từ CV của bạn. Nhận ngay phản hồi về điểm mạnh, điểm yếu so với yêu cầu công việc.
+        <Surface as="figure" variant="raised" className="p-5 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Avatar name={SAMPLE.candidate} size={40} />
+                    <div className="min-w-0">
+                        <p className="break-words text-title-sm text-ink">{SAMPLE.candidate}</p>
+                        {/* Wraps on phones: cut short, it would hide the job the example is about. */}
+                        <p className="break-words text-body-sm text-ink-3">
+                            {SAMPLE.experience} · ứng tuyển {SAMPLE.job}
                         </p>
-
-                        <div className="space-y-5 mb-10">
-                            {[
-                                { icon: ScanLine, text: 'Bóc tách dữ liệu tự động không cần nhập tay' },
-                                { icon: Sparkles, text: 'Đánh giá độ phù hợp (Match Score) chính xác' },
-                                { icon: Zap, text: 'Nhận Feedback cá nhân hóa để cải thiện hồ sơ' },
-                            ].map((feature, i) => {
-                                const Icon = feature.icon;
-                                return (
-                                    <div key={i} className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-[#EBF3FD] flex items-center justify-center flex-shrink-0">
-                                            <Icon className="w-5 h-5 text-[#0071E3]" />
-                                        </div>
-                                        <p className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SFT, fontWeight: 500 }}>
-                                            {feature.text}
-                                        </p>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <Link
-                            href="/my-cvs"
-                            className="inline-flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333336] text-white rounded-xl px-8 py-4 text-[15px] transition shadow-md"
-                            style={{ fontFamily: SFT, fontWeight: 600 }}
-                        >
-                            <ScanLine className="w-5 h-5" />
-                            Phân tích CV ngay
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                    </div>
-
-                    {/* Visual/Mockup */}
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-[#0071E3]/10 to-[#6366F1]/10 rounded-[32px] blur-3xl transform -rotate-6"></div>
-                        <div className="relative bg-white border border-[#E5E5EA] rounded-[32px] p-8 shadow-xl">
-                            {/* Mockup Header */}
-                            <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#F2F2F7]">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center shadow-inner">
-                                        <Bot className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-[17px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>AI Agent Review</h3>
-                                        <p className="text-[13px] text-[#0071E3]">Đang phân tích Frontend Developer CV…</p>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 rounded-full border-4 border-[#34C759] flex items-center justify-center">
-                                    <span className="text-[15px] text-[#34C759]" style={{ fontFamily: SF, fontWeight: 700 }}>92</span>
-                                </div>
-                            </div>
-                            
-                            {/* Mockup Body */}
-                            <div className="space-y-4">
-                                <div className="h-2 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-[#0071E3] to-[#6366F1] w-[95%]"></div>
-                                </div>
-                                <div className="flex justify-between text-[12px] text-[#6E6E73] mb-6">
-                                    <span>Kinh nghiệm làm việc</span>
-                                    <span className="text-[#1D1D1F]" style={{ fontWeight: 600 }}>Tuyệt vời</span>
-                                </div>
-
-                                <div className="h-2 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-[#0071E3] to-[#6366F1] w-[85%]"></div>
-                                </div>
-                                <div className="flex justify-between text-[12px] text-[#6E6E73] mb-6">
-                                    <span>Kỹ năng kỹ thuật</span>
-                                    <span className="text-[#1D1D1F]" style={{ fontWeight: 600 }}>Khá tốt</span>
-                                </div>
-
-                                <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl p-4 mt-6">
-                                    <p className="text-[13px] text-[#166534] leading-[1.6]">
-                                        <span style={{ fontWeight: 600 }}>Điểm mạnh:</span> Ứng viên có 5 năm kinh nghiệm làm việc với React.js và hệ sinh thái liên quan. Phù hợp 95% với Job Description.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
+                <Badge>Ví dụ</Badge>
             </div>
+
+            <div className="mt-6 flex items-end justify-between gap-4 border-t border-line pt-5">
+                <div>
+                    <p className="text-caption text-accent-text">Gợi ý AI</p>
+                    <p className="mt-1 text-body-sm text-ink-3">Độ phù hợp với yêu cầu của tin</p>
+                </div>
+                <p className="text-display-sm tabular-nums text-ink">
+                    {SAMPLE.overall}
+                    <span className="text-body text-ink-3">/100</span>
+                </p>
+            </div>
+
+            <dl className="mt-5 grid gap-3">
+                {SAMPLE.criteria.map((item) => (
+                    <div key={item.label} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-3">
+                        <dt className="text-body-sm text-ink-2">{item.label}</dt>
+                        <dd>
+                            <ScoreBar score={item.score} label={item.label} />
+                        </dd>
+                    </div>
+                ))}
+            </dl>
+
+            <div className="mt-6 flex flex-wrap gap-1.5 border-t border-line pt-5">
+                {SAMPLE.matched.map((skill) => (
+                    <span
+                        key={skill}
+                        className="inline-flex h-6 items-center gap-1 rounded-ctl bg-surface-2 px-2 font-mono text-micro text-ink-2"
+                    >
+                        <Check aria-hidden="true" size={12} strokeWidth={2} className="text-success" />
+                        <span className="sr-only">Có kỹ năng </span>
+                        {skill}
+                    </span>
+                ))}
+                {SAMPLE.missing.map((skill) => (
+                    <span
+                        key={skill}
+                        className="inline-flex h-6 items-center gap-1 rounded-ctl bg-warning-soft px-2 font-mono text-micro text-warning"
+                    >
+                        <Minus aria-hidden="true" size={12} strokeWidth={2} />
+                        Thiếu {skill}
+                    </span>
+                ))}
+            </div>
+
+            <figcaption className="mt-5 text-caption text-ink-3">
+                Số liệu minh họa. Người tuyển dụng xem gợi ý này cùng CV và là người quyết định.
+            </figcaption>
+        </Surface>
+    );
+}
+
+/**
+ * What the AI does for a job seeker, in two uneven columns: the explanation (5 of 12) and a sample match card
+ * (7 of 12). Stacked below 1024 px. Every claim matches what the product does today: the candidate never sees
+ * the screening score, so the copy says the recruiter sees it.
+ */
+export function HomeAIHighlight() {
+    return (
+        <section aria-labelledby="home-ai-title" className="py-12 sm:py-16 lg:py-20">
+            <Reveal inView className={`${HOME_CONTAINER} ${SECTION_RISE}`}>
+                <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+                    <div className="min-w-0 lg:col-span-5">
+                        <h2 id="home-ai-title" className="text-heading text-ink sm:text-display-sm">
+                            AI đối chiếu CV với yêu cầu của tin
+                        </h2>
+                        <p className="mt-4 max-w-[52ch] text-body text-ink-2">
+                            Khi bạn ứng tuyển, TalentAI đối chiếu kỹ năng, kinh nghiệm và học vấn trong CV với yêu cầu
+                            của tin. Người tuyển dụng xem gợi ý này cùng hồ sơ của bạn.
+                        </p>
+
+                        <ul className="mt-8 grid gap-4">
+                            {POINTS.map(({ icon: Icon, text }) => (
+                                <li key={text} className="flex items-start gap-3">
+                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-ctl bg-surface text-ink-2 shadow-e1">
+                                        <Icon aria-hidden="true" size={16} strokeWidth={1.75} />
+                                    </span>
+                                    <span className="min-w-0 text-pretty pt-1 text-body text-ink">{text}</span>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <ButtonLink href="/my-cvs" variant="secondary" size="lg" className="group mt-9">
+                            Tải CV lên
+                            <ArrowRight
+                                aria-hidden="true"
+                                strokeWidth={1.75}
+                                className="transition-transform duration-hover ease-out-expo group-hover:translate-x-0.5"
+                            />
+                        </ButtonLink>
+                    </div>
+
+                    <div className="min-w-0 lg:col-span-7">
+                        <SampleMatch />
+                    </div>
+                </div>
+            </Reveal>
         </section>
     );
 }

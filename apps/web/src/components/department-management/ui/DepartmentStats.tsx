@@ -1,5 +1,4 @@
-import { Building2, Users } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { Surface } from '@/components/ui';
 import { Department } from '@/types/interfaces/departments.interface';
 
 interface DepartmentStatsProps {
@@ -11,49 +10,19 @@ export function DepartmentStats({ departments }: DepartmentStatsProps) {
     const avgMembers = Math.round(totalMembers / departments.length) || 0;
 
     const stats = [
-        {
-            icon: <Building2 className="w-5 h-5 text-[#0071E3]" />,
-            bg: '#E3F2FF',
-            value: departments.length,
-            label: 'Phòng ban',
-        },
-        {
-            icon: <Users className="w-5 h-5 text-[#34C759]" />,
-            bg: '#E8F5E9',
-            value: totalMembers,
-            label: 'Nhân viên',
-        },
-        {
-            icon: <Users className="w-5 h-5 text-[#FF9500]" />,
-            bg: '#FFF4E5',
-            value: avgMembers,
-            label: 'Trung Bình / Phòng ban',
-        },
+        { label: 'Phòng ban', value: departments.length },
+        { label: 'Nhân viên', value: totalMembers },
+        { label: 'Trung bình / phòng ban', value: avgMembers },
     ];
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {stats.map((stat) => (
-                <div key={stat.label} className="bg-white rounded-2xl p-5 border border-[#E5E5EA]">
-                    <div className="flex items-center gap-3">
-                        <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{ background: stat.bg }}
-                        >
-                            {stat.icon}
-                        </div>
-                        <div>
-                            <p
-                                className="text-[24px] text-[#1D1D1F] tracking-[-0.01em]"
-                                style={{ fontFamily: SF, fontWeight: 700 }}
-                            >
-                                {stat.value}
-                            </p>
-                            <p className="text-[12px] text-[#6E6E73]">{stat.label}</p>
-                        </div>
-                    </div>
+        <Surface as="dl" className="grid grid-cols-1 divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {stats.map(({ label, value }) => (
+                <div key={label} className="flex items-baseline justify-between gap-3 px-4 py-2.5 sm:block sm:py-3">
+                    <dt className="text-caption text-ink-3">{label}</dt>
+                    <dd className="text-title-sm tabular-nums text-ink sm:mt-0.5">{value}</dd>
                 </div>
             ))}
-        </div>
+        </Surface>
     );
 }

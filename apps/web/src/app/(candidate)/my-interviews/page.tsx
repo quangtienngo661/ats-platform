@@ -1,3 +1,5 @@
+import { getUiVariant } from '@/lib/ui-variant';
+import LegacyMyInterviewsPage from '@/legacy/app/(candidate)/my-interviews/page';
 import { MyInterviewsClient } from '@/components/my-interviews/MyInterviewsClient';
 import { getCandidateInterviewSchedulesAction } from '@/servers/interviews/interviews.action';
 
@@ -15,6 +17,7 @@ export default async function MyInterviewsPage({
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+    if ((await getUiVariant()) === 'legacy') return <LegacyMyInterviewsPage searchParams={searchParams} />;
     const historyPage = pageFrom((await searchParams).page);
     // From yesterday, so an interview still running (or one the recruiter has not closed)
     // is fetched by the upcoming request whatever the server's timezone (C19).

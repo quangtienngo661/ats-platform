@@ -25,24 +25,27 @@ describe('AddProfileModal', () => {
     });
   });
 
-  it.each(['Hủy', 'Đóng cấu hình'])(
+  it.each([
+    ['Hủy', async (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: 'Hủy' }))],
+    ['Esc', async (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
+  ])(
     '%s closes a valid form without creating a configuration',
-    async (buttonName) => {
+    async (_label, close) => {
       const onClose = vi.fn();
       const user = userEvent.setup();
       render(
         <AddProfileModal onClose={onClose} organizations={organizations} />,
       );
       await user.type(
-        screen.getByRole('textbox', { name: 'Tên cấu hình *' }),
+        screen.getByRole('textbox', { name: 'Tên cấu hình' }),
         'Cấu hình không lưu',
       );
       await user.selectOptions(
-        screen.getByRole('combobox', { name: 'Tổ chức *' }),
+        screen.getByRole('combobox', { name: 'Tổ chức' }),
         'org-2',
       );
 
-      await user.click(screen.getByRole('button', { name: buttonName }));
+      await close(user);
 
       expect(onClose).toHaveBeenCalled();
       expect(mocks.create).not.toHaveBeenCalled();
@@ -54,11 +57,11 @@ describe('AddProfileModal', () => {
     const onClose = vi.fn();
     render(<AddProfileModal onClose={onClose} organizations={organizations} />);
     await user.type(
-      screen.getByRole('textbox', { name: 'Tên cấu hình *' }),
+      screen.getByRole('textbox', { name: 'Tên cấu hình' }),
       'Engineer',
     );
     await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Tổ chức *' }),
+      screen.getByRole('combobox', { name: 'Tổ chức' }),
       'org-2',
     );
     await user.click(screen.getByRole('button', { name: 'Thêm cấu hình' }));
@@ -87,7 +90,7 @@ describe('AddProfileModal', () => {
     });
     expect(submit).toBeDisabled();
     await user.type(
-      screen.getByRole('textbox', { name: 'Tên cấu hình *' }),
+      screen.getByRole('textbox', { name: 'Tên cấu hình' }),
       '   ',
     );
     expect(submit).toBeDisabled();
@@ -98,7 +101,7 @@ describe('AddProfileModal', () => {
     const user = userEvent.setup();
     render(<AddProfileModal onClose={vi.fn()} />);
     await user.type(
-      screen.getByRole('textbox', { name: 'Tên cấu hình *' }),
+      screen.getByRole('textbox', { name: 'Tên cấu hình' }),
       'Engineer',
     );
     // The first spinbutton is visibly in the first criterion, Kỹ năng.
@@ -116,11 +119,11 @@ describe('AddProfileModal', () => {
     const user = userEvent.setup();
     render(<AddProfileModal onClose={vi.fn()} organizations={organizations} />);
     await user.type(
-      screen.getByRole('textbox', { name: 'Tên cấu hình *' }),
+      screen.getByRole('textbox', { name: 'Tên cấu hình' }),
       'Engineer',
     );
     await user.click(screen.getByRole('button', { name: 'Thêm cấu hình' }));
-    expect(screen.getByRole('combobox', { name: 'Tổ chức *' })).toBeInvalid();
+    expect(screen.getByRole('combobox', { name: 'Tổ chức' })).toBeInvalid();
     expect(mocks.create).not.toHaveBeenCalled();
   });
 });

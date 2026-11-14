@@ -1,26 +1,17 @@
 'use client';
 
-import { Pencil, Trash2, AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useEffect, useId, useRef, useState } from 'react';
+import { AlertTriangle, Pencil, Trash2 } from 'lucide-react';
+import {
+    Badge,
+    Button,
+    DropdownMenuSeparator,
+    RowActionsItem,
+    RowActionsMenu,
+    TD,
+    TR,
+} from '@/components/ui';
 import { ISkillDto } from '@/types/interfaces/skill.interface';
-
-// Deterministic pastel color from category string
-function categoryColor(cat: string): { bg: string; text: string } {
-    const palette = [
-        { bg: '#E3F2FF', text: '#0071E3' },
-        { bg: '#E8F5E9', text: '#34C759' },
-        { bg: '#FFF4E5', text: '#FF9500' },
-        { bg: '#F5F0FF', text: '#6366F1' },
-        { bg: '#FFE8F5', text: '#AF52DE' },
-        { bg: '#FFE5E5', text: '#FF3B30' },
-        { bg: '#E0F7FA', text: '#00BCD4' },
-        { bg: '#FFF9C4', text: '#F59E0B' },
-    ];
-    let hash = 0;
-    for (let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) & 0xffffffff;
-    return palette[Math.abs(hash) % palette.length];
-}
 
 interface SkillRowProps {
     index: number;
@@ -31,80 +22,97 @@ interface SkillRowProps {
 
 export function SkillRow({ index, skill, onEdit, onDelete }: SkillRowProps) {
     const [confirming, setConfirming] = useState(false);
+    const nameId = useId();
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const cancelRef = useRef<HTMLButtonElement>(null);
+    /** Where focus goes once the actions cell has swapped between the menu and the delete confirmation. */
+    const focusNext = useRef<'cancel' | 'trigger' | null>(null);
 
-    const catStyle = skill.category ? categoryColor(skill.category) : null;
+    useEffect(() => {
+        const target = focusNext.current;
+        focusNext.current = null;
+        if (target === 'cancel') cancelRef.current?.focus();
+        if (target === 'trigger') triggerRef.current?.focus();
+    }, [confirming]);
 
     return (
-        <tr className="group border-b border-[#F2F2F7] hover:bg-[#FAFAFA] transition-colors">
-            {/* STT */}
-            <td className="px-5 py-3 text-[12px] text-[#AEAEB2] w-10" style={{ fontFamily: SFT }}>
-                {index + 1}
-            </td>
+        <TR className="group">
+            <TD className="w-10 tabular-nums text-ink-3">{index + 1}</TD>
 
-            {/* Tên */}
-            <td className="px-4 py-3">
-                <span className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 600 }}>
+            <TD>
+                <p id={nameId} className="max-w-48 truncate font-medium text-ink sm:max-w-80" title={skill.name}>
                     {skill.name}
-                </span>
-            </td>
+                </p>
+            </TD>
 
-            {/* Danh mục */}
-            <td className="px-4 py-3">
-                {catStyle ? (
-                    <span
-                        className="text-[11px] px-2.5 py-1 rounded-full"
-                        style={{ background: catStyle.bg, color: catStyle.text, fontFamily: SF, fontWeight: 600 }}
-                    >
-                        {skill.category}
-                    </span>
+            <TD>
+                {skill.category ? (
+                    <Badge className="max-w-40">
+                        <span className="truncate" title={skill.category}>
+                            {skill.category}
+                        </span>
+                    </Badge>
                 ) : (
-                    <span className="text-[12px] text-[#D1D1D6]" style={{ fontFamily: SFT }}>
-                        —
-                    </span>
+                    <>
+                        <span aria-hidden="true" className="text-ink-4">
+                            —
+                        </span>
+                        <span className="sr-only">Chưa phân loại</span>
+                    </>
                 )}
-            </td>
+            </TD>
 
-            {/* Actions */}
-            <td className="px-4 py-3 text-right w-[160px]">
+            <TD className="w-px whitespace-nowrap text-right">
                 {confirming ? (
                     <div className="flex items-center justify-end gap-2">
-                        <span className="text-[11px] text-[#FF3B30] flex items-center gap-1" style={{ fontFamily: SFT }}>
-                            <AlertTriangle className="w-3 h-3" /> Xác nhận xóa?
+                        <span className="inline-flex items-center gap-1 text-caption text-danger">
+                            <AlertTriangle aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+                            Xác nhận xóa?
                         </span>
-                        <button
-                            onClick={() => { onDelete(skill.skillId); setConfirming(false); }}
-                            className="text-[11px] text-white bg-[#FF3B30] hover:bg-[#E0352B] px-2.5 py-1 rounded-lg transition-colors"
-                            style={{ fontFamily: SF, fontWeight: 600 }}
+                        <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => {
+                                onDelete(skill.skillId);
+                                focusNext.current = 'trigger';
+                                setConfirming(false);
+                            }}
                         >
                             Xóa
-                        </button>
-                        <button
-                            onClick={() => setConfirming(false)}
-                            className="text-[11px] text-[#6E6E73] hover:bg-[#F5F5F7] px-2.5 py-1 rounded-lg transition-colors"
-                            style={{ fontFamily: SF }}
+                        </Button>
+                        <Button
+                            ref={cancelRef}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                                focusNext.current = 'trigger';
+                                setConfirming(false);
+                            }}
                         >
                             Hủy
-                        </button>
+                        </Button>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={() => onEdit(skill)}
-                            className="p-1.5 rounded-lg text-[#0071E3] hover:bg-[#EBF3FD] transition-colors"
-                            title="Chỉnh sửa"
+                    <RowActionsMenu ref={triggerRef} describedBy={nameId}>
+                        <RowActionsItem afterClose={() => onEdit(skill)}>
+                            <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Chỉnh sửa
+                        </RowActionsItem>
+                        <DropdownMenuSeparator />
+                        <RowActionsItem
+                            destructive
+                            movesFocus
+                            afterClose={() => {
+                                focusNext.current = 'cancel';
+                                setConfirming(true);
+                            }}
                         >
-                            <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                            onClick={() => setConfirming(true)}
-                            className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-                            title="Xóa"
-                        >
-                            <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
+                            <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+                            Xóa
+                        </RowActionsItem>
+                    </RowActionsMenu>
                 )}
-            </td>
-        </tr>
+            </TD>
+        </TR>
     );
 }

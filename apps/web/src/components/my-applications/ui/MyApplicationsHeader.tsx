@@ -1,6 +1,5 @@
+import { PageToolbar } from '@/components/ui';
 
-export function MyApplicationsHeader() {
-    return (
-        <h1 className="sr-only">Đơn ứng tuyển</h1>
-    );
+export function MyApplicationsHeader({ children }: { children?: React.ReactNode }) {
+    return <PageToolbar title="Đơn của tôi">{children}</PageToolbar>;
 }

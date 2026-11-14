@@ -133,7 +133,7 @@ test.describe('GĐ2 tuần 1 — lịch phỏng vấn của ứng viên', () => 
     const [online, onsite] = [upcoming.getByRole('article').nth(0), upcoming.getByRole('article').nth(1)];
     await expect(online.getByText(fixture.job.title)).toBeVisible();
     await expect(online.getByText('09:00', { exact: true })).toBeVisible();
-    await expect(online.getByRole('link', { name: 'Tham gia phòng họp' }))
+    await expect(online.getByRole('link', { name: 'Vào phòng họp' }))
       .toHaveAttribute('href', `https://meet.example.com/gd2-${fixture.runId}`);
     await expect(onsite.getByText('14:00', { exact: true })).toBeVisible();
     await expect(onsite.getByText(ONSITE_ADDRESS, { exact: true })).toBeVisible();
@@ -170,7 +170,7 @@ test.describe('GĐ2 tuần 1 — lịch phỏng vấn của ứng viên', () => 
     await expect(past.getByRole('article')).toHaveCount(2);
     await expect(past.getByText('Đã hủy', { exact: true })).toHaveCount(2);
     await expect(candidatePage.getByRole('region', { name: 'Sắp tới' })).toHaveCount(0);
-    await expect(candidatePage.getByRole('link', { name: 'Tham gia phòng họp' })).toHaveCount(0);
+    await expect(candidatePage.getByRole('link', { name: 'Vào phòng họp' })).toHaveCount(0);
     expect((await schedulesOf(fixture.applicationId)).map((schedule: { status: string }) => schedule.status))
       .toEqual(['cancelled', 'cancelled']);
   });

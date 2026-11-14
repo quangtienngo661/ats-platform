@@ -2,8 +2,9 @@
 
 import { effectiveScreeningScores } from '@ats-platform/types';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import { SF } from '@/types/fonts/fonts';
+import { PanelRight } from 'lucide-react';
+import { Avatar, Badge, Checkbox, IconButton, ScoreBar, StatusChip, TD } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 
 interface CandidateRowProps {
@@ -11,23 +12,8 @@ interface CandidateRowProps {
     jobId: string;
     selected: boolean;
     onToggle: (applicationId: string) => void;
-}
-
-const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
-    applied: { label: 'Mới', bg: '#EBF3FD', color: '#0071E3' },
-    screening: { label: 'Sàng lọc', bg: '#F3E8FF', color: '#8B5CF6' },
-    interview: { label: 'Phỏng vấn', bg: '#FFFBEB', color: '#D97706' },
-    offer: { label: 'Offer', bg: '#F0FDF4', color: '#16A34A' },
-    hired: { label: 'Đã tuyển', bg: '#E8F5E9', color: '#34C759' },
-    rejected: { label: 'Từ chối', bg: '#FEF2F2', color: '#DC2626' },
-    cancelled: { label: 'Đã hủy', bg: '#F5F5F7', color: '#AEAEB2' },
-};
-
-function getScoreColor(score: number): string {
-    if (score >= 90) return '#34C759';
-    if (score >= 75) return '#0071E3';
-    if (score >= 60) return '#F59E0B';
-    return '#EF4444';
+    /** Opens the quick-peek panel for this application. Without it the row has no peek button. */
+    onPeek?: (applicationId: string) => void;
 }
 
 function timeAgo(dateStr?: string): string {
@@ -41,72 +27,81 @@ function timeAgo(dateStr?: string): string {
     return `${days} ngày trước`;
 }
 
-export function CandidateRow({ application, jobId, selected, onToggle }: CandidateRowProps) {
+/**
+ * One application in the candidate table. From 768 px it is a table row; below that the same cells wrap into a
+ * card (checkbox · name · peek on the first line, score, then stage and date), so nothing is hidden on a phone.
+ */
+export function CandidateRow({ application, jobId, selected, onToggle, onPeek }: CandidateRowProps) {
     const name = application.candidate?.user?.fullName || 'N/A';
     const email = application.candidate?.user?.email || 'N/A';
-    const initials = name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
-    const jobTitle = application.jobPosting?.title || '';
-    const deptName = application.jobPosting?.department?.name || '';
-    const status = statusConfig[application.status] || statusConfig.applied;
     const screeningScores = effectiveScreeningScores(application.screening ?? {});
-    const aiScore = screeningScores.overall;
+    const appliedAgo = timeAgo(application.appliedAt);
 
     return (
-        <tr className="border-b border-[#F2F2F7] last:border-0 hover:bg-[#FAFAFA] transition-colors group">
-            <td className="px-6 py-4">
-                <input
-                    type="checkbox"
+        <tr
+            className={cn(
+                'transition-colors duration-hover',
+                'max-md:flex max-md:flex-wrap max-md:items-start max-md:gap-x-3 max-md:gap-y-2 max-md:border-b',
+                'max-md:border-line max-md:p-3 max-md:last:border-b-0',
+                'md:[&>td]:border-b md:[&>td]:border-line md:[&:last-child>td]:border-b-0',
+                selected ? 'bg-accent-soft/40 hover:bg-accent-soft/60' : 'hover:bg-surface-2/60',
+            )}
+        >
+            <TD className="max-md:order-1 max-md:p-0 max-md:pt-2">
+                <Checkbox
                     aria-label={`Chọn ${name}`}
                     checked={selected}
                     onChange={() => onToggle(application.applicationId)}
-                    className="h-4 w-4 cursor-pointer accent-[#0071E3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
                 />
-            </td>
-            <td className="px-6 py-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0071E3] to-[#6366F1] flex items-center justify-center text-white text-[11px]" style={{ fontFamily: SF, fontWeight: 600 }}>
-                        {initials}
-                    </div>
-                    <div>
-                        <p className="text-[14px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 500 }}>{name}</p>
-                        <p className="text-[12px] text-[#AEAEB2]">{email}</p>
+            </TD>
+            <TD className="max-md:order-2 max-md:min-w-0 max-md:flex-1 max-md:p-0">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Avatar name={name} size={32} />
+                    <div className="min-w-0">
+                        <Link
+                            href={`/jobs/${jobId}/candidates/${application.applicationId}`}
+                            title={name}
+                            className="block truncate font-medium text-ink underline-offset-2 hover:underline"
+                        >
+                            {name}
+                        </Link>
+                        <p className="truncate text-caption text-ink-3" title={email}>
+                            {email}
+                        </p>
                     </div>
                 </div>
-            </td>
-            <td className="px-6 py-4">
-                <p className="text-[13px] text-[#1D1D1F]">{jobTitle}</p>
-                <p className="text-[12px] text-[#AEAEB2]">{deptName}</p>
-            </td>
-            <td className="px-6 py-4">
-                {aiScore != null && aiScore > 0 ? (
-                    <div className="flex items-center gap-2">
-                        <div className="w-14 h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${aiScore}%`, background: getScoreColor(aiScore) }} />
-                        </div>
-                        <span className="text-[13px] font-medium" style={{ color: getScoreColor(aiScore) }}>{aiScore}</span>
-                        {screeningScores.isReviewed && (
-                            <span className="text-[10px] text-[#0071E3] bg-[#EBF3FD] px-1.5 py-0.5 rounded-md font-medium">Đã duyệt</span>
-                        )}
-                    </div>
-                ) : (
-                    <span className="text-[12px] text-[#AEAEB2]">Chưa có</span>
-                )}
-            </td>
-            <td className="px-6 py-4">
-                <span className="text-[11px] rounded-full px-2.5 py-1" style={{ background: status.bg, color: status.color, fontWeight: 500 }}>
-                    {status.label}
+            </TD>
+            <TD className="max-md:order-4 max-md:basis-full max-md:p-0 max-md:pl-7">
+                <span aria-hidden="true" className="mb-1 block text-caption text-ink-3 md:hidden">
+                    Gợi ý AI
                 </span>
-            </td>
-            <td className="px-6 py-4">
-                <span className="text-[12px] text-[#AEAEB2]">{timeAgo(application.appliedAt)}</span>
-            </td>
-            <td className="px-6 py-4 text-right">
-                <Link href={`/jobs/${jobId}/candidates/${application.applicationId}`}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 text-[12px] text-[#0071E3]"
-                    style={{ fontWeight: 500 }}>
-                    Xem chi tiết <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-            </td>
+                <div className="flex items-center gap-2">
+                    <ScoreBar score={screeningScores.overall} label={`Gợi ý AI cho ${name}`} className="min-w-0 flex-1" />
+                    {screeningScores.isReviewed && <Badge tone="accent">Đã duyệt</Badge>}
+                </div>
+            </TD>
+            <TD className="max-md:order-5 max-md:p-0 max-md:pl-7">
+                <StatusChip kind="application" value={application.status} />
+            </TD>
+            <TD className="whitespace-nowrap text-caption tabular-nums text-ink-3 max-md:order-6 max-md:p-0 max-md:leading-5">
+                {application.appliedAt && (
+                    // Relative time differs between the server render and hydration by design.
+                    <time dateTime={application.appliedAt} suppressHydrationWarning>
+                        {appliedAgo}
+                    </time>
+                )}
+            </TD>
+            <TD className="text-right max-md:order-3 max-md:p-0">
+                {onPeek && (
+                    <IconButton
+                        aria-label={`Xem nhanh ${name}`}
+                        size="sm"
+                        onClick={() => onPeek(application.applicationId)}
+                    >
+                        <PanelRight aria-hidden="true" strokeWidth={1.75} />
+                    </IconButton>
+                )}
+            </TD>
         </tr>
     );
 }

@@ -1,21 +1,10 @@
 'use client';
 
-import { motion } from 'motion/react';
-import { Code2, Database, Server, Brain, Layers, Terminal } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
-import { IInterviewTopic } from '@/types/interfaces/interview.interface';
-
-// Map category → icon + color để mỗi topic card có visual riêng
-const categoryConfig: Record<string, { icon: typeof Code2; color: string; bg: string }> = {
-    'Frontend Development': { icon: Code2, color: '#0071E3', bg: '#EBF3FD' },
-    'Backend Development': { icon: Server, color: '#6366F1', bg: '#F5F3FF' },
-    'Database': { icon: Database, color: '#34C759', bg: '#F0FDF4' },
-    'Computer Science': { icon: Brain, color: '#F59E0B', bg: '#FFFBEB' },
-    'Architecture': { icon: Layers, color: '#EC4899', bg: '#FDF2F8' },
-    'Programming Language': { icon: Terminal, color: '#0EA5E9', bg: '#F0F9FF' },
-};
-
-const defaultConfig = { icon: Code2, color: '#6E6E73', bg: '#F5F5F7' };
+import { Check } from 'lucide-react';
+import { useRef, type KeyboardEvent } from 'react';
+import { cn } from '@/components/ui/cn';
+import { hasModifier } from '@/lib/keyboard';
+import type { IInterviewTopic } from '@/types/interfaces/interview.interface';
 
 interface TopicSelectorProps {
     topics: IInterviewTopic[];
@@ -23,64 +12,67 @@ interface TopicSelectorProps {
     onSelect: (topicId: string) => void;
 }
 
+/** Topics as selectable cards (`role="radiogroup"`); the choice is a ring and a tint. */
 export function TopicSelector({ topics, selectedId, onSelect }: TopicSelectorProps) {
+    const refs = useRef<Array<HTMLButtonElement | null>>([]);
+    const selectedIndex = topics.findIndex((t) => t.topicId === selectedId);
+    const tabStop = selectedIndex >= 0 ? selectedIndex : 0;
+
+    function onKeyDown(e: KeyboardEvent, index: number) {
+        if (hasModifier(e)) return;
+        let next: number;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (index + 1) % topics.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (index - 1 + topics.length) % topics.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = topics.length - 1;
+        else return;
+        e.preventDefault();
+        onSelect(topics[next].topicId);
+        refs.current[next]?.focus();
+    }
+
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <div
+            role="radiogroup"
+            aria-label="Chủ đề phỏng vấn"
+            className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2 xl:grid-cols-3"
+        >
             {topics.map((topic, index) => {
-                const categoryName = topic.category?.name ?? '';
-                const config = categoryConfig[categoryName] || defaultConfig;
-                const Icon = config.icon;
-                const isSelected = selectedId === topic.topicId;
-
+                const selected = selectedId === topic.topicId;
+                const count = topic._count?.sessions ?? 0;
+                const category = topic.category?.name ?? 'Chưa phân nhóm';
                 return (
-                    <motion.button
+                    <button
                         key={topic.topicId}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.03, duration: 0.2 }}
+                        ref={(el) => {
+                            refs.current[index] = el;
+                        }}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        tabIndex={index === tabStop ? 0 : -1}
+                        onKeyDown={(e) => onKeyDown(e, index)}
                         onClick={() => onSelect(topic.topicId)}
-                        className={`relative flex flex-col items-start p-3.5 rounded-xl border-2 transition duration-200 text-left group ${isSelected
-                            ? 'border-[#0071E3] bg-[#EBF3FD] shadow-sm shadow-[#0071E3]/10'
-                            : 'border-[#E5E5EA] bg-white hover:border-[#AEAEB2] hover:shadow-sm'
-                            }`}
+                        className={cn(
+                            'relative flex min-w-0 flex-col items-start rounded-card p-3 text-left ring-1 transition duration-hover ease-out-expo active:scale-[.97]',
+                            selected ? 'bg-accent-soft/50 ring-2 ring-accent' : 'bg-surface ring-line hover:bg-surface-2',
+                        )}
                     >
-                        {/* Icon */}
-                        <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center mb-2.5 transition-transform duration-200 group-hover:scale-105"
-                            style={{ background: config.bg }}
+                        <span className="w-full break-words pr-6 text-body font-medium text-ink">{topic.name}</span>
+                        <span className="mt-0.5 w-full truncate text-caption text-ink-3" title={category}>
+                            {category}
+                            {count > 0 ? ` · ${count} lần` : ''}
+                        </span>
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                'absolute right-2.5 top-2.5 flex size-4 items-center justify-center rounded-full bg-accent text-white transition duration-hover',
+                                selected ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+                            )}
                         >
-                            <Icon className="w-4 h-4" style={{ color: config.color }} />
-                        </div>
-
-                        {/* Name */}
-                        <p className="text-[13px] text-[#1D1D1F] leading-tight mb-1" style={{ fontFamily: SF, fontWeight: 500 }}>
-                            {topic.name}
-                        </p>
-
-                        {/* Category */}
-                        <p className="text-[10px] text-[#AEAEB2]" style={{ fontFamily: SFT }}>
-                            {categoryName}
-                        </p>
-
-                        {/* Session count badge */}
-                        {topic._count && topic._count.sessions > 0 && (
-                            <span className="absolute top-2.5 right-2.5 text-[9px] bg-[#F2F2F7] text-[#6E6E73] rounded-full px-1.5 py-0.5" style={{ fontWeight: 500 }}>
-                                {topic._count.sessions} lần
-                            </span>
-                        )}
-
-                        {/* Selected indicator */}
-                        {isSelected && (
-                            <motion.div
-                                layoutId="topic-selected"
-                                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#0071E3] rounded-full flex items-center justify-center"
-                            >
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            </motion.div>
-                        )}
-                    </motion.button>
+                            <Check size={10} strokeWidth={3} />
+                        </span>
+                    </button>
                 );
             })}
         </div>

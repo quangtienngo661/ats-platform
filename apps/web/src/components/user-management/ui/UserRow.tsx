@@ -1,37 +1,34 @@
 'use client';
 
-import { Pencil, Trash2, AlertTriangle, Mail } from 'lucide-react';
-import { useState } from 'react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { useEffect, useId, useRef, useState } from 'react';
+import { AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { UserRole, UserStatus } from '@ats-platform/types';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
+import {
+  Avatar,
+  Badge,
+  Button,
+  DropdownMenuSeparator,
+  RowActionsItem,
+  RowActionsMenu,
+  TD,
+  TR,
+} from '@/components/ui';
 
-// Role display config
-const ROLE_CONFIG: Record<UserRole, { label: string; cls: string }> = {
-  [UserRole.admin]: { label: 'Quản trị viên', cls: 'bg-[#FFE5E5] text-[#FF3B30]' },
-  [UserRole.org_admin]: { label: 'Quản trị tổ chức', cls: 'bg-[#F5F0FF] text-[#6366F1]' },
-  [UserRole.recruiter]: { label: 'Tuyển dụng', cls: 'bg-[#E3F2FF] text-[#0071E3]' },
-  [UserRole.candidate]: { label: 'Ứng viên', cls: 'bg-[#FFF4E5] text-[#FF9500]' },
+const ROLE_LABEL: Record<UserRole, string> = {
+  [UserRole.admin]: 'Quản trị viên',
+  [UserRole.org_admin]: 'Quản trị tổ chức',
+  [UserRole.recruiter]: 'Tuyển dụng',
+  [UserRole.candidate]: 'Ứng viên',
 };
 
-// Deterministic avatar color from userId
-const COLORS = ['#0071E3', '#34C759', '#FF9500', '#6366F1', '#AF52DE', '#FF3B30', '#00BCD4'];
-function avatarColor(userId: string) {
-  let h = 0;
-  for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) & 0xffffffff;
-  return COLORS[Math.abs(h) % COLORS.length];
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(-2)
-    .map((w) => w[0].toUpperCase())
-    .join('');
-}
-
-const DATE_FORMAT = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+// Fixed zone: the server (UTC) and the browser must print the same day, or hydration fails.
+const DATE_FORMAT = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  timeZone: 'Asia/Ho_Chi_Minh',
+});
 
 function formatDate(iso: string) {
   return DATE_FORMAT.format(new Date(iso));
@@ -46,119 +43,102 @@ interface UserRowProps {
 
 export function UserRow({ user, organizationName, onEdit, onDelete }: UserRowProps) {
   const [confirming, setConfirming] = useState(false);
-  const role = ROLE_CONFIG[user.role] ?? { label: user.role, cls: 'bg-[#F5F5F7] text-[#6E6E73]' };
-  const color = avatarColor(user.userId);
+  const nameId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  /** Where focus goes once the actions cell has swapped between the menu and the delete confirmation. */
+  const focusNext = useRef<'cancel' | 'trigger' | null>(null);
+
+  useEffect(() => {
+    const target = focusNext.current;
+    focusNext.current = null;
+    if (target === 'cancel') cancelRef.current?.focus();
+    if (target === 'trigger') triggerRef.current?.focus();
+  }, [confirming]);
+
+  const isActive = user.status === UserStatus.active;
 
   return (
-    <tr className="group border-b border-[#F2F2F7] hover:bg-[#FAFAFA] transition-colors">
-      {/* Người dùng */}
-      <td className="px-6 py-4">
+    <TR className="group">
+      <TD>
         <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] flex-shrink-0"
-            style={{ background: color, fontFamily: SF, fontWeight: 700 }}
-          >
-            {getInitials(user.fullName)}
-          </div>
-          <div className="min-w-0">
-            <p
-              className="text-[14px] text-[#1D1D1F] truncate"
-              style={{ fontFamily: SF, fontWeight: 600 }}
-            >
+          <Avatar name={user.fullName} size={32} />
+          <div className="min-w-0 max-w-40 sm:max-w-64 lg:max-w-96">
+            <p id={nameId} className="truncate font-medium text-ink" title={user.fullName}>
               {user.fullName}
             </p>
-            <div className="flex items-center gap-3 mt-0.5">
-              <span
-                className="text-[11px] text-[#6E6E73] flex items-center gap-1"
-                style={{ fontFamily: SFT }}
-              >
-                <Mail className="w-3 h-3 text-[#AEAEB2]" /> {user.email}
-              </span>
-
-            </div>
+            <p className="truncate text-caption text-ink-3" title={user.email}>
+              {user.email}
+            </p>
           </div>
         </div>
-      </td>
+      </TD>
 
-      {/* Vai trò */}
-      <td className="px-6 py-4">
-        <span
-          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] ${role.cls}`}
-          style={{ fontFamily: SF, fontWeight: 600 }}
-        >
-          {role.label}
-        </span>
-        {organizationName && <p className="text-[11px] text-blue-700 mt-1">Tổ chức: {organizationName}</p>}
-      </td>
+      <TD>
+        <Badge>{ROLE_LABEL[user.role] ?? user.role}</Badge>
+        {organizationName && (
+          <p className="mt-1 max-w-48 truncate text-caption text-ink-3" title={organizationName}>
+            Tổ chức: {organizationName}
+          </p>
+        )}
+      </TD>
 
-      {/* Trạng thái */}
-      <td className="px-6 py-4">
-        <span
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] ${user.status === UserStatus.active ? 'bg-[#E8F5E9] text-[#34C759]' : 'bg-[#F2F2F7] text-[#AEAEB2]'
-            }`}
-          style={{ fontFamily: SF, fontWeight: 600 }}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${user.status === UserStatus.active ? 'bg-[#34C759]' : 'bg-[#AEAEB2]'
-              }`}
-          />
-          {user.status === UserStatus.active ? 'Hoạt động' : 'Ngưng'}
-        </span>
-      </td>
+      <TD>
+        <Badge tone={isActive ? 'success' : 'neutral'}>{isActive ? 'Hoạt động' : 'Ngưng'}</Badge>
+      </TD>
 
-      {/* Ngày tạo */}
-      <td className="px-6 py-4">
-        <span className="text-[13px] text-[#6E6E73]" style={{ fontFamily: SFT }}>
-          {formatDate(user.createdAt)}
-        </span>
-      </td>
+      <TD className="whitespace-nowrap tabular-nums text-ink-3 max-sm:hidden">{formatDate(user.createdAt)}</TD>
 
-      {/* Thao tác */}
-      <td className="px-6 py-4 text-right w-[180px]">
+      <TD className="w-px whitespace-nowrap text-right">
         {confirming ? (
           <div className="flex items-center justify-end gap-2">
-            <span
-              className="text-[11px] text-[#FF3B30] flex items-center gap-1"
-              style={{ fontFamily: SFT }}
-            >
-              <AlertTriangle className="w-3 h-3" /> Xác nhận xóa?
+            <span className="inline-flex items-center gap-1 text-caption text-danger">
+              <AlertTriangle aria-hidden="true" strokeWidth={1.75} className="size-3.5" />
+              Xác nhận xóa?
             </span>
-            <button
+            <Button
+              size="sm"
+              variant="danger"
               onClick={() => {
                 onDelete(user.userId);
                 setConfirming(false);
               }}
-              className="text-[11px] text-white bg-[#FF3B30] hover:bg-[#E0352B] px-2.5 py-1 rounded-lg transition-colors"
-              style={{ fontFamily: SF, fontWeight: 600 }}
             >
               Xóa
-            </button>
-            <button
-              onClick={() => setConfirming(false)}
-              className="text-[11px] text-[#6E6E73] hover:bg-[#F5F5F7] px-2.5 py-1 rounded-lg transition-colors"
+            </Button>
+            <Button
+              ref={cancelRef}
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                focusNext.current = 'trigger';
+                setConfirming(false);
+              }}
             >
               Hủy
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => onEdit(user)}
-              className="p-1.5 rounded-lg text-[#0071E3] hover:bg-[#EBF3FD] transition-colors"
-              title="Chỉnh sửa"
+          <RowActionsMenu ref={triggerRef} describedBy={nameId}>
+            <RowActionsItem afterClose={() => onEdit(user)}>
+              <Pencil aria-hidden="true" strokeWidth={1.75} className="size-4" />
+              Chỉnh sửa
+            </RowActionsItem>
+            <DropdownMenuSeparator />
+            <RowActionsItem
+              destructive
+              movesFocus
+              afterClose={() => {
+                focusNext.current = 'cancel';
+                setConfirming(true);
+              }}
             >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setConfirming(true)}
-              className="p-1.5 rounded-lg text-[#FF3B30] hover:bg-[#FFE5E5] transition-colors"
-              title="Xóa"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+              <Trash2 aria-hidden="true" strokeWidth={1.75} className="size-4" />
+              Xóa
+            </RowActionsItem>
+          </RowActionsMenu>
         )}
-      </td>
-    </tr>
+      </TD>
+    </TR>
   );
 }

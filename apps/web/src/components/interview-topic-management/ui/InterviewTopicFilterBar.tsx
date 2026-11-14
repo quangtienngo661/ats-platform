@@ -1,33 +1,60 @@
+'use client';
+
+import type { Ref } from 'react';
 import { Search } from 'lucide-react';
+import { Input, Select } from '@/components/ui';
 import { IJobCategoryDto } from '@/types/interfaces/job-category.interface';
 
 interface InterviewTopicFilterBarProps {
     categories: IJobCategoryDto[];
+    search: string;
+    categoryId: string;
     onSearch: (value: string) => void;
     onCategoryChange: (value: string) => void;
+    /** Lets the list put focus back in the search field after clearing the filters. */
+    searchRef?: Ref<HTMLInputElement>;
 }
 
-export function InterviewTopicFilterBar({ categories, onSearch, onCategoryChange }: InterviewTopicFilterBarProps) {
+/** Controlled, so the list's "Xóa tìm kiếm" / "Xóa bộ lọc" can reset every field at once. */
+export function InterviewTopicFilterBar({
+    categories,
+    search,
+    categoryId,
+    onSearch,
+    onCategoryChange,
+    searchRef,
+}: InterviewTopicFilterBarProps) {
     return (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-4">
-            <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AEAEB2]" />
-                <input aria-label="Tìm chủ đề phỏng vấn"
+        <>
+            <div className="relative w-full sm:w-64">
+                <Search
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                    className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3"
+                />
+                <Input
+                    ref={searchRef}
+                    aria-label="Tìm chủ đề phỏng vấn"
                     type="search"
+                    value={search}
                     onChange={(event) => onSearch(event.target.value)}
                     placeholder="Tìm theo tên chủ đề hoặc danh mục"
-                    className="w-full rounded-xl border border-[#E5E5EA] bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-[#0071E3] focus:ring-2 focus:ring-[#0071E3]/10"
+                    className="pl-8"
                 />
             </div>
-            <select aria-label="Lọc danh mục chủ đề"
+            <Select
+                aria-label="Lọc danh mục chủ đề"
+                value={categoryId}
                 onChange={(event) => onCategoryChange(event.target.value)}
-                className="appearance-none pl-4 pr-8 py-2.5 text-[13px] border border-[#E5E5EA] rounded-xl outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 transition bg-white cursor-pointer"
+                className="w-full sm:w-44"
             >
                 <option value="">Tất cả danh mục</option>
                 {categories.map((category) => (
-                    <option key={category.categoryId} value={category.categoryId}>{category.name}</option>
+                    <option key={category.categoryId} value={category.categoryId}>
+                        {category.name}
+                    </option>
                 ))}
-            </select>
-        </div>
+            </Select>
+        </>
     );
 }

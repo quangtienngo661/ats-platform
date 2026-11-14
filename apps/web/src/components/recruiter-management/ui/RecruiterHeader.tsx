@@ -1,24 +1,38 @@
-import { Plus } from 'lucide-react';
+import type { Ref } from 'react';
+import { Plus, Search } from 'lucide-react';
+import { Button, Input, PageToolbar } from '@/components/ui';
 
 interface RecruiterHeaderProps {
     onAdd: () => void;
+    search: string;
+    onSearchChange: (value: string) => void;
+    /** Lets the list put focus back in the search field after clearing it. */
+    searchRef?: Ref<HTMLInputElement>;
 }
 
-export function RecruiterHeader({ onAdd }: RecruiterHeaderProps) {
+export function RecruiterHeader({ onAdd, search, onSearchChange, searchRef }: RecruiterHeaderProps) {
     return (
-        <div className="mb-6">
-            <div className="flex items-center justify-end">
-                <h1 className="sr-only">Quản lý nhà tuyển dụng</h1>
-
-                <button
-                    onClick={onAdd}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#0071E3] hover:bg-[#0077ED] text-white rounded-xl transition shadow-sm text-[13px]"
-                    style={{ fontWeight: 500 }}
-                >
-                    <Plus className="w-4 h-4" />
-                    Thêm nhà tuyển dụng
-                </button>
+        <PageToolbar title="Quản lý nhà tuyển dụng">
+            <div className="relative w-full sm:w-64">
+                <Search
+                    aria-hidden="true"
+                    strokeWidth={1.75}
+                    className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3"
+                />
+                <Input
+                    ref={searchRef}
+                    aria-label="Tìm nhà tuyển dụng"
+                    type="text"
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    placeholder="Tìm theo tên, email, phòng ban…"
+                    className="pl-8"
+                />
             </div>
-        </div>
+            <Button onClick={onAdd}>
+                <Plus aria-hidden="true" strokeWidth={1.75} />
+                Thêm nhà tuyển dụng
+            </Button>
+        </PageToolbar>
     );
 }

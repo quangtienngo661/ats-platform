@@ -142,4 +142,23 @@ describe('CompareTable', () => {
       expect(within(table).getByText('Khuyến nghị AI (gợi ý)')).toBeVisible();
     });
   });
+
+  // The criteria column stays put while the candidates scroll under it; a hairline marks where they slide.
+  it('token contract: every sticky criteria cell draws a right hairline', async () => {
+    const modulePath = './CompareTable';
+    const { CompareTable } = await import(/* @vite-ignore */ modulePath);
+    render(<CompareTable items={items} jobId="job-1" />);
+    const table = screen.getByRole('table');
+    const criteria = [
+      within(table).getByRole('columnheader', { name: 'Tiêu chí' }),
+      ...within(table).getAllByRole('rowheader'),
+    ];
+
+    expect(criteria.length).toBeGreaterThan(10);
+    for (const cell of criteria) {
+      const classes = cell.className.split(' ');
+      expect(classes).toContain('sticky');
+      expect(classes).toEqual(expect.arrayContaining(['border-r', 'border-line']));
+    }
+  });
 });

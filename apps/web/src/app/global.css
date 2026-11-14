@@ -95,7 +95,90 @@ pre {
   overflow: scroll;
   padding: 0.5rem 0.75rem;
 }
+/* Design tokens (spec section 5.1). Channels, so Tailwind can add alpha. */
+:root {
+  --canvas: 250 250 250;
+  --surface: 255 255 255;
+  --surface-2: 245 245 245;
+  --line: 235 235 235;
+  --line-strong: 136 136 136;
+  --ink: 23 23 23;
+  --ink-2: 77 77 77;
+  --ink-3: 111 111 111;
+  --ink-4: 161 161 161;
+  --accent: 0 112 243;
+  --accent-text: 7 97 209;
+  --accent-soft: 211 229 255;
+  --success: 10 125 51;
+  --success-soft: 220 245 228;
+  --warning: 171 87 10;
+  --warning-soft: 255 239 207;
+  --danger: 197 0 0;
+  --danger-soft: 247 212 214;
+  --danger-solid: 238 0 0;
+  --night: 15 16 17;
+  --night-2: 20 21 22;
+  --night-3: 24 25 26;
+  --night-line: 35 37 42;
+  --night-ink: 247 248 248;
+  --night-ink-2: 208 214 224;
+  --night-ink-3: 138 143 152;
+}
 
+/* New element-level rules apply to the modern ui only (spec section 4.4). */
+html[data-ui="modern"] body {
+  background: rgb(var(--canvas));
+  color: rgb(var(--ink));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+html[data-ui="modern"] ::selection {
+  background: rgb(var(--accent-soft));
+}
+html[data-ui="modern"] :focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+/* The staff top bar is sticky and 56 px tall: keep focused and anchored elements clear of it (spec section 10). */
+html[data-ui="modern"]:has([data-shell="staff"]) {
+  scroll-padding-top: 4rem;
+}
+/* The same for the 60 px public/candidate header, and for the candidate tab bar at the bottom of phones. */
+html[data-ui="modern"]:has([data-shell="site"]) {
+  scroll-padding-top: 4.5rem;
+}
+@media (max-width: 767px) {
+  html[data-ui="modern"]:has([data-tab-bar]) {
+    scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+/* The job page's fixed apply bar (68 px) must not cover the end of the footer on phones. */
+@media (max-width: 1023px) {
+  html[data-ui="modern"]:has([data-apply-bar]) body {
+    padding-bottom: 4.5rem;
+  }
+}
+:where(html[data-ui="modern"]) h1,
+:where(html[data-ui="modern"]) h2,
+:where(html[data-ui="modern"]) h3 {
+  text-wrap: balance;
+}
+:where(html[data-ui="modern"]) p {
+  text-wrap: pretty;
+}
+/* A spinner is a progress signal, not decoration, so it keeps turning. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-ui="modern"] *:not(.animate-spin),
+  html[data-ui="modern"] *::before,
+  html[data-ui="modern"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* Rich text editor styles are shared once, with their existing appearance. */
 .rich-text-editor-content {
@@ -115,4 +198,9 @@ pre {
   color: #AEAEB2;
   pointer-events: none;
   display: block;
+}
+/* Sections held back until they scroll into view (see RevealInView); legacy UI is untouched. */
+:where(html[data-ui="modern"]) [data-reveal="pending"] {
+  opacity: 0;
+  transform: translateY(8px);
 }

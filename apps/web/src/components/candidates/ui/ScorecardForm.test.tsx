@@ -24,6 +24,12 @@ const input: IScorecardInput = {
   comment: commentText,
 };
 
+/**
+ * No delay between events, and no pointer-events check: jsdom loads no stylesheet here, so that check can never find
+ * `pointer-events: none` and only costs a computed-style walk on every click and on each of the comment's 64 keys.
+ */
+const fastUser = () => userEvent.setup({ delay: null, pointerEventsCheck: 0 });
+
 async function chooseRecommendation(user: ReturnType<typeof userEvent.setup>) {
   const select = screen.queryByRole('combobox', { name: /Khuyến nghị/i });
   if (select) await user.selectOptions(select, 'yes');
@@ -55,7 +61,7 @@ describe('ScorecardForm', () => {
     { missing: 3, what: 'Phù hợp văn hoá' },
     { missing: 4, what: 'khuyến nghị' },
   ])('ScorecardForm blocks submit until all four ratings and a recommendation are chosen (thiếu $what)', async ({ missing }) => {
-    const user = userEvent.setup();
+    const user = fastUser();
     mocks.submit.mockClear();
     const onSaved = vi.fn();
     const form = render(<ScorecardForm interviewId="int-1" disabled={false} onSaved={onSaved} />);
@@ -88,7 +94,7 @@ describe('ScorecardForm', () => {
   });
 
   it('ScorecardForm shows the API message when the submit is refused and keeps the typed values', async () => {
-    const user = userEvent.setup();
+    const user = fastUser();
     const onSaved = vi.fn();
     const message = 'Đơn đã chốt, không thể sửa đánh giá';
     mocks.submit.mockResolvedValue({ success: false, message });

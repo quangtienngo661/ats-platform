@@ -9,10 +9,11 @@ interface WeekCalendarGridProps {
     onSelectSchedule: (schedule: IInterviewSchedule) => void;
 }
 
+/** Scrolls on its own, so below lg the grid pans sideways without the page scrolling sideways. */
 export function WeekCalendarGrid({ weekDays, schedulesByDate, today, onSelectSchedule }: WeekCalendarGridProps) {
     return (
-        <div className="flex-1 overflow-auto p-4 lg:p-6">
-            <div className="grid min-w-[900px] grid-cols-5 gap-3">
+        <div className="min-h-0 flex-1 overflow-auto p-4 lg:p-6">
+            <div className="grid min-w-[900px] grid-cols-[repeat(5,minmax(0,1fr))] gap-3">
                 {weekDays.map((day) => (
                     <ScheduleDayColumn
                         key={day.dateKey}

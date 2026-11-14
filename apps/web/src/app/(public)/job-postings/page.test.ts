@@ -5,12 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getJobFilterOptionsAction, getJobPostingsAction } from '@/servers/job-postings/job-postings.action';
 import JobsPage from './page';
 
+vi.mock('@/lib/ui-variant', () => ({ getUiVariant: async () => 'modern' }));
 vi.mock('@/servers/job-postings/job-postings.action', () => ({
   getJobPostingsAction: vi.fn(),
   getJobFilterOptionsAction: vi.fn(),
 }));
 vi.mock('@/servers/job-categories/job-categories.action', () => ({ getViewerJobCategoriesAction: vi.fn(async () => []) }));
-vi.mock('@/components/public/layout/PublicFooter', () => ({ PublicFooter: () => null }));
 vi.mock('@/components/public/jobs/JobSearchClient', () => ({ JobSearchClient: () => null }));
 
 const fetchJobs = vi.mocked(getJobPostingsAction);
@@ -24,10 +24,8 @@ beforeEach(() => {
 type ClientProps = { initialQuery: Record<string, unknown>; skills: unknown };
 
 async function renderPage(searchParams: Record<string, string | string[]> = {}) {
-  const tree = (await JobsPage({ searchParams: Promise.resolve(searchParams) })) as unknown as {
-    props: { children: { props: ClientProps }[] };
-  };
-  return { client: tree.props.children[0].props, query: fetchJobs.mock.calls[0][0] ?? {} };
+  const tree = (await JobsPage({ searchParams: Promise.resolve(searchParams) })) as unknown as { props: ClientProps };
+  return { client: tree.props, query: fetchJobs.mock.calls[0][0] ?? {} };
 }
 
 describe('JobsPage filters', () => {

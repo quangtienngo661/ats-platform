@@ -1,9 +1,8 @@
-import { Briefcase, DollarSign, Clock } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Briefcase, Banknote, Clock } from 'lucide-react';
+import { Avatar, Badge } from '@/components/ui';
 import { IJobPostingDto } from '@/types/interfaces/job-posting.interface';
 import { jobSkillsOf } from '@/lib/job-skills';
 import { WORK_TYPE_LABELS, type WorkType } from '@/lib/work-types';
-import { ApplyButton } from './ApplyButton';
 
 function formatSalary(min?: number | null, max?: number | null): string {
     if (!min && !max) return 'Thỏa thuận';
@@ -13,7 +12,7 @@ function formatSalary(min?: number | null, max?: number | null): string {
     return `Đến ${fmt(max ?? 0)} VNĐ`;
 }
 
-function timeAgo(dateStr?: string): string {
+function timeAgo(dateStr?: string | null): string {
     if (!dateStr) return '';
     const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000);
     if (days < 1) return 'Hôm nay';
@@ -29,8 +28,8 @@ interface JobDetailHeroProps {
     available: boolean;
 }
 
-export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps) {
-    const initial = job.title?.[0]?.toUpperCase() ?? 'J';
+/** Title, company and the facts a candidate scans first. Applying lives in the sidebar card and the mobile bar. */
+export function JobDetailHero({ job }: JobDetailHeroProps) {
     const deptName = job.department?.name;
     const skills = jobSkillsOf(job);
     const location = Object.hasOwn(WORK_TYPE_LABELS, job.locationType)
@@ -38,51 +37,41 @@ export function JobDetailHero({ job, isLoggedIn, available }: JobDetailHeroProps
         : job.locationType ?? '';
 
     return (
-        <div className="bg-white rounded-2xl border border-[#E5E5EA] p-7">
-            {/* Title row */}
-            <div className="flex items-start gap-5 mb-6">
-                <div
-                    className="w-[72px] h-[72px] rounded-2xl bg-[#0071E3] flex items-center justify-center text-white text-[24px] flex-shrink-0"
-                    style={{ fontFamily: SF, fontWeight: 700 }}
-                >
-                    {initial}
-                </div>
-                <div className="flex-1">
-                    <h1 className="text-[26px] text-[#1D1D1F] tracking-[-0.02em] mb-1" style={{ fontFamily: SF, fontWeight: 700 }}>
-                        {job.title}
-                    </h1>
-                    {deptName && (
-                        <p className="text-[15px] text-[#0071E3]" style={{ fontWeight: 500 }}>{deptName}</p>
-                    )}
+        <header>
+            <div className="flex items-start gap-4">
+                <Avatar name={deptName ?? job.title} size={40} />
+                <div className="min-w-0 flex-1">
+                    <h1 className="break-words text-heading text-ink">{job.title}</h1>
+                    {deptName && <p className="mt-1 break-words text-body text-ink-2">{deptName}</p>}
                 </div>
             </div>
 
-            {/* Meta */}
-            <div className="flex flex-wrap gap-4 text-[14px] text-[#6E6E73] mb-6" style={{ fontFamily: SFT }}>
-                <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4" />{location}</span>
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-body-sm text-ink-2">
+                <span className="flex items-center gap-1.5">
+                    <Briefcase aria-hidden="true" className="size-4 text-ink-3" />
+                    {location}
+                </span>
                 {(job.salaryMin || job.salaryMax) && (
-                    <span className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" />{formatSalary(job.salaryMin, job.salaryMax)}</span>
+                    <span className="flex items-center gap-1.5 tabular-nums">
+                        <Banknote aria-hidden="true" className="size-4 text-ink-3" />
+                        {formatSalary(job.salaryMin, job.salaryMax)}
+                    </span>
                 )}
                 {job.publishedAt && (
-                    <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{timeAgo(job.publishedAt)}</span>
+                    <span className="flex items-center gap-1.5">
+                        <Clock aria-hidden="true" className="size-4 text-ink-3" />
+                        {timeAgo(job.publishedAt)}
+                    </span>
                 )}
             </div>
 
-            {/* Skill tags */}
             {skills.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="mt-5 flex flex-wrap gap-1.5">
                     {skills.map(s => (
-                        <span key={s.skillId} className="text-[12px] bg-[#EBF3FD] text-[#0071E3] rounded-lg px-3 py-1" style={{ fontWeight: 500 }}>
-                            {s.name ?? s.skillId}
-                        </span>
+                        <Badge key={s.skillId} tone="accent">{s.name ?? s.skillId}</Badge>
                     ))}
                 </div>
             )}
-
-            {/* Desktop Apply Button */}
-            <div className="hidden lg:block">
-                <ApplyButton job={job} isLoggedIn={isLoggedIn} available={available} />
-            </div>
-        </div>
+        </header>
     );
 }

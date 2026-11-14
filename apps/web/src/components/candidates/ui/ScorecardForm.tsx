@@ -4,7 +4,8 @@ import { useId, useRef, useState, type FormEvent } from 'react';
 import { ScorecardRecommendation } from '@ats-platform/types';
 import { toast } from '@/lib/toast';
 import { submitScorecardAction } from '@/servers/scorecards/scorecards.action';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { Button, Field, Select, Textarea } from '@/components/ui';
+import { cn } from '@/components/ui/cn';
 import type { IScorecardInput } from '@/types/interfaces/evaluation.interface';
 
 export const SCORECARD_RATINGS = [
@@ -111,14 +112,13 @@ export function ScorecardForm({
       aria-label="Đánh giá phỏng vấn"
       aria-busy={saving}
       className="space-y-5"
-      style={{ fontFamily: SFT }}
     >
       {disabled && (
-        <p className="text-[13px] text-[#6E6E73]">
+        <p className="text-body-sm text-ink-3">
           Đơn đã chốt, chỉ có thể xem đánh giá.
         </p>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {SCORECARD_RATINGS.map(({ key, label }) => (
           <fieldset
             key={key}
@@ -128,8 +128,7 @@ export function ScorecardForm({
           >
             <legend
               id={`${formId}-${key}`}
-              className="text-[13px] text-[#1D1D1F] mb-2"
-              style={{ fontWeight: 500 }}
+              className="mb-2 text-body-sm font-medium text-ink"
             >
               {label}
             </legend>
@@ -137,7 +136,12 @@ export function ScorecardForm({
               {[1, 2, 3, 4, 5].map((score) => (
                 <label
                   key={score}
-                  className={`flex items-center justify-center gap-1.5 min-h-11 min-w-11 px-2 rounded-xl border text-[13px] focus-within:ring-2 focus-within:ring-[#0071E3] ${values[key] === score ? 'border-[#0071E3] bg-[#EBF3FD] text-[#0071E3]' : 'border-[#E5E5EA] text-[#1D1D1F]'}`}
+                  className={cn(
+                    'flex size-11 cursor-pointer items-center justify-center rounded-ctl text-body-sm tabular-nums transition-colors duration-hover has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
+                    values[key] === score
+                      ? 'bg-ink text-surface'
+                      : 'bg-surface text-ink shadow-e2 hover:bg-surface-2',
+                  )}
                 >
                   <input
                     type="radio"
@@ -148,7 +152,7 @@ export function ScorecardForm({
                     onChange={() =>
                       setValues((previous) => ({ ...previous, [key]: score }))
                     }
-                    className="accent-[#0071E3]"
+                    className="sr-only"
                   />
                   {score}
                 </label>
@@ -157,76 +161,52 @@ export function ScorecardForm({
           </fieldset>
         ))}
       </div>
-      <div>
-        <label
-          htmlFor={`${formId}-recommendation`}
-          className="block text-[13px] text-[#1D1D1F] mb-2"
-          style={{ fontWeight: 500 }}
-        >
-          Khuyến nghị
-        </label>
-        <select
-          id={`${formId}-recommendation`}
-          value={values.recommendation ?? ''}
-          disabled={disabled || saving}
-          onChange={(event) => {
-            const recommendation = Object.values(ScorecardRecommendation).find(
-              (value) => value === event.target.value,
-            );
-            setValues((previous) => ({ ...previous, recommendation }));
-          }}
-          className="w-full min-h-11 border border-[#E5E5EA] rounded-xl px-3 text-[14px] text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3] disabled:bg-[#F5F5F7]"
-        >
-          <option value="">Chọn khuyến nghị</option>
-          {Object.values(ScorecardRecommendation).map((recommendation) => (
-            <option key={recommendation} value={recommendation}>
-              {SCORECARD_RECOMMENDATION_LABELS[recommendation]}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label
-          htmlFor={`${formId}-comment`}
-          className="block text-[13px] text-[#1D1D1F] mb-2"
-          style={{ fontWeight: 500 }}
-        >
-          Nhận xét
-        </label>
-        <textarea
-          ref={commentRef}
-          id={`${formId}-comment`}
-          defaultValue={initial?.comment ?? ''}
-          maxLength={2000}
-          rows={4}
-          disabled={disabled || saving}
-          aria-describedby={`${formId}-comment-limit`}
-          className="w-full border border-[#E5E5EA] rounded-xl p-3 text-[14px] text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0071E3] disabled:bg-[#F5F5F7]"
-        />
-        <p
-          id={`${formId}-comment-limit`}
-          className="text-[12px] text-[#6E6E73] mt-1"
-        >
-          Tối đa 2000 ký tự
-        </p>
-      </div>
+      <Field label="Khuyến nghị">
+        {(control) => (
+          <Select
+            {...control}
+            value={values.recommendation ?? ''}
+            disabled={disabled || saving}
+            onChange={(event) => {
+              const recommendation = Object.values(ScorecardRecommendation).find(
+                (value) => value === event.target.value,
+              );
+              setValues((previous) => ({ ...previous, recommendation }));
+            }}
+          >
+            <option value="">Chọn khuyến nghị</option>
+            {Object.values(ScorecardRecommendation).map((recommendation) => (
+              <option key={recommendation} value={recommendation}>
+                {SCORECARD_RECOMMENDATION_LABELS[recommendation]}
+              </option>
+            ))}
+          </Select>
+        )}
+      </Field>
+      <Field label="Nhận xét" hint="Tối đa 2000 ký tự">
+        {(control) => (
+          <Textarea
+            {...control}
+            ref={commentRef}
+            defaultValue={initial?.comment ?? ''}
+            maxLength={2000}
+            rows={4}
+            disabled={disabled || saving}
+          />
+        )}
+      </Field>
       {error && (
-        <p role="alert" className="text-[13px] text-[#DC2626]">
+        <p role="alert" className="text-body-sm text-danger">
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={disabled || saving || !valid}
-        className="min-h-11 px-4 py-2 bg-[#0071E3] text-white text-[13px] rounded-xl hover:bg-[#005BB5] transition-colors disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071E3]"
-        style={{ fontFamily: SF, fontWeight: 600 }}
-      >
+      <Button type="submit" disabled={disabled || saving || !valid}>
         {saving
           ? 'Đang lưu đánh giá…'
           : initial
             ? 'Lưu đánh giá'
             : 'Nộp đánh giá'}
-      </button>
+      </Button>
     </form>
   );
 }

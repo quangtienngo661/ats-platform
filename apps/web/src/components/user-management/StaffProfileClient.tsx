@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { Avatar, Button, Field, Input, PageToolbar, Surface } from '@/components/ui';
 import { updateMeAction, type UserActionState } from '@/servers/users/users.action';
 import { IUserResponseDto } from '@/types/interfaces/user.interface';
 
@@ -9,17 +10,30 @@ export default function StaffProfileClient({ user, organizationName }: {
 }) {
   const [state, action, pending] = useActionState(updateMeAction, { success: false, message: '' } as UserActionState);
   return (
-    <div className="p-6 lg:p-8 max-w-3xl">
-      <h1 className="sr-only">Hồ sơ cá nhân</h1>
-      <p className="mb-6 text-gray-600">{user.role === 'org_admin' ? 'Quản trị tổ chức' : 'Quản trị hệ thống'} · {organizationName ?? 'Toàn hệ thống'}</p>
-      <form action={action} className="bg-white rounded-2xl p-6 space-y-4">
-        <p>Email: {user.email}</p>
-        <div><label htmlFor="staff-fullName" className="block mb-2">Họ và tên</label>
-          <input id="staff-fullName" name="fullName" required defaultValue={user.fullName} className="border rounded-xl p-3 w-full" /></div>
-        <div><label htmlFor="staff-phone" className="block mb-2">Số điện thoại</label>
-          <input id="staff-phone" name="phone" type="tel" defaultValue={user.phoneNumber ?? ''} className="border rounded-xl p-3 w-full" /></div>
-        {state.message && <p role="status" className={state.success ? 'text-green-700' : 'text-red-700'}>{state.message}</p>}
-        <button type="submit" disabled={pending} className="bg-blue-600 text-white px-4 py-3 rounded-xl">{pending ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
+    <div className="mx-auto w-full max-w-3xl p-4 lg:p-8">
+      <PageToolbar title="Hồ sơ cá nhân" />
+      <p className="mt-2 break-words text-body-sm text-ink-3">
+        {user.role === 'org_admin' ? 'Quản trị tổ chức' : 'Quản trị hệ thống'} · {organizationName ?? 'Toàn hệ thống'}
+      </p>
+      <form action={action} className="mt-6">
+      <Surface variant="raised" className="space-y-4 p-6">
+        <div className="flex items-center gap-3">
+          <Avatar name={user.fullName} size={40} />
+          <p className="min-w-0 break-all text-body-sm text-ink">Email: {user.email}</p>
+        </div>
+        <Field label="Họ và tên" required>
+          {(f) => <Input {...f} name="fullName" defaultValue={user.fullName} />}
+        </Field>
+        <Field label="Số điện thoại">
+          {(f) => <Input {...f} name="phone" type="tel" defaultValue={user.phoneNumber ?? ''} />}
+        </Field>
+        {state.message && (
+          <p role="status" className={state.success ? 'text-body-sm text-success' : 'text-body-sm text-danger'}>
+            {state.message}
+          </p>
+        )}
+        <Button type="submit" loading={pending}>{pending ? 'Đang lưu…' : 'Lưu thay đổi'}</Button>
+      </Surface>
       </form>
     </div>
   );

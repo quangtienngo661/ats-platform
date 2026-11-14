@@ -1,8 +1,9 @@
 // The job search filters a candidate (or a visitor) reaches from the "Bộ lọc" panel:
 // what they type becomes the URL, and a bad entry never navigates (C13, E6, E15, E17).
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jobPosting } from '@/test/fixtures/job-posting';
 import { JobSearchClient } from './JobSearchClient';
 
 const mocks = vi.hoisted(() => ({ push: vi.fn() }));
@@ -253,5 +254,93 @@ describe('JobSearchClient — a refused entry while the panel is closed', () => 
     expect(await screen.findByRole('alert')).toHaveTextContent('Mức lương tối thiểu không thể lớn hơn mức lương tối đa');
     expect(screen.getByRole('textbox', { name: 'Từ' })).toBeInTheDocument();
     expect(mocks.push).not.toHaveBeenCalled();
+  });
+});
+
+describe('JobSearchClient — no results (Review Focus 2)', () => {
+  it('says nothing matches and offers to clear the filters', async () => {
+    const user = userEvent.setup();
+    renderSearch({ initialQuery: { locationType: 'remote' } });
+
+    expect(screen.getByRole('heading', { name: 'Không có việc phù hợp' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+
+    expect(mocks.push).toHaveBeenCalledWith('/job-postings');
+  });
+
+  it('links back to every job instead when nothing is filtered', () => {
+    renderSearch({ currentPage: 3 });
+
+    expect(screen.getByRole('heading', { name: 'Không có việc phù hợp' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Xem tất cả việc làm' })).toHaveAttribute('href', '/job-postings');
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+  });
+});
+
+describe('JobSearchClient — active filter chips', () => {
+  it('shows the work type as a chip that takes only that filter off', async () => {
+    const user = userEvent.setup();
+    renderSearch({ initialQuery: { q: 'react', locationType: 'remote' }, initialJobs: [jobPosting()], total: 1 });
+
+    const chip = screen.getByRole('button', { name: 'Bỏ lọc Remote' });
+    expect(chip).toHaveTextContent('Remote');
+    // One way to clear everything, next to the chips while there are results.
+    expect(screen.getByRole('button', { name: 'Xóa bộ lọc' })).toBeInTheDocument();
+
+    await user.click(chip);
+
+    expect(lastUrl().searchParams.has('locationType')).toBe(false);
+    expect(lastUrl().searchParams.get('q')).toBe('react');
+  });
+});
+
+describe('JobSearchClient — the empty state follows the URL, like the chips', () => {
+  it('keeps "no openings yet" while a keyword is only typed, not searched', async () => {
+    const user = userEvent.setup();
+    renderSearch();
+    expect(screen.getByRole('heading', { name: 'Chưa có việc đang tuyển' })).toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox', { name: 'Tìm việc làm' }), 'react');
+
+    expect(screen.getByRole('heading', { name: 'Chưa có việc đang tuyển' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Không có việc phù hợp' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it('keeps the way back to every job on a later page while a keyword is only typed', async () => {
+    const user = userEvent.setup();
+    renderSearch({ currentPage: 3 });
+
+    await user.type(screen.getByRole('textbox', { name: 'Tìm việc làm' }), 'react');
+
+    expect(screen.getByRole('link', { name: 'Xem tất cả việc làm' })).toHaveAttribute('href', '/job-postings');
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+  });
+});
+
+describe('JobSearchClient — pagination', () => {
+  it('names each page button "Trang n" and marks the current one', () => {
+    renderSearch({ total: 60, currentPage: 3 });
+    const pages = within(screen.getByRole('navigation', { name: 'Phân trang' }));
+
+    for (const n of [1, 2, 3, 4, 5]) {
+      const button = pages.getByRole('button', { name: `Trang ${n}` });
+      expect(button).toHaveTextContent(String(n));
+      if (n === 3) expect(button).toHaveAttribute('aria-current', 'page');
+      else expect(button).not.toHaveAttribute('aria-current');
+    }
+    expect(pages.getAllByRole('button', { current: 'page' })).toHaveLength(1);
+  });
+
+  // jsdom computes no layout: the current page is a primary button (44 px on phones), so every button in the row is.
+  it('token contract: every button in the page row is 44 px tall on phones', () => {
+    renderSearch({ total: 60, currentPage: 3 });
+    const buttons = within(screen.getByRole('navigation', { name: 'Phân trang' })).getAllByRole('button');
+
+    expect(buttons.map((button) => button.getAttribute('aria-label') ?? button.textContent)).toEqual(
+      ['Trước', 'Trang 1', 'Trang 2', 'Trang 3', 'Trang 4', 'Trang 5', 'Tiếp'],
+    );
+    for (const button of buttons) expect(button.className.split(' ')).toContain('max-md:min-h-11');
   });
 });

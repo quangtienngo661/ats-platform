@@ -99,3 +99,13 @@ describe('ScheduleDetailDrawer — how the interview takes place (R3)', () => {
     }
   });
 });
+
+describe('ScheduleDetailDrawer — actions', () => {
+  // jsdom has no colour, so the destructive look is pinned by the variant's class.
+  it('token contract: "Hủy lịch" is the destructive button, "Hoàn tất" is not', () => {
+    renderDrawer(schedule({ status: 'scheduled' }));
+
+    expect(screen.getByRole('button', { name: 'Hủy lịch' }).className.split(' ')).toContain('bg-danger-solid');
+    expect(screen.getByRole('button', { name: 'Hoàn tất' }).className.split(' ')).not.toContain('bg-danger-solid');
+  });
+});

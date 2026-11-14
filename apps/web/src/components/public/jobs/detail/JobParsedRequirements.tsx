@@ -1,5 +1,5 @@
-import { BookOpen, BriefcaseBusiness, CheckCircle2, Gift, GraduationCap, Languages, ListChecks, Star } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
+import { CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui';
 
 type ParsedJobRequirements = {
     job_summary?: string | null;
@@ -62,48 +62,30 @@ function formatEducation(level?: string | null) {
     return labels[level] ?? level;
 }
 
-function RequirementTag({ children, tone = 'blue' }: { children: string; tone?: 'blue' | 'green' | 'gray' }) {
-    const styles = {
-        blue: 'bg-[#EBF3FD] text-[#0071E3]',
-        green: 'bg-[#EAF8EE] text-[#1F8F3A]',
-        gray: 'bg-[#F5F5F7] text-[#4B5563]',
-    };
-
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <span className={`text-[12px] rounded-lg px-2.5 py-1 ${styles[tone]}`} style={{ fontWeight: 600 }}>
+        <div>
+            <h3 className="mb-2 text-body-sm font-medium text-ink-3">{title}</h3>
             {children}
-        </span>
+        </div>
     );
 }
 
-function ListBlock({
-    title,
-    items,
-    icon: Icon,
-}: {
-    title: string;
-    items: string[];
-    icon: typeof ListChecks;
-}) {
+function ListBlock({ title, items }: { title: string; items: string[] }) {
     if (items.length === 0) return null;
 
     return (
-        <div className="pt-5 border-t border-[#F2F2F7]">
-            <div className="flex items-center gap-2 mb-3">
-                <Icon className="w-4 h-4 text-[#0071E3]" />
-                <h3 className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                    {title}
-                </h3>
-            </div>
-            <div className="space-y-2.5">
+        <section>
+            <h3 className="mb-3 text-title-sm text-ink">{title}</h3>
+            <ul className="max-w-[68ch] space-y-2">
                 {items.map((item) => (
-                    <div key={item} className="flex gap-2.5 text-[14px] text-[#424245] leading-[1.65]">
-                        <CheckCircle2 className="w-4 h-4 text-[#34C759] mt-1 flex-shrink-0" />
-                        <span>{item}</span>
-                    </div>
+                    <li key={item} className="flex gap-2.5 text-body text-ink-2">
+                        <CheckCircle2 aria-hidden="true" className="mt-1 size-4 shrink-0 text-success" />
+                        <span className="min-w-0 break-words">{item}</span>
+                    </li>
                 ))}
-            </div>
-        </div>
+            </ul>
+        </section>
     );
 }
 
@@ -133,96 +115,45 @@ export function JobParsedRequirements({ parsedRequirements }: JobParsedRequireme
     if (!hasContent) return null;
 
     return (
-        <section className="bg-white rounded-2xl border border-[#D7E7FA] overflow-hidden">
-            {/* <div className="px-7 py-5 border-b border-[#EAF2FC] bg-[#F7FBFF]">
-                <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#0071E3] flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-[18px] text-[#1D1D1F] tracking-[-0.01em]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                            Thông tin JD đã phân tích
-                        </h2>
-                        <p className="text-[13px] text-[#5D6B7A] mt-1" style={{ fontFamily: SFT }}>
-                            Các ý chính được trích xuất trực tiếp từ mô tả tuyển dụng.
-                        </p>
-                    </div>
-                </div>
-            </div> */}
+        <section className="space-y-8">
+            <h2 className="text-title text-ink">Yêu cầu công việc</h2>
 
-            <div className="p-7 space-y-6" style={{ fontFamily: SFT }}>
-                {/* {parsed.job_summary && (
-                    <div className="rounded-xl bg-[#F5F5F7] px-4 py-3.5">
-                        <p className="text-[13px] uppercase tracking-[0.06em] text-[#6E6E73] mb-1" style={{ fontWeight: 700 }}>
-                            Tóm tắt
-                        </p>
-                        <p className="text-[14px] text-[#1D1D1F] leading-[1.7]">{parsed.job_summary}</p>
+            <div className="space-y-5">
+                <Group title="Kinh nghiệm và học vấn">
+                    <div className="flex flex-wrap gap-1.5">
+                        <Badge>{formatExperience(requirements.minimum_experience_years)}</Badge>
+                        <Badge>{formatEducation(requirements.education_level)}</Badge>
                     </div>
-                )} */}
+                </Group>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="min-h-[88px] rounded-xl border border-[#F2F2F7] px-4 py-3">
-                        <BriefcaseBusiness className="w-4 h-4 text-[#0071E3] mb-2" />
-                        <p className="text-[11px] uppercase tracking-[0.06em] text-[#8E8E93]" style={{ fontWeight: 700 }}>
-                            Kinh nghiệm
-                        </p>
-                        <p className="text-[15px] text-[#1D1D1F] mt-1" style={{ fontWeight: 700 }}>
-                            {formatExperience(requirements.minimum_experience_years)}
-                        </p>
-                    </div>
-                    <div className="min-h-[88px] rounded-xl border border-[#F2F2F7] px-4 py-3">
-                        <GraduationCap className="w-4 h-4 text-[#0071E3] mb-2" />
-                        <p className="text-[11px] uppercase tracking-[0.06em] text-[#8E8E93]" style={{ fontWeight: 700 }}>
-                            Học vấn
-                        </p>
-                        <p className="text-[15px] text-[#1D1D1F] mt-1" style={{ fontWeight: 700 }}>
-                            {formatEducation(requirements.education_level)}
-                        </p>
-                    </div>
-                    <div className="min-h-[88px] rounded-xl border border-[#F2F2F7] px-4 py-3">
-                        <Languages className="w-4 h-4 text-[#0071E3] mb-2" />
-                        <p className="text-[11px] uppercase tracking-[0.06em] text-[#8E8E93]" style={{ fontWeight: 700 }}>
-                            Ngôn ngữ
-                        </p>
-                        <p className="text-[15px] text-[#1D1D1F] mt-1" style={{ fontWeight: 700 }}>
-                            {languages.length ? languages.join(', ') : 'Không nêu rõ'}
-                        </p>
-                    </div>
-                </div>
-
-                {(hardSkills.length > 0 || softSkills.length > 0 || languages.length > 0) && (
-                    <div className="pt-5 border-t border-[#F2F2F7] space-y-4">
-                        <div className="flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-[#0071E3]" />
-                            <h3 className="text-[15px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 700 }}>
-                                Yêu cầu cốt lõi
-                            </h3>
+                {languages.length > 0 && (
+                    <Group title="Ngôn ngữ">
+                        <div className="flex flex-wrap gap-1.5">
+                            {languages.map((language) => <Badge key={language}>{language}</Badge>)}
                         </div>
-
-                        {hardSkills.length > 0 && (
-                            <div>
-                                <p className="text-[12px] text-[#6E6E73] mb-2" style={{ fontWeight: 700 }}>Kỹ năng chuyên môn</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {hardSkills.map((skill) => <RequirementTag key={skill}>{skill}</RequirementTag>)}
-                                </div>
-                            </div>
-                        )}
-
-                        {softSkills.length > 0 && (
-                            <div>
-                                <p className="text-[12px] text-[#6E6E73] mb-2" style={{ fontWeight: 700 }}>Kỹ năng mềm</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {softSkills.map((skill) => <RequirementTag key={skill} tone="green">{skill}</RequirementTag>)}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    </Group>
                 )}
 
-                <ListBlock title="Công việc hằng ngày" items={responsibilities} icon={ListChecks} />
-                <ListBlock title="Điểm cộng" items={niceToHaves} icon={Star} />
-                <ListBlock title="Quyền lợi" items={benefits} icon={Gift} />
+                {hardSkills.length > 0 && (
+                    <Group title="Kỹ năng chuyên môn">
+                        <div className="flex flex-wrap gap-1.5">
+                            {hardSkills.map((skill) => <Badge key={skill} tone="accent">{skill}</Badge>)}
+                        </div>
+                    </Group>
+                )}
+
+                {softSkills.length > 0 && (
+                    <Group title="Kỹ năng mềm">
+                        <div className="flex flex-wrap gap-1.5">
+                            {softSkills.map((skill) => <Badge key={skill} tone="success">{skill}</Badge>)}
+                        </div>
+                    </Group>
+                )}
             </div>
+
+            <ListBlock title="Công việc hằng ngày" items={responsibilities} />
+            <ListBlock title="Điểm cộng" items={niceToHaves} />
+            <ListBlock title="Quyền lợi" items={benefits} />
         </section>
     );
 }

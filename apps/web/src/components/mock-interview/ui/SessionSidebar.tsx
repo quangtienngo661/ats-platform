@@ -1,13 +1,13 @@
-
-import { BookOpen, BarChart3, Zap, Flame } from 'lucide-react';
-import { SF, SFT } from '@/types/fonts/fonts';
 import { DifficultyLevel } from '@ats-platform/types';
+import { cn } from '@/components/ui/cn';
+import { DIFFICULTY_OPTIONS } from './DifficultySelector';
 
-const difficultyStyle: Record<string, { color: string; bg: string; label: string; icon: typeof Zap }> = {
-    easy: { color: '#34C759', bg: '#F0FDF4', label: 'Dễ', icon: Zap },
-    medium: { color: '#F59E0B', bg: '#FFFBEB', label: 'Trung bình', icon: BarChart3 },
-    hard: { color: '#FF3B30', bg: '#FEF2F2', label: 'Khó', icon: Flame },
-};
+/** Question shown as "Câu x/y" and the share of the bar it fills; a finished session is always full. */
+export function questionProgress(currentIndex: number, totalQuestions: number, isCompleted: boolean) {
+    if (totalQuestions <= 0) return { shown: 0, ratio: isCompleted ? 1 : 0 };
+    const shown = Math.min(Math.max(currentIndex, 0), totalQuestions);
+    return { shown, ratio: isCompleted ? 1 : shown / totalQuestions };
+}
 
 interface SessionSidebarProps {
     topicName: string;
@@ -20,6 +20,7 @@ interface SessionSidebarProps {
     onAbandon?: () => void;
 }
 
+/** Session facts and the question list beside the chat. Shown from 1024 px; the top bar carries the essentials below. */
 export function SessionSidebar({
     topicName,
     category,
@@ -27,105 +28,76 @@ export function SessionSidebar({
     currentIndex,
     totalQuestions,
     isCompleted,
-    sessionId,
     onAbandon,
 }: SessionSidebarProps) {
-    const diffConfig = difficultyStyle[difficulty] || difficultyStyle.medium;
-    const DiffIcon = diffConfig.icon;
-    const progress = Math.min((currentIndex / totalQuestions) * 100, 100);
+    const difficultyLabel = DIFFICULTY_OPTIONS.find((o) => o.value === difficulty)?.label ?? 'Trung bình';
+    const { shown, ratio } = questionProgress(currentIndex, totalQuestions, isCompleted);
 
     return (
-        <div className="w-[260px] border-l border-[#F2F2F7] bg-white h-full flex flex-col">
-            {/* Session info */}
-            <div className="p-4 border-b border-[#F2F2F7]">
-                <p className="text-[10px] text-[#AEAEB2] uppercase tracking-[0.05em] mb-2" style={{ fontWeight: 600 }}>
+        <div className="flex h-full flex-col gap-6 p-5">
+            <section aria-labelledby="session-info-heading">
+                <h2 id="session-info-heading" className="text-caption text-night-ink-3">
                     Thông tin phiên
-                </p>
-
-                {/* Topic */}
-                <div className="flex items-start gap-2.5 mb-3 p-2.5 bg-[#F5F5F7] rounded-xl">
-                    <div className="w-7 h-7 rounded-lg bg-[#EBF3FD] flex items-center justify-center flex-shrink-0">
-                        <BookOpen className="w-3.5 h-3.5 text-[#0071E3]" />
+                </h2>
+                <dl className="mt-3 flex flex-col gap-3">
+                    <div className="min-w-0">
+                        <dt className="text-caption text-night-ink-3">Chủ đề</dt>
+                        <dd className="mt-0.5 break-words text-body-sm font-medium text-night-ink">{topicName}</dd>
+                        {category && <dd className="break-words text-caption text-night-ink-2">{category}</dd>}
                     </div>
                     <div>
-                        <p className="text-[10px] text-[#AEAEB2]">Chủ đề</p>
-                        <p className="text-[12px] text-[#1D1D1F]" style={{ fontFamily: SF, fontWeight: 500 }}>
-                            {topicName}
-                        </p>
-                        <p className="text-[10px] text-[#6E6E73]">{category}</p>
+                        <dt className="text-caption text-night-ink-3">Mức độ</dt>
+                        <dd className="mt-0.5 text-body-sm text-night-ink">{difficultyLabel}</dd>
                     </div>
-                </div>
+                </dl>
+            </section>
 
-                {/* Difficulty */}
-                <div className="flex items-center gap-2.5 mb-3 p-2.5 bg-[#F5F5F7] rounded-xl">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: diffConfig.bg }}>
-                        <DiffIcon className="w-3.5 h-3.5" style={{ color: diffConfig.color }} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-[#AEAEB2]">Mức độ</p>
-                        <p className="text-[12px]" style={{ fontFamily: SF, fontWeight: 500, color: diffConfig.color }}>
-                            {diffConfig.label}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Progress */}
-            <div className="p-4 border-b border-[#F2F2F7]">
-                <p className="text-[10px] text-[#AEAEB2] uppercase tracking-[0.05em] mb-3" style={{ fontWeight: 600 }}>
-                    Tiến trình
-                </p>
-
-                <div className="flex items-center justify-between mb-2">
-                    <span className="text-[12px] text-[#6E6E73]" style={{ fontFamily: SFT }}>
-                        Câu {Math.min(currentIndex, totalQuestions)}/{totalQuestions}
-                    </span>
-                    <span className="text-[11px] text-[#0071E3]" style={{ fontWeight: 600 }}>
-                        {Math.round(progress)}%
+            <section aria-labelledby="session-progress-heading">
+                <div className="flex items-baseline justify-between gap-3">
+                    <h2 id="session-progress-heading" className="text-caption text-night-ink-3">
+                        Tiến trình
+                    </h2>
+                    <span className="text-caption tabular-nums text-night-ink-2">
+                        Câu {shown}/{totalQuestions}
                     </span>
                 </div>
-
-                {/* Progress bar */}
-                <div className="w-full h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
+                <div aria-hidden="true" className="mt-2 h-1 overflow-hidden rounded-full bg-night-3">
                     <div
-                        className="h-full rounded-full transition-[width] duration-500 ease-out"
-                        style={{
-                            width: `${progress}%`,
-                            background: isCompleted ? '#34C759' : 'linear-gradient(90deg, #0071E3, #6366F1)',
-                        }}
+                        className="h-full origin-left rounded-full bg-accent transition-transform duration-slow ease-out-expo"
+                        style={{ transform: `scaleX(${ratio})` }}
                     />
                 </div>
+                <ol aria-hidden="true" className="mt-4 grid grid-cols-5 gap-1.5">
+                    {Array.from({ length: totalQuestions }, (_, i) => {
+                        const number = i + 1;
+                        const done = isCompleted || number < currentIndex;
+                        const current = !isCompleted && number === currentIndex;
+                        return (
+                            <li
+                                key={number}
+                                className={cn(
+                                    'flex h-7 items-center justify-center rounded-ctl text-caption tabular-nums transition-colors duration-hover',
+                                    done && 'bg-night-3 text-night-ink-2',
+                                    current && 'bg-night-ink text-night',
+                                    !done && !current && 'border border-night-line text-night-ink-3',
+                                )}
+                            >
+                                {number}
+                            </li>
+                        );
+                    })}
+                </ol>
+            </section>
 
-                {/* Question dots */}
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                    {Array.from({ length: totalQuestions }, (_, i) => (
-                        <div
-                            key={i}
-                            className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] transition duration-300"
-                            style={{
-                                background: i < currentIndex ? '#0071E3' : i === currentIndex - 1 ? '#0071E3' : '#F2F2F7',
-                                color: i < currentIndex ? '#fff' : '#AEAEB2',
-                                fontWeight: 600,
-                            }}
-                        >
-                            {i + 1}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Actions */}
-            <div className="mt-auto p-4">
-                {!isCompleted && onAbandon && (
-                    <button
-                        onClick={onAbandon}
-                        className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#FF3B30] rounded-xl text-[13px] transition"
-                        style={{ fontWeight: 500 }}
-                    >
-                        Hủy phỏng vấn
-                    </button>
-                )}
-            </div>
+            {!isCompleted && onAbandon && (
+                <button
+                    type="button"
+                    onClick={onAbandon}
+                    className="mt-auto inline-flex h-9 w-full items-center justify-center rounded-ctl border border-night-ink-3 text-body-sm font-medium text-night-ink-2 transition duration-press ease-out-expo hover:bg-night-2 hover:text-night-ink active:scale-[.97]"
+                >
+                    Hủy phỏng vấn
+                </button>
+            )}
         </div>
     );
 }

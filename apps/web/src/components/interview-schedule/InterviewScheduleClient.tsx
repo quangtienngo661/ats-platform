@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SFT } from '@/types/fonts/fonts';
+import { PageToolbar } from '@/components/ui';
 import { IApplicationDto } from '@/types/interfaces/application.interface';
 import { IInterviewSchedule } from '@/types/interfaces/interview.interface';
 import { IRecruiterDto } from '@/types/interfaces/recruiter.interface';
@@ -111,10 +111,9 @@ export default function InterviewScheduleClient({
     };
 
     return (
-        <div className="flex h-full flex-col bg-[#F5F5F7]" style={{ fontFamily: SFT }}>
-            <div className="border-b border-[#F2F2F7] bg-white px-4 py-3 lg:px-6">
-                <h1 className="sr-only">Lịch phỏng vấn</h1>
-                <div className="flex">
+        <div className="flex flex-col lg:h-[calc(100dvh-3.5rem)]">
+            <div className="px-4 pt-4 lg:px-6 lg:pt-6">
+                <PageToolbar title="Lịch phỏng vấn">
                     <ScheduleToolbar
                         weekLabel={weekTitle}
                         canGoPrevious={canGoPrevious}
@@ -122,7 +121,7 @@ export default function InterviewScheduleClient({
                         onNext={() => goToWeek('next')}
                         onCreate={() => setShowCreateModal(true)}
                     />
-                </div>
+                </PageToolbar>
             </div>
 
             <ScheduleSummaryStrip schedules={schedules ?? []} applications={applications ?? []} interviewers={interviewers ?? []} />

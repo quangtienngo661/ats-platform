@@ -1,26 +1,42 @@
-import { Inter } from 'next/font/google';
+import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './global.css';
+import type { Viewport } from 'next';
 import { cookies } from 'next/headers';
 import { GlobalSocketInit } from '../components/common/GlobalSocketInit';
 import { MotionProvider } from '../components/common/MotionProvider';
+import { getUiVariant } from '@/lib/ui-variant';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
+const geist = Geist({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const geistMono = Geist_Mono({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'TalentAI | ATS Platform',
   description: 'Hệ thống quản lý tuyển dụng thông minh',
 };
 
-export const viewport = {
-  themeColor: '#F5F5F7',
-};
+// The modern UI pads its fixed bars with env(safe-area-inset-*), which stays 0 without viewport-fit=cover.
+// The legacy UI never accounts for safe areas, so it keeps the default viewport.
+export async function generateViewport(): Promise<Viewport> {
+  const variant = await getUiVariant();
+  return variant === 'modern' ? { themeColor: '#fafafa', viewportFit: 'cover' } : { themeColor: '#fafafa' };
+}
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const variant = await getUiVariant();
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
 
@@ -33,11 +49,16 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="vi" data-scroll-behavior="smooth">
-      <body className={inter.className}>
+    <html
+      lang="vi"
+      data-ui={variant}
+      data-scroll-behavior="smooth"
+      className={`${geist.variable} ${geistMono.variable}`}
+    >
+      <body className={variant === 'legacy' ? inter.className : undefined}>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-white focus:px-4 focus:py-2 focus:text-[13px] focus:text-[#0071E3] focus:shadow-lg focus:outline focus:outline-2 focus:outline-[#0071E3]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-palette focus:rounded-card focus:bg-surface focus:px-4 focus:py-2 focus:text-body-sm focus:text-accent-text focus:shadow-e3 focus:outline focus:outline-2 focus:outline-accent"
         >
           Bỏ qua tới nội dung chính
         </a>
@@ -48,8 +69,8 @@ export default async function RootLayout({
           closeButton
           position="bottom-right"
           toastOptions={{
+            className: 'font-sans',
             style: {
-              fontFamily: 'var(--font-sf), -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
               fontSize: '13px',
               borderRadius: '12px',
             },
